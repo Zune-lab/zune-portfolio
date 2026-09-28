@@ -1,0 +1,102 @@
+import { useState } from 'react';
+import SectionHead from './SectionHead.jsx';
+import Btn31 from './Btn31.jsx';
+
+const TO_EMAIL = 'ten.ban@email.com'; // <- đổi thành email thật của bạn
+
+export default function Feedback() {
+  const [text, setText] = useState('');
+  const [mood, setMood] = useState(null);
+  const [note, setNote] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const message = text.trim();
+    if (!message) return;
+
+    const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
+    const subject = encodeURIComponent('Feedback from zune.dev' + moodTag);
+    const body = encodeURIComponent(message);
+    window.location.href = `mailto:${TO_EMAIL}?subject=${subject}&body=${body}`;
+
+    setNote('Your mail app is open - thanks!');
+    setText('');
+    setMood(null);
+  };
+
+  return (
+    <section id="feedback" className="py-20 border-t border-line">
+      <div className="wrap max-w-[1040px] mx-auto px-8">
+        <SectionHead num="07" title="feedback.sh" />
+        <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
+          // even a one-line note is fine, I read everything
+        </p>
+        <form onSubmit={handleSubmit} className="max-w-[520px] bg-inset border border-line rounded-[10px] p-5 flex flex-col gap-3.5">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Write something about this page..."
+            required
+            className="w-full min-h-[110px] resize-y bg-panel border border-line rounded-lg px-3.5 py-3 text-ink text-sm outline-none focus:border-amber placeholder:text-dim"
+          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMood(mood === 'good' ? null : 'good')}
+                aria-label="I like this page"
+                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors ${
+                  mood === 'good' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
+                }`}
+                style={mood === 'good' ? { color: '#0A0C10' } : undefined}
+              >
+                <svg viewBox="0 0 512 512" className="w-[18px] h-[18px]">
+                  <path
+                    fill="currentColor"
+                    d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm177.6 62.1C192.8 334.5 218.8 352 256 352s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMood(mood === 'bad' ? null : 'bad')}
+                aria-label="Not a fan"
+                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors ${
+                  mood === 'bad' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
+                }`}
+                style={mood === 'bad' ? { color: '#0A0C10' } : undefined}
+              >
+                <svg viewBox="0 0 512 512" className="w-[18px] h-[18px]">
+                  <path
+                    fill="currentColor"
+                    d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM174.6 384.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4C328.2 358.5 297.2 336 256 336s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <Btn31
+              type="submit"
+              icon={
+                <svg fill="none" viewBox="0 0 24 24" className="w-full h-full">
+                  <path
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    d="M7.4 6.32L15.89 3.49c3.81-1.27 5.88.81 4.62 4.62L17.68 16.6c-1.9 5.71-5.02 5.71-6.92 0l-.84-2.52-2.52-.84c-5.71-1.9-5.71-5.01 0-6.92z"
+                  />
+                  <path strokeLinejoin="round" strokeLinecap="round" strokeWidth="1.5" stroke="currentColor" d="M10.11 13.65l3.58-3.59" />
+                </svg>
+              }
+            >
+              send
+            </Btn31>
+          </div>
+          <span className="font-mono text-xs min-h-[16px]" style={{ color: 'var(--green)' }}>
+            {note}
+          </span>
+        </form>
+      </div>
+    </section>
+  );
+}

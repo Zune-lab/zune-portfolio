@@ -1,0 +1,21 @@
+/* con trỏ khối kiểu terminal thật: đặc + nhấp nháy khi đang focus,
+   viền rỗng đứng yên khi mất focus. key đổi theo từng phím gõ nên
+   nhịp nháy được reset (đặc lại) mỗi lần gõ, y như terminal. */
+.term-cursor {
+  background: var(--amber);
+  color: var(--bg);
+  animation: term-blink 1.06s step-end infinite;
+}
+.term-cursor.is-idle {
+  animation: none;
+  background: transparent;
+  color: inherit;
+  outline: 1px solid var(--amber);
+  outline-offset: -1px;
+}
+@keyframes term-blink {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .term-cursor { animation: none; }
+}

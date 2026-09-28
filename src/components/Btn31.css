@@ -1,0 +1,47 @@
+/* btn-31: diagonal wipe reveal — thống nhất theo theme (nền inset, viền + lớp
+   wipe màu amber, chữ đổi sang tối khi wipe phủ) thay cho đen/trắng cứng cũ.
+   Chữ và icon cùng kế thừa color nên icon không còn biến mất khi hover. */
+
+.btn-31 {
+  background-color: var(--inset);
+  color: var(--text);
+  border: 1px solid var(--amber-dim);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.btn-31::before {
+  background: var(--amber);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 100% 100%);
+  content: '';
+  inset: 0;
+  position: absolute;
+  transition: clip-path var(--dur-fast) var(--ease);
+}
+.btn-31:hover {
+  color: #0a0c10;
+  border-color: var(--amber);
+}
+.btn-31:hover::before {
+  clip-path: polygon(100% 0, 0% 0%, 0 100%, 100% 100%);
+}
+.btn-31 .text-container {
+  display: block;
+  overflow: hidden;
+  position: relative;
+}
+.btn-31 .text {
+  display: block;
+  font-weight: 900;
+  position: relative;
+}
+.btn-31:hover .text {
+  animation: btn31-move-up-alt var(--dur) ease forwards;
+}
+@keyframes btn31-move-up-alt {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(80%); }
+  51% { transform: translateY(-80%); }
+  100% { transform: translateY(0); }
+}

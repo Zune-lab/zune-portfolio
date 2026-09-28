@@ -1,0 +1,28 @@
+/* project card idle / content flip reveal on hover — dùng chung token
+   chuyển động của cả trang (--ease, --dur-slow) trong index.css */
+
+.project-card-idle,
+.project-card-preview {
+  transition: all var(--dur-slow) var(--ease);
+}
+.project-card:hover .project-card-idle {
+  opacity: 0;
+  transform: scale(0) rotate(-45deg);
+}
+.project-card:hover .project-card-preview {
+  opacity: 0;
+  transform: scale(1.12);
+}
+.project-card-content {
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  transition: all var(--dur-slow) var(--ease);
+}
+.project-card:hover .project-card-content {
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card { opacity: 1 !important; transform: none !important; }
+}

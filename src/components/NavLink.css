@@ -1,0 +1,126 @@
+/* nav-link reveal effect — chuyển thể đúng cơ chế từ hiệu ứng btn2 gốc:
+   border bị 2 lớp mask (::before phủ toàn bộ, ::after phủ 1 phần) che mất
+   ở trạng thái nghỉ; hover thì ::before trượt lên + co về 0 chiều cao,
+   0.15s sau ::after co ngang về 0 (scaleX), lộ dần border + chữ ra.
+   Số đo px gốc (translateY(-25px), height: calc(100% - 50px)) được tính cho
+   nút to ~60-70px cao nên không copy nguyên được — giữ đúng cơ chế + timing
+   (0.3s ease-out, delay 0.15s), chỉ co tỉ lệ số đo cho vừa ô nav ~36px. */
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--amber-dim);
+}
+
+.nav-link::before,
+.nav-link::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  width: calc(100% + 4px);
+  background-color: var(--panel);
+  transition: transform 0.3s ease-out, height 0.3s ease-out;
+}
+
+.nav-link::before {
+  height: calc(100% + 4px);
+  transform: scaleY(1);
+  z-index: 1;
+}
+
+.nav-link::after {
+  height: 65%;
+  transform: scaleY(1);
+  z-index: 2;
+}
+
+.nav-link:hover::before {
+  transform: translateY(-14px);
+  height: 0;
+}
+
+.nav-link:hover::after {
+  transform: scaleX(0);
+  transition-delay: 0.15s;
+}
+
+.nav-link:hover {
+  border-color: var(--amber);
+}
+
+.nav-link-text {
+  position: relative;
+  z-index: 3;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::before,
+  .nav-link::after {
+    transition: none;
+  }
+}
+
+/* ẩn thanh cuộn ngang cho hàng nav khi nội dung dài hơn chỗ trống —
+   vẫn cuộn được bằng chuột/trackpad, chỉ là không hiện thanh cuộn cho gọn */
+.nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* chấm báo còn link ẩn bên phải khi hàng nav bị tràn, cuộn hết thì tự ẩn đi */
+.nav-more-dot {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.nav-more-dot.is-visible {
+  opacity: 1;
+}
+
+/* cd .. — khi rê chuột vào, con trỏ đổi thành mũi tên back màu amber
+   thay vì con trỏ tay mặc định, gợi ý rõ đây là nút quay lại */
+.nav-back {
+  cursor: pointer;
+}
+.nav-back:hover {
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23ffc857' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='M19 12H5M11 18l-6-6 6-6'/></svg>")
+      11 11,
+    pointer !important;
+}
+
+/* vùng mũi tên quay lại ở mép trái: kích hoạt hiệu ứng của ScrollArrow ngay
+   khi hover vào CẢ vùng rộng (64px), không cần rê trúng chính xác cái nút
+   tròn nhỏ bên trong — tránh trường hợp chuột nằm trong vùng nhưng chưa
+   chạm đúng nút nên không thấy hiệu ứng gì. */
+/* vùng mũi tên quay lại ở mép trái: kích hoạt hiệu ứng của ScrollArrow ngay
+   khi hover vào CẢ vùng rộng (64px), không cần rê trúng chính xác cái nút
+   tròn nhỏ bên trong. */
+.edge-back-zone:hover .scroll-arrow::before {
+  opacity: 0;
+  transform: scale(0.7);
+}
+.edge-back-zone:hover .scroll-arrow::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.edge-back-zone:hover .scroll-arrow-box {
+  transform: translateX(-48px);
+}
+.edge-back-zone:hover .scroll-arrow-elem {
+  color: var(--amber);
+}

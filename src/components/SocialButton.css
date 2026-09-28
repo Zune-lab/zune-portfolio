@@ -1,0 +1,19 @@
+/* social icon button — brand color reveal on hover */
+
+.social-btn-bg {
+  transition: all var(--dur) var(--ease);
+}
+.social-icon:hover .social-btn {
+  transform: translateY(-4px);
+}
+.social-icon:hover .social-btn-bg {
+  transform: rotate(35deg);
+  transform-origin: bottom;
+}
+.social-icon:hover .social-btn-icon {
+  background-color: rgba(156, 156, 156, 0.466);
+  backdrop-filter: blur(4px);
+}
+.social-icon:hover .social-label {
+  color: var(--amber);
+}

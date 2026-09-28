@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0c10;
+  --panel: #10141b;
+  --inset: #0c0f14;
+  --line: #1d232c;
+  --text: #dce1e8;
+  --text-dim: #6b7280;
+  --amber: #ffc857;
+  --amber-dim: #c99a3f;
+  --green: #7ee081;
+  --js: #f1c40f;
+  --css-lang: #a98ae8;
+  --dot-grid: rgba(255, 255, 255, 0.035);
+  --nav-bg: rgba(10, 12, 16, 0.85);
+
+  /* ngôn ngữ chuyển động chung cho cả trang: 1 easing, 3 mốc thời gian */
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --dur-fast: 0.2s;
+  --dur: 0.3s;
+  --dur-slow: 0.5s;
+}
+
+:root[data-theme='light'] {
+  --bg: #f6f3ec;
+  --panel: #ffffff;
+  --inset: #efeae0;
+  --line: #ddd6c4;
+  --text: #1c1b18;
+  --text-dim: #7a745f;
+  --amber: #b8760b;
+  --amber-dim: #8c5b08;
+  --green: #2f8f52;
+  --js: #a67c00;
+  --css-lang: #6b4fa0;
+  --dot-grid: rgba(0, 0, 0, 0.05);
+  --nav-bg: rgba(246, 243, 236, 0.85);
+}
+
+/* tông nền đổi nhẹ theo giờ VN (App.jsx gắn data-tod) */
+:root[data-tod='dawn']:not([data-theme='light']) {
+  --bg: #0b0e13; --panel: #11161e; --inset: #0d1117; --line: #1e2631; --nav-bg: rgba(11, 14, 19, 0.85);
+}
+:root[data-tod='dusk']:not([data-theme='light']) {
+  --bg: #0e0b0a; --panel: #161210; --inset: #110d0b; --line: #261e19; --nav-bg: rgba(14, 11, 10, 0.85);
+}
+:root[data-tod='night']:not([data-theme='light']) {
+  --bg: #080b12; --panel: #0d121b; --inset: #0a0e15; --line: #1a2230; --nav-bg: rgba(8, 11, 18, 0.85);
+}
+:root[data-theme='light'][data-tod='dusk'] {
+  --bg: #f3ebe0; --inset: #ece2d3; --nav-bg: rgba(243, 235, 224, 0.85);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.6s ease, color 0.4s ease;
+  overflow-x: hidden;
+}
+
+/* lưới chấm bi + lớp chấm amber chỉ sáng quanh con trỏ (--mx/--my từ App.jsx) */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-size: 26px 26px;
+  pointer-events: none;
+  z-index: -1;
+}
+body::before {
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+}
+body::after {
+  background-image: radial-gradient(var(--amber) 1px, transparent 1px);
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(circle 150px at var(--mx, -999px) var(--my, -999px), #000, transparent);
+  mask-image: radial-gradient(circle 150px at var(--mx, -999px) var(--my, -999px), #000, transparent);
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--bg);
+}

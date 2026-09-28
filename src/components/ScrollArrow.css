@@ -1,0 +1,35 @@
+/* circular double-arrow scroll cue, converted from next.html */
+
+.scroll-arrow::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
+    transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
+}
+.scroll-arrow::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 2px solid var(--amber);
+  transform: scale(1.3);
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-arrow:hover::before {
+  opacity: 0;
+  transform: scale(0.7);
+}
+.scroll-arrow:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.scroll-arrow:hover .scroll-arrow-box {
+  transform: translateX(-48px);
+}
+.scroll-arrow:hover .scroll-arrow-elem {
+  color: var(--amber);
+}

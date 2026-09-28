@@ -1,0 +1,47 @@
+/* signature card — border + label reveal on hover */
+
+.sig-border {
+  opacity: 0;
+  transform: rotate(8deg);
+  transition: all var(--dur-slow) var(--ease);
+}
+.sig-bottom {
+  opacity: 0;
+  transition: all var(--dur-slow) var(--ease);
+}
+.sig-card:hover {
+  transform: scale(1.05);
+}
+.sig-card:hover .sig-border {
+  inset: 12px;
+  opacity: 1;
+  transform: rotate(0);
+}
+.sig-card:hover .sig-bottom {
+  opacity: 1;
+  letter-spacing: 4px;
+}
+
+/* chữ ký tự vẽ nét khi cuộn tới (stroke-dashoffset), rồi đổ màu */
+.sig-text {
+  font-family: Caveat, cursive;
+  font-size: 58px;
+  fill: transparent;
+  stroke: var(--amber);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+}
+.sig-text.is-drawn {
+  animation: sig-draw 2.2s var(--ease) forwards, sig-fill 0.6s ease 1.9s forwards;
+}
+@keyframes sig-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes sig-fill {
+  to { fill: var(--amber); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sig-text { stroke-dashoffset: 0; fill: var(--amber); animation: none !important; }
+}

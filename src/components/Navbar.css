@@ -1,0 +1,58 @@
+/* nav link hover — 2-lớp quét vào, phỏng theo hiệu ứng "btn2" (uiverse.io),
+   đổi màu cứng sang biến theme của trang */
+
+.nav-link {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.nav-link__text {
+  position: relative;
+  z-index: 3;
+  transition: color 0.3s ease;
+}
+
+.nav-link::before,
+.nav-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* lớp 1: quét dọc lên từ đáy */
+.nav-link::before {
+  background: var(--panel);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* lớp 2: quét ngang vào từ trái, trễ hơn lớp 1 một chút, tạo cảm giác 2 giai đoạn */
+.nav-link::after {
+  background: var(--amber);
+  opacity: 0.14;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1) 0.12s;
+}
+
+.nav-link:hover .nav-link__text {
+  color: var(--amber);
+}
+.nav-link:hover::before {
+  transform: scaleY(1);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::before,
+  .nav-link::after,
+  .nav-link__text {
+    transition: none !important;
+  }
+}

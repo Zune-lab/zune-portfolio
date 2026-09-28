@@ -1,0 +1,24 @@
+/* back-to-top pill button, converted from back-to-top.html */
+
+.back-to-top {
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, width 0.3s ease,
+    border-radius 0.3s ease, background 0.3s ease;
+}
+.back-to-top-icon {
+  transition: transform 0.3s ease;
+}
+.back-to-top-label {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.back-to-top:hover {
+  width: 140px;
+  border-radius: 50px;
+  background: var(--amber);
+}
+.back-to-top:hover .back-to-top-icon {
+  transform: translateY(-400%);
+}
+.back-to-top:hover .back-to-top-label {
+  opacity: 1;
+}
