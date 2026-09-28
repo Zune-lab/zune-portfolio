@@ -10,6 +10,7 @@ import Feedback from './components/Feedback.jsx';
 import Socials from './components/Socials.jsx';
 import { Signature, Footer } from './components/Signature.jsx';
 import BackToTop from './components/BackToTop.jsx';
+import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
@@ -62,17 +63,13 @@ export default function App() {
     };
   }, []);
 
-  // tông nền theo giờ VN: dawn / day / dusk / night
+  // tông nền theo giờ VN: dawn / day / dusk / night (mốc dùng chung với trạng thái online)
   useEffect(() => {
     const apply = () => {
-      const h = parseInt(
-        new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour: 'numeric', hour12: false }),
-        10
-      );
-      document.documentElement.dataset.tod = h >= 20 || h < 5 ? 'night' : h < 8 ? 'dawn' : h < 17 ? 'day' : 'dusk';
+      document.documentElement.dataset.tod = timeOfDay();
     };
     apply();
-    const id = setInterval(apply, 10 * 60 * 1000);
+    const id = setInterval(apply, 60 * 1000);
     return () => clearInterval(id);
   }, []);
 

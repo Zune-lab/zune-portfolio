@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Btn31 from './Btn31.jsx';
 import ContactButton from './ContactButton.jsx';
 import Terminal from './Terminal.jsx';
+import { isOnlineHour } from '../lib/vnTime.js';
 
 // online/offline is inferred from the Vietnam clock (no backend needed);
 // busy/focus can only be picked by hand, a machine can't know those.
@@ -16,11 +17,7 @@ const CYCLE = ['auto', 'busy', 'focus', 'offline'];
 const STORAGE_KEY = 'zune-status-override';
 
 function autoStatusByHour() {
-  const h = parseInt(
-    new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh', hour: 'numeric', hour12: false }),
-    10
-  );
-  return h >= 8 && h < 23 ? 'online' : 'offline';
+  return isOnlineHour() ? 'online' : 'offline';
 }
 
 export default function Hero({ onNavigate }) {
