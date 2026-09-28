@@ -39,6 +39,29 @@
 .btn-31:hover .text {
   animation: btn31-move-up-alt var(--dur) ease forwards;
 }
+/* icon: máy bay giấy bay chéo ra góc trên-phải rồi lướt vào lại từ góc dưới-trái.
+   Wrapper overflow:hidden để icon bị cắt khi bay ra (giống .text-container).
+   Easing tách riêng từng đoạn: đi ra ease-in (tăng tốc), đi vào ease-out (giảm tốc)
+   => liền mạch, không khựng ở giữa. */
+.btn-31 .btn-31-icon {
+  display: block;
+  overflow: hidden;
+}
+.btn-31 .btn-31-icon > svg {
+  display: block;
+}
+.btn-31:hover .btn-31-icon > svg {
+  animation: btn31-icon-fly 0.45s linear forwards;
+}
+@keyframes btn31-icon-fly {
+  0%   { transform: translate(0, 0);        animation-timing-function: cubic-bezier(0.5, 0, 1, 1); }
+  42%  { transform: translate(115%, -115%); }
+  43%  { transform: translate(-115%, 115%); animation-timing-function: cubic-bezier(0.1, 0.7, 0.2, 1); }
+  100% { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-31:hover .btn-31-icon > svg { animation: none; }
+}
 @keyframes btn31-move-up-alt {
   0% { transform: translateY(0); }
   50% { transform: translateY(80%); }

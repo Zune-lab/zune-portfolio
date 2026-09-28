@@ -1,5 +1,16 @@
 /* social icon button — brand color reveal on hover */
 
+/* Mỗi ô rộng cố định (76px) + gap 8px => khoảng cách giữa 2 icon luôn 32px, đều nhau.
+   Khối màu xoay 35deg nhô ra tối đa ~25px nên không bao giờ chạm icon bên cạnh.
+   z-index là lớp bảo hiểm: item đang hover luôn nằm trên hàng xóm. */
+.social-icon {
+  z-index: 0;
+}
+.social-icon:hover,
+.social-icon:focus-visible {
+  z-index: 10;
+}
+
 .social-btn-bg {
   transition: all var(--dur) var(--ease);
 }

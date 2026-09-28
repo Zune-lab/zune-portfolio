@@ -45,7 +45,7 @@ export default function Feedback() {
                 type="button"
                 onClick={() => setMood(mood === 'good' ? null : 'good')}
                 aria-label="I like this page"
-                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors ${
+                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
                   mood === 'good' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
                 }`}
                 style={mood === 'good' ? { color: '#0A0C10' } : undefined}
@@ -61,7 +61,7 @@ export default function Feedback() {
                 type="button"
                 onClick={() => setMood(mood === 'bad' ? null : 'bad')}
                 aria-label="Not a fan"
-                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors ${
+                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
                   mood === 'bad' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
                 }`}
                 style={mood === 'bad' ? { color: '#0A0C10' } : undefined}

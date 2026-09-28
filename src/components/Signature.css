@@ -1,5 +1,11 @@
 /* signature card — border + label reveal on hover */
 
+/* card có viền mảnh + glow amber rất nhẹ để tách khỏi nền */
+.sig-card {
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 70px -40px color-mix(in srgb, var(--amber) 45%, transparent);
+}
+
 .sig-border {
   opacity: 0;
   transform: rotate(8deg);
@@ -22,16 +28,18 @@
   letter-spacing: 4px;
 }
 
-/* chữ ký tự vẽ nét khi cuộn tới (stroke-dashoffset), rồi đổ màu */
+/* chữ Zune dùng JetBrains Mono như toàn trang; tự vẽ nét khi cuộn tới (stroke-dashoffset), rồi đổ màu */
 .sig-text {
-  font-family: Caveat, cursive;
-  font-size: 58px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  font-size: 54px;
+  letter-spacing: -0.02em;
   fill: transparent;
   stroke: var(--amber);
-  stroke-width: 1.2;
+  stroke-width: 1;
   stroke-linejoin: round;
-  stroke-dasharray: 900;
-  stroke-dashoffset: 900;
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
 }
 .sig-text.is-drawn {
   animation: sig-draw 2.2s var(--ease) forwards, sig-fill 0.6s ease 1.9s forwards;

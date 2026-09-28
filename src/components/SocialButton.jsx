@@ -7,7 +7,7 @@ export default function SocialButton({ name, href, brand, viewBox, path, zalo })
       target="_blank"
       rel="noreferrer"
       aria-label={name}
-      className="social-icon flex flex-col items-center gap-2.5"
+      className="social-icon relative flex flex-col items-center gap-2.5 w-[76px]"
     >
       <span className="social-btn relative flex items-center justify-center w-[52px] h-[52px] rounded-[10px] transition-transform duration-300">
         <span
