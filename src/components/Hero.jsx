@@ -20,8 +20,17 @@ function autoStatusByHour() {
   return isOnlineHour() ? 'online' : 'offline';
 }
 
+function readOverride() {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY);
+    return CYCLE.includes(v) ? v : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
 export default function Hero({ onNavigate }) {
-  const [override, setOverride] = useState(() => localStorage.getItem(STORAGE_KEY) || 'auto');
+  const [override, setOverride] = useState(readOverride);
   const [autoStatus, setAutoStatus] = useState(autoStatusByHour);
 
   useEffect(() => {
@@ -34,12 +43,16 @@ export default function Hero({ onNavigate }) {
   const cycleStatus = () => {
     const next = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
     setOverride(next);
-    if (next === 'auto') localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, next);
+    try {
+      if (next === 'auto') localStorage.removeItem(STORAGE_KEY);
+      else localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      // storage bị chặn (chế độ riêng tư, v.v.) - bỏ qua, override vẫn hoạt động trong phiên này
+    }
   };
 
   return (
-    <header className="hero relative pt-12 pb-[90px]">
+    <header className="hero relative pt-12 pb-[130px]">
       <div className="wrap max-w-[1040px] mx-auto px-8 grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-14 items-start">
         <div>
           <button

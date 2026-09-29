@@ -2,7 +2,8 @@ import { useState } from 'react';
 import SectionHead from './SectionHead.jsx';
 import Btn31 from './Btn31.jsx';
 
-const TO_EMAIL = 'ten.ban@email.com'; // <- đổi thành email thật của bạn
+// TODO: đổi thành email thật của bạn trước khi deploy
+const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
 
 export default function Feedback() {
   const [text, setText] = useState('');

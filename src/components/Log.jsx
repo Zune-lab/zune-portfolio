@@ -6,9 +6,6 @@ export default function Log() {
     <section id="log" className="py-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
         <SectionHead num="02" title="log.sh" />
-        <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
-          // replace with your real timeline
-        </p>
         <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] overflow-x-auto text-ink">
           <span className="text-dim">$ git log --oneline --reverse life</span>
           {'\n\n'}

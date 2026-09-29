@@ -28,7 +28,8 @@ export function Support() {
             If you like what I make, you can buy me{' '}
             <span className="font-mono text-amber">$ coffee --small</span> on Ko-fi.
           </p>
-          <Btn31 href="https://ko-fi.com/TEN_BAN_DAT">sponsor --coffee</Btn31>
+          {/* TODO: đổi thành trang Ko-fi thật của bạn trước khi deploy */}
+          <Btn31 href="https://ko-fi.com/REPLACE_WITH_YOUR_HANDLE">sponsor --coffee</Btn31>
         </div>
       </div>
     </section>

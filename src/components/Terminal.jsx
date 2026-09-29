@@ -28,7 +28,7 @@ function exec(raw, { onNavigate, clear }) {
     case 'ls':
       return [Object.keys(FILES).join('  ') + '  about/  projects/'];
     case 'cat':
-      return [FILES[arg] || `cat: ${arg || '?'}: No such file or directory`];
+      return [Object.hasOwn(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
     case 'cd':
       if (TABS.includes(dir)) {
         onNavigate?.(dir);

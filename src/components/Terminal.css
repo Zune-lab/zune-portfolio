@@ -19,3 +19,23 @@
 @media (prefers-reduced-motion: reduce) {
   .term-cursor { animation: none; }
 }
+
+/* thanh cuộn riêng cho phần thân terminal - mỏng, màu amber, thay cho
+   thanh cuộn xám mặc định của trình duyệt trông lạc tông */
+.terminal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--amber-dim) transparent;
+}
+.terminal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.terminal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-body::-webkit-scrollbar-thumb {
+  background: var(--amber-dim);
+  border-radius: 4px;
+}
+.terminal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--amber);
+}
