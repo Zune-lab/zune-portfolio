@@ -8,7 +8,7 @@
 // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
 // chạy nhờ 404.html do scripts/spa-404.mjs tạo lúc build.
 import About from './components/about/About.jsx';
-import Projects from './components/projects/Projects.jsx';
+import Projects from './projects/Projects.jsx';
 
 export const PAGES = [
   {

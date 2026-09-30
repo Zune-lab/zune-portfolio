@@ -1,26 +1,12 @@
-// Danh sách project — CHỈ metadata, JS thuần (script Node `npm run previews` cũng đọc file này).
+// Danh sách project — tự nạp mọi src/projects/<tên>/meta.js, không cần khai báo ở đâu nữa.
 //
-// THÊM PROJECT MỚI:
-//   1. tạo thư mục src/projects/<tên-file-bỏ-đuôi>/ gồm:
-//        meta.js  -> { file, desc, color, href, site? }
-//        Art.jsx  -> hình vẽ hiện trên card (tuỳ chọn; không có thì card hiện icon)
-//        Art.css  -> style riêng cho hình vẽ (tuỳ chọn)
-//   2. thêm 1 dòng import + 1 phần tử vào mảng bên dưới (thứ tự mảng = thứ tự hiển thị)
-//   3. (tuỳ chọn) npm run previews <tên> để chụp ảnh hiện khi hover
-// Art.jsx được nạp tự động theo tên thư mục (xem arts.js), khỏi khai báo ở đâu nữa.
+// THÊM PROJECT MỚI: chỉ cần tạo thư mục src/projects/<tên-file-bỏ-đuôi>/ gồm:
+//   meta.js  -> export default { order, file, desc, color, href }   (order: thứ tự hiển thị)
+//   Art.jsx  -> hình vẽ hiện trên card (tuỳ chọn; không có thì card hiện icon)
+//   Art.css  -> style riêng cho hình vẽ (tuỳ chọn)
+// Art.jsx cũng được nạp tự động theo tên thư mục (xem arts.js).
+const modules = import.meta.glob('./*/meta.js', { eager: true });
 
-import aDumbGift from './a-dumb-gift/meta.js';
-import symphony from './symphony/meta.js';
-import illusion from './illusion/meta.js';
-import leTotNghiep from './le-tot-nghiep/meta.js';
-import calender from './calender/meta.js';
-import aGiftForU from './a-gift-for-u/meta.js';
-
-export const projects = [
-  aDumbGift,
-  symphony,
-  illusion,
-  leTotNghiep,
-  calender,
-  aGiftForU,
-];
+export const projects = Object.values(modules)
+  .map((m) => m.default)
+  .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));

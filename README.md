@@ -13,6 +13,7 @@ npm run dev
 
 - `src/App.jsx` — ghép toàn bộ trang, quản lý theme (dark/light) + preloader + back-to-top
 - `src/components/` — mỗi section/thành phần một file
+- `src/projects/` — mọi thứ về project: `Projects.jsx` + `ProjectCard` (giao diện) và mỗi project một thư mục `<tên>/` (`meta.js`, `Art.jsx`, `Art.css`). Thêm project mới = tạo thư mục mới, không cần sửa file nào khác
 - `src/data.js` — nội dung (dự án, mạng xã hội, stack, git log) — sửa ở đây là đủ
 - `src/index.css` — biến màu theo theme + các animation phức tạp (torch 3D, preloader, hiệu ứng wipe...) mà Tailwind utility thuần không diễn tả gọn được
 
