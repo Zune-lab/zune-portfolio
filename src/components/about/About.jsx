@@ -36,7 +36,7 @@ export default function About() {
             {'\n  fun_fact: '}
             <span style={{ color: 'var(--green)' }}>"debugging CSS all night and never getting bored"</span>,
             {'\n  coffee_or_tea: '}
-            <span style={{ color: 'var(--green)' }}>"coffee"</span>,
+            <span style={{ color: 'var(--green)' }}>"tea"</span>,
             {'\n  status: '}
             <span style={{ color: 'var(--green)' }}>"chillax guys"</span>,
             {'\n};'}

@@ -2,12 +2,21 @@ export const stack = [
   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
 ];
 
+// Nhật ký cuộc đời, từ lúc sinh ra tới giờ (cũ -> mới). Hiện ở About > log.sh.
+// Mỗi mục: hash (chuỗi hex 7 ký tự, tự đặt cho vui), date ('YYYY' | 'YYYY-MM' | 'now'),
+// msg (kiểu commit message: feat:/fix:/chore:/refactor:...).
 export const gitLog = [
+  { hash: '9f3a1c0', date: 'day-0', msg: 'init: born' },
+  { hash: '2b7d4e8', date: '2009', msg: 'feat: kindergarten (2009-2012)' },
+  { hash: '5c1e9a3', date: '2012', msg: 'feat: primary school (2012-2017)' },
+  { hash: '8d4f2b6', date: '2017', msg: 'feat: secondary school (2017-2021)' },
+  { hash: '1a6c7e5', date: '2021', msg: 'feat: high school (2021-2024)' },
   { hash: 'a1b2c3d', date: '2022-01', msg: 'chore: started learning HTML/CSS' },
   { hash: 'd4e5f6a', date: '2022-06', msg: 'feat: wrote my first line of JavaScript' },
   { hash: 'b7c8d9e', date: '2023-03', msg: 'feat: got to know React' },
   { hash: 'e0f1a2b', date: '2023-11', msg: 'feat: build a-dumb-gift, a-gift-for-u' },
   { hash: 'c3d4e5f', date: '2024-05', msg: 'feat: tried symphony (audio + JS)' },
+  { hash: '7e0b3d9', date: '2024-09', msg: 'feat: started university at SGU' },
   { hash: 'f6a7b8c', date: '2025-01', msg: 'refactor: learning TypeScript' },
   { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
 ];

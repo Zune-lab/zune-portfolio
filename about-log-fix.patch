@@ -1,0 +1,95 @@
+diff --git a/src/components/Log.jsx b/src/components/Log.jsx
+deleted file mode 100644
+index 130d043..0000000
+--- a/src/components/Log.jsx
++++ /dev/null
+@@ -1,23 +0,0 @@
+-import SectionHead from '../SectionHead.jsx';
+-import { gitLog } from '../../data.js';
+-
+-export default function Log() {
+-  return (
+-    <section id="log" className="py-20 border-t border-line">
+-      <div className="wrap max-w-[1040px] mx-auto px-8">
+-        <SectionHead num="02" title="log.sh" />
+-        <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] overflow-x-auto text-ink">
+-          <span className="text-dim">$ git log --oneline --reverse life</span>
+-          {'\n\n'}
+-          {gitLog.map((entry, i) => (
+-            <span key={entry.hash}>
+-              <span style={{ color: 'var(--amber)' }}>{entry.hash}</span>{' '}
+-              <span style={{ color: 'var(--green)' }}>{entry.date.padEnd(7)}</span> {entry.msg}
+-              {i < gitLog.length - 1 ? '\n' : ''}
+-            </span>
+-          ))}
+-        </pre>
+-      </div>
+-    </section>
+-  );
+-}
+\ No newline at end of file
+diff --git a/src/components/about/About.jsx b/src/components/about/About.jsx
+index 2c63890..1ad9480 100644
+--- a/src/components/about/About.jsx
++++ b/src/components/about/About.jsx
+@@ -46,17 +46,23 @@ export default function About() {
+         {/* Hành trình */}
+         <div id="about-journey" className="mb-12 scroll-mt-20">
+           <SubHead>// log.sh</SubHead>
+-          <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] overflow-x-auto text-ink">
+-            <span className="text-dim">$ git log --oneline --reverse life</span>
+-            {'\n\n'}
+-            {gitLog.map((entry, i) => (
+-              <span key={entry.hash}>
+-                <span style={{ color: 'var(--amber)' }}>{entry.hash}</span>{' '}
+-                <span style={{ color: 'var(--green)' }}>{entry.date.padEnd(7)}</span> {entry.msg}
+-                {i < gitLog.length - 1 ? '\n' : ''}
+-              </span>
+-            ))}
+-          </pre>
++          <div className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] text-ink">
++            <div className="text-dim mb-4">$ git log --oneline --reverse life</div>
++            <ol className="m-0 p-0 list-none">
++              {gitLog.map((entry) => (
++                <li
++                  key={entry.hash}
++                  className="grid grid-cols-[auto_auto] sm:grid-cols-[auto_5.5rem_1fr] gap-x-3"
++                >
++                  <span style={{ color: 'var(--amber)' }}>{entry.hash}</span>
++                  <span style={{ color: 'var(--green)' }}>{entry.date}</span>
++                  <span className={`col-span-2 sm:col-span-1 ${entry.todo ? 'text-dim' : ''}`}>
++                    {entry.msg}
++                  </span>
++                </li>
++              ))}
++            </ol>
++          </div>
+         </div>
+ 
+         {/* Kỹ năng */}
+diff --git a/src/data.js b/src/data.js
+index fe4f6b2..92ea6c0 100644
+--- a/src/data.js
++++ b/src/data.js
+@@ -2,12 +2,21 @@ export const stack = [
+   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
+ ];
+ 
++// Nhật ký cuộc đời, từ lúc sinh ra tới giờ (cũ -> mới). Hiện ở About > log.sh.
++// Mỗi mục: hash (chuỗi hex 7 ký tự, tự đặt cho vui), date ('YYYY' | 'YYYY-MM' | 'now'),
++// msg (kiểu commit message: feat:/fix:/chore:/refactor:...).
+ export const gitLog = [
++  { hash: '9f3a1c0', date: 'day-0', msg: 'init: born' },
++  { hash: '2b7d4e8', date: '2009', msg: 'feat: kindergarten (2009-2012)' },
++  { hash: '5c1e9a3', date: '2012', msg: 'feat: primary school (2012-2017)' },
++  { hash: '8d4f2b6', date: '2017', msg: 'feat: secondary school (2017-2021)' },
++  { hash: '1a6c7e5', date: '2021', msg: 'feat: high school (2021-2024)' },
+   { hash: 'a1b2c3d', date: '2022-01', msg: 'chore: started learning HTML/CSS' },
+   { hash: 'd4e5f6a', date: '2022-06', msg: 'feat: wrote my first line of JavaScript' },
+   { hash: 'b7c8d9e', date: '2023-03', msg: 'feat: got to know React' },
+   { hash: 'e0f1a2b', date: '2023-11', msg: 'feat: build a-dumb-gift, a-gift-for-u' },
+   { hash: 'c3d4e5f', date: '2024-05', msg: 'feat: tried symphony (audio + JS)' },
++  { hash: '7e0b3d9', date: '2024-09', msg: 'feat: started university at SGU' },
+   { hash: 'f6a7b8c', date: '2025-01', msg: 'refactor: learning TypeScript' },
+   { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
+ ];
