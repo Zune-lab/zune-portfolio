@@ -1,0 +1,23 @@
+/* ô bug nhô lên rồi biến mất; tắt animation nếu người xem chọn giảm chuyển động */
+@keyframes lab-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.lab-bug {
+  animation: lab-pop var(--dur-fast) var(--ease) both;
+}
+
+.lab-cell {
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+
+.lab-preview-box {
+  transition: border-radius 0.15s linear, transform 0.15s linear, box-shadow 0.15s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-bug { animation: none; }
+  .lab-preview-box { transition: none; }
+}

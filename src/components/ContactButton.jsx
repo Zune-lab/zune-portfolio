@@ -4,6 +4,14 @@ export default function ContactButton({ href }) {
   return (
     <a
       href={href}
+      onClick={(e) => {
+        // link cuộn trong trang (#socials...): chỉ cuộn, không thêm #anchor vào URL
+        const plain = e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+        if (plain && href?.startsWith('#')) {
+          e.preventDefault();
+          document.querySelector(href)?.scrollIntoView({ block: 'start' });
+        }
+      }}
       className="btn-contact relative overflow-hidden inline-flex items-center justify-center gap-2.5 h-[52px] pl-4 pr-5 rounded-full border-2 border-black font-mono font-bold text-[13px] uppercase tracking-wider text-white"
       style={{ backgroundColor: 'hsl(49deg 98% 60%)', textShadow: '2px 2px rgb(116,116,116)' }}
     >

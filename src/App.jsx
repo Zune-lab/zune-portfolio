@@ -48,6 +48,18 @@ export default function App() {
     document.title = pageOf(view)?.title ?? HOME_TITLE;
   }, [view]);
 
+  // mở thẳng địa chỉ có #anchor của trang chính (vd Ctrl+click "socials/" ra tab mới):
+  // cuộn tới mục đó rồi bỏ #anchor khỏi thanh địa chỉ cho gọn
+  useEffect(() => {
+    const id = location.hash.replace(/^#/, '');
+    if (!id || viewFromLocation() !== 'home') return;
+    const t = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ block: 'start' });
+      history.replaceState(null, '', pathOf('home'));
+    }, 100);
+    return () => clearTimeout(t);
+  }, []);
+
   // nút Back/Forward của trình duyệt: đọc lại view từ URL, KHÔNG pushState lại
   useEffect(() => {
     history.scrollRestoration = 'manual'; // tự quản lý cuộn, tránh trình duyệt cuộn chen vào lúc đang chuyển tab
@@ -109,9 +121,8 @@ export default function App() {
         savedHomeScroll.current = window.scrollY;
       }
       if (push) {
-        // về home kèm anchor (vd '#feedback') thì giữ anchor trong URL, còn lại URL sạch
-        const hash = nextView === 'home' && typeof scrollTarget === 'string' ? scrollTarget : '';
-        history.pushState(null, '', pathOf(nextView) + hash);
+        // về home kèm mục (vd '#feedback') vẫn cuộn tới đó nhưng URL giữ sạch, không thêm #anchor
+        history.pushState(null, '', pathOf(nextView));
       }
       setView(nextView);
       if (nextView === 'home') {

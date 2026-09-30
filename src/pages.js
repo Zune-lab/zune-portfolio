@@ -9,6 +9,7 @@
 // chạy nhờ 404.html do scripts/spa-404.mjs tạo lúc build.
 import About from './components/about/About.jsx';
 import Projects from './projects/Projects.jsx';
+import Lab from './components/lab/Lab.jsx';
 
 export const PAGES = [
   {
@@ -29,6 +30,16 @@ export const PAGES = [
     title: 'projects/ — Zune',
     Component: Projects,
     sub: [],
+  },
+  {
+    id: 'lab',
+    label: 'lab.css',
+    title: 'lab.css — Zune',
+    Component: Lab,
+    sub: [
+      { href: '#lab-playground', label: 'playground.css' },
+      { href: '#lab-game', label: 'bug-squash.js' },
+    ],
   },
 ];
 

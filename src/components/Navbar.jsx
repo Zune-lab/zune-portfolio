@@ -171,9 +171,8 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                       e.preventDefault();
                       onNavigate(l.tab);
                     } else if (view === 'home') {
-                      e.preventDefault(); // đang ở trang chính: cuộn tới mục, giữ #anchor trong URL
+                      e.preventDefault(); // đang ở trang chính: chỉ cuộn tới mục, không thêm #anchor vào URL
                       document.querySelector(l.href)?.scrollIntoView({ block: 'start' });
-                      history.replaceState(null, '', pathOf('home') + l.href);
                     }
                   }}
                 >
