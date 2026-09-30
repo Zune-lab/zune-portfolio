@@ -1,17 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './ProjectCard.css';
 
-// ảnh preview đặt ở public/previews/<tên-file-bỏ-đuôi>.png
-// vd a-dumb-gift.js -> public/previews/a-dumb-gift.png
-// không có ảnh thì tự quay về icon mặc định, không lỗi.
-export default function ProjectCard({ num, file, desc, color, href }) {
-  const [hasPreview, setHasPreview] = useState(true);
+// "virtual" viewport width dùng để render trang demo bên trong iframe, rồi
+// scale xuống vừa khung card — luôn coi như đang mở trang demo trên màn
+// hình desktop 1280px, bất kể card thật rộng bao nhiêu, cho nhất quán.
+const VIRTUAL_W = 1280;
+
+function useCardScale() {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(0.18);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setScale(entry.contentRect.width / VIRTUAL_W);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return [ref, scale];
+}
+
+// ảnh preview tĩnh dự phòng: public/previews/<tên-file-bỏ-đuôi>.png
+// demo (tuỳ chọn, khai báo trong data.js): link trang demo đang chạy thật,
+// sẽ được crop chỉ hiện phần trên cùng, không tương tác được, giữ bí ẩn.
+export default function ProjectCard({ num, file, desc, color, href, demo }) {
+  const [imgOk, setImgOk] = useState(true);
+  const [cropRef, scale] = useCardScale();
   const slug = file.replace(/\.[^.]+$/, '');
-  // dùng BASE_URL của Vite thay vì "/previews/..." cứng: site deploy dưới
-  // subpath (zune-lab.github.io/zune-portfolio/) nên path tuyệt đối bị sai
-  // domain, ảnh 404 âm thầm rồi rơi về icon mặc định (onError) mà không
-  // báo lỗi gì.
-  const previewSrc = `${import.meta.env.BASE_URL}previews/${slug}.png`;
+  const hasImg = !demo && imgOk;
 
   return (
     <a
@@ -21,25 +40,42 @@ export default function ProjectCard({ num, file, desc, color, href }) {
       rel="noreferrer"
       className="project-card relative h-[180px] rounded-[10px] overflow-hidden bg-panel border border-line flex items-center justify-center cursor-pointer transition-[transform,box-shadow,border-color] duration-500 hover:scale-[1.04] hover:shadow-[0_18px_30px_-14px_rgba(0,0,0,0.5)] hover:border-amber-dim scroll-mt-20"
     >
-      {hasPreview && (
+      {demo && (
+        <div ref={cropRef} className="project-card-demo-crop absolute inset-0 overflow-hidden">
+          <iframe
+            src={demo}
+            title={`${file} live preview`}
+            loading="lazy"
+            tabIndex={-1}
+            aria-hidden="true"
+            sandbox="allow-scripts"
+            style={{ width: VIRTUAL_W, transform: `scale(${scale})` }}
+            className="project-card-demo-frame"
+          />
+          <div className="project-card-demo-fade absolute inset-0" />
+        </div>
+      )}
+
+      {hasImg && (
         <>
           <img
-            src={previewSrc}
+            src={`/previews/${slug}.png`}
             alt=""
             loading="lazy"
-            onError={() => setHasPreview(false)}
+            onError={() => setImgOk(false)}
             className="project-card-preview absolute inset-0 w-full h-full object-cover"
           />
           <div className="project-card-preview absolute inset-0 bg-gradient-to-t from-panel via-panel/60 to-transparent" />
         </>
       )}
+
       <div
         className={`project-card-idle relative z-[1] flex flex-col items-center gap-2 ${
-          hasPreview ? 'self-end pb-4' : ''
+          demo || hasImg ? 'self-end pb-4' : ''
         }`}
         style={{ color }}
       >
-        {!hasPreview && (
+        {!demo && !hasImg && (
           <svg viewBox="0 0 24 24" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
             <path
               fill="currentColor"
@@ -50,6 +86,7 @@ export default function ProjectCard({ num, file, desc, color, href }) {
         <span className="font-mono text-[11px] text-dim">{num}</span>
         <span className="font-mono text-sm text-ink">{file}</span>
       </div>
+
       <div className="project-card-content absolute top-1/2 left-1/2 w-full h-full box-border p-5 bg-inset flex flex-col justify-center gap-2">
         <span className="font-mono text-[15px] text-ink">{file}</span>
         <span className="text-dim text-[13px] leading-relaxed">{desc}</span>

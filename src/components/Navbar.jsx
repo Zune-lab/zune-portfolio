@@ -62,9 +62,40 @@ function useMoreDot(deps) {
   return [ref, hasMore];
 }
 
+// ngăn xếp các "view" đã ghé qua, chỉ để phục vụ nút back (cd .. / mũi tên
+// mép trái). Tự quan sát prop `view` đổi từ bên ngoài (App) để push vào
+// stack; khi người dùng bấm back, ta pop ra trang TRƯỚC ĐÓ thay vì luôn
+// nhảy thẳng về home. skipPushRef để không tự push lại chính cú back đó.
+function useViewHistory(view, onNavigate) {
+  const historyRef = useRef(['home']);
+  const skipPushRef = useRef(false);
+
+  useEffect(() => {
+    if (skipPushRef.current) {
+      skipPushRef.current = false;
+      return;
+    }
+    const stack = historyRef.current;
+    if (stack[stack.length - 1] !== view) {
+      stack.push(view);
+    }
+  }, [view]);
+
+  const goBack = () => {
+    const stack = historyRef.current;
+    if (stack.length > 1) stack.pop(); // bỏ trang hiện tại
+    const prev = stack[stack.length - 1] || 'home';
+    skipPushRef.current = true;
+    onNavigate(prev);
+  };
+
+  return goBack;
+}
+
 export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const inTab = view !== 'home';
   const localLinks = localLinksByTab[view] || [];
+  const goBack = useViewHistory(view, onNavigate);
 
   // link nhảy thẳng sang các mục khác ở nav chính, trừ mục đang đứng (tab hiện tại)
   const jumpLinks = mainLinks.filter((l) => l.tab !== view);
@@ -127,7 +158,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 href="#top"
                 onClick={(e) => {
                   e.preventDefault();
-                  onNavigate('home');
+                  goBack();
                 }}
                 className="nav-back"
               >
@@ -182,7 +213,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               : 'opacity-0 scale-75 -translate-x-2'
           }`}
         >
-          <ScrollArrow rotate={0} ariaLabel="Back to home" onClick={() => onNavigate('home')} />
+          <ScrollArrow rotate={0} ariaLabel="Go back" onClick={goBack} />
         </div>
       </div>
     </>
