@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build && node scripts/spa-404.mjs",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "previews": "node scripts/make-previews.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
