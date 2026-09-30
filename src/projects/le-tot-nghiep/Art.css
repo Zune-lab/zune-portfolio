@@ -1,0 +1,12 @@
+.grad-fill { fill: color-mix(in srgb, currentColor 12%, transparent); }
+.grad-tassel {
+  transform-origin: 104px 41px;
+  animation: grad-swing 2.2s ease-in-out infinite alternate;
+}
+@keyframes grad-swing {
+  from { transform: rotate(-6deg); }
+  to { transform: rotate(6deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grad-tassel { animation: none; }
+}

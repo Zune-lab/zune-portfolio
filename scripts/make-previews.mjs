@@ -11,13 +11,12 @@
 import { chromium } from 'playwright';
 import { mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { projects } from '../src/data.js';
+import { projects } from '../src/projects/index.js';
 
 const OUT = new URL('../public/previews/', import.meta.url);
 const VIEWPORT = { width: 1280, height: 720 }; // đúng khung "desktop ảo" của card
 const SETTLE_MS = 1500; // chờ animation vào trang chạy xong rồi mới chụp
 const filter = process.argv[2];
-const DRAWN = ['wave', 'calendar']; // preview tự vẽ trong ProjectCard, không cần ảnh chụp
 
 const siteOf = (p) => p.site || `https://zune-lab.github.io/${p.href.split('/').filter(Boolean).pop()}/`;
 const slugOf = (file) => file.replace(/\.[^.]+$/, '');
@@ -29,8 +28,8 @@ let ok = 0;
 
 for (const p of projects) {
   if (filter && !p.file.includes(filter)) continue;
-  if (DRAWN.includes(p.reveal)) {
-    console.log(`- ${p.file}  preview tự vẽ (${p.reveal}), bỏ qua`);
+  if (p.manualShot) {
+    console.log(`- ${p.file}  chụp tay (manualShot), bỏ qua`);
     continue;
   }
   const url = siteOf(p);

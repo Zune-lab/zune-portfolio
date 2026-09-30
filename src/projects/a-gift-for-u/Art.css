@@ -1,0 +1,19 @@
+.love-heart {
+  fill: color-mix(in srgb, currentColor 12%, transparent);
+  transform-origin: 60px 62px;
+  animation: love-beat 1.8s ease-in-out infinite;
+}
+@keyframes love-beat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.07); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.05); }
+}
+.love-spark { animation: love-twinkle 2.2s ease-in-out infinite; }
+@keyframes love-twinkle {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .love-heart, .love-spark { animation: none; }
+}

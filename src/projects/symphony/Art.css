@@ -1,0 +1,27 @@
+.wave-art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-bottom: 36px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
+}
+.wave-bar {
+  width: 4px;
+  height: 84px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.8;
+  transform: scaleY(var(--h));
+  animation: wave-bar var(--d) ease-in-out infinite alternate;
+}
+@keyframes wave-bar {
+  from { transform: scaleY(calc(var(--h) * 0.3)); }
+  to { transform: scaleY(var(--h)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-bar { animation: none; }
+}

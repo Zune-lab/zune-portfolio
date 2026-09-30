@@ -3,13 +3,12 @@ import Preloader from './components/Preloader.jsx';
 import Loader from './components/Loader.jsx';
 import Navbar from './components/Navbar.jsx';
 import Hero from './components/Hero.jsx';
-import About from './components/about/About.jsx';
-import Projects from './components/projects/Projects.jsx';
 import { Stats, Support } from './components/StatsSupport.jsx';
 import Feedback from './components/Feedback.jsx';
 import Socials from './components/Socials.jsx';
 import { Signature, Footer } from './components/Signature.jsx';
 import BackToTop from './components/BackToTop.jsx';
+import { PAGES, HOME_TITLE, pageOf, pathOf, viewFromLocation } from './pages.js';
 import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
@@ -20,7 +19,7 @@ export default function App() {
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
   );
-  const [view, setView] = useState('home'); // 'home' | 'about' | 'projects'
+  const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/pages.js)
   const [pendingScroll, setPendingScroll] = useState(null); // string selector | number Y | null
   const [isLoading, setIsLoading] = useState(false);
   const savedHomeScroll = useRef(0);
@@ -44,6 +43,24 @@ export default function App() {
     }
     setPendingScroll(null);
   }, [view, pendingScroll]);
+
+  useEffect(() => {
+    document.title = pageOf(view)?.title ?? HOME_TITLE;
+  }, [view]);
+
+  // nút Back/Forward của trình duyệt: đọc lại view từ URL, KHÔNG pushState lại
+  useEffect(() => {
+    history.scrollRestoration = 'manual'; // tự quản lý cuộn, tránh trình duyệt cuộn chen vào lúc đang chuyển tab
+    // URL lạ (/zune-portfolio/abc) hoặc thiếu dấu '/' -> chuẩn hoá về đúng trang
+    const canonical = pathOf(viewFromLocation());
+    if (location.pathname.replace(/\/+$/, '') !== canonical.replace(/\/+$/, '')) {
+      history.replaceState(null, '', canonical + location.hash);
+    }
+    const onPop = () => goTo(viewFromLocation(), undefined, false);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // nền chấm bi sáng quanh con trỏ (CSS đọc --mx/--my)
   useEffect(() => {
@@ -82,13 +99,19 @@ export default function App() {
   //  - sang tab khác: luôn bắt đầu từ đầu trang
   // Mọi lần chuyển tab đều hiện Loader trong TAB_LOADER_MS trước khi đổi
   // nội dung — trừ lần load trang chính đầu tiên, đã có Preloader riêng.
-  const handleNavigate = (nextView, scrollTarget) => {
+  // push=false khi chuyển do nút Back/Forward (URL đã đúng sẵn, không ghi thêm lịch sử).
+  const goTo = (nextView, scrollTarget, push = true) => {
     if (nextView === viewRef.current) return;
 
     setIsLoading(true);
     window.setTimeout(() => {
       if (viewRef.current === 'home' && nextView !== 'home') {
         savedHomeScroll.current = window.scrollY;
+      }
+      if (push) {
+        // về home kèm anchor (vd '#feedback') thì giữ anchor trong URL, còn lại URL sạch
+        const hash = nextView === 'home' && typeof scrollTarget === 'string' ? scrollTarget : '';
+        history.pushState(null, '', pathOf(nextView) + hash);
       }
       setView(nextView);
       if (nextView === 'home') {
@@ -99,6 +122,9 @@ export default function App() {
       setIsLoading(false);
     }, TAB_LOADER_MS);
   };
+  const handleNavigate = (nextView, scrollTarget) => goTo(nextView, scrollTarget, true);
+
+  const page = pageOf(view);
 
   return (
     <>
@@ -106,10 +132,8 @@ export default function App() {
       {isLoading && <Loader />}
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
 
-      {view === 'about' ? (
-        <About />
-      ) : view === 'projects' ? (
-        <Projects />
+      {page ? (
+        <page.Component />
       ) : (
         <>
           <Hero onNavigate={handleNavigate} />

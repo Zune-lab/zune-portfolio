@@ -1,0 +1,42 @@
+.cal-art {
+  position: absolute;
+  inset: 0;
+  padding: 26px 0 0 34px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 36px);
+  gap: 9px;
+  transform: scale(1.25);
+  transform-origin: top left;
+}
+.cal-head {
+  height: 5px;
+  margin: 6px 6px 2px;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.cal-cell {
+  height: 36px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+.cal-cell.on {
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+  background: color-mix(in srgb, currentColor 28%, transparent);
+}
+.cal-cell.today {
+  border-color: currentColor;
+  animation: cal-blink 2.4s ease-in-out infinite;
+}
+@keyframes cal-blink {
+  0%, 100% { background: color-mix(in srgb, currentColor 10%, transparent); }
+  50% { background: color-mix(in srgb, currentColor 45%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cal-cell.today { animation: none; }
+}

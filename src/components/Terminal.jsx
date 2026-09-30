@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PAGES } from '../pages.js';
 import './Terminal.css';
 
 const INTRO = [
@@ -12,7 +13,7 @@ const FILES = {
   'coffee.txt': 'coffee > tea. always.',
   'stack.txt': 'HTML CSS JS TS React Node Next Tailwind Figma',
 };
-const TABS = ['about', 'projects'];
+const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/pages.js
 
 function exec(raw, { onNavigate, clear }) {
   const [cmd = '', ...args] = raw.trim().split(/\s+/);
@@ -22,11 +23,11 @@ function exec(raw, { onNavigate, clear }) {
     case '':
       return [];
     case 'help':
-      return ['help | ls | cat <file> | cd <about|projects> | whoami | date | clear', 'try: sudo hire zune'];
+      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | clear`, 'try: sudo hire zune'];
     case 'whoami':
       return ['zune - web developer, Ho Chi Minh City'];
     case 'ls':
-      return [Object.keys(FILES).join('  ') + '  about/  projects/'];
+      return [Object.keys(FILES).join('  ') + TABS.map((t) => `  ${t}/`).join('')];
     case 'cat':
       return [Object.hasOwn(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
     case 'cd':

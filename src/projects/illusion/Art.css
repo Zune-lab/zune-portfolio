@@ -1,0 +1,24 @@
+.illusion-art {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(circle at 50% 46%, #000 0%, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 46%, #000 0%, transparent 62%);
+}
+.illusion-spin {
+  position: absolute;
+  inset: -60%;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, currentColor 0deg 8deg, transparent 8deg 16deg);
+  opacity: 0.2;
+  animation: illusion-spin 60s linear infinite;
+}
+.illusion-rings {
+  position: absolute;
+  inset: 0;
+  background: repeating-radial-gradient(circle at 50% 50%, currentColor 0 3px, transparent 3px 11px);
+  opacity: 0.14;
+}
+@keyframes illusion-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .illusion-spin { animation: none; }
+}

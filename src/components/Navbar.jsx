@@ -1,27 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
+import { PAGES, pageOf, pathOf } from '../pages.js';
 import './NavLink.css';
 
-// mỗi mục ở nav chính: nếu có "tab" nghĩa là bấm vào sẽ chuyển sang 1 trang
-// riêng (trượt sang nav phụ); không có "tab" thì chỉ là link cuộn trong
-// trang chính như bình thường.
+// mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
+// src/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
 const mainLinks = [
-  { href: '#about', label: 'about.js', tab: 'about' },
-  { href: '#projects', label: 'projects/', tab: 'projects' },
+  ...PAGES.map((p) => ({ href: `#${p.id}`, label: p.label, tab: p.id })),
   { href: '#feedback', label: 'feedback.sh' },
   { href: '#socials', label: 'socials/' },
 ];
 
-// mục con bên trong từng tab (cuộn ngay trong trang đó, không đổi view)
-const localLinksByTab = {
-  about: [
-    { href: '#about-intro', label: 'about.js' },
-    { href: '#about-journey', label: 'log.sh' },
-    { href: '#about-skills', label: 'skills.js' },
-  ],
-  projects: [],
-};
+// href THẬT của link: trang riêng -> /zune-portfolio/<id>; anchor -> trang chính + #anchor.
+// Nhờ vậy Ctrl+click / chuột giữa / "mở trong tab mới" ra đúng trang, không chỉ #about.
+const realHref = (l) => (l.tab ? pathOf(l.tab) : pathOf('home') + l.href);
+
+// bấm thường -> chuyển trang trong app (mượt, có loader); giữ Ctrl/Cmd/Shift/Alt hoặc
+// chuột giữa -> trả lại cho trình duyệt mở tab mới
+const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
 function NavLink({ href, onClick, className = '', children }) {
   return (
@@ -120,7 +117,7 @@ function useViewHistory(view, onNavigate) {
 
 export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const inTab = view !== 'home';
-  const localLinks = localLinksByTab[view] || [];
+  const localLinks = pageOf(view)?.sub || [];
   const { goBack, goHome } = useViewHistory(view, onNavigate);
 
   // link nhảy thẳng sang các mục khác ở nav chính, trừ mục đang đứng (tab hiện tại)
@@ -167,11 +164,16 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               {mainLinks.map((l) => (
                 <NavLink
                   key={l.href}
-                  href={l.href}
+                  href={realHref(l)}
                   onClick={(e) => {
+                    if (!isPlainClick(e)) return;
                     if (l.tab) {
                       e.preventDefault();
                       onNavigate(l.tab);
+                    } else if (view === 'home') {
+                      e.preventDefault(); // đang ở trang chính: cuộn tới mục, giữ #anchor trong URL
+                      document.querySelector(l.href)?.scrollIntoView({ block: 'start' });
+                      history.replaceState(null, '', pathOf('home') + l.href);
                     }
                   }}
                 >
@@ -212,8 +214,9 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               {jumpLinks.map((l) => (
                 <NavLink
                   key={l.href}
-                  href={l.href}
+                  href={realHref(l)}
                   onClick={(e) => {
+                    if (!isPlainClick(e)) return;
                     e.preventDefault();
                     onNavigate(l.tab || 'home', l.tab ? undefined : l.href);
                   }}

@@ -1,0 +1,9 @@
+.gift-fill { fill: color-mix(in srgb, currentColor 10%, transparent); }
+.gift-lid { animation: gift-lift 3.2s ease-in-out infinite; }
+@keyframes gift-lift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift-lid { animation: none; }
+}

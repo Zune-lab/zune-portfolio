@@ -1,5 +1,7 @@
-/* project card idle / content flip reveal on hover — dùng chung token
-   chuyển động của cả trang (--ease, --dur-slow) trong index.css */
+/* Card project, 3 lớp (xem ProjectCard.jsx):
+   - lúc nghỉ : hình vẽ tự tạo (src/projects/<tên>/Art.jsx) + số + tên file
+   - rê chuột : hình vẽ tan đi, ẢNH CHỤP hiện làm nền, nội dung lật vào
+   Dùng chung token chuyển động của cả trang (--ease, --dur-slow) trong index.css */
 
 .project-card-idle,
 .project-card-preview {
@@ -13,6 +15,18 @@
   opacity: 0;
   transform: scale(1.12);
 }
+
+/* ảnh chụp: ẩn lúc nghỉ, hiện (thu nhỏ dần về đúng cỡ) khi hover */
+.project-card-shot {
+  opacity: 0;
+  transform: scale(1.08);
+  transition: all var(--dur-slow) var(--ease);
+}
+.project-card:hover .project-card-shot {
+  opacity: 1;
+  transform: scale(1);
+}
+
 .project-card-content {
   opacity: 0;
   transform: translate(-50%, -50%) rotate(-45deg);
@@ -23,7 +37,20 @@
   transform: translate(-50%, -50%) rotate(0deg);
 }
 
-/* demo sống, chỉ crop phần trên cùng, khoá tương tác, giữ bí ẩn */
+/* có ảnh chụp (class has-shot do JSX gắn, tự bỏ nếu ảnh không tải được):
+   bỏ nền đặc của panel chữ, thay bằng lớp phủ tối dần xuống dưới để chữ luôn
+   đọc được trên ảnh ở cả 2 theme. Không có ảnh thì panel vẫn đặc như cũ. */
+.project-card.has-shot .project-card-content {
+  background-color: transparent;
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--inset) 94%, transparent) 0%,
+    color-mix(in srgb, var(--inset) 74%, transparent) 55%,
+    color-mix(in srgb, var(--inset) 52%, transparent) 100%
+  );
+}
+
+/* demo sống (tuỳ chọn, field `demo`): chỉ crop phần trên cùng, khoá tương tác, giữ bí ẩn */
 .project-card-demo-crop {
   z-index: 0;
   transition: all var(--dur-slow) var(--ease);
@@ -45,69 +72,6 @@
   background: linear-gradient(to bottom, transparent 45%, var(--panel) 100%);
 }
 
-/* reveal: 'wave' - dải sóng âm tự vẽ, hai đầu tan dần vào nền */
-.project-card-wave {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
-}
-.wave-bar {
-  width: 4px;
-  height: 84px;
-  border-radius: 2px;
-  background: currentColor;
-  opacity: 0.8;
-  transform: scaleY(var(--h));
-  animation: wave-bar var(--d) ease-in-out infinite alternate;
-}
-@keyframes wave-bar {
-  from { transform: scaleY(calc(var(--h) * 0.3)); }
-  to   { transform: scaleY(var(--h)); }
-}
-
-/* reveal: 'calendar' - một góc lịch tự vẽ, tan dần ra xa góc trên-trái */
-.project-card-cal {
-  padding: 26px 0 0 34px;
-  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
-  mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
-}
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 36px);
-  gap: 9px;
-  transform: scale(1.25);
-  transform-origin: top left;
-}
-.cal-head {
-  height: 5px;
-  margin: 6px 6px 2px;
-  border-radius: 3px;
-  background: currentColor;
-  opacity: 0.35;
-}
-.cal-cell {
-  height: 36px;
-  border-radius: 7px;
-  border: 1px solid var(--line);
-  background: color-mix(in srgb, currentColor 6%, transparent);
-}
-.cal-cell.on {
-  border-color: color-mix(in srgb, currentColor 55%, transparent);
-  background: color-mix(in srgb, currentColor 28%, transparent);
-}
-.cal-cell.today {
-  border-color: currentColor;
-  animation: cal-blink 2.4s ease-in-out infinite;
-}
-@keyframes cal-blink {
-  0%, 100% { background: color-mix(in srgb, currentColor 10%, transparent); }
-  50% { background: color-mix(in srgb, currentColor 45%, transparent); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .wave-bar, .cal-cell.today { animation: none; }
   .project-card { opacity: 1 !important; transform: none !important; }
 }
