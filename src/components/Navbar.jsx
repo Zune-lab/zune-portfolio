@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
 import { PAGES, pageOf, pathOf } from '../pages.js';
@@ -20,15 +21,104 @@ const realHref = (l) => (l.tab ? pathOf(l.tab) : pathOf('home') + l.href);
 // chuột giữa -> trả lại cho trình duyệt mở tab mới
 const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
-function NavLink({ href, onClick, className = '', children }) {
+function NavLink({ href, onClick, className = '', linkRef, children, ...rest }) {
   return (
     <a
+      ref={linkRef}
       href={href}
       onClick={onClick}
+      {...rest}
       className={`nav-link shrink-0 px-3 py-1.5 font-mono text-[13px] text-dim hover:text-amber ${className}`}
     >
       <span className="nav-link-text whitespace-nowrap">{children}</span>
     </a>
+  );
+}
+
+// nav phụ có nhiều mục (vd lab có cả chục game) thì gom vào 1 menu thả xuống `ls <trang>/`
+// thay vì xếp hết ra hàng ngang. Menu vẽ qua portal (ra <body>) vì hàng nav có
+// overflow-x + backdrop-filter nên sẽ cắt / lệch mất menu nếu đặt bên trong.
+const MAX_INLINE_SUB = 3;
+const MENU_W = 220;
+
+const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
+
+function SubMenu({ label, links }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const inside = (t) => menuRef.current?.contains(t) || btnRef.current?.contains(t);
+    const onDown = (e) => {
+      if (!inside(e.target)) close();
+    };
+    const onKey = (e) => e.key === 'Escape' && close();
+    const onScroll = (e) => {
+      if (!menuRef.current?.contains(e.target)) close(); // cuộn chính menu thì đừng đóng
+    };
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', close);
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  }, [open]);
+
+  const toggle = (e) => {
+    e.preventDefault();
+    if (!open) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8)) });
+    }
+    setOpen((o) => !o);
+  };
+
+  return (
+    <>
+      <NavLink
+        href="#"
+        linkRef={btnRef}
+        onClick={toggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className={open ? 'text-amber' : ''}
+      >
+        {label}
+        <span className={`sub-menu-caret ${open ? 'is-open' : ''}`} aria-hidden="true">
+          ▾
+        </span>
+      </NavLink>
+      {open &&
+        createPortal(
+          <div ref={menuRef} role="menu" className="sub-menu" style={{ top: pos.top, left: pos.left, width: MENU_W }}>
+            {links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                role="menuitem"
+                className="sub-menu-item"
+                onClick={(e) => {
+                  if (!isPlainClick(e)) return;
+                  e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
+                  setOpen(false);
+                  scrollToAnchor(l.href);
+                }}
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
@@ -202,19 +292,23 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               >
                 cd ..
               </NavLink>
-              {localLinks.map((l) => (
-                <NavLink
-                  key={l.href}
-                  href={l.href}
-                  onClick={(e) => {
-                    if (!isPlainClick(e)) return;
-                    e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
-                    document.querySelector(l.href)?.scrollIntoView({ block: 'start' });
-                  }}
-                >
-                  {l.label}
-                </NavLink>
-              ))}
+              {localLinks.length > MAX_INLINE_SUB ? (
+                <SubMenu key={view} label={`ls ${view}/`} links={localLinks} />
+              ) : (
+                localLinks.map((l) => (
+                  <NavLink
+                    key={l.href}
+                    href={l.href}
+                    onClick={(e) => {
+                      if (!isPlainClick(e)) return;
+                      e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
+                      scrollToAnchor(l.href);
+                    }}
+                  >
+                    {l.label}
+                  </NavLink>
+                ))
+              )}
               {localLinks.length > 0 && (
                 <span className="h-4 border-l border-dashed border-line mx-1" aria-hidden="true" />
               )}

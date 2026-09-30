@@ -124,3 +124,55 @@
 .edge-back-zone:hover .scroll-arrow-elem {
   color: var(--amber);
 }
+
+/* menu thả xuống của nav phụ (ls lab/ ...) — vẽ qua portal ở <body> */
+.sub-menu-caret {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  transition: transform 0.2s ease;
+}
+.sub-menu-caret.is-open {
+  transform: rotate(180deg);
+}
+.sub-menu {
+  position: fixed;
+  z-index: 60;
+  max-height: min(60vh, 320px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 2px solid var(--amber);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  scrollbar-width: thin;
+  animation: sub-menu-in 0.15s ease-out;
+}
+.sub-menu-item {
+  display: block;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub-menu-item:hover,
+.sub-menu-item:focus-visible {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  outline: none;
+}
+@keyframes sub-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sub-menu {
+    animation: none;
+  }
+}
