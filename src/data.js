@@ -27,7 +27,7 @@ export const projects = [
     desc: 'experiments with sound and interaction on the web',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/symphony',
-    reveal: 'strip', // top | corner | strip | blur
+    reveal: 'wave', // top | corner | strip | blur | wave
   },
   {
     file: 'illusion.css',
@@ -48,7 +48,7 @@ export const projects = [
     desc: 'a compact little calendar app, built by hand',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/calender',
-    reveal: 'corner', // top | corner | strip | blur
+    reveal: 'calendar', // top | corner | strip | blur | wave | calendar
   },
   {
     file: 'a-gift-for-u.css',

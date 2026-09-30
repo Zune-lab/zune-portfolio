@@ -7,14 +7,14 @@ export default function ThemeToggleTorch({ theme, onToggle }) {
   const isLight = theme === 'light';
 
   return (
-    <label className="torch-container relative flex items-center gap-2.5 cursor-pointer select-none">
+    <label className="torch-container relative flex flex-col items-center cursor-pointer select-none">
       <input
         type="checkbox"
         checked={!isLight}
         onChange={onToggle}
         aria-label={isLight ? 'light mode' : 'dark mode'}
       />
-      <span className="torch-scale flex items-center justify-center w-11 h-10 overflow-visible">
+      <span className="torch-scale flex items-center justify-center w-11 h-9 overflow-visible">
         <span className="torch">
           <span className="head">
             <span className="face top">{faceDivs.map((_, i) => <span key={i} />)}</span>
@@ -28,7 +28,7 @@ export default function ThemeToggleTorch({ theme, onToggle }) {
         </span>
       </span>
       <span
-        className="torch-click-me absolute left-1/2 -translate-x-1/2 -bottom-3.5 whitespace-nowrap font-mono text-[9px] font-extrabold"
+        className="torch-click-me mt-0.5 whitespace-nowrap font-mono text-[9px] leading-none font-extrabold"
         aria-hidden="true"
       >
         Click me!

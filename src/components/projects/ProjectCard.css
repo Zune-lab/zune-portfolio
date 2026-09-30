@@ -45,6 +45,69 @@
   background: linear-gradient(to bottom, transparent 45%, var(--panel) 100%);
 }
 
+/* reveal: 'wave' - dải sóng âm tự vẽ, hai đầu tan dần vào nền */
+.project-card-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 24%, #000 76%, transparent);
+}
+.wave-bar {
+  width: 4px;
+  height: 84px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.8;
+  transform: scaleY(var(--h));
+  animation: wave-bar var(--d) ease-in-out infinite alternate;
+}
+@keyframes wave-bar {
+  from { transform: scaleY(calc(var(--h) * 0.3)); }
+  to   { transform: scaleY(var(--h)); }
+}
+
+/* reveal: 'calendar' - một góc lịch tự vẽ, tan dần ra xa góc trên-trái */
+.project-card-cal {
+  padding: 26px 0 0 34px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 36px);
+  gap: 9px;
+  transform: scale(1.25);
+  transform-origin: top left;
+}
+.cal-head {
+  height: 5px;
+  margin: 6px 6px 2px;
+  border-radius: 3px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.cal-cell {
+  height: 36px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+.cal-cell.on {
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+  background: color-mix(in srgb, currentColor 28%, transparent);
+}
+.cal-cell.today {
+  border-color: currentColor;
+  animation: cal-blink 2.4s ease-in-out infinite;
+}
+@keyframes cal-blink {
+  0%, 100% { background: color-mix(in srgb, currentColor 10%, transparent); }
+  50% { background: color-mix(in srgb, currentColor 45%, transparent); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .wave-bar, .cal-cell.today { animation: none; }
   .project-card { opacity: 1 !important; transform: none !important; }
 }

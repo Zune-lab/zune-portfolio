@@ -28,6 +28,8 @@ function useCardScale() {
 //   corner - phóng to riêng 1 góc trên-trái, còn lại chìm hẳn
 //   strip  - chỉ 1 dải ngang ở giữa, trên dưới đều tan
 //   blur   - cả ảnh nhoè nặng, chỉ còn màu sắc và bố cục
+//   wave     - KHÔNG dùng ảnh: một dải sóng âm tự vẽ, nhảy theo nhịp (hợp symphony)
+//   calendar - KHÔNG dùng ảnh: một góc lịch tự vẽ, tan dần (hợp calender, khỏi chụp màn login)
 // Muốn thêm kiểu mới: thêm 1 mục vào REVEALS. blur = px, gray = 0..1.
 const REVEALS = {
   top: { blur: 3, gray: 0.55, scale: 1.06, origin: 'center top', pos: 'top', mask: 'linear-gradient(to bottom, #000 38%, transparent 92%)' },
@@ -35,6 +37,18 @@ const REVEALS = {
   strip: { blur: 2.5, gray: 0.55, scale: 1.06, origin: 'center', pos: 'center', mask: 'linear-gradient(to bottom, transparent 22%, #000 40%, #000 60%, transparent 78%)' },
   blur: { blur: 9, gray: 0.35, scale: 1.15, origin: 'center top', pos: 'top', mask: 'none' },
 };
+
+const WAVE_BARS = Array.from({ length: 38 }, (_, i) => ({
+  h: 0.22 + 0.78 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.6)), // độ cao đỉnh
+  d: 0.9 + (i % 5) * 0.16, // chu kỳ nhảy (s)
+  delay: -((i % 9) * 0.13), // lệch pha để không nhảy đồng loạt
+}));
+
+// góc lịch: 35 ô (5 tuần x 7 ngày), vài ô sáng lên, 1 ô "hôm nay" nhấp nháy.
+// Không có chữ số nào -> chỉ gợi ý đây là lịch, không lộ nội dung thật.
+const CAL_CELLS = Array.from({ length: 35 }, (_, i) => i);
+const CAL_ON = new Set([4, 9, 10, 17, 23]);
+const CAL_TODAY = 16;
 
 // ảnh preview tĩnh dự phòng: public/previews/<tên-file-bỏ-đuôi>.png
 // demo (tuỳ chọn, khai báo trong data.js): link trang demo đang chạy thật,
@@ -44,7 +58,10 @@ export default function ProjectCard({ num, file, desc, color, href, demo, reveal
   const [imgOk, setImgOk] = useState(true);
   const [cropRef, scale] = useCardScale();
   const slug = file.replace(/\.[^.]+$/, '');
-  const hasImg = !demo && imgOk;
+  const isWave = reveal === 'wave';
+  const isCal = reveal === 'calendar';
+  const isDrawn = isWave || isCal; // preview tự vẽ, không dùng ảnh chụp
+  const hasImg = !demo && !isDrawn && imgOk;
 
   return (
     <a
@@ -67,6 +84,42 @@ export default function ProjectCard({ num, file, desc, color, href, demo, reveal
             className="project-card-demo-frame"
           />
           <div className="project-card-demo-fade absolute inset-0" />
+        </div>
+      )}
+
+      {isWave && (
+        <div
+          className="project-card-preview project-card-wave absolute inset-0 pb-9"
+          style={{ color }}
+          aria-hidden="true"
+        >
+          {WAVE_BARS.map((b, i) => (
+            <span
+              key={i}
+              className="wave-bar"
+              style={{ '--h': b.h, '--d': `${b.d}s`, animationDelay: `${b.delay}s` }}
+            />
+          ))}
+        </div>
+      )}
+
+      {isCal && (
+        <div
+          className="project-card-preview project-card-cal absolute inset-0"
+          style={{ color }}
+          aria-hidden="true"
+        >
+          <div className="cal-grid">
+            {Array.from({ length: 7 }, (_, i) => (
+              <span key={`h${i}`} className="cal-head" />
+            ))}
+            {CAL_CELLS.map((i) => (
+              <span
+                key={i}
+                className={`cal-cell${CAL_ON.has(i) ? ' on' : ''}${i === CAL_TODAY ? ' today' : ''}`}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -97,11 +150,11 @@ export default function ProjectCard({ num, file, desc, color, href, demo, reveal
 
       <div
         className={`project-card-idle relative z-[1] flex flex-col items-center gap-2 ${
-          demo || hasImg ? 'self-end pb-4' : ''
+          demo || hasImg || isDrawn ? 'self-end pb-4' : ''
         }`}
         style={{ color }}
       >
-        {!demo && !hasImg && (
+        {!demo && !hasImg && !isDrawn && (
           <svg viewBox="0 0 24 24" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
             <path
               fill="currentColor"
