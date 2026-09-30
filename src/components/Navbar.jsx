@@ -76,7 +76,7 @@ function SubMenu({ label, links }) {
     e.preventDefault();
     if (!open) {
       const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 6, left: Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8)) });
+      setPos({ top: r.bottom - 2, left: Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8)) });
     }
     setOpen((o) => !o);
   };
@@ -89,11 +89,11 @@ function SubMenu({ label, links }) {
         onClick={toggle}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={open ? 'text-amber' : ''}
+        className={open ? 'is-open text-amber' : ''}
       >
         {label}
         <span className={`sub-menu-caret ${open ? 'is-open' : ''}`} aria-hidden="true">
-          ▾
+          ▼
         </span>
       </NavLink>
       {open &&
