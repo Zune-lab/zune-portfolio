@@ -1,3 +1,19 @@
+/* ===== dùng chung cho các Art (từ art.css cũ) ===== */
+/* dùng chung cho các Art: khung căn giữa, hơi nhích lên để chừa chỗ cho nhãn 01/tên file,
+   rìa tan dần vào nền cho bí ẩn */
+.art-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 34px;
+  opacity: 0.8;
+  -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 28%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 45%, #000 28%, transparent 78%);
+}
+
+/* ===== card project ===== */
 /* Card project, 3 lớp (xem ProjectCard.jsx):
    - lúc nghỉ : hình vẽ tự tạo (src/projects/<tên>/Art.jsx) + số + tên file
    - rê chuột : hình vẽ tan đi, ẢNH CHỤP hiện làm nền, nội dung lật vào

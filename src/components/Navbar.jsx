@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
 import { PAGES, pageOf, pathOf } from '../pages.js';
-import './NavLink.css';
+import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
 // src/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.

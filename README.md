@@ -25,7 +25,7 @@ npm run dev
 - **next.html** → `ScrollArrow.jsx` — nút cuộn xuống ở hero
 - **loading.html** (banter loader) → `Preloader.jsx`
 - Mẫu nút social (github/x/whatsapp/discord/fb.html) → gộp thành 1 component
-  `SocialButton.jsx` dùng chung cho cả 7 mạng xã hội (kể cả instagram, zalo vốn
+  `SocialButton` (nằm trong `Socials.jsx`) dùng chung cho cả 7 mạng xã hội (kể cả instagram, zalo vốn
   không có file riêng, dùng chung pattern brand-color-reveal)
 
 ## Đã bỏ qua (không khớp với thiết kế hiện tại)

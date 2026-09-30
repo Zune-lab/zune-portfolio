@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { arts } from './arts.js';
-import './art.css';
+import { arts } from './index.js';
 import './ProjectCard.css';
 
 // "virtual" viewport width dùng để render trang demo bên trong iframe, rồi
