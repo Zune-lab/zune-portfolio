@@ -37,6 +37,8 @@ export const PAGES = [
     title: 'lab.css — Zune',
     Component: Lab,
     sub: [
+      { href: '#lab-reptile', label: 'reptile.js' },
+      { href: '#lab-cat', label: 'cat.css' },
       { href: '#lab-playground', label: 'playground.css' },
       { href: '#lab-game', label: 'bug-squash.js' },
     ],
