@@ -12,42 +12,50 @@ export const gitLog = [
   { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
 ];
 
+// site (tuỳ chọn): link trang chạy thật để script `npm run previews` chụp ảnh.
+// Không khai báo thì script tự đoán https://zune-lab.github.io/<tên-repo>/
 export const projects = [
   {
     file: 'a-dumb-gift.js',
     desc: 'a small gift, hand-coded, runs straight in the browser',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/a-dumb-gift',
+    reveal: 'top', // top | corner | strip | blur
   },
   {
     file: 'symphony.js',
     desc: 'experiments with sound and interaction on the web',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/symphony',
+    reveal: 'strip', // top | corner | strip | blur
   },
   {
     file: 'illusion.css',
     desc: 'playing with visual illusions in pure CSS',
     color: 'var(--css-lang)',
     href: 'https://github.com/Zune-lab/illusion',
+    reveal: 'blur', // top | corner | strip | blur
   },
   {
     file: 'le-tot-nghiep.js',
     desc: 'a keepsake page for graduation day',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/le-tot-nghiep',
+    reveal: 'corner', // top | corner | strip | blur
   },
   {
     file: 'calender.js',
     desc: 'a compact little calendar app, built by hand',
     color: 'var(--js)',
     href: 'https://github.com/Zune-lab/calender',
+    reveal: 'corner', // top | corner | strip | blur
   },
   {
     file: 'a-gift-for-u.css',
     desc: 'another gift page, focused on CSS details',
     color: 'var(--css-lang)',
     href: 'https://github.com/Zune-lab/a-gift-for-u',
+    reveal: 'strip', // top | corner | strip | blur
   },
 ];
 

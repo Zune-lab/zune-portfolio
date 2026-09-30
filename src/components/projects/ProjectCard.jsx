@@ -23,20 +23,24 @@ function useCardScale() {
   return [ref, scale];
 }
 
-// độ "bí ẩn" của ảnh preview tĩnh: chỉ lấy phần đầu (trang chính), làm mờ +
-// bạc màu nhẹ, phần dưới tan dần vào nền. Chỉnh 4 số này để đổi độ lộ.
-const MYSTERY = {
-  blur: 3, // px, 0 = rõ nét
-  gray: 0.55, // 0..1, bạc màu
-  visible: 38, // % chiều cao ảnh còn rõ
-  fadeTo: 92, // % chiều cao mà ảnh biến mất hẳn
+// mỗi project chọn 1 kiểu "hé lộ" qua field `reveal` trong data.js:
+//   top    - chỉ phần đầu trang, dưới tan dần (mặc định)
+//   corner - phóng to riêng 1 góc trên-trái, còn lại chìm hẳn
+//   strip  - chỉ 1 dải ngang ở giữa, trên dưới đều tan
+//   blur   - cả ảnh nhoè nặng, chỉ còn màu sắc và bố cục
+// Muốn thêm kiểu mới: thêm 1 mục vào REVEALS. blur = px, gray = 0..1.
+const REVEALS = {
+  top: { blur: 3, gray: 0.55, scale: 1.06, origin: 'center top', pos: 'top', mask: 'linear-gradient(to bottom, #000 38%, transparent 92%)' },
+  corner: { blur: 2, gray: 0.5, scale: 1.9, origin: '10% 15%', pos: 'left top', mask: 'radial-gradient(ellipse 65% 85% at 12% 18%, #000 0%, transparent 100%)' },
+  strip: { blur: 2.5, gray: 0.55, scale: 1.06, origin: 'center', pos: 'center', mask: 'linear-gradient(to bottom, transparent 22%, #000 40%, #000 60%, transparent 78%)' },
+  blur: { blur: 9, gray: 0.35, scale: 1.15, origin: 'center top', pos: 'top', mask: 'none' },
 };
-const maskImage = `linear-gradient(to bottom, #000 ${MYSTERY.visible}%, transparent ${MYSTERY.fadeTo}%)`;
 
 // ảnh preview tĩnh dự phòng: public/previews/<tên-file-bỏ-đuôi>.png
 // demo (tuỳ chọn, khai báo trong data.js): link trang demo đang chạy thật,
 // sẽ được crop chỉ hiện phần trên cùng, không tương tác được, giữ bí ẩn.
-export default function ProjectCard({ num, file, desc, color, href, demo }) {
+export default function ProjectCard({ num, file, desc, color, href, demo, reveal = 'top' }) {
+  const r = REVEALS[reveal] || REVEALS.top;
   const [imgOk, setImgOk] = useState(true);
   const [cropRef, scale] = useCardScale();
   const slug = file.replace(/\.[^.]+$/, '');
@@ -74,12 +78,14 @@ export default function ProjectCard({ num, file, desc, color, href, demo }) {
             alt=""
             loading="lazy"
             onError={() => setImgOk(false)}
-            className="project-card-preview absolute inset-0 w-full h-full object-cover object-top"
+            className="project-card-preview absolute inset-0 w-full h-full object-cover"
             style={{
-              filter: `blur(${MYSTERY.blur}px) grayscale(${MYSTERY.gray}) brightness(0.85)`,
-              transform: 'scale(1.06)', // che viền mờ do blur
-              WebkitMaskImage: maskImage,
-              maskImage,
+              objectPosition: r.pos,
+              filter: `blur(${r.blur}px) grayscale(${r.gray}) brightness(0.85)`,
+              scale: r.scale, // thuộc tính `scale` riêng, không đè hiệu ứng hover dùng transform
+              transformOrigin: r.origin,
+              WebkitMaskImage: r.mask,
+              maskImage: r.mask,
             }}
           />
           <span className="project-card-preview absolute top-2.5 left-3 z-[1] font-mono text-[10px] tracking-[0.18em] text-dim uppercase">
