@@ -203,7 +203,15 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 cd ..
               </NavLink>
               {localLinks.map((l) => (
-                <NavLink key={l.href} href={l.href}>
+                <NavLink
+                  key={l.href}
+                  href={l.href}
+                  onClick={(e) => {
+                    if (!isPlainClick(e)) return;
+                    e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
+                    document.querySelector(l.href)?.scrollIntoView({ block: 'start' });
+                  }}
+                >
                   {l.label}
                 </NavLink>
               ))}
