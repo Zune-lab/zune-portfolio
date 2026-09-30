@@ -23,6 +23,16 @@ function useCardScale() {
   return [ref, scale];
 }
 
+// độ "bí ẩn" của ảnh preview tĩnh: chỉ lấy phần đầu (trang chính), làm mờ +
+// bạc màu nhẹ, phần dưới tan dần vào nền. Chỉnh 4 số này để đổi độ lộ.
+const MYSTERY = {
+  blur: 3, // px, 0 = rõ nét
+  gray: 0.55, // 0..1, bạc màu
+  visible: 38, // % chiều cao ảnh còn rõ
+  fadeTo: 92, // % chiều cao mà ảnh biến mất hẳn
+};
+const maskImage = `linear-gradient(to bottom, #000 ${MYSTERY.visible}%, transparent ${MYSTERY.fadeTo}%)`;
+
 // ảnh preview tĩnh dự phòng: public/previews/<tên-file-bỏ-đuôi>.png
 // demo (tuỳ chọn, khai báo trong data.js): link trang demo đang chạy thật,
 // sẽ được crop chỉ hiện phần trên cùng, không tương tác được, giữ bí ẩn.
@@ -58,13 +68,23 @@ export default function ProjectCard({ num, file, desc, color, href, demo }) {
 
       {hasImg && (
         <>
+          {/* BASE_URL: site chạy ở subpath /zune-portfolio/, path tuyệt đối "/previews" sẽ 404 */}
           <img
-            src={`/previews/${slug}.png`}
+            src={`${import.meta.env.BASE_URL}previews/${slug}.png`}
             alt=""
             loading="lazy"
             onError={() => setImgOk(false)}
-            className="project-card-preview absolute inset-0 w-full h-full object-cover"
+            className="project-card-preview absolute inset-0 w-full h-full object-cover object-top"
+            style={{
+              filter: `blur(${MYSTERY.blur}px) grayscale(${MYSTERY.gray}) brightness(0.85)`,
+              transform: 'scale(1.06)', // che viền mờ do blur
+              WebkitMaskImage: maskImage,
+              maskImage,
+            }}
           />
+          <span className="project-card-preview absolute top-2.5 left-3 z-[1] font-mono text-[10px] tracking-[0.18em] text-dim uppercase">
+            ▒ preview · redacted
+          </span>
           <div className="project-card-preview absolute inset-0 bg-gradient-to-t from-panel via-panel/60 to-transparent" />
         </>
       )}

@@ -75,7 +75,7 @@
 /* chấm báo còn link ẩn bên phải khi hàng nav bị tràn, cuộn hết thì tự ẩn đi */
 .nav-more-dot {
   position: absolute;
-  right: 2px;
+  right: 5px; /* nằm giữa máng 16px bên phải hàng nav */
   top: 50%;
   transform: translateY(-50%);
   width: 6px;

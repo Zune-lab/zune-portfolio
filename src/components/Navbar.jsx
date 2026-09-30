@@ -35,6 +35,15 @@ function NavLink({ href, onClick, className = '', children }) {
   );
 }
 
+// mép phải mờ dần khi còn link chưa cuộn tới -> chữ không bị cắt cụt đột ngột
+const fadeRight = (on) =>
+  on
+    ? {
+        WebkitMaskImage: 'linear-gradient(to right, #000 calc(100% - 32px), transparent)',
+        maskImage: 'linear-gradient(to right, #000 calc(100% - 32px), transparent)',
+      }
+    : undefined;
+
 // báo hiệu (chấm nhỏ) khi hàng nav bị tràn và còn link chưa cuộn tới,
 // tự cập nhật theo scroll / resize / khi đổi danh sách link (deps)
 function useMoreDot(deps) {
@@ -50,10 +59,19 @@ function useMoreDot(deps) {
     };
 
     check();
+    const wheel = (e) => {
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      if ((e.deltaY < 0 && el.scrollLeft <= 0) || (e.deltaY > 0 && el.scrollLeft >= max)) return;
+      e.preventDefault(); // còn chỗ để cuộn ngang -> giữ trang đứng yên
+      el.scrollLeft += e.deltaY;
+    };
     el.addEventListener('scroll', check, { passive: true });
+    el.addEventListener('wheel', wheel, { passive: false });
     window.addEventListener('resize', check);
     return () => {
       el.removeEventListener('scroll', check);
+      el.removeEventListener('wheel', wheel);
       window.removeEventListener('resize', check);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,10 +153,11 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             zune.dev
           </a>
 
-          <div className="hidden md:flex relative h-full items-center min-w-0 flex-1">
+          <div className="hidden md:flex relative h-full items-center min-w-0 flex-1 pr-4">
             {/* nav chính — trượt ra bên trái khi vào tab, trượt vào (trễ 150ms) khi quay lại */}
             <div
               ref={mainRowRef}
+              style={fadeRight(!inTab && mainHasMore)}
               className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-all duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-0 -translate-x-3 pointer-events-none'
@@ -165,7 +184,8 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             {/* nav phụ — trượt vào từ bên phải (trễ 150ms) khi vào tab, trượt ra khi thoát */}
             <div
               ref={subRowRef}
-              className={`nav-scroll flex items-center gap-1.5 absolute left-0 top-0 h-full w-full overflow-x-auto transition-all duration-300 ease-in-out ${
+              style={fadeRight(inTab && subHasMore)}
+              className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-all duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-100 translate-x-0 delay-150'
                   : 'opacity-0 translate-x-3 pointer-events-none'
@@ -180,15 +200,6 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 className="nav-back"
               >
                 cd ..
-              </NavLink>
-              <NavLink
-                href="#top"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goHome();
-                }}
-              >
-                ~/home
               </NavLink>
               {localLinks.map((l) => (
                 <NavLink key={l.href} href={l.href}>
