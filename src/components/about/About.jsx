@@ -46,17 +46,21 @@ export default function About() {
         {/* Hành trình */}
         <div id="about-journey" className="mb-12 scroll-mt-20">
           <SubHead>// log.sh</SubHead>
-          <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] overflow-x-auto text-ink">
-            <span className="text-dim">$ git log --oneline --reverse life</span>
-            {'\n\n'}
-            {gitLog.map((entry, i) => (
-              <span key={entry.hash}>
-                <span style={{ color: 'var(--amber)' }}>{entry.hash}</span>{' '}
-                <span style={{ color: 'var(--green)' }}>{entry.date.padEnd(7)}</span> {entry.msg}
-                {i < gitLog.length - 1 ? '\n' : ''}
-              </span>
-            ))}
-          </pre>
+          <div className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-[13px] leading-[1.9] text-ink">
+            <div className="text-dim mb-4">$ git log --oneline --reverse life</div>
+            <ol className="m-0 p-0 list-none">
+              {gitLog.map((entry) => (
+                <li
+                  key={entry.hash}
+                  className="grid grid-cols-[auto_auto] sm:grid-cols-[auto_5.5rem_1fr] gap-x-3"
+                >
+                  <span style={{ color: 'var(--amber)' }}>{entry.hash}</span>
+                  <span style={{ color: 'var(--green)' }}>{entry.date}</span>
+                  <span className="col-span-2 sm:col-span-1">{entry.msg}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
 
         {/* Kỹ năng */}

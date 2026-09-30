@@ -10,7 +10,7 @@ const INTRO = [
 
 const FILES = {
   'mood.txt': 'chillax guys. code for fun, ship small weird things.',
-  'coffee.txt': 'coffee > tea. always.',
+  'tea.txt': 'tea > coffee. always.',
   'stack.txt': 'HTML CSS JS TS React Node Next Tailwind Figma',
 };
 const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/pages.js
