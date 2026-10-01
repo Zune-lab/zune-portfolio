@@ -2,6 +2,7 @@
 //
 //   home      -> /zune-portfolio/
 //   <id>      -> /zune-portfolio/<id>      (about, projects, ...)
+//   lab/<slug>-> /zune-portfolio/lab/<slug> (từng mục trong lab, khai báo ở src/lab-items.js)
 //
 // THÊM TRANG MỚI: tạo component rồi thêm 1 mục vào PAGES bên dưới. Nav chính, nav
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
@@ -10,6 +11,11 @@
 import About from './components/about/About.jsx';
 import Projects from './projects/Projects.jsx';
 import Lab from './components/lab/Lab.jsx';
+import { LAB_ITEMS, labItemOf } from './lab-items.js';
+
+import { BASE, pathOf } from './lib/paths.js';
+
+export { BASE, pathOf };
 
 export const PAGES = [
   {
@@ -36,27 +42,33 @@ export const PAGES = [
     label: 'lab.css',
     title: 'lab.css — Zune',
     Component: Lab,
-    sub: [
-      { href: '#lab-reptile', label: 'reptile.js' },
-      { href: '#lab-cat', label: 'cat.css' },
-      { href: '#lab-ghost', label: 'ghost.css' },
-      { href: '#lab-playground', label: 'banner-maker.js' },
-      { href: '#lab-game', label: 'bug-squash.js' },
-      { href: '#lab-memory', label: 'memory-match.js' },
-      { href: '#lab-snake', label: 'snake.js' },
-    ],
+    // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/lab-items.js
+    children: LAB_ITEMS.map((i) => i.slug),
+    sub: LAB_ITEMS.map((i) => ({ view: `lab/${i.slug}`, href: pathOf(`lab/${i.slug}`), label: i.file })),
   },
 ];
 
 export const HOME_TITLE = 'Zune — Web Developer';
 
-// Site chạy ở subpath (BASE_URL = '/zune-portfolio/'), mọi đường dẫn nối sau nó.
-export const BASE = import.meta.env.BASE_URL;
-export const pathOf = (id) => (id === 'home' ? BASE : `${BASE}${id}`);
+// "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
+export const topOf = (view) => view.split('/')[0];
 export const pageOf = (id) => PAGES.find((p) => p.id === id);
+export const pageOfView = (view) => pageOf(topOf(view));
+
+export const titleOf = (view) => {
+  const slug = view.split('/')[1];
+  const item = slug && labItemOf(slug);
+  if (topOf(view) === 'lab' && item) return `${item.file} — Zune`;
+  return pageOfView(view)?.title ?? HOME_TITLE;
+};
 
 export const viewFromLocation = () => {
   const rest = location.pathname.startsWith(BASE) ? location.pathname.slice(BASE.length) : '';
   const name = rest.replace(/\/+$/, '');
-  return pageOf(name) ? name : 'home';
+  if (pageOf(name)) return name;
+  // trang con (lab/<slug>): slug đúng -> view đó; slug lạ / thừa đoạn -> về lưới của trang cha
+  const [top, child, ...more] = name.split('/');
+  const page = pageOf(top);
+  if (!page) return 'home';
+  return page.children?.includes(child) && !more.length ? `${top}/${child}` : top;
 };

@@ -8,7 +8,7 @@ import Feedback from './components/Feedback.jsx';
 import Socials from './components/Socials.jsx';
 import { Signature, Footer } from './components/Signature.jsx';
 import BackToTop from './components/BackToTop.jsx';
-import { HOME_TITLE, pageOf, pathOf, viewFromLocation } from './pages.js';
+import { pageOfView, pathOf, titleOf, topOf, viewFromLocation } from './pages.js';
 import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
@@ -19,7 +19,7 @@ export default function App() {
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
   );
-  const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/pages.js)
+  const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/pages.js) | '<id>/<con>' vd 'lab/snake'
   const [pendingScroll, setPendingScroll] = useState(null); // string selector | number Y | null
   const [isLoading, setIsLoading] = useState(false);
   const savedHomeScroll = useRef(0);
@@ -50,7 +50,7 @@ export default function App() {
   }, [view, pendingScroll]);
 
   useEffect(() => {
-    document.title = pageOf(view)?.title ?? HOME_TITLE;
+    document.title = titleOf(view);
   }, [view]);
 
   // mở thẳng địa chỉ có #anchor của trang chính (vd Ctrl+click "socials/" ra tab mới):
@@ -111,7 +111,7 @@ export default function App() {
 
   const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
 
-  // nextView: 'home' | 'about' | 'projects'.
+  // nextView: 'home' | 'about' | 'projects' | 'lab' | 'lab/<slug>'.
   // scrollTarget (tùy chọn): css selector cần cuộn tới sau khi về home (vd
   // '#feedback' khi bấm link nhảy thẳng). Không truyền thì:
   //  - về 'home': khôi phục đúng vị trí đã cuộn trước khi rời trang chính
@@ -131,7 +131,9 @@ export default function App() {
       return;
     }
 
-    setIsLoading(true);
+    // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
+    const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
+    if (!sameTab) setIsLoading(true);
     navTimer.current = window.setTimeout(() => {
       navTimer.current = 0;
       if (viewRef.current === 'home' && nextView !== 'home') {
@@ -148,11 +150,11 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
       setIsLoading(false);
-    }, TAB_LOADER_MS);
+    }, sameTab ? 0 : TAB_LOADER_MS);
   };
   const handleNavigate = (nextView, scrollTarget) => goTo(nextView, scrollTarget, true);
 
-  const page = pageOf(view);
+  const page = pageOfView(view);
 
   return (
     <>
@@ -161,7 +163,7 @@ export default function App() {
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
 
       {page ? (
-        <page.Component />
+        <page.Component view={view} onNavigate={handleNavigate} />
       ) : (
         <>
           <Hero onNavigate={handleNavigate} />

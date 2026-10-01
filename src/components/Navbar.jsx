@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
-import { PAGES, pageOf, pathOf } from '../pages.js';
+import { PAGES, pageOfView, pathOf, topOf } from '../pages.js';
 import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
@@ -50,7 +50,7 @@ const mouseOnly = (fn) => (e) => {
 };
 
 // rê chuột vào là mở, rời ra là đóng; chạm (cảm ứng) hoặc Enter (bàn phím) thì bật/tắt như nút thường.
-function SubMenu({ label, links }) {
+function SubMenu({ label, links, onSelect }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const btnRef = useRef(null);
@@ -140,7 +140,7 @@ function SubMenu({ label, links }) {
                   if (!isPlainClick(e)) return;
                   e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
                   setOpen(false);
-                  scrollToAnchor(l.href);
+                  onSelect(l);
                 }}
               >
                 {l.label}
@@ -204,6 +204,7 @@ function useMoreDot(deps) {
 // để lại cờ "bỏ qua" treo sang lần chuyển trang kế tiếp như trước.
 //  - view trùng phần tử ngay dưới đỉnh stack -> là lùi 1 bước (kể cả nút Back của trình duyệt): pop
 //  - về home -> xoá sạch stack
+//  - view con (vd lab/snake) -> đảm bảo trang cha nằm ngay dưới; đổi giữa các view con cùng cha thì thay đỉnh
 //  - còn lại -> push
 function useViewHistory(view, onNavigate) {
   const historyRef = useRef(['home']);
@@ -212,7 +213,18 @@ function useViewHistory(view, onNavigate) {
     const stack = historyRef.current;
     if (view === 'home') historyRef.current = ['home'];
     else if (stack[stack.length - 2] === view) stack.pop();
-    else if (stack[stack.length - 1] !== view) stack.push(view);
+    else if (stack[stack.length - 1] !== view) {
+      // view con (vd lab/snake): luôn có trang cha (lab) ngay dưới nó, để `cd ..` về lưới chứ không nhảy thẳng ra home.
+      // Đổi qua lại giữa các view con cùng cha (prev/next, random) thì thay đỉnh stack, không chất thêm.
+      const parent = topOf(view);
+      const top = stack[stack.length - 1];
+      if (parent === view) stack.push(view);
+      else if (topOf(top) === parent && top !== parent) stack[stack.length - 1] = view;
+      else {
+        if (top !== parent) stack.push(parent);
+        stack.push(view);
+      }
+    }
   }, [view]);
 
   const goBack = () => {
@@ -228,11 +240,12 @@ function useViewHistory(view, onNavigate) {
 
 export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const inTab = view !== 'home';
-  const localLinks = pageOf(view)?.sub || [];
+  const top = topOf(view); // 'lab/snake' -> 'lab'
+  const localLinks = pageOfView(view)?.sub || [];
   const { goBack, goHome } = useViewHistory(view, onNavigate);
 
   // link nhảy thẳng sang các mục khác ở nav chính, trừ mục đang đứng (tab hiện tại)
-  const jumpLinks = mainLinks.filter((l) => l.tab !== view);
+  const jumpLinks = mainLinks.filter((l) => l.tab !== top);
 
   const [mainRowRef, mainHasMore] = useMoreDot([inTab]);
   const [subRowRef, subHasMore] = useMoreDot([inTab, view]);
@@ -277,10 +290,12 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
       scrollToAnchor(l.href);
     }
   };
+  // mục nav phụ: có `view` (vd lab/snake) -> chuyển sang view đó (địa chỉ thật); còn lại là anchor cuộn trong trang
+  const selectSub = (l) => (l.view ? onNavigate(l.view) : scrollToAnchor(l.href));
   const clickSub = (l) => (e) => {
     if (!isPlainClick(e)) return;
-    e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
-    scrollToAnchor(l.href);
+    e.preventDefault(); // không thêm #anchor vào URL
+    selectSub(l);
   };
   const clickJump = (l) => (e) => {
     if (!isPlainClick(e)) return;
@@ -365,7 +380,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 cd ..
               </NavLink>
               {localLinks.length > MAX_INLINE_SUB ? (
-                <SubMenu key={view} label={`ls ${view}/`} links={localLinks} />
+                <SubMenu key={top} label={`ls ${top}/`} links={localLinks} onSelect={selectSub} />
               ) : (
                 localLinks.map((l) => (
                   <NavLink
@@ -419,7 +434,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                     <a href={pathOf('home')} onClick={inMenu(clickBack)} className="mobile-menu-link">
                       cd ..
                     </a>
-                    {localLinks.length > 0 && <div className="mobile-menu-head">// {view}/</div>}
+                    {localLinks.length > 0 && <div className="mobile-menu-head">// {top}/</div>}
                     {localLinks.map((l) => (
                       <a key={l.href} href={l.href} onClick={inMenu(clickSub(l))} className="mobile-menu-link">
                         {l.label}
