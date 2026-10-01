@@ -2,6 +2,7 @@
 //
 // THÊM PROJECT MỚI: chỉ cần tạo thư mục src/projects/<tên-file-bỏ-đuôi>/ gồm:
 //   meta.js  -> export default { order, file, desc, color, href }   (order: thứ tự hiển thị)
+//               + shot: true khi đã có public/previews/<tên>.png (ảnh nền lúc hover; chụp bằng npm run previews)
 //   Art.jsx  -> hình vẽ hiện trên card (tuỳ chọn; không có thì card hiện icon)
 //   Art.css  -> style riêng cho hình vẽ (tuỳ chọn)
 // Art.jsx cũng được nạp tự động, khoá theo tên thư mục (= tên file project bỏ đuôi).

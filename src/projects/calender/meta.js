@@ -4,4 +4,5 @@ export default {
   desc: 'a compact little calendar app, built by hand',
   color: 'var(--js)',
   href: 'https://github.com/Zune-lab/calender',
+  manualShot: true, // trang có màn login -> tự chụp tay (sau khi đăng nhập), lưu public/previews/calender.png
 };

@@ -14,9 +14,9 @@
 }
 
 /* ===== card project ===== */
-/* Card project (xem ProjectCard.jsx):
+/* Card project, 3 lớp (xem ProjectCard.jsx):
    - lúc nghỉ : hình vẽ tự tạo (src/projects/<tên>/Art.jsx) + số + tên file
-   - rê chuột : hình vẽ tan đi, nội dung lật vào
+   - rê chuột : hình vẽ tan đi, ẢNH CHỤP hiện làm nền, nội dung lật vào
    Dùng chung token chuyển động của cả trang (--ease, --dur-slow) trong index.css */
 
 .project-card-idle,
@@ -32,6 +32,17 @@
   transform: scale(1.12);
 }
 
+/* ảnh chụp: ẩn lúc nghỉ, hiện (thu nhỏ dần về đúng cỡ) khi hover */
+.project-card-shot {
+  opacity: 0;
+  transform: scale(1.08);
+  transition: all var(--dur-slow) var(--ease);
+}
+.project-card:hover .project-card-shot {
+  opacity: 1;
+  transform: scale(1);
+}
+
 .project-card-content {
   opacity: 0;
   transform: translate(-50%, -50%) rotate(-45deg);
@@ -40,6 +51,41 @@
 .project-card:hover .project-card-content {
   opacity: 1;
   transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* có ảnh chụp (class has-shot do JSX gắn, tự bỏ nếu ảnh không tải được):
+   bỏ nền đặc của panel chữ, thay bằng lớp phủ tối dần xuống dưới để chữ luôn
+   đọc được trên ảnh ở cả 2 theme. Không có ảnh thì panel vẫn đặc như cũ. */
+.project-card.has-shot .project-card-content {
+  background-color: transparent;
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--inset) 94%, transparent) 0%,
+    color-mix(in srgb, var(--inset) 74%, transparent) 55%,
+    color-mix(in srgb, var(--inset) 52%, transparent) 100%
+  );
+}
+
+/* demo sống (tuỳ chọn, field `demo`): chỉ crop phần trên cùng, khoá tương tác, giữ bí ẩn */
+.project-card-demo-crop {
+  z-index: 0;
+  transition: all var(--dur-slow) var(--ease);
+}
+.project-card:hover .project-card-demo-crop {
+  opacity: 0;
+  transform: scale(1.12);
+}
+.project-card-demo-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3000px; /* dư dả, phần thừa bị crop bởi overflow-hidden của cha */
+  border: 0;
+  transform-origin: top left;
+  pointer-events: none; /* chỉ xem, không tương tác/cuộn được vào trong */
+}
+.project-card-demo-fade {
+  background: linear-gradient(to bottom, transparent 45%, var(--panel) 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

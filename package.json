@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/spa-404.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "previews": "node scripts/make-previews.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
