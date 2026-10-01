@@ -12,7 +12,10 @@
     <script>
       // Apply saved theme before paint, so there's no flash on load.
       (function () {
-        var saved = localStorage.getItem('zune-theme');
+        var saved = null;
+        try {
+          saved = localStorage.getItem('zune-theme');
+        } catch (e) {} // storage bị chặn: dùng mặc định dark
         document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
       })();
     </script>

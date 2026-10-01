@@ -28,6 +28,8 @@ export default function Reptile() {
     let raf = 0;
     let last = 0;
     let visible = true;
+    let frame = 0;
+    let stroke = '';
 
     const resize = () => {
       w = box.clientWidth;
@@ -66,7 +68,8 @@ export default function Reptile() {
       last = t;
       env.ctx = ctx;
       ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = getComputedStyle(box).color;
+      if (frame++ % 20 === 0) stroke = getComputedStyle(box).color; // màu theo theme, không cần đọc style mỗi khung hình
+      ctx.strokeStyle = stroke;
       state.current.critter.follow(env.mouse.x, env.mouse.y);
     };
     raf = requestAnimationFrame(tick);

@@ -18,7 +18,7 @@ export default function Lab() {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="07" title="lab.css" />
+        <SectionHead num="09" title="lab.css" />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-10">
           // poke around: chase a lizard, design a banner, squash a few bugs
         </p>

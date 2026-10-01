@@ -23,12 +23,17 @@ export default function App() {
   const [pendingScroll, setPendingScroll] = useState(null); // string selector | number Y | null
   const [isLoading, setIsLoading] = useState(false);
   const savedHomeScroll = useRef(0);
+  const navTimer = useRef(0);
   const viewRef = useRef(view);
   viewRef.current = view;
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('zune-theme', theme);
+    try {
+      localStorage.setItem('zune-theme', theme);
+    } catch {
+      /* storage bị chặn (chế độ riêng tư...): vẫn đổi theme được, chỉ không nhớ lại lần sau */
+    }
   }, [theme]);
 
   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể
@@ -70,7 +75,10 @@ export default function App() {
     }
     const onPop = () => goTo(viewFromLocation(), undefined, false);
     window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.clearTimeout(navTimer.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -112,11 +120,21 @@ export default function App() {
   // Mọi lần chuyển tab đều hiện Loader trong TAB_LOADER_MS trước khi đổi
   // nội dung — trừ lần load trang chính đầu tiên, đã có Preloader riêng.
   // push=false khi chuyển do nút Back/Forward (URL đã đúng sẵn, không ghi thêm lịch sử).
+  // Bấm liên tiếp nhiều tab: huỷ lượt chờ trước, chỉ giữ đích cuối cùng (trước đây các lượt
+  // chồng nhau, loader tắt sớm và pushState bị ghi nhiều lần). Bấm lại đúng trang đang đứng
+  // trong lúc đang chờ thì coi như huỷ chuyển trang.
   const goTo = (nextView, scrollTarget, push = true) => {
-    if (nextView === viewRef.current) return;
+    const pending = navTimer.current;
+    window.clearTimeout(pending);
+    navTimer.current = 0;
+    if (nextView === viewRef.current) {
+      if (pending) setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
-    window.setTimeout(() => {
+    navTimer.current = window.setTimeout(() => {
+      navTimer.current = 0;
       if (viewRef.current === 'home' && nextView !== 'home') {
         savedHomeScroll.current = window.scrollY;
       }

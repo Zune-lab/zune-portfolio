@@ -27,6 +27,8 @@ export default function BugSquash() {
   const [misses, setMisses] = useState(0);
   const [active, setActive] = useState(-1);
   const [best, setBest] = useState(readBest);
+  const [round, setRound] = useState(0); // tăng mỗi lần bấm start/restart để effect của ván chạy lại từ đầu
+  const [newBest, setNewBest] = useState(false);
 
   const timeRef = useRef(DURATION);
   const activeRef = useRef(-1);
@@ -51,10 +53,14 @@ export default function BugSquash() {
     setScore(0);
     setMisses(0);
     setActive(-1);
+    setNewBest(false);
     setStatus('playing');
+    setRound((r) => r + 1);
   };
 
-  // vòng đời một ván: đếm ngược + sinh bug; dọn timer khi hết ván hoặc rời trang
+  // vòng đời một ván: đếm ngược + sinh bug; dọn timer khi hết ván hoặc rời trang.
+  // `round` nằm trong deps để "restart" giữa ván dựng lại đồng hồ (trước đây status không đổi
+  // nên effect không chạy lại: giây đầu tiên sau restart bị ngắn và timer cũ vẫn chạy tiếp).
   useEffect(() => {
     if (status !== 'playing') return;
     spawn();
@@ -69,13 +75,14 @@ export default function BugSquash() {
       activeRef.current = -1;
       setActive(-1);
     };
-  }, [status, spawn]);
+  }, [status, round, spawn]);
 
   // hết ván -> cập nhật kỷ lục
   useEffect(() => {
     if (status === 'over' && score > best) {
       setBest(score);
       saveBest(score);
+      setNewBest(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
@@ -129,6 +136,13 @@ export default function BugSquash() {
               key={i}
               type="button"
               onPointerDown={() => press(i)}
+              onKeyDown={(e) => {
+                // bàn phím: Enter / Space (pointerdown không bắt được phím)
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  press(i);
+                }
+              }}
               aria-label={i === active ? 'bug, squash it' : 'empty cell'}
               className="lab-cell aspect-square rounded-lg border border-line flex items-center justify-center select-none touch-manipulation"
               style={{ background: 'var(--panel)' }}
@@ -161,7 +175,7 @@ export default function BugSquash() {
                   ship it: <span style={{ color: 'var(--green)' }}>{score}</span> bugs squashed
                 </p>
                 <p className="text-dim">
-                  accuracy {accuracy}%{score >= best && score > 0 ? ' · new best!' : ''}
+                  accuracy {accuracy}%{newBest ? ' · new best!' : ''}
                 </p>
               </>
             )}

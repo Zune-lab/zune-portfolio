@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DYES,
   PATTERNS,
@@ -184,7 +184,9 @@ export default function BannerMaker() {
   const [ink, setInk] = useState('honey');
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef(null);
-  const stroke = useRef(null);
+  const stroke = useRef(null); // { last: [x, y], pushed: boolean } trong lúc đang kéo chuột
+  const paintRef = useRef(paint); // bản mới nhất của paint, để nhiều sự kiện pointer liên tiếp không đọc nhầm state cũ
+  const copiedTimer = useRef(0);
 
   const { w, h } = frame;
   const drawing = tab === 'draw';
@@ -193,22 +195,31 @@ export default function BannerMaker() {
   const colorLabel = selLayer ? 'layer color' : sel === -2 ? 'border color' : 'base color';
   const cell = Math.max(3, Math.floor(Math.min(STAGE_INNER_W / w, (STAGE_INNER_H - (view.hanger ? 10 : 0)) / h)));
   const groups = useMemo(() => toGroups(paint), [paint]);
-  const code = useMemo(() => buildCode(base, layers, frame, groups), [base, layers, frame, groups]);
+  // chỉ sinh code khi đang mở tab code, vẽ tay không phải dựng lại chuỗi mỗi nét
+  const code = useMemo(() => (tab === 'code' ? buildCode(base, layers, frame, groups) : ''), [tab, base, layers, frame, groups]);
   const paintCount = Object.keys(paint).length;
 
   const setF = (patch) => setFrame((f) => ({ ...f, ...patch }));
   const setV = (patch) => setView((v) => ({ ...v, ...patch }));
 
-  // ảnh nhỏ của từng hoa văn (trắng trên nền xám), vẽ lại khi đổi cỡ vải để thấy đúng tỉ lệ
+  // ảnh nhỏ của từng hoa văn (trắng trên nền xám), vẽ lại khi đổi cỡ vải để thấy đúng tỉ lệ.
+  // chỉ dựng khi tab design đang mở (kéo slider ở tab frame không tốn công), và dùng giá trị
+  // trì hoãn để kéo slider không phải dựng lại 30 ảnh ở mỗi bước.
+  const dw = useDeferredValue(w);
+  const dh = useDeferredValue(h);
+  const inDesign = tab === 'design';
   const thumbs = useMemo(() => {
-    const scale = Math.max(1, Math.floor(THUMB_LONG_SIDE / Math.max(w, h)));
+    if (!inDesign) return null;
+    const scale = Math.max(1, Math.floor(THUMB_LONG_SIDE / Math.max(dw, dh)));
     return Object.fromEntries(
       PATTERNS.map((p) => [
         p.id,
-        scaled(renderBanner('slate', [{ pattern: p.id, color: 'chalk' }], { w, h }), w, h, scale).toDataURL(),
+        scaled(renderBanner('slate', [{ pattern: p.id, color: 'chalk' }], { w: dw, h: dh }), dw, dh, scale).toDataURL(),
       ]),
     );
-  }, [w, h]);
+  }, [inDesign, dw, dh]);
+
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
@@ -235,7 +246,6 @@ export default function BannerMaker() {
     const color = pick(DYES.filter((d) => d.id !== prev));
     setLayers((ls) => [...ls, mk(pick(PATTERNS).id, color.id)]);
     setSel(layers.length);
-    setTab('design');
   };
 
   const removeLayer = (i) => {
@@ -283,17 +293,22 @@ export default function BannerMaker() {
   };
 
   // --- vẽ tay ---
-  const pushHistory = () => setHistory((hs) => [...hs.slice(-(MAX_UNDO - 1)), paint]);
+  const commitPaint = (next) => {
+    paintRef.current = next;
+    setPaint(next);
+  };
+
+  const pushHistory = (snapshot) => setHistory((hs) => [...hs.slice(-(MAX_UNDO - 1)), snapshot]);
 
   const clearPaint = () => {
-    if (!paintCount) return;
-    pushHistory();
-    setPaint({});
+    if (!Object.keys(paintRef.current).length) return;
+    pushHistory(paintRef.current);
+    commitPaint({});
   };
 
   const undo = () => {
     if (!history.length) return;
-    setPaint(history[history.length - 1]);
+    commitPaint(history[history.length - 1]);
     setHistory((hs) => hs.slice(0, -1));
   };
 
@@ -305,28 +320,33 @@ export default function BannerMaker() {
     return [Math.min(w - 1, Math.max(0, x)), Math.min(h - 1, Math.max(0, y))];
   };
 
-  // tô (hoặc xoá) các ô, có đối xứng trái-phải nếu bật mirror
+  // tô (hoặc xoá) các ô, có đối xứng trái-phải nếu bật mirror.
+  // chỉ ghi vào lịch sử undo khi nét đó thật sự làm đổi hình (bấm tẩy lên ô trống không tạo bước undo rỗng)
   const stamp = (cells) => {
     const all = mirror ? cells.flatMap(([x, y]) => [[x, y], [w - 1 - x, y]]) : cells;
-    setPaint((p) => {
-      let next = p;
-      for (const [x, y] of all) {
-        const key = `${x},${y}`;
-        if (tool === 'eraser') {
-          if (!(key in next)) continue;
-          if (next === p) next = { ...p };
-          delete next[key];
-        } else if (next[key] !== ink) {
-          if (next === p) next = { ...p };
-          next[key] = ink;
-        }
+    const cur = paintRef.current;
+    let next = cur;
+    for (const [x, y] of all) {
+      const key = `${x},${y}`;
+      if (tool === 'eraser') {
+        if (!(key in next)) continue;
+        if (next === cur) next = { ...cur };
+        delete next[key];
+      } else if (next[key] !== ink) {
+        if (next === cur) next = { ...cur };
+        next[key] = ink;
       }
-      return next;
-    });
+    }
+    if (next === cur) return;
+    if (stroke.current && !stroke.current.pushed) {
+      stroke.current.pushed = true;
+      pushHistory(cur);
+    }
+    commitPaint(next);
   };
 
   const onPointerDown = (e) => {
-    if (!drawing) return;
+    if (!drawing || (e.pointerType === 'mouse' && e.button !== 0)) return; // chuột phải / giữa không vẽ
     const c = cellAt(e);
     if (!c) return;
     try {
@@ -334,17 +354,21 @@ export default function BannerMaker() {
     } catch {
       /* không bắt được con trỏ thì vẫn vẽ được trong khung canvas */
     }
-    pushHistory();
-    stroke.current = c;
+    stroke.current = { last: c, pushed: false };
     stamp([c]);
   };
 
   const onPointerMove = (e) => {
-    if (!drawing || !stroke.current) return;
+    const s = stroke.current;
+    if (!drawing || !s) return;
+    if (e.pointerType === 'mouse' && e.buttons === 0) {
+      stroke.current = null; // nhả chuột ngoài cửa sổ mà không nhận được pointerup
+      return;
+    }
     const c = cellAt(e);
-    if (!c || (c[0] === stroke.current[0] && c[1] === stroke.current[1])) return;
-    stamp(line(stroke.current, c));
-    stroke.current = c;
+    if (!c || (c[0] === s.last[0] && c[1] === s.last[1])) return;
+    stamp(line(s.last, c));
+    s.last = c;
   };
 
   const endStroke = () => {
@@ -362,7 +386,7 @@ export default function BannerMaker() {
       a.href = url;
       a.download = 'zune-banner.png';
       a.click();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000); // thu hồi ngay có thể làm một số trình duyệt huỷ lượt tải
     }, 'image/png');
   };
 
@@ -370,7 +394,8 @@ export default function BannerMaker() {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      clearTimeout(copiedTimer.current);
+      copiedTimer.current = setTimeout(() => setCopied(false), 1500);
     } catch {
       /* trình duyệt chặn clipboard: bỏ qua, người xem vẫn tự bôi đen được */
     }
@@ -424,10 +449,7 @@ export default function BannerMaker() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-2 font-mono text-[12px]">
-            <button type="button" onClick={addLayer} disabled={layers.length >= MAX_LAYERS} className={`${btn} !px-1.5`}>
-              + layer
-            </button>
+          <div className="grid grid-cols-3 gap-2 font-mono text-[12px]">
             <button type="button" onClick={randomize} className={`${btn} !px-1.5`}>
               random
             </button>
@@ -457,18 +479,28 @@ export default function BannerMaker() {
                 {t}
               </button>
             ))}
-            {tab === 'design' && (
-              <span className="ml-auto self-center text-dim text-[12px]">
-                {layers.length}/{MAX_LAYERS} layers
-              </span>
-            )}
           </div>
 
           <div className="banner-body h-[392px] overflow-y-auto lab-scroll pr-1">
             {tab === 'design' && (
               <div role="tabpanel" id="banner-panel-design" aria-labelledby="banner-tab-design" className="flex flex-col gap-4">
-                {/* danh sách lớp, lớp trên cùng hiện trước */}
+                {/* danh sách lớp, lớp trên cùng hiện trước; lớp mới thêm sẽ nằm ngay dưới nút + layer */}
                 <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-dim text-[12px]">
+                      // layers {layers.length}/{MAX_LAYERS}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={addLayer}
+                      disabled={layers.length >= MAX_LAYERS}
+                      title={layers.length >= MAX_LAYERS ? `max ${MAX_LAYERS} layers` : 'add a random layer on top'}
+                      className={`${btn} !px-2.5 !py-0.5 text-[12px]`}
+                    >
+                      + layer
+                    </button>
+                  </div>
+                  {layers.length === 0 && <p className="text-dim text-[12px] px-1">// no layers yet. press + layer to stack a pattern on the base.</p>}
                   {layers
                     .map((l, i) => ({ l, i }))
                     .reverse()
@@ -520,7 +552,7 @@ export default function BannerMaker() {
                           aria-pressed={selLayer.pattern === p.id}
                           className={`lab-cell flex items-center justify-center h-[40px] p-0.5 rounded-md border ${selLayer.pattern === p.id ? 'border-amber' : 'border-line hover:border-amber-dim'}`}
                         >
-                          <img src={thumbs[p.id]} alt="" style={{ imageRendering: 'pixelated', maxWidth: '100%', maxHeight: '100%' }} />
+                          <img src={thumbs?.[p.id]} alt="" style={{ imageRendering: 'pixelated', maxWidth: '100%', maxHeight: '100%' }} />
                         </button>
                       ))}
                     </div>

@@ -168,39 +168,29 @@ function useMoreDot(deps) {
 }
 
 // ngăn xếp các "view" đã ghé qua, chỉ để phục vụ nút back (cd .. / mũi tên
-// mép trái). Tự quan sát prop `view` đổi từ bên ngoài (App) để push vào
-// stack; khi người dùng bấm back, ta pop ra trang TRƯỚC ĐÓ thay vì luôn
-// nhảy thẳng về home. skipPushRef để không tự push lại chính cú back đó.
+// mép trái). Stack chỉ được cập nhật khi `view` thật sự đổi (effect bên dưới), nên
+// các trường hợp view không đổi (bấm back lúc đang ở home, App huỷ lượt chuyển...) không
+// để lại cờ "bỏ qua" treo sang lần chuyển trang kế tiếp như trước.
+//  - view trùng phần tử ngay dưới đỉnh stack -> là lùi 1 bước (kể cả nút Back của trình duyệt): pop
+//  - về home -> xoá sạch stack
+//  - còn lại -> push
 function useViewHistory(view, onNavigate) {
   const historyRef = useRef(['home']);
-  const skipPushRef = useRef(false);
 
   useEffect(() => {
-    if (skipPushRef.current) {
-      skipPushRef.current = false;
-      return;
-    }
     const stack = historyRef.current;
-    if (stack[stack.length - 1] !== view) {
-      stack.push(view);
-    }
+    if (view === 'home') historyRef.current = ['home'];
+    else if (stack[stack.length - 2] === view) stack.pop();
+    else if (stack[stack.length - 1] !== view) stack.push(view);
   }, [view]);
 
   const goBack = () => {
     const stack = historyRef.current;
-    if (stack.length > 1) stack.pop(); // bỏ trang hiện tại
-    const prev = stack[stack.length - 1] || 'home';
-    skipPushRef.current = true;
-    onNavigate(prev);
+    onNavigate(stack.length > 1 ? stack[stack.length - 2] : 'home');
   };
 
-  // về thẳng trang chính, bỏ qua mọi trang đã ghé (khác goBack chỉ lùi 1 bước).
-  // Reset stack về ['home'] để lần "cd .." sau đó không lùi lại trang cũ.
-  const goHome = () => {
-    historyRef.current = ['home'];
-    skipPushRef.current = true;
-    onNavigate('home');
-  };
+  // về thẳng trang chính, bỏ qua mọi trang đã ghé (khác goBack chỉ lùi 1 bước)
+  const goHome = () => onNavigate('home');
 
   return { goBack, goHome };
 }

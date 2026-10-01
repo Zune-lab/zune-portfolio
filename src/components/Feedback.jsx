@@ -20,9 +20,8 @@ export default function Feedback() {
     const body = encodeURIComponent(message);
     window.location.href = `mailto:${TO_EMAIL}?subject=${subject}&body=${body}`;
 
-    setNote('Your mail app is open - thanks!');
-    setText('');
-    setMood(null);
+    // giữ nguyên nội dung: nếu máy không có ứng dụng mail thì người dùng không mất những gì đã viết
+    setNote(`Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`);
   };
 
   return (

@@ -118,7 +118,7 @@ export default function Terminal({ onNavigate }) {
     let cleared = false;
     const out = exec(raw, { onNavigate, clear: () => (cleared = true) });
     if (cleared) return setLines([]);
-    setLines((l) => [...l, { t: 'cmd', text: raw }, ...out.map((text) => ({ t: 'out', text }))]);
+    setLines((l) => [...l, { t: 'cmd', text: raw }, ...out.map((text) => ({ t: 'out', text }))].slice(-200));
   };
 
   const onKeyDown = (e) => {

@@ -2,10 +2,8 @@
 // Component gán env.ctx và env.mouse; setupLizard trả về con vật, gọi critter.follow(x, y) mỗi khung hình.
 export const env = { ctx: null, mouse: { x: 0, y: 0 } };
 
-  var segmentCount = 0;
   class Segment {
     constructor(parent, size, angle, range, stiffness) {
-      segmentCount++;
       this.isSegment = true;
       this.parent = parent; //Segment which this one is connected to
       if (typeof parent.children == "object") {
@@ -62,7 +60,7 @@ export const env = { ctx: null, mouse: { x: 0, y: 0 } };
     follow(iter) {
       var x = this.parent.x;
       var y = this.parent.y;
-      var dist = ((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5;
+      var dist = Math.max(((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5, 1e-9); // tránh chia 0 -> NaN làm hỏng cả con
       this.x = x + this.size * (this.x - x) / dist;
       this.y = y + this.size * (this.y - y) / dist;
       this.absAngle = Math.atan2(this.y - y, this.x - x);
@@ -355,7 +353,7 @@ export const env = { ctx: null, mouse: { x: 0, y: 0 } };
         ) {
           new Segment(node, s * 4, (iii / 3 - 0.5) * 1.571, 0.1, 4);
         }
-        new LegSystem(node, 3, s * 12, critter, 4);
+        new LegSystem(node, 3, s * 12, critter);
       }
     }
     //Tail
