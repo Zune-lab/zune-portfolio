@@ -8,7 +8,7 @@ import Feedback from './components/Feedback.jsx';
 import Socials from './components/Socials.jsx';
 import { Signature, Footer } from './components/Signature.jsx';
 import BackToTop from './components/BackToTop.jsx';
-import { PAGES, HOME_TITLE, pageOf, pathOf, viewFromLocation } from './pages.js';
+import { HOME_TITLE, pageOf, pathOf, viewFromLocation } from './pages.js';
 import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
@@ -44,7 +44,7 @@ export default function App() {
       const el = document.querySelector(pendingScroll);
       if (el) el.scrollIntoView({ block: 'start' });
     } else {
-      window.scrollTo({ top: pendingScroll });
+      window.scrollTo({ top: pendingScroll, behavior: 'instant' }); // không trượt từ từ: html có scroll-behavior: smooth
     }
     setPendingScroll(null);
   }, [view, pendingScroll]);
@@ -79,7 +79,6 @@ export default function App() {
       window.removeEventListener('popstate', onPop);
       window.clearTimeout(navTimer.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // nền chấm bi sáng quanh con trỏ (CSS đọc --mx/--my)
@@ -146,7 +145,7 @@ export default function App() {
       if (nextView === 'home') {
         setPendingScroll(scrollTarget ?? savedHomeScroll.current);
       } else {
-        window.scrollTo({ top: 0 });
+        window.scrollTo({ top: 0, behavior: 'instant' });
       }
       setIsLoading(false);
     }, TAB_LOADER_MS);

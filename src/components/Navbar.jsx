@@ -40,14 +40,24 @@ function NavLink({ href, onClick, className = '', linkRef, children, ...rest }) 
 // overflow-x + backdrop-filter nên sẽ cắt / lệch mất menu nếu đặt bên trong.
 const MAX_INLINE_SUB = 3;
 const MENU_W = 220;
+const HOVER_CLOSE_MS = 160; // trễ nhẹ khi rời nút để kịp di chuột sang menu mà không bị đóng
 
 const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
+const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+// chỉ chuột thật mới kích hoạt hover; cảm ứng vẫn dùng cú chạm (click) để bật/tắt
+const mouseOnly = (fn) => (e) => {
+  if (e.pointerType === 'mouse') fn();
+};
 
+// rê chuột vào là mở, rời ra là đóng; chạm (cảm ứng) hoặc Enter (bàn phím) thì bật/tắt như nút thường.
 function SubMenu({ label, links }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const btnRef = useRef(null);
   const menuRef = useRef(null);
+  const closeTimer = useRef(0);
+
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   useEffect(() => {
     if (!open) return;
@@ -72,13 +82,25 @@ function SubMenu({ label, links }) {
     };
   }, [open]);
 
-  const toggle = (e) => {
+  const show = () => {
+    clearTimeout(closeTimer.current);
+    if (open) return;
+    const r = btnRef.current.getBoundingClientRect();
+    setPos({ top: r.bottom - 2, left: Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8)) });
+    setOpen(true);
+  };
+  const hideSoon = () => {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpen(false), HOVER_CLOSE_MS);
+  };
+  const keepOpen = () => clearTimeout(closeTimer.current);
+
+  const onTriggerClick = (e) => {
     e.preventDefault();
-    if (!open) {
-      const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom - 2, left: Math.max(8, Math.min(r.left, window.innerWidth - MENU_W - 8)) });
-    }
-    setOpen((o) => !o);
+    // click bằng chuột: menu đã mở sẵn nhờ hover, bấm vào đừng làm nó đóng lại
+    if (e.detail > 0 && canHover()) return show();
+    if (open) setOpen(false);
+    else show();
   };
 
   return (
@@ -86,7 +108,9 @@ function SubMenu({ label, links }) {
       <NavLink
         href="#"
         linkRef={btnRef}
-        onClick={toggle}
+        onClick={onTriggerClick}
+        onPointerEnter={mouseOnly(show)}
+        onPointerLeave={mouseOnly(hideSoon)}
         aria-haspopup="menu"
         aria-expanded={open}
         className={open ? 'is-open text-amber' : ''}
@@ -98,7 +122,14 @@ function SubMenu({ label, links }) {
       </NavLink>
       {open &&
         createPortal(
-          <div ref={menuRef} role="menu" className="sub-menu" style={{ top: pos.top, left: pos.left, width: MENU_W }}>
+          <div
+            ref={menuRef}
+            role="menu"
+            className="sub-menu"
+            style={{ top: pos.top, left: pos.left, width: MENU_W }}
+            onPointerEnter={mouseOnly(keepOpen)}
+            onPointerLeave={mouseOnly(hideSoon)}
+          >
             {links.map((l) => (
               <a
                 key={l.href}
@@ -206,6 +237,65 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const [mainRowRef, mainHasMore] = useMoreDot([inTab]);
   const [subRowRef, subHasMore] = useMoreDot([inTab, view]);
 
+  // --- menu hamburger (màn hình < md, nơi nav ngang bị ẩn) ---
+  const [menuOpen, setMenuOpen] = useState(false);
+  const burgerRef = useRef(null);
+  const panelRef = useRef(null);
+
+  useEffect(() => setMenuOpen(false), [view]); // đổi trang thì đóng menu
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (e) => {
+      if (!panelRef.current?.contains(e.target) && !burgerRef.current?.contains(e.target)) setMenuOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      setMenuOpen(false);
+      burgerRef.current?.focus();
+    };
+    const wide = window.matchMedia('(min-width: 768px)'); // xoay ngang / kéo rộng cửa sổ: nav ngang hiện lại, menu thừa
+    const onWide = (e) => e.matches && setMenuOpen(false);
+    document.addEventListener('pointerdown', onDown);
+    document.addEventListener('keydown', onKey);
+    wide.addEventListener('change', onWide);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      document.removeEventListener('keydown', onKey);
+      wide.removeEventListener('change', onWide);
+    };
+  }, [menuOpen]);
+
+  // xử lý bấm link dùng chung cho nav ngang (desktop) và menu hamburger (mobile)
+  const clickMain = (l) => (e) => {
+    if (!isPlainClick(e)) return;
+    if (l.tab) {
+      e.preventDefault();
+      onNavigate(l.tab);
+    } else if (view === 'home') {
+      e.preventDefault(); // đang ở trang chính: chỉ cuộn tới mục, không thêm #anchor vào URL
+      scrollToAnchor(l.href);
+    }
+  };
+  const clickSub = (l) => (e) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
+    scrollToAnchor(l.href);
+  };
+  const clickJump = (l) => (e) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    onNavigate(l.tab || 'home', l.tab ? undefined : l.href);
+  };
+  const clickBack = (e) => {
+    e.preventDefault();
+    goBack();
+  };
+  const inMenu = (handler) => (e) => {
+    handler(e);
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <nav
@@ -214,9 +304,10 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
       >
         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
           <a
-            href="#top"
+            href={pathOf('home')}
             aria-label="Về trang chính"
             onClick={(e) => {
+              if (!isPlainClick(e)) return;
               e.preventDefault();
               if (inTab) goHome();
               else window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -245,16 +336,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 <NavLink
                   key={l.href}
                   href={realHref(l)}
-                  onClick={(e) => {
-                    if (!isPlainClick(e)) return;
-                    if (l.tab) {
-                      e.preventDefault();
-                      onNavigate(l.tab);
-                    } else if (view === 'home') {
-                      e.preventDefault(); // đang ở trang chính: chỉ cuộn tới mục, không thêm #anchor vào URL
-                      document.querySelector(l.href)?.scrollIntoView({ block: 'start' });
-                    }
-                  }}
+                  onClick={clickMain(l)}
                 >
                   {l.label}
                 </NavLink>
@@ -272,14 +354,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                   : 'opacity-0 translate-x-3 pointer-events-none'
               }`}
             >
-              <NavLink
-                href="#top"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goBack();
-                }}
-                className="nav-back"
-              >
+              <NavLink href="#top" onClick={clickBack} className="nav-back">
                 cd ..
               </NavLink>
               {localLinks.length > MAX_INLINE_SUB ? (
@@ -289,11 +364,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                   <NavLink
                     key={l.href}
                     href={l.href}
-                    onClick={(e) => {
-                      if (!isPlainClick(e)) return;
-                      e.preventDefault(); // chỉ cuộn tới mục, không thêm #anchor vào URL
-                      scrollToAnchor(l.href);
-                    }}
+                    onClick={clickSub(l)}
                   >
                     {l.label}
                   </NavLink>
@@ -306,11 +377,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                 <NavLink
                   key={l.href}
                   href={realHref(l)}
-                  onClick={(e) => {
-                    if (!isPlainClick(e)) return;
-                    e.preventDefault();
-                    onNavigate(l.tab || 'home', l.tab ? undefined : l.href);
-                  }}
+                  onClick={clickJump(l)}
                   className="opacity-70 hover:opacity-100"
                 >
                   ../{l.label}
@@ -320,7 +387,57 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             <span className={`nav-more-dot ${inTab && subHasMore ? 'is-visible' : ''}`} aria-hidden="true" />
           </div>
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              ref={burgerRef}
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls={menuOpen ? 'mobile-menu' : undefined}
+              className={`burger inline-flex items-center justify-center md:hidden ${menuOpen ? 'is-open' : ''}`}
+            >
+              <span className="burger-bars" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            </button>
+
+            {/* menu thả xuống cho màn hình nhỏ: cùng danh sách link với nav ngang (home: nav chính; trong trang: cd .. + mục con + nhảy sang trang khác) */}
+            {menuOpen && (
+              <div id="mobile-menu" ref={panelRef} className="mobile-menu md:hidden">
+                {inTab ? (
+                  <>
+                    <a href={pathOf('home')} onClick={inMenu(clickBack)} className="mobile-menu-link">
+                      cd ..
+                    </a>
+                    {localLinks.length > 0 && <div className="mobile-menu-head">// {view}/</div>}
+                    {localLinks.map((l) => (
+                      <a key={l.href} href={l.href} onClick={inMenu(clickSub(l))} className="mobile-menu-link">
+                        {l.label}
+                      </a>
+                    ))}
+                    <div className="mobile-menu-head">// jump to</div>
+                    {jumpLinks.map((l) => (
+                      <a key={l.href} href={realHref(l)} onClick={inMenu(clickJump(l))} className="mobile-menu-link">
+                        ../{l.label}
+                      </a>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div className="mobile-menu-head">// ls ~/</div>
+                    {mainLinks.map((l) => (
+                      <a key={l.href} href={realHref(l)} onClick={inMenu(clickMain(l))} className="mobile-menu-link">
+                        {l.label}
+                      </a>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
             <ThemeToggleTorch theme={theme} onToggle={onToggleTheme} />
           </div>
         </div>

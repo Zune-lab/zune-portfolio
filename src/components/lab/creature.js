@@ -147,7 +147,7 @@ export const env = { ctx: null, mouse: { x: 0, y: 0 } };
       this.swingOffset = this.creature.absAngle - this.hip.absAngle;
       //this.swing*=(2*(relAngle>0)-1);
     }
-    update(x, y) {
+    update() {
       this.moveTo(this.goalX, this.goalY);
       //this.nodes[0].follow(true,true)
       if (this.step == 0) {
@@ -263,7 +263,7 @@ export const env = { ctx: null, mouse: { x: 0, y: 0 } };
         this.children[i].follow(true, true);
       }
       for (var i = 0; i < this.systems.length; i++) {
-        this.systems[i].update(x, y);
+        this.systems[i].update();
       }
       this.absAngle -= Math.PI;
       this.draw(true);
