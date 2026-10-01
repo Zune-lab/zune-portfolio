@@ -2,30 +2,88 @@
 .lab-ghost {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: radial-gradient(circle at 50% 40%, #3a2a6e 0%, #241a45 60%, #170f2e 100%);
   overflow: hidden;
   cursor: pointer;
   user-select: none;
 }
 
-/* ---- phông nền: trăng, sao, ma nhỏ bay ngang ---- */
+/* ---- bầu trời ban ngày: phủ lên nền đêm, mờ dần vào ---- */
+.ghost-sky-day {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #6fc3f5 0%, #bfe6fb 65%, #e6f6ff 100%);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.is-day .ghost-sky-day { opacity: 1; }
+
+.ghost-cloud {
+  position: absolute;
+  left: 0;
+  width: 70px;
+  height: 22px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 18px -10px 0 4px #fff, 40px -2px 0 -2px #fff;
+  opacity: 0;
+  transition: opacity 1s ease;
+  animation: ghost-cloud-drift 40s linear infinite;
+}
+.ghost-cloud-b { transform: scale(0.7); }
+.is-day .ghost-cloud { opacity: 0.9; }
+@keyframes ghost-cloud-drift {
+  from { left: -120px; }
+  to { left: 100%; }
+}
+
+/* ---- trăng <-> mặt trời: bấm để đổi ---- */
 .ghost-moon {
   position: absolute;
   top: 28px;
   right: 56px;
+  z-index: 3;
   width: 58px;
   height: 58px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
+  cursor: pointer;
   background:
     radial-gradient(circle at 30% 35%, rgba(190, 175, 120, 0.55) 0 7px, transparent 8px),
     radial-gradient(circle at 66% 60%, rgba(190, 175, 120, 0.5) 0 9px, transparent 10px),
     radial-gradient(circle at 45% 78%, rgba(190, 175, 120, 0.45) 0 5px, transparent 6px),
     #f4ecc8;
   box-shadow: 0 0 34px rgba(244, 236, 200, 0.45);
+  transition: transform 0.2s, box-shadow 0.6s;
 }
+.ghost-moon:hover { transform: scale(1.08); }
+.ghost-moon:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+/* lớp màu mặt trời phủ lên trăng */
+.ghost-moon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, #fff3a0, #ffc83a 70%);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+/* tia nắng quay quanh */
+.ghost-moon::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 4px dotted rgba(255, 200, 58, 0.85);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  animation: ghost-rays 14s linear infinite;
+}
+@keyframes ghost-rays { to { transform: rotate(360deg); } }
+.is-day .ghost-moon { box-shadow: 0 0 46px rgba(255, 200, 58, 0.85); }
+.is-day .ghost-moon::after,
+.is-day .ghost-moon::before { opacity: 1; }
 
 .ghost-star {
   position: absolute;
@@ -39,7 +97,9 @@
 @keyframes ghost-twinkle {
   50% { opacity: 1; transform: scale(1.6); }
 }
+.is-day .ghost-star { animation: none; opacity: 0; }
 
+/* ---- ma nhỏ bay ngang (chỉ có ban đêm) ---- */
 .ghost-mini {
   position: absolute;
   left: 0;
@@ -48,17 +108,18 @@
   background: #fff;
   border-radius: 13px 13px 0 0;
   opacity: 0.22;
+  transition: opacity 0.8s;
   animation: ghost-drift 16s linear infinite;
 }
 .ghost-mini::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: -6px;
+  bottom: -5px;
   width: 100%;
-  height: 6px;
-  background: radial-gradient(circle at 6.5px 0, #fff 6.5px, transparent 7.5px) repeat-x;
-  background-size: 13px 6px;
+  height: 7px; /* chồng lên thân 2px để không lộ đường nối */
+  background: radial-gradient(circle at 6.5px 2px, #fff 6.5px, transparent 7.5px) repeat-x;
+  background-size: 13px 7px;
 }
 .ghost-mini::before {
   content: '';
@@ -76,13 +137,43 @@
   from { left: -40px; }
   to { left: calc(100% + 40px); }
 }
+.is-day .ghost-mini { opacity: 0; }
 
-/* ---- con ma chính ---- */
-.ghost-float {
-  position: relative;
-  margin-top: -30px;
-  animation: ghost-bob 3s ease-in-out infinite;
+/* ---- mặt đất ---- */
+.ghost-ground {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 56px;
+  background: #120b25;
+  border-radius: 60% 40% 0 0 / 26px 20px 0 0;
+  transition: background-color 1s ease;
 }
+.is-day .ghost-ground { background: #4a9a52; }
+
+/* ---- con ma chính. actor = vị trí (bay về mộ), float = nhấp nhô ---- */
+.ghost-actor {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  /* đêm xuống: hiện lại trước rồi mới trồi lên khỏi mộ */
+  transition: opacity 0.4s ease 0s, left 1.1s ease-in-out 0.2s, top 1.1s ease-in-out 0.2s,
+    transform 1.1s ease-in-out 0.2s;
+}
+.is-day .ghost-actor {
+  left: 22%;
+  top: 76%;
+  transform: translate(-50%, -50%) scale(0.35);
+  opacity: 0;
+  /* trời sáng: bay về mộ, nhỏ dần, mờ ở cuối chặng */
+  transition: left 1.1s ease-in-out 0s, top 1.1s ease-in-out 0s, transform 1.1s ease-in-out 0s,
+    opacity 0.4s ease 0.75s;
+}
+
+.ghost-float { position: relative; animation: ghost-bob 3s ease-in-out infinite; }
 @keyframes ghost-bob {
   50% { transform: translateY(-16px); }
 }
@@ -95,16 +186,17 @@
   border-radius: 48px 48px 0 0;
   filter: drop-shadow(0 0 18px rgba(190, 170, 255, 0.55));
 }
-/* gấu váy: mỗi ô 32x16 là 1 nửa vòng tròn TRẮNG nhô xuống -> 3 "chân" tròn, giữa các chân là khe hở */
+/* gấu váy: mỗi ô 32x18 chứa 1 nửa vòng tròn trắng nhô xuống; ô cao hơn phần nhô ra 2px
+   và chồng lên thân ma 2px nên không còn đường nối mờ giữa thân và chân */
 .ghost::after {
   content: '';
   position: absolute;
   left: 0;
   bottom: -16px;
   width: 100%;
-  height: 16px;
-  background: radial-gradient(circle at 16px 0, #fff 16px, transparent 17px) repeat-x;
-  background-size: 32px 16px;
+  height: 18px;
+  background: radial-gradient(circle at 16px 2px, #fff 16px, transparent 17px) repeat-x;
+  background-size: 32px 18px;
 }
 
 /* tay vẫy */
@@ -159,7 +251,6 @@
   animation: ghost-blink 4s infinite;
   transition: transform 0.2s;
 }
-/* đốm sáng trong mắt cho có hồn */
 .ghost-eye::after {
   content: '';
   position: absolute;
@@ -186,7 +277,6 @@
 .ghost-cheek-l { left: 14px; }
 .ghost-cheek-r { right: 14px; }
 
-/* miệng: nụ cười nhỏ, khi giật mình thành chữ O to */
 .ghost-mouth {
   position: absolute;
   top: 74px;
@@ -201,9 +291,11 @@
 
 .ghost-shadow {
   position: absolute;
-  bottom: 52px;
+  left: 50%;
+  bottom: 40px;
   width: 80px;
   height: 12px;
+  margin-left: -40px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.35);
   animation: ghost-shadow 3s ease-in-out infinite;
@@ -211,19 +303,82 @@
 @keyframes ghost-shadow {
   50% { transform: scaleX(0.7); opacity: 0.6; }
 }
+.is-day .ghost-shadow { animation: none; opacity: 0; }
 
-.ghost-hint {
+/* ---- bia mộ ---- */
+.ghost-grave {
   position: absolute;
-  bottom: 14px;
-  left: 0;
+  left: 22%;
+  bottom: 34px;
+  width: 54px;
+  height: 72px;
+  margin-left: -27px;
+  border-radius: 27px 27px 4px 4px;
+  background: linear-gradient(to bottom, #7d7a9c, #5d5a7a);
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.2);
+  transition: filter 1s;
+  filter: brightness(0.8);
+}
+.is-day .ghost-grave { filter: brightness(1.1); }
+.ghost-grave::after { /* đống đất dưới chân bia */
+  content: '';
+  position: absolute;
+  left: -14px;
+  bottom: -8px;
+  width: 82px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2b1d3d;
+  z-index: -1;
+}
+.is-day .ghost-grave::after { background: #6b4a2b; }
+.ghost-rip {
+  position: absolute;
+  top: 20px;
   width: 100%;
   text-align: center;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(20, 15, 40, 0.65);
+}
+/* "zzz" bay lên từ mộ khi ma ngủ */
+.ghost-zzz {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  opacity: 0;
+}
+.ghost-zzz-2 { font-size: 16px; }
+.ghost-zzz-3 { font-size: 20px; }
+.is-day .ghost-zzz { animation: ghost-zzz 2.8s ease-out infinite 1.3s; }
+.is-day .ghost-zzz-2 { animation-delay: 1.9s; }
+.is-day .ghost-zzz-3 { animation-delay: 2.5s; }
+@keyframes ghost-zzz {
+  0% { opacity: 0; transform: translate(0, 0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(18px, -46px); }
 }
 
-/* ---- bấm vào: BOO! ---- */
+.ghost-hint,
+.ghost-count {
+  position: absolute;
+  bottom: 12px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 1s;
+}
+.ghost-hint { left: 0; width: 100%; text-align: center; pointer-events: none; }
+.ghost-count { right: 16px; }
+.is-day .ghost-hint,
+.is-day .ghost-count { color: rgba(255, 255, 255, 0.9); }
+
+/* ---- bấm vào: ma giật mình, nói 1 câu, bắn tia sáng ---- */
 .ghost-bubble {
   position: absolute;
   top: -44px;
@@ -234,7 +389,7 @@
   color: #1c1530;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   white-space: nowrap;
   opacity: 0;
   transform: translateX(-50%) scale(0.4);
@@ -258,10 +413,7 @@
   60% { transform: translateY(-20px) scale(1.08, 0.94); }
   100% { transform: translateY(0) scale(1, 1); }
 }
-.lab-ghost.is-boo .ghost-bubble {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
+.lab-ghost.is-boo .ghost-bubble { opacity: 1; transform: translateX(-50%) scale(1); }
 .lab-ghost.is-boo .ghost-eye { transform: scale(1.3); }
 .lab-ghost.is-boo .ghost-mouth {
   width: 18px;
@@ -272,14 +424,24 @@
 .lab-ghost.is-boo .ghost-arm-l { animation: none; transform: rotate(-70deg); }
 .lab-ghost.is-boo .ghost-arm-r { animation: none; transform: rotate(70deg); }
 
+.ghost-burst { position: absolute; width: 0; height: 0; pointer-events: none; }
+.ghost-spark {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: ghost-spark 0.7s ease-out forwards;
+}
+@keyframes ghost-spark {
+  to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ghost-star,
-  .ghost-mini,
-  .ghost-float,
-  .ghost-arm,
-  .ghost-eyes,
-  .ghost-eye,
-  .ghost-shadow,
+  .ghost-star, .ghost-mini, .ghost-cloud, .ghost-float, .ghost-arm, .ghost-eyes, .ghost-eye,
+  .ghost-shadow, .ghost-moon::before, .ghost-zzz, .ghost-spark,
   .lab-ghost.is-boo .ghost-float { animation: none; }
-  .ghost-bubble { transition: none; }
+  .ghost-actor, .is-day .ghost-actor, .ghost-sky-day, .ghost-ground, .ghost-bubble,
+  .ghost-moon::after { transition: none; }
 }
