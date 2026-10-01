@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ['selector', '[data-theme="dark"]'],
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
@@ -14,8 +13,6 @@ export default {
         amber: 'var(--amber)',
         'amber-dim': 'var(--amber-dim)',
         green: 'var(--green)',
-        js: 'var(--js)',
-        csslang: 'var(--css-lang)',
       },
       fontFamily: {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],

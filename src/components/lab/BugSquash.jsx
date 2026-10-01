@@ -1,23 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { readBest, saveBest } from '../../lib/storage.js';
 
 const CELLS = 9;
 const DURATION = 30; // giây
 const BEST_KEY = 'zune-bugsquash-best';
-
-const readBest = () => {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-};
-const saveBest = (n) => {
-  try {
-    localStorage.setItem(BEST_KEY, String(n));
-  } catch {
-    /* bỏ qua nếu không ghi được */
-  }
-};
 
 // mini game: bug nhô lên ở ô ngẫu nhiên, bấm trúng để diệt, càng về sau càng nhanh
 export default function BugSquash() {
@@ -26,7 +12,7 @@ export default function BugSquash() {
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState(0);
   const [active, setActive] = useState(-1);
-  const [best, setBest] = useState(readBest);
+  const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [round, setRound] = useState(0); // tăng mỗi lần bấm start/restart để effect của ván chạy lại từ đầu
   const [newBest, setNewBest] = useState(false);
 
@@ -81,10 +67,9 @@ export default function BugSquash() {
   useEffect(() => {
     if (status === 'over' && score > best) {
       setBest(score);
-      saveBest(score);
+      saveBest(BEST_KEY, score);
       setNewBest(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const press = (i) => {

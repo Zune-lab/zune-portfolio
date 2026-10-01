@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { readBest, saveBest } from '../../lib/storage.js';
 
 const N = 18; // lưới N x N
 const CELL = 20;
@@ -17,21 +18,6 @@ const KEYS = {
   arrowdown: 'down', s: 'down',
   arrowleft: 'left', a: 'left',
   arrowright: 'right', d: 'right',
-};
-
-const readBest = () => {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-};
-const saveBest = (n) => {
-  try {
-    localStorage.setItem(BEST_KEY, String(n));
-  } catch {
-    /* bỏ qua nếu không ghi được */
-  }
 };
 
 const placeFood = (snake) => {
@@ -53,7 +39,7 @@ const fresh = () => {
 export default function Snake() {
   const [status, setStatus] = useState('idle'); // idle | playing | over
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(readBest);
+  const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [round, setRound] = useState(0);
   const [newBest, setNewBest] = useState(false);
 
@@ -165,7 +151,6 @@ export default function Snake() {
       clearTimeout(timer);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, round]);
 
   // đổi sáng/tối (App đặt data-theme trên <html>) -> vẽ lại canvas dù game đang idle hay đã over
@@ -179,10 +164,9 @@ export default function Snake() {
   useEffect(() => {
     if (status === 'over' && scoreRef.current > best) {
       setBest(scoreRef.current);
-      saveBest(scoreRef.current);
+      saveBest(BEST_KEY, scoreRef.current);
       setNewBest(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const onKeyDown = (e) => {

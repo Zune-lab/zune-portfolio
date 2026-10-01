@@ -70,30 +70,6 @@
   );
 }
 
-/* demo sống (tuỳ chọn, field `demo`): chỉ crop phần trên cùng, khoá tương tác, giữ bí ẩn */
-.project-card-demo-crop {
-  z-index: 0;
-  transition: all var(--dur-slow) var(--ease);
-}
-.project-card:hover .project-card-demo-crop,
-.project-card:focus-visible .project-card-demo-crop {
-  opacity: 0;
-  transform: scale(1.12);
-}
-.project-card-demo-frame {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 3000px; /* dư dả, phần thừa bị crop bởi overflow-hidden của cha */
-  border: 0;
-  transform-origin: top left;
-  pointer-events: none; /* chỉ xem, không tương tác/cuộn được vào trong */
-}
-.project-card-demo-fade {
-  background: linear-gradient(to bottom, transparent 45%, var(--panel) 100%);
-}
-
-/* cảm ứng (không có hover): hiện sẵn mô tả, nếu không thì chạm vào là mở link luôn */
 @media (hover: none) {
   .project-card .project-card-idle,
   .project-card .project-card-preview {

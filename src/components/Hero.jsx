@@ -3,6 +3,7 @@ import Btn31 from './Btn31.jsx';
 import ContactButton from './ContactButton.jsx';
 import Terminal from './Terminal.jsx';
 import { isOnlineHour } from '../lib/vnTime.js';
+import { storageGet, storageSet } from '../lib/storage.js';
 
 // online/offline is inferred from the Vietnam clock (no backend needed);
 // busy/focus can only be picked by hand, a machine can't know those.
@@ -21,12 +22,8 @@ function autoStatusByHour() {
 }
 
 function readOverride() {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    return CYCLE.includes(v) ? v : 'auto';
-  } catch {
-    return 'auto';
-  }
+  const v = storageGet(STORAGE_KEY);
+  return CYCLE.includes(v) ? v : 'auto';
 }
 
 export default function Hero({ onNavigate }) {
@@ -43,12 +40,7 @@ export default function Hero({ onNavigate }) {
   const cycleStatus = () => {
     const next = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
     setOverride(next);
-    try {
-      if (next === 'auto') localStorage.removeItem(STORAGE_KEY);
-      else localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // storage bị chặn (chế độ riêng tư, v.v.) - bỏ qua, override vẫn hoạt động trong phiên này
-    }
+    storageSet(STORAGE_KEY, next === 'auto' ? null : next); // storage bị chặn thì override chỉ sống trong phiên này
   };
 
   return (

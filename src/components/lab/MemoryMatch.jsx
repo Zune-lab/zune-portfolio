@@ -1,22 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { readBest, saveBest } from '../../lib/storage.js';
 
 const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
 const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
-
-const readBest = () => {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-};
-const saveBest = (n) => {
-  try {
-    localStorage.setItem(BEST_KEY, String(n));
-  } catch {
-    /* bỏ qua nếu không ghi được */
-  }
-};
 
 const shuffle = () => {
   const deck = [...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym }));
@@ -33,7 +19,7 @@ export default function MemoryMatch() {
   const [open, setOpen] = useState([]); // vị trí thẻ đang lật tạm (tối đa 2)
   const [done, setDone] = useState([]); // ký hiệu đã ghép xong
   const [moves, setMoves] = useState(0);
-  const [best, setBest] = useState(readBest);
+  const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [newBest, setNewBest] = useState(false);
   const timer = useRef(0);
 
@@ -65,7 +51,7 @@ export default function MemoryMatch() {
       setOpen([]);
       if (nd.length === SYMBOLS.length && (!best || m < best)) {
         setBest(m);
-        saveBest(m);
+        saveBest(BEST_KEY, m);
         setNewBest(true);
       }
     } else {

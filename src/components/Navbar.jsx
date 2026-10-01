@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
-import { PAGES, pageOfView, pathOf, topOf } from '../pages.js';
+import { PAGES, pageOfView, topOf } from '../pages.js';
+import { pathOf } from '../lib/paths.js';
+import { isPlainClick, scrollToAnchor } from '../lib/dom.js';
 import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
@@ -16,10 +18,6 @@ const mainLinks = [
 // href THẬT của link: trang riêng -> /zune-portfolio/<id>; anchor -> trang chính + #anchor.
 // Nhờ vậy Ctrl+click / chuột giữa / "mở trong tab mới" ra đúng trang, không chỉ #about.
 const realHref = (l) => (l.tab ? pathOf(l.tab) : pathOf('home') + l.href);
-
-// bấm thường -> chuyển trang trong app (mượt, có loader); giữ Ctrl/Cmd/Shift/Alt hoặc
-// chuột giữa -> trả lại cho trình duyệt mở tab mới
-const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
 function NavLink({ href, onClick, className = '', linkRef, children, ...rest }) {
   return (
@@ -42,7 +40,6 @@ const MAX_INLINE_SUB = 3;
 const MENU_W = 220;
 const HOVER_CLOSE_MS = 160; // trễ nhẹ khi rời nút để kịp di chuột sang menu mà không bị đóng
 
-const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
 const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 // chỉ chuột thật mới kích hoạt hover; cảm ứng vẫn dùng cú chạm (click) để bật/tắt
 const mouseOnly = (fn) => (e) => {
@@ -192,7 +189,6 @@ function useMoreDot(deps) {
       el.removeEventListener('wheel', wheel);
       window.removeEventListener('resize', check);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   return [ref, hasMore];

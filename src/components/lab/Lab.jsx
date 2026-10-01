@@ -3,11 +3,9 @@ import SectionHead from '../SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../lab-items.js';
 import { pathOf } from '../../lib/paths.js';
+import { isPlainClick } from '../../lib/dom.js';
 import './Lab.css';
 import './LabFx.css';
-
-// bấm thường -> chuyển view trong app; giữ Ctrl/Cmd/Shift/Alt hoặc chuột giữa -> để trình duyệt mở tab mới
-const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
 // kiểu hover của nút/chip/thẻ nằm ở LabFx.css (trạng thái đang chọn của chip đọc từ aria-pressed)
 const chip = 'lab-chip px-3 py-1 rounded-md border font-mono text-[12.5px]';

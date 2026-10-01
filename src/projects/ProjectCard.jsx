@@ -1,38 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { arts } from './index.js';
 import './ProjectCard.css';
-
-// "virtual" viewport width dùng để render trang demo bên trong iframe, rồi
-// scale xuống vừa khung card — luôn coi như đang mở trang demo trên màn
-// hình desktop 1280px, bất kể card thật rộng bao nhiêu, cho nhất quán.
-const VIRTUAL_W = 1280;
-
-function useCardScale() {
-  const ref = useRef(null);
-  const [scale, setScale] = useState(0.18);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => {
-      setScale(entry.contentRect.width / VIRTUAL_W);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  return [ref, scale];
-}
 
 // Card gồm 3 lớp:
 //  - Art (src/projects/<tên>/Art.jsx): hình vẽ tự tạo, hiện lúc bình thường; không có thì hiện icon
 //  - ảnh chụp public/previews/<tên>.png: hiện làm nền khi HOVER (chưa có ảnh thì nền trơn như cũ)
-//  - demo (tuỳ chọn): iframe trang chạy thật, crop phần đầu, không tương tác được
-export default function ProjectCard({ num, file, desc, color, href, demo, shot }) {
+export default function ProjectCard({ num, file, desc, color, href, shot }) {
   // Chỉ tải ảnh khi meta.js đặt `shot: true` (đã chụp & commit public/previews/<tên>.png),
   // nên chưa có ảnh thì không bắn request 404.
   const [shotOk, setShotOk] = useState(Boolean(shot));
-  const [cropRef, scale] = useCardScale();
   const slug = file.replace(/\.[^.]+$/, '');
   const Art = arts[slug];
 
@@ -44,22 +20,6 @@ export default function ProjectCard({ num, file, desc, color, href, demo, shot }
       rel="noreferrer"
       className={`project-card ${shotOk ? 'has-shot' : ''} relative h-[180px] rounded-[10px] overflow-hidden bg-panel border border-line flex items-center justify-center cursor-pointer transition-[transform,box-shadow,border-color] duration-500 hover:scale-[1.04] hover:shadow-[0_18px_30px_-14px_rgba(0,0,0,0.5)] hover:border-amber-dim scroll-mt-20`}
     >
-      {demo && (
-        <div ref={cropRef} className="project-card-demo-crop absolute inset-0 overflow-hidden">
-          <iframe
-            src={demo}
-            title={`${file} live preview`}
-            loading="lazy"
-            tabIndex={-1}
-            aria-hidden="true"
-            sandbox="allow-scripts"
-            style={{ width: VIRTUAL_W, transform: `scale(${scale})` }}
-            className="project-card-demo-frame"
-          />
-          <div className="project-card-demo-fade absolute inset-0" />
-        </div>
-      )}
-
       {Art && (
         <div className="project-card-preview absolute inset-0" style={{ color }} aria-hidden="true">
           <Art color={color} />
@@ -79,11 +39,11 @@ export default function ProjectCard({ num, file, desc, color, href, demo, shot }
 
       <div
         className={`project-card-idle relative z-[1] flex flex-col items-center gap-2 ${
-          demo || Art ? 'self-end pb-4' : ''
+          Art ? 'self-end pb-4' : ''
         }`}
         style={{ color }}
       >
-        {!demo && !Art && (
+        {!Art && (
           <svg viewBox="0 0 24 24" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
             <path
               fill="currentColor"

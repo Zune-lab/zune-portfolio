@@ -20,10 +20,6 @@ export const gitLog = [
   { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
 ];
 
-// Danh sách project nằm ở src/projects/ (mỗi project 1 thư mục). Re-export để
-// chỗ nào đang import { projects } từ data.js vẫn chạy như cũ.
-export { projects } from './projects/index.js';
-
 // icon: raw SVG path data (single <path>) rendered at viewBox 0 0 W H
 export const socials = [
   {

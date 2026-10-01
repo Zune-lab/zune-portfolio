@@ -1,3 +1,4 @@
+import { isPlainClick, scrollToAnchor } from '../lib/dom.js';
 import './ContactButton.css';
 
 export default function ContactButton({ href }) {
@@ -6,10 +7,9 @@ export default function ContactButton({ href }) {
       href={href}
       onClick={(e) => {
         // link cuộn trong trang (#socials...): chỉ cuộn, không thêm #anchor vào URL
-        const plain = e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
-        if (plain && href?.startsWith('#')) {
+        if (isPlainClick(e) && href?.startsWith('#')) {
           e.preventDefault();
-          document.querySelector(href)?.scrollIntoView({ block: 'start' });
+          scrollToAnchor(href);
         }
       }}
       className="btn-contact relative overflow-hidden inline-flex items-center justify-center gap-2.5 h-[52px] pl-4 pr-5 rounded-full border-2 border-black font-mono font-bold text-[13px] uppercase tracking-wider text-white"

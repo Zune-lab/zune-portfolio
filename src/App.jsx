@@ -8,7 +8,9 @@ import Feedback from './components/Feedback.jsx';
 import Socials from './components/Socials.jsx';
 import { Signature, Footer } from './components/Signature.jsx';
 import BackToTop from './components/BackToTop.jsx';
-import { pageOfView, pathOf, titleOf, topOf, viewFromLocation } from './pages.js';
+import { pageOfView, titleOf, topOf, viewFromLocation } from './pages.js';
+import { pathOf } from './lib/paths.js';
+import { storageSet } from './lib/storage.js';
 import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
@@ -29,11 +31,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem('zune-theme', theme);
-    } catch {
-      /* storage bị chặn (chế độ riêng tư...): vẫn đổi theme được, chỉ không nhớ lại lần sau */
-    }
+    storageSet('zune-theme', theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
   }, [theme]);
 
   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể
