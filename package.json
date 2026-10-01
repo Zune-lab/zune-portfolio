@@ -2,6 +2,20 @@
   "name": "zune-portfolio",
   "private": true,
   "version": "1.0.0",
+  "description": "Zune's personal portfolio: a terminal / code-editor styled site built with React + Tailwind",
+  "author": {
+    "name": "Zune",
+    "url": "https://github.com/Zune-lab"
+  },
+  "license": "MIT",
+  "homepage": "https://zune-lab.github.io/zune-portfolio/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zune-lab/zune-portfolio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Zune-lab/zune-portfolio/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

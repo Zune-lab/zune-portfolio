@@ -57,3 +57,12 @@ I'm an introvert by default and I get to know people slowly. I like the kind of 
 ## Credits
 
 Many of the small effects on the site are inspired by and adapted from [uiverse.io](https://uiverse.io): the flashlight switch, contact button, back-to-top button, scroll arrow and loader.
+
+## License & authorship
+
+© 2026 **Zune** ([@Zune-lab](https://github.com/Zune-lab)).
+
+- **Code** is released under the [MIT License](./LICENSE). You can reuse it, but you **must keep the copyright notice and license text** in any copy.
+- **Personal content** (name, signature, texts about me, journey log, links, photos) is **not** licensed for reuse, see [NOTICE.md](./NOTICE.md).
+- If you use this as a template, please replace everything personal with your own, and don't present this work as yours.
+- Original repository: https://github.com/Zune-lab/zune-portfolio, the commit history there is the record of authorship.
