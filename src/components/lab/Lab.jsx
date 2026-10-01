@@ -3,16 +3,21 @@ import SectionHead from '../SectionHead.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../lab-items.js';
 import { pathOf } from '../../lib/paths.js';
 import './Lab.css';
+import './LabFx.css';
 
 // bấm thường -> chuyển view trong app; giữ Ctrl/Cmd/Shift/Alt hoặc chuột giữa -> để trình duyệt mở tab mới
 const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
-const chip = (on) =>
-  `lab-cell px-3 py-1 rounded-md border font-mono text-[12.5px] ${
-    on ? 'border-amber text-ink' : 'border-line text-dim hover:border-amber-dim'
-  }`;
-const btn =
-  'lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink font-mono text-[13px]';
+// kiểu hover của nút/chip/thẻ nằm ở LabFx.css (trạng thái đang chọn của chip đọc từ aria-pressed)
+const chip = 'lab-chip px-3 py-1 rounded-md border font-mono text-[12.5px]';
+const btn = 'lab-btn px-3.5 py-1.5 rounded-md border border-line text-ink font-mono text-[13px]';
+
+// đèn pha theo con trỏ trên thẻ: đặt vị trí vào biến CSS --cx/--cy (LabFx.css đọc)
+const trackPointer = (e) => {
+  const r = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty('--cx', `${e.clientX - r.left}px`);
+  e.currentTarget.style.setProperty('--cy', `${e.clientY - r.top}px`);
+};
 
 function Link({ slug, onNavigate, className, children, ...rest }) {
   const view = slug ? `lab/${slug}` : 'lab';
@@ -48,15 +53,15 @@ function LabGrid({ kind, setKind, onNavigate }) {
 
       <div className="flex flex-wrap items-center gap-2 mb-6">
         {['all', ...LAB_KINDS].map((k) => (
-          <button key={k} type="button" onClick={() => setKind(k)} aria-pressed={kind === k} className={chip(kind === k)}>
+          <button key={k} type="button" onClick={() => setKind(k)} aria-pressed={kind === k} className={chip}>
             {k}
-            <span className="text-dim ml-1.5">
+            <span className="lab-chip-n opacity-60">
               {k === 'all' ? LAB_ITEMS.length : LAB_ITEMS.filter((i) => i.kind === k).length}
             </span>
           </button>
         ))}
         <button type="button" onClick={random} className={`${btn} ml-auto`}>
-          random ↯
+          random <span className="lab-btn-ico lab-btn-ico--zap" aria-hidden="true">↯</span>
         </button>
       </div>
 
@@ -66,20 +71,22 @@ function LabGrid({ kind, setKind, onNavigate }) {
             key={i.slug}
             slug={i.slug}
             onNavigate={onNavigate}
-            className="lab-cell group block p-4 rounded-[10px] border border-line hover:border-amber"
+            onPointerMove={trackPointer}
+            className="lab-card group block p-4 rounded-[10px] border border-line"
             style={{ background: 'var(--panel)' }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[26px] leading-none" aria-hidden="true">
+              <span className="lab-card-icon text-[26px] leading-none" aria-hidden="true">
                 {i.icon}
               </span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-dim border border-line rounded px-1.5 py-0.5">
+              <span className="lab-card-tag font-mono text-[11px] uppercase tracking-[0.08em] text-dim border border-line rounded px-1.5 py-0.5">
                 {i.kind}
               </span>
             </div>
             <div className="font-mono font-bold text-[14px] text-ink group-hover:text-amber">{i.name}</div>
             <div className="font-mono text-[12px] text-dim mb-2">{i.file}</div>
-            <p className="text-[13px] text-dim leading-snug">{i.blurb}</p>
+            <p className="text-[13px] text-dim leading-snug pr-10">{i.blurb}</p>
+            <span className="lab-card-go" aria-hidden="true">run ›</span>
           </Link>
         ))}
       </div>
@@ -103,16 +110,16 @@ function LabItem({ item, onNavigate }) {
     <>
       <nav aria-label="Lab" className="flex flex-wrap items-center gap-2 -mt-6 mb-8 font-mono text-[13px]">
         <Link slug={null} onNavigate={onNavigate} className={btn}>
-          ← all games
+          <span className="lab-btn-ico lab-btn-ico--l" aria-hidden="true">←</span> all games
         </Link>
         <Link slug={prev.slug} onNavigate={onNavigate} className={btn} rel="prev" title={prev.file}>
-          ‹ prev
+          <span className="lab-btn-ico lab-btn-ico--l" aria-hidden="true">‹</span> prev
         </Link>
         <Link slug={next.slug} onNavigate={onNavigate} className={btn} rel="next" title={next.file}>
-          next ›
+          next <span className="lab-btn-ico lab-btn-ico--r" aria-hidden="true">›</span>
         </Link>
         <button type="button" onClick={random} className={btn}>
-          random ↯
+          random <span className="lab-btn-ico lab-btn-ico--zap" aria-hidden="true">↯</span>
         </button>
         <span className="ml-auto text-dim text-[12px] uppercase tracking-[0.08em]">{item.kind}</span>
       </nav>

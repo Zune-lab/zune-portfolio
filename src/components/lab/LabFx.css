@@ -1,0 +1,186 @@
+/* Hiệu ứng hover cho lưới lab (thẻ, nút điều hướng, chip lọc).
+   Ý tưởng lấy từ thư viện Uiverse.io (MIT), viết lại bằng biến theme của site nên ăn theo dark/light/giờ trong ngày:
+   - .lab-btn   : "twist" quét chéo của adamgiebl (thanh mảnh xoay ra thành nền đặc) + mũi tên trượt kiểu mateusneves
+   - .lab-chip  : gạch chân đổi hướng khi hover của satyamchaudharydev
+   - .lab-card  : viền conic xoay bằng mask-composite kiểu Clenio21, cộng đèn pha theo con trỏ (JS đặt --cx/--cy) */
+
+@property --lab-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes lab-spin { to { --lab-angle: 360deg; } }
+@keyframes lab-zap {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-16deg) scale(1.25); }
+  60% { transform: rotate(12deg) scale(1.15); }
+}
+
+/* ---------- nút điều hướng: all games / prev / next / random ---------- */
+.lab-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  cursor: pointer;
+  background: var(--inset);
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    transform var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.lab-btn::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 0; /* lúc nghỉ thanh quét không có bề rộng nên không lộ vạch chéo; hover mới nở ra */
+  height: 500%;
+  background: var(--amber);
+  transform: translate(-50%, -50%) rotate(-60deg);
+  transition: transform 0.38s var(--ease), width 0.38s var(--ease);
+}
+.lab-btn-ico { display: inline-block; transition: transform var(--dur) var(--ease); }
+
+.lab-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.lab-btn:active { transform: scale(0.96); }
+
+@media (hover: hover) and (pointer: fine) {
+  .lab-btn:hover,
+  .lab-btn:focus-visible {
+    color: #0a0c10;
+    border-color: var(--amber);
+    box-shadow: 0 0 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
+  }
+  .lab-btn:hover::before,
+  .lab-btn:focus-visible::before {
+    width: 100%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+  }
+  .lab-btn:hover .lab-btn-ico--l { transform: translateX(-4px); }
+  .lab-btn:hover .lab-btn-ico--r { transform: translateX(4px); }
+  .lab-btn:hover .lab-btn-ico--zap { animation: lab-zap 0.5s var(--ease); }
+}
+
+/* ---------- chip lọc: all / game / toy / tool ---------- */
+.lab-chip {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--text-dim);
+  border-color: var(--line);
+  background: transparent;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.lab-chip::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--amber);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s var(--ease);
+}
+.lab-chip-n { display: inline-block; margin-left: 0.4em; transition: transform var(--dur) var(--ease); }
+.lab-chip:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.lab-chip:active { transform: scale(0.95); }
+.lab-chip[aria-pressed='true'] {
+  color: var(--text);
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 11%, transparent);
+}
+.lab-chip[aria-pressed='true']::after { transform: scaleX(1); transform-origin: left; }
+
+@media (hover: hover) and (pointer: fine) {
+  .lab-chip:hover { color: var(--amber); border-color: var(--amber-dim); }
+  .lab-chip:hover::after { transform: scaleX(1); transform-origin: left; }
+  .lab-chip:hover .lab-chip-n { transform: translateY(-2px); }
+}
+
+/* ---------- thẻ game ---------- */
+.lab-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+/* viền conic xoay: gradient bị mask chỉ còn phần viền 1.5px */
+.lab-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--lab-angle),
+    transparent 0 52%,
+    var(--amber-dim) 72%,
+    var(--amber) 88%,
+    transparent 100%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+  animation: lab-spin 2.4s linear infinite paused;
+}
+/* đèn pha theo con trỏ */
+.lab-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--cx, 50%) var(--cy, 0%),
+    color-mix(in srgb, var(--amber) 15%, transparent),
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.lab-card-icon { display: inline-block; transition: transform 0.45s var(--ease); transform-origin: 50% 70%; }
+.lab-card-tag { transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
+/* nhãn "run" trượt lên ở góc dưới phải */
+.lab-card-go {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--amber);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.lab-card:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.lab-card:focus-visible::before, .lab-card:focus-visible::after, .lab-card:focus-visible .lab-card-go { opacity: 1; }
+.lab-card:focus-visible .lab-card-go { transform: none; }
+.lab-card:active { transform: translateY(-1px) scale(0.99); }
+
+@media (hover: hover) and (pointer: fine) {
+  .lab-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--amber) 40%, transparent), 0 2px 0 0 transparent;
+  }
+  .lab-card:hover::before { opacity: 1; animation-play-state: running; }
+  .lab-card:hover::after { opacity: 1; }
+  .lab-card:hover .lab-card-icon { transform: translateY(-3px) rotate(-10deg) scale(1.18); }
+  .lab-card:hover .lab-card-tag { color: var(--amber); border-color: var(--amber-dim); }
+  .lab-card:hover .lab-card-go { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-btn, .lab-btn::before, .lab-btn-ico, .lab-chip, .lab-chip::after, .lab-chip-n,
+  .lab-card, .lab-card-icon, .lab-card-go { transition: none; }
+  .lab-card::before { animation: none; }
+  .lab-btn:hover .lab-btn-ico--zap { animation: none; }
+}
