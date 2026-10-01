@@ -1,5 +1,5 @@
 import SectionHead from '../SectionHead.jsx';
-import CssPlayground from './CssPlayground.jsx';
+import BannerMaker from './BannerMaker.jsx';
 import BugSquash from './BugSquash.jsx';
 import Reptile from './Reptile.jsx';
 import Cat from './Cat.jsx';
@@ -13,14 +13,14 @@ function SubHead({ children }) {
   );
 }
 
-// trang lab: chỗ cho mọi người vào chơi thử CSS và một mini game
+// trang lab: chỗ cho mọi người vào chơi thử: thằn lằn, mèo, thiết kế banner và một mini game
 export default function Lab() {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
         <SectionHead num="07" title="lab.css" />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-10">
-          // poke around: chase a lizard, squash a few bugs, tweak some CSS
+          // poke around: chase a lizard, design a banner, squash a few bugs
         </p>
 
         <div id="lab-reptile" className="mb-12 scroll-mt-20">
@@ -36,8 +36,8 @@ export default function Lab() {
         </div>
 
         <div id="lab-playground" className="mb-12 scroll-mt-20">
-          <SubHead>// playground.css</SubHead>
-          <CssPlayground />
+          <SubHead>// banner-maker.js</SubHead>
+          <BannerMaker />
         </div>
 
         <div id="lab-game" className="scroll-mt-20">
