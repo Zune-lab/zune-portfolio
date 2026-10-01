@@ -152,7 +152,100 @@
 }
 .is-day .ghost-ground { background: #4a9a52; }
 
-/* ---- con ma chính. actor = vị trí (bay về mộ), float = nhấp nhô ---- */
+/* ---- biến màu: đổi theo trạng thái (giận = đỏ, konami = cầu vồng) ---- */
+.lab-ghost {
+  --halo: 170, 150, 255;
+  --g-top: #ffffff;
+  --g-mid: #f1ecff;
+  --g-bot: #b9a6ff;
+  --lid-bg: #f4f0ff;
+}
+
+/* ---- lớp hiệu ứng: canvas, sương mù, đèn pin, chữ ẩn, sao băng ---- */
+.ghost-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 1s;
+}
+.ghost-lantern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 120px at var(--mx, -999px) var(--my, -999px), rgba(190, 170, 255, 0.14), transparent 100%);
+  transition: opacity 1s;
+}
+.ghost-secrets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle 90px at var(--mx, -999px) var(--my, -999px), #000 0%, transparent 100%);
+  mask-image: radial-gradient(circle 90px at var(--mx, -999px) var(--my, -999px), #000 0%, transparent 100%);
+  transition: opacity 1s;
+}
+.ghost-secret {
+  position: absolute;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: #d9ccff;
+  text-shadow: 0 0 8px rgba(190, 170, 255, 0.8);
+}
+
+.ghost-fog {
+  position: absolute;
+  left: 0;
+  bottom: 34px;
+  width: 200%;
+  height: 80px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 22% 60% at 15% 100%, rgba(170, 150, 230, 0.22), transparent),
+    radial-gradient(ellipse 18% 50% at 45% 100%, rgba(170, 150, 230, 0.16), transparent),
+    radial-gradient(ellipse 24% 55% at 75% 100%, rgba(170, 150, 230, 0.2), transparent);
+  animation: ghost-fog 38s linear infinite alternate;
+  transition: opacity 1s;
+}
+.ghost-fog-b {
+  bottom: 26px;
+  height: 60px;
+  opacity: 0.7;
+  animation-duration: 55s;
+  animation-direction: alternate-reverse;
+}
+@keyframes ghost-fog {
+  to { transform: translateX(-50%); }
+}
+
+.ghost-shoot {
+  position: absolute;
+  top: 12%;
+  right: 18%;
+  width: 90px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, transparent);
+  opacity: 0;
+  animation: ghost-shoot 13s linear infinite 4s;
+}
+@keyframes ghost-shoot {
+  0% { opacity: 0; transform: translate(0, 0) rotate(-35deg); }
+  1% { opacity: 1; }
+  9% { opacity: 0; transform: translate(-260px, 180px) rotate(-35deg); }
+  100% { opacity: 0; transform: translate(-260px, 180px) rotate(-35deg); }
+}
+
+/* ban ngày: ẩn các lớp ban đêm (trừ lúc nhật thực) */
+.is-day:not(.is-eclipse) .ghost-fx,
+.is-day:not(.is-eclipse) .ghost-fog,
+.is-day:not(.is-eclipse) .ghost-secrets,
+.is-day:not(.is-eclipse) .ghost-lantern { opacity: 0; }
+.is-day:not(.is-eclipse) .ghost-shoot { display: none; }
+
+/* ---- con ma chính. actor = vị trí (bay về mộ), drift = JS trôi theo chuột, float = nhấp nhô ---- */
 .ghost-actor {
   position: absolute;
   left: 50%;
@@ -172,64 +265,89 @@
   transition: left 1.1s ease-in-out 0s, top 1.1s ease-in-out 0s, transform 1.1s ease-in-out 0s,
     opacity 0.4s ease 0.75s;
 }
-
-.ghost-float { position: relative; animation: ghost-bob 3s ease-in-out infinite; }
-@keyframes ghost-bob {
-  50% { transform: translateY(-16px); }
+.is-day.is-eclipse .ghost-actor {
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition: opacity 0.4s ease 0s, left 1.1s ease-in-out 0.2s, top 1.1s ease-in-out 0.2s,
+    transform 1.1s ease-in-out 0.2s;
 }
 
+.ghost-drift { will-change: transform; transition: opacity 0.25s ease; }
+.ghost-float { position: relative; animation: ghost-bob 3.2s ease-in-out infinite; }
+@keyframes ghost-bob {
+  50% { transform: translateY(-14px); }
+}
+
+/* quầng sáng thở */
+.ghost-halo {
+  position: absolute;
+  left: -46px;
+  right: -46px;
+  top: -40px;
+  bottom: -30px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(var(--halo), 0.38), transparent);
+  animation: ghost-breathe 4.5s ease-in-out infinite;
+}
+@keyframes ghost-breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.65; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+/* thân ma là SVG bán trong suốt, mờ dần xuống đuôi */
 .ghost {
   position: relative;
-  width: 96px;
-  height: 116px;
-  background: #fff;
-  border-radius: 48px 48px 0 0;
-  filter: drop-shadow(0 0 18px rgba(190, 170, 255, 0.55));
+  width: 100px;
+  height: 120px;
+  filter: drop-shadow(0 0 14px rgba(var(--halo), 0.5));
+  transition: transform 0.25s ease;
 }
-/* gấu váy: mỗi ô 32x18 chứa 1 nửa vòng tròn trắng nhô xuống; ô cao hơn phần nhô ra 2px
-   và chồng lên thân ma 2px nên không còn đường nối mờ giữa thân và chân */
-.ghost::after {
-  content: '';
+.ghost:hover { transform: rotate(-4deg); }
+.ghost-body {
   position: absolute;
   left: 0;
-  bottom: -16px;
-  width: 100%;
-  height: 18px;
-  background: radial-gradient(circle at 16px 2px, #fff 16px, transparent 17px) repeat-x;
-  background-size: 32px 18px;
+  top: 0;
+  width: 100px;
+  height: 140px;
+  overflow: visible;
+  pointer-events: none;
 }
 
-/* tay vẫy */
+/* tay: mảnh, mờ dần như làn khói */
 .ghost-arm {
   position: absolute;
-  top: 56px;
-  width: 20px;
-  height: 38px;
-  background: #fff;
-  border-radius: 50%;
+  top: 58px;
+  width: 18px;
+  height: 40px;
+  border-radius: 50% 50% 60% 60%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.92), rgba(220, 205, 255, 0));
   transform-origin: 50% 8%;
+  transition: transform 0.3s ease;
 }
-.ghost-arm-l { left: -13px; animation: ghost-wave-l 1.6s ease-in-out infinite; }
-.ghost-arm-r { right: -13px; animation: ghost-wave-r 1.6s ease-in-out infinite 0.4s; }
+.ghost-arm-l { left: -12px; animation: ghost-wave-l 3s ease-in-out infinite; }
+.ghost-arm-r { right: -12px; animation: ghost-wave-r 3s ease-in-out infinite 0.5s; }
 @keyframes ghost-wave-l {
-  0%, 100% { transform: rotate(18deg); }
-  50% { transform: rotate(-12deg); }
+  0%, 100% { transform: rotate(14deg); }
+  50% { transform: rotate(-6deg); }
 }
 @keyframes ghost-wave-r {
-  0%, 100% { transform: rotate(-18deg); }
-  50% { transform: rotate(12deg); }
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(6deg); }
 }
 
-/* mắt: lúc nghỉ tự đảo qua lại; có chuột trong khung thì dõi theo (--ex/--ey do JS ghi) */
+/* mắt: hốc tối, đồng tử phát sáng, mí mắt lim dim (--lid = phần mí che từ trên xuống) */
 .ghost-eyes {
   position: absolute;
-  top: 40px;
+  top: 38px;
   left: 0;
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: 22px;
-  animation: ghost-look 6s ease-in-out infinite;
+  gap: 24px;
+  animation: ghost-look 7s ease-in-out infinite;
 }
 @keyframes ghost-look {
   0%, 15% { transform: translateX(0); }
@@ -244,49 +362,60 @@
 }
 .ghost-eye {
   position: relative;
-  width: 13px;
-  height: 18px;
+  width: 12px;
+  height: 21px;
   border-radius: 50%;
-  background: #1c1530;
-  animation: ghost-blink 4s infinite;
-  transition: transform 0.2s;
+  background: #0f0a20;
+  overflow: hidden;
+  --lid: 0.3;
+  --tilt: 0deg;
+  animation: ghost-blink 5.5s infinite;
+  transition: scale 0.2s;
 }
-.ghost-eye::after {
+.ghost-eye::before { /* mí mắt */
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #fff;
+  left: -5px;
+  right: -5px;
+  top: 0;
+  height: 100%;
+  z-index: 2;
+  background: var(--lid-bg);
+  transform-origin: 50% 100%;
+  transform: translateY(calc((var(--lid) - 1) * 100%)) rotate(var(--tilt));
+  transition: transform 0.25s ease;
 }
-@keyframes ghost-blink {
-  0%, 94%, 100% { transform: scaleY(1); }
-  97% { transform: scaleY(0.1); }
-}
-
-.ghost-cheek {
+.ghost-eye::after { /* đồng tử phát sáng */
+  content: '';
   position: absolute;
-  top: 68px;
-  width: 13px;
-  height: 8px;
+  left: 3px;
+  top: 6px;
+  width: 6px;
+  height: 10px;
   border-radius: 50%;
-  background: rgba(255, 130, 170, 0.55);
+  background: radial-gradient(circle, var(--eye-a, #c9fbff) 0 25%, var(--eye-b, #7a8cff) 60%, transparent 72%);
+  animation: ghost-pupil 3s ease-in-out infinite;
 }
-.ghost-cheek-l { left: 14px; }
-.ghost-cheek-r { right: 14px; }
+@keyframes ghost-pupil { 50% { opacity: 0.55; } }
+@keyframes ghost-blink { /* chớp đôi */
+  0%, 90%, 100% { transform: scaleY(1); }
+  92% { transform: scaleY(0.08); }
+  94% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+  98% { transform: scaleY(1); }
+}
+.ghost:hover .ghost-eye { --lid: 0.08; }
 
 .ghost-mouth {
   position: absolute;
-  top: 74px;
+  top: 76px;
   left: 50%;
-  width: 14px;
-  height: 7px;
-  margin-left: -7px;
-  border-radius: 0 0 14px 14px;
-  background: #1c1530;
-  transition: all 0.15s;
+  width: 10px;
+  height: 4px;
+  margin-left: -5px;
+  border-radius: 0 0 10px 10px;
+  background: #0f0a20;
+  transition: all 0.18s;
 }
 
 .ghost-shadow {
@@ -298,27 +427,32 @@
   margin-left: -40px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.35);
-  animation: ghost-shadow 3s ease-in-out infinite;
+  animation: ghost-shadow 3.2s ease-in-out infinite;
 }
 @keyframes ghost-shadow {
   50% { transform: scaleX(0.7); opacity: 0.6; }
 }
 .is-day .ghost-shadow { animation: none; opacity: 0; }
+.is-day.is-eclipse .ghost-shadow { animation: ghost-shadow 3.2s ease-in-out infinite; opacity: 1; }
 
-/* ---- bia mộ ---- */
+/* ---- bia mộ (bấm để đổi bia) ---- */
 .ghost-grave {
   position: absolute;
   left: 22%;
   bottom: 34px;
   width: 54px;
   height: 72px;
-  margin-left: -27px;
+  margin: 0 0 0 -27px;
+  padding: 0;
+  border: 0;
   border-radius: 27px 27px 4px 4px;
   background: linear-gradient(to bottom, #7d7a9c, #5d5a7a);
   box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
   transition: filter 1s;
   filter: brightness(0.8);
 }
+.ghost-grave:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .is-day .ghost-grave { filter: brightness(1.1); }
 .ghost-grave::after { /* đống đất dưới chân bia */
   content: '';
@@ -335,8 +469,10 @@
 .ghost-rip {
   position: absolute;
   top: 20px;
+  left: 0;
   width: 100%;
   text-align: center;
+  white-space: nowrap;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-weight: 700;
   font-size: 12px;
@@ -358,6 +494,7 @@
 .is-day .ghost-zzz { animation: ghost-zzz 2.8s ease-out infinite 1.3s; }
 .is-day .ghost-zzz-2 { animation-delay: 1.9s; }
 .is-day .ghost-zzz-3 { animation-delay: 2.5s; }
+.is-day.is-eclipse .ghost-zzz { animation: none; opacity: 0; }
 @keyframes ghost-zzz {
   0% { opacity: 0; transform: translate(0, 0); }
   20% { opacity: 1; }
@@ -378,21 +515,27 @@
 .is-day .ghost-hint,
 .is-day .ghost-count { color: rgba(255, 255, 255, 0.9); }
 
-/* ---- bấm vào: ma giật mình, nói 1 câu, bắn tia sáng ---- */
+/* ---- lời thoại ---- */
 .ghost-bubble {
   position: absolute;
-  top: -44px;
+  bottom: calc(100% + 10px);
   left: 50%;
-  padding: 4px 12px;
-  border-radius: 14px;
-  background: #fff;
+  z-index: 4;
+  width: max-content;
+  max-width: 220px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: #f4f0ff;
   color: #1c1530;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-weight: 700;
-  font-size: 13px;
-  white-space: nowrap;
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
   opacity: 0;
   transform: translateX(-50%) scale(0.4);
+  transform-origin: 50% 100%;
   transition: opacity 0.15s, transform 0.2s;
 }
 .ghost-bubble::after {
@@ -403,9 +546,11 @@
   margin-left: -6px;
   border: 6px solid transparent;
   border-bottom: 0;
-  border-top-color: #fff;
+  border-top-color: #f4f0ff;
 }
+.lab-ghost.is-say .ghost-bubble { opacity: 1; transform: translateX(-50%) scale(1); }
 
+/* ---- giật mình ---- */
 .lab-ghost.is-boo .ghost-float { animation: ghost-jump 0.6s ease-out; }
 @keyframes ghost-jump {
   0% { transform: translateY(0) scale(1, 1); }
@@ -413,17 +558,83 @@
   60% { transform: translateY(-20px) scale(1.08, 0.94); }
   100% { transform: translateY(0) scale(1, 1); }
 }
-.lab-ghost.is-boo .ghost-bubble { opacity: 1; transform: translateX(-50%) scale(1); }
-.lab-ghost.is-boo .ghost-eye { transform: scale(1.3); }
+.lab-ghost.is-boo .ghost-eye { --lid: 0; scale: 1.25; }
 .lab-ghost.is-boo .ghost-mouth {
   width: 18px;
   height: 22px;
   margin-left: -9px;
   border-radius: 50%;
 }
-.lab-ghost.is-boo .ghost-arm-l { animation: none; transform: rotate(-70deg); }
-.lab-ghost.is-boo .ghost-arm-r { animation: none; transform: rotate(70deg); }
+.lab-ghost.is-boo .ghost-arm-l { animation: none; transform: rotate(80deg); }
+.lab-ghost.is-boo .ghost-arm-r { animation: none; transform: rotate(-80deg); }
 
+/* ---- nổi giận (bấm dồn dập): đỏ rực, mí mắt cau, rung ---- */
+.lab-ghost.is-rage {
+  --halo: 255, 70, 90;
+  --g-top: #fff0f0;
+  --g-mid: #ffd0d6;
+  --g-bot: #ff4d63;
+  --lid-bg: #ffe3e6;
+}
+.is-rage .ghost-eye { --lid: 0.5; --eye-a: #ffd0d0; --eye-b: #ff3b4e; }
+.is-rage .ghost-eye-l { --tilt: 18deg; }
+.is-rage .ghost-eye-r { --tilt: -18deg; }
+.is-rage .ghost-mouth {
+  width: 22px;
+  height: 9px;
+  margin-left: -11px;
+  border-radius: 2px 2px 12px 12px;
+}
+.is-rage .ghost { animation: ghost-shake 0.14s linear infinite; }
+@keyframes ghost-shake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ---- Konami: cầu vồng ---- */
+.lab-ghost.is-konami {
+  --g-mid: #c8f0ff;
+  --g-bot: #ff7ad9;
+}
+.is-konami .ghost-body { animation: ghost-hue 2s linear infinite; }
+.is-konami .ghost-halo { animation: ghost-breathe 4.5s ease-in-out infinite, ghost-hue 2s linear infinite; }
+@keyframes ghost-hue { to { filter: hue-rotate(360deg); } }
+
+/* ---- việc riêng của ma ---- */
+.act-yawn .ghost-eye { --lid: 0.9; }
+.act-yawn .ghost-mouth {
+  width: 14px;
+  height: 26px;
+  margin-left: -7px;
+  border-radius: 50%;
+  transition: all 0.6s;
+}
+.act-yawn .ghost-arm-l { animation: none; transform: rotate(150deg); }
+.act-yawn .ghost-arm-r { animation: none; transform: rotate(-150deg); }
+.act-shiver .ghost { animation: ghost-shiver 0.08s linear 12; }
+@keyframes ghost-shiver {
+  0% { transform: translateX(-1.5px); }
+  50% { transform: translateX(1.5px); }
+  100% { transform: translateX(-1.5px); }
+}
+.act-flicker .ghost,
+.act-flicker .ghost-halo { animation: ghost-flicker 1.4s steps(1, end) 1; }
+@keyframes ghost-flicker {
+  0% { opacity: 1; }
+  10% { opacity: 0.2; }
+  18% { opacity: 1; }
+  30% { opacity: 0.1; }
+  36% { opacity: 0.8; }
+  50% { opacity: 0.05; }
+  58% { opacity: 1; }
+  100% { opacity: 1; }
+}
+.act-phase .ghost-drift { opacity: 0; }
+
+/* ---- hiệu ứng bấm ---- */
 .ghost-burst { position: absolute; width: 0; height: 0; pointer-events: none; }
 .ghost-spark {
   position: absolute;
@@ -437,11 +648,71 @@
 @keyframes ghost-spark {
   to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
 }
+.ghost-ring {
+  position: absolute;
+  left: -80px;
+  top: -80px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid rgba(200, 185, 255, 0.85);
+  animation: ghost-ring 0.8s ease-out forwards;
+}
+@keyframes ghost-ring {
+  from { transform: scale(0.1); opacity: 1; }
+  to { transform: scale(1); opacity: 0; }
+}
+.ghost-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: #fff;
+  opacity: 0;
+  animation: ghost-flash 0.5s ease-out;
+}
+@keyframes ghost-flash {
+  0% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+.ghost-toast {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  z-index: 5;
+  max-width: calc(100% - 140px);
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(190, 170, 255, 0.45);
+  background: rgba(20, 12, 40, 0.72);
+  color: #e9e2ff;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.ghost-toast.is-on { opacity: 1; transform: none; }
+
+/* ---- nhật thực (bấm mặt trời 5 lần liên tục): ban ngày mà ma vẫn thức ---- */
+.is-day.is-eclipse .ghost-sky-day { opacity: 0.1; }
+.is-day.is-eclipse .ghost-cloud { opacity: 0.12; }
+.is-day.is-eclipse .ghost-ground { background: #1c2b20; }
+.is-day.is-eclipse .ghost-mini { opacity: 0.22; }
+.is-day.is-eclipse .ghost-star { animation: ghost-twinkle 2.4s ease-in-out infinite; opacity: 0.2; }
+.is-day.is-eclipse .ghost-moon {
+  background: #07050f;
+  box-shadow: 0 0 30px 8px rgba(255, 214, 120, 0.9), 0 0 80px 22px rgba(255, 150, 50, 0.45);
+}
+.is-day.is-eclipse .ghost-moon::after { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .ghost-star, .ghost-mini, .ghost-cloud, .ghost-float, .ghost-arm, .ghost-eyes, .ghost-eye,
-  .ghost-shadow, .ghost-moon::before, .ghost-zzz, .ghost-spark,
+  .ghost-eye::after, .ghost-shadow, .ghost-moon::before, .ghost-zzz, .ghost-spark, .ghost-ring,
+  .ghost-fog, .ghost-shoot, .ghost-halo, .ghost-flash, .is-rage .ghost, .act-shiver .ghost,
+  .act-flicker .ghost, .act-flicker .ghost-halo, .is-konami .ghost-body, .is-konami .ghost-halo,
   .lab-ghost.is-boo .ghost-float { animation: none; }
   .ghost-actor, .is-day .ghost-actor, .ghost-sky-day, .ghost-ground, .ghost-bubble,
-  .ghost-moon::after { transition: none; }
+  .ghost-moon::after, .ghost-eye::before, .ghost-toast { transition: none; }
 }

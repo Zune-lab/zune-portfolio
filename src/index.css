@@ -94,3 +94,39 @@ body::after {
   background: var(--amber);
   color: var(--bg);
 }
+
+/* ---- thanh cuộn toàn trang: rãnh chấm bi cùng nhịp với lưới nền, thumb amber ----
+   Chrome/Edge/Safari dùng ::-webkit-scrollbar. Firefox (và mọi trình duyệt không có
+   ::-webkit-scrollbar) dùng scrollbar-color / scrollbar-width. Không đặt chung vì Chrome 121+
+   sẽ bỏ qua ::-webkit-scrollbar nếu thấy scrollbar-color. Các vùng cuộn có luật riêng
+   (.terminal-body, .lab-scroll, .nav-scroll...) vẫn thắng nhờ độ ưu tiên cao hơn. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-left: 1px solid var(--line);
+}
+::-webkit-scrollbar-thumb {
+  min-height: 48px;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-color: var(--amber-dim);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--amber);
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg);
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--amber-dim) var(--bg);
+  }
+}
