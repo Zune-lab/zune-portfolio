@@ -17,6 +17,9 @@
     "url": "https://github.com/Zune-lab/zune-portfolio/issues"
   },
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/spa-404.mjs",

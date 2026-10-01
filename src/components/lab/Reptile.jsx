@@ -86,7 +86,7 @@ export default function Reptile() {
   return (
     <div className="bg-inset border border-line rounded-[10px] p-[26px]">
       <div ref={wrap} className="relative h-[380px] rounded-lg border border-line overflow-hidden text-ink" style={{ background: 'var(--panel)' }}>
-        <canvas ref={cvs} className="absolute inset-0 w-full h-full touch-none" />
+        <canvas ref={cvs} className="absolute inset-0 w-full h-full touch-pan-y" />
         <span className="absolute top-2.5 left-3 font-mono text-[12px] text-dim pointer-events-none">
           move your cursor, it follows · {legs} legs
         </span>

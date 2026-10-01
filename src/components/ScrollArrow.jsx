@@ -15,6 +15,7 @@ export default function ScrollArrow({
   rotate = -90,
   ariaLabel = 'Scroll to next section',
   className = '',
+  tabIndex,
 }) {
   const inner = (
     <span className="scroll-arrow-box flex absolute top-0 left-0 transition-transform duration-300">
@@ -29,6 +30,7 @@ export default function ScrollArrow({
 
   const sharedProps = {
     'aria-label': ariaLabel,
+    tabIndex,
     className: `scroll-arrow relative block w-12 h-12 rounded-full overflow-hidden cursor-pointer ${className}`,
     style: { transform: `rotate(${rotate}deg)` },
   };

@@ -26,7 +26,7 @@ export default function Feedback() {
   return (
     <section id="feedback" className="py-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="07" title="feedback.sh" />
+        <SectionHead num="05" title="feedback.sh" />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
           // even a one-line note is fine, I read everything
         </p>

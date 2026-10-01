@@ -152,7 +152,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="09" title={item ? item.file : 'lab.css'} />
+        <SectionHead num="07" title={item ? item.file : 'lab.css'} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid kind={kind} setKind={setKind} onNavigate={onNavigate} />}
       </div>
     </section>

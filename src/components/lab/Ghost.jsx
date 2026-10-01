@@ -458,10 +458,10 @@ export default function Ghost() {
     const now = performance.now();
     clicks.current = [...clicks.current.filter((t) => now - t < 3000), now];
     doBoo();
-    if (live.current.rage || clicks.current.length >= 6) {
-      startRage();
-      say(pick(RAGE), 1600);
-    } else if (n === 25) {
+    // rage và mốc 25/50/100 độc lập: bấm nhanh vẫn nhận thành tựu
+    const raging = live.current.rage || clicks.current.length >= 6;
+    if (raging) startRage();
+    if (n === 25) {
       say("you're relentless. respect.", 2200);
     } else if (n === 50) {
       say('50 boos. are you ok?', 2200);
@@ -469,6 +469,8 @@ export default function Ghost() {
     } else if (n === 100) {
       say('100. touch some grass.', 2200);
       flash('🏆 100 boos · touch some grass');
+    } else if (raging) {
+      say(pick(RAGE), 1600);
     } else {
       say(pick(MSGS), 1400);
     }

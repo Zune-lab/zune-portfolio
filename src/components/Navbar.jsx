@@ -229,7 +229,12 @@ function useViewHistory(view, onNavigate) {
 
   const goBack = () => {
     const stack = historyRef.current;
-    onNavigate(stack.length > 1 ? stack[stack.length - 2] : 'home');
+    const target = stack.length > 1 ? stack[stack.length - 2] : 'home';
+    // App ghi `from` (view trước đó) vào history.state mỗi lần pushState. Nếu mục lịch sử
+    // liền trước đúng là đích thì lùi thật bằng history.back(), không chất thêm mục mới
+    // (tránh vòng lặp lab/snake -> cd .. -> lab -> Back lại về snake).
+    if (history.state?.from === target) history.back();
+    else onNavigate(target);
   };
 
   // về thẳng trang chính, bỏ qua mọi trang đã ghé (khác goBack chỉ lùi 1 bước)
@@ -241,6 +246,7 @@ function useViewHistory(view, onNavigate) {
 export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const inTab = view !== 'home';
   const top = topOf(view); // 'lab/snake' -> 'lab'
+  const upHref = pathOf(top !== view ? top : 'home'); // href thật của "cd .."
   const localLinks = pageOfView(view)?.sub || [];
   const { goBack, goHome } = useViewHistory(view, onNavigate);
 
@@ -303,6 +309,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
     onNavigate(l.tab || 'home', l.tab ? undefined : l.href);
   };
   const clickBack = (e) => {
+    if (!isPlainClick(e)) return; // Ctrl/Cmd+click: để trình duyệt mở trang cha ở tab mới
     e.preventDefault();
     goBack();
   };
@@ -347,6 +354,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             {/* nav chính — trượt ra bên trái khi vào tab, trượt vào (trễ 150ms) khi quay lại */}
             <div
               ref={mainRowRef}
+              inert={inTab ? '' : undefined}
               style={fadeRight(!inTab && mainHasMore)}
               className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-all duration-300 ease-in-out ${
                 inTab
@@ -369,6 +377,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             {/* nav phụ — trượt vào từ bên phải (trễ 150ms) khi vào tab, trượt ra khi thoát */}
             <div
               ref={subRowRef}
+              inert={inTab ? undefined : ''}
               style={fadeRight(inTab && subHasMore)}
               className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-all duration-300 ease-in-out ${
                 inTab
@@ -376,7 +385,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
                   : 'opacity-0 translate-x-3 pointer-events-none'
               }`}
             >
-              <NavLink href="#top" onClick={clickBack} className="nav-back">
+              <NavLink href={upHref} onClick={clickBack} className="nav-back">
                 cd ..
               </NavLink>
               {localLinks.length > MAX_INLINE_SUB ? (
@@ -431,7 +440,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               <div id="mobile-menu" ref={panelRef} className="mobile-menu md:hidden">
                 {inTab ? (
                   <>
-                    <a href={pathOf('home')} onClick={inMenu(clickBack)} className="mobile-menu-link">
+                    <a href={upHref} onClick={inMenu(clickBack)} className="mobile-menu-link">
                       cd ..
                     </a>
                     {localLinks.length > 0 && <div className="mobile-menu-head">// {top}/</div>}
@@ -483,7 +492,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               : 'opacity-0 scale-75 -translate-x-2'
           }`}
         >
-          <ScrollArrow rotate={0} ariaLabel="Go back" onClick={goBack} />
+          <ScrollArrow rotate={0} ariaLabel="Go back" onClick={goBack} tabIndex={-1} />
         </div>
       </div>
     </>

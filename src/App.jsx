@@ -141,7 +141,7 @@ export default function App() {
       }
       if (push) {
         // về home kèm mục (vd '#feedback') vẫn cuộn tới đó nhưng URL giữ sạch, không thêm #anchor
-        history.pushState(null, '', pathOf(nextView));
+        history.pushState({ from: viewRef.current }, '', pathOf(nextView)); // `from`: để nút back của Navbar biết có lùi thật được không
       }
       setView(nextView);
       if (nextView === 'home') {

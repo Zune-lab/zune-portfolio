@@ -59,7 +59,8 @@ export default function Snake() {
 
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  const game = useRef(fresh());
+  const game = useRef(null);
+  if (game.current === null) game.current = fresh();
   const scoreRef = useRef(0);
   const swipe = useRef(null);
 
@@ -143,6 +144,7 @@ export default function Snake() {
     draw();
     if (status !== 'playing') return;
     let timer;
+    const delay = () => Math.max(60, 140 - scoreRef.current * 3);
     const step = () => {
       const alive = tick();
       draw();
@@ -150,12 +152,28 @@ export default function Snake() {
         setStatus('over');
         return;
       }
-      timer = window.setTimeout(step, Math.max(60, 140 - scoreRef.current * 3));
+      timer = window.setTimeout(step, delay());
     };
     timer = window.setTimeout(step, 140);
-    return () => clearTimeout(timer);
+    // chuyển tab thì tạm dừng, quay lại chạy tiếp (không để rắn tự chết khi không ai nhìn)
+    const onVisibility = () => {
+      clearTimeout(timer);
+      if (!document.hidden) timer = window.setTimeout(step, delay());
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, round]);
+
+  // đổi sáng/tối (App đặt data-theme trên <html>) -> vẽ lại canvas dù game đang idle hay đã over
+  useEffect(() => {
+    const mo = new MutationObserver(() => draw());
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => mo.disconnect();
+  }, []);
 
   // hết ván -> cập nhật kỷ lục
   useEffect(() => {
@@ -176,6 +194,7 @@ export default function Snake() {
 
   const onPointerDown = (e) => {
     swipe.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture?.(e.pointerId); // nhả tay ngoài canvas vẫn nhận pointerup
   };
   const onPointerUp = (e) => {
     const s = swipe.current;
@@ -191,6 +210,7 @@ export default function Snake() {
     <button
       type="button"
       onPointerDown={() => status === 'playing' && turn(name)}
+      onClick={(e) => e.detail === 0 && status === 'playing' && turn(name)} // bàn phím (Enter/Space)
       aria-label={`turn ${name}`}
       className={`lab-cell w-11 h-11 rounded-md border border-line hover:border-amber text-ink font-mono touch-manipulation ${cls}`}
     >
@@ -233,6 +253,7 @@ export default function Snake() {
           height={SIZE}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
+          onPointerCancel={() => (swipe.current = null)}
           className="block w-full h-auto rounded-lg border border-line"
           style={{ touchAction: 'none' }}
         />
