@@ -2,7 +2,7 @@ import SectionHead from '../components/SectionHead.jsx';
 import ProjectCard from './ProjectCard.jsx';
 import { projects } from '../data.js';
 
-// mỗi project trong data.js cần: { file, desc, color, href } (+ demo tuỳ chọn).
+// project nạp từ src/projects/<tên>/meta.js, mỗi cái cần: { file, desc, color, href }.
 // `num` tự đếm theo thứ tự, đặt SAU {...p} để không bị field nào ghi đè.
 export default function Projects() {
   return (

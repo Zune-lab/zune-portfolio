@@ -11,11 +11,15 @@ export default function Preloader() {
       if (document.readyState === 'complete') resolve();
       else window.addEventListener('load', resolve, { once: true });
     });
+    // Không chờ vô hạn: nếu 1 resource (vd Google Fonts) treo thì vẫn mở site sau 4s.
+    const maxWait = new Promise((resolve) => setTimeout(resolve, 4000));
 
-    Promise.all([minDelay, pageLoad]).then(() => {
+    let removeTimer;
+    Promise.all([minDelay, Promise.race([pageLoad, maxWait])]).then(() => {
       setHidden(true);
-      setTimeout(() => setRemoved(true), 500);
+      removeTimer = setTimeout(() => setRemoved(true), 500);
     });
+    return () => clearTimeout(removeTimer);
   }, []);
 
   if (removed) return null;

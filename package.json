@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/spa-404.mjs",
-    "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist",
-    "previews": "node scripts/make-previews.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -17,12 +15,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
-    "gh-pages": "^6.1.1",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "vite": "^7.3.6"
-  },
-  "allowScripts": {
-    "esbuild@0.28.2": true
   }
 }
