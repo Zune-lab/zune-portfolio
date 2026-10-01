@@ -70,9 +70,11 @@ body {
   overflow-x: hidden;
 }
 
-/* lưới chấm bi + lớp chấm amber chỉ sáng quanh con trỏ (--mx/--my từ App.jsx) */
+/* lưới chấm bi + lớp chấm amber chỉ sáng quanh con trỏ. --mx/--my đặt trên .cursor-glow
+   (App.jsx), KHÔNG đặt trên <html>: custom property được kế thừa nên đặt ở gốc sẽ buộc
+   trình duyệt tính lại style cả cây DOM mỗi lần di chuột. */
 body::before,
-body::after {
+.cursor-glow {
   content: '';
   position: fixed;
   inset: 0;
@@ -83,11 +85,16 @@ body::after {
 body::before {
   background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
 }
-body::after {
+.cursor-glow {
   background-image: radial-gradient(var(--amber) 1px, transparent 1px);
   opacity: 0.55;
   -webkit-mask-image: radial-gradient(circle 150px at var(--mx, -999px) var(--my, -999px), #000, transparent);
   mask-image: radial-gradient(circle 150px at var(--mx, -999px) var(--my, -999px), #000, transparent);
+}
+@media (hover: none) {
+  .cursor-glow {
+    display: none; /* cảm ứng không có con trỏ để theo */
+  }
 }
 
 ::selection {

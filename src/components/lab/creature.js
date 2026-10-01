@@ -42,11 +42,10 @@ class Segment {
       }
     }
   }
+  // chỉ thêm đoạn thẳng vào path hiện tại; Creature.draw gọi stroke() 1 lần cho cả con
   draw(iter) {
-    env.ctx.beginPath();
     env.ctx.moveTo(this.parent.x, this.parent.y);
     env.ctx.lineTo(this.x, this.y);
-    env.ctx.stroke();
     if (iter) {
       for (let i = 0; i < this.children.length; i++) {
         this.children[i].draw(true);
@@ -272,12 +271,12 @@ class Creature {
       this.x + r * Math.cos(Math.PI / 4 + this.absAngle),
       this.y + r * Math.sin(Math.PI / 4 + this.absAngle)
     );
-    env.ctx.stroke();
     if (iter) {
       for (let i = 0; i < this.children.length; i++) {
         this.children[i].draw(true);
       }
     }
+    env.ctx.stroke(); // 1 lần stroke cho cả đầu + toàn bộ thân/chân/đuôi
   }
 }
 

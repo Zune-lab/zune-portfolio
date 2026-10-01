@@ -208,15 +208,22 @@ export default function BannerMaker() {
   const dw = useDeferredValue(w);
   const dh = useDeferredValue(h);
   const inDesign = tab === 'design';
+  const thumbCache = useRef(new Map()); // cache theo cỡ vải: quay lại tab design không dựng lại 30 ảnh
   const thumbs = useMemo(() => {
     if (!inDesign) return null;
+    const key = `${dw}x${dh}`;
+    const cached = thumbCache.current.get(key);
+    if (cached) return cached;
     const scale = Math.max(1, Math.floor(THUMB_LONG_SIDE / Math.max(dw, dh)));
-    return Object.fromEntries(
+    const made = Object.fromEntries(
       PATTERNS.map((p) => [
         p.id,
         scaled(renderBanner('slate', [{ pattern: p.id, color: 'chalk' }], { w: dw, h: dh }), dw, dh, scale).toDataURL(),
       ]),
     );
+    if (thumbCache.current.size >= 8) thumbCache.current.delete(thumbCache.current.keys().next().value); // giữ nhỏ
+    thumbCache.current.set(key, made);
+    return made;
   }, [inDesign, dw, dh]);
 
   useEffect(() => () => clearTimeout(copiedTimer.current), []);

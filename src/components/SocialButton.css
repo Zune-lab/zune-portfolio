@@ -12,7 +12,7 @@
 }
 
 .social-btn-bg {
-  transition: all var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease);
 }
 .social-icon:hover .social-btn {
   transform: translateY(-4px);

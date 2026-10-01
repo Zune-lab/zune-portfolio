@@ -1,13 +1,13 @@
 /* contact button — record icon zooms away, label swaps, converted from contact.html */
 
 .btn-contact svg {
-  transition: all var(--dur-slow) var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
 }
 .btn-contact:hover svg {
   transform: scale(3) translate(50%);
 }
 .btn-contact-main {
-  transition: all var(--dur-slow) var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
   transition-delay: 300ms;
 }
 .btn-contact:hover .btn-contact-main {
@@ -15,7 +15,7 @@
 }
 .btn-contact-alt {
   transform: translateX(-150%);
-  transition: all var(--dur-slow) var(--ease);
+  transition: transform var(--dur-slow) var(--ease);
 }
 .btn-contact:hover .btn-contact-alt {
   transform: translateX(0);

@@ -90,6 +90,8 @@ export default function Ghost() {
   const booTimer = useRef(0);
   const actTimer = useRef(0);
   const rageTimer = useRef(0);
+  const moveRaf = useRef(0); // gộp pointermove: tối đa 1 lần đo layout / khung hình
+  const lastMove = useRef({ x: 0, y: 0 });
   const konamiTimer = useRef(0);
   const eclipseTimer = useRef(0);
   const toastTimer = useRef(0);
@@ -205,6 +207,7 @@ export default function Ghost() {
     const ts = timers.current;
     return () => {
       [sayTimer, booTimer, actTimer, rageTimer, konamiTimer, eclipseTimer, toastTimer].forEach((r) => clearTimeout(r.current));
+      cancelAnimationFrame(moveRaf.current);
       ts.forEach(clearTimeout);
     };
   }, []);
@@ -419,27 +422,35 @@ export default function Ghost() {
   }, []);
 
   // ---- con trỏ: mắt dõi theo, ma lệch theo, "đèn pin" soi chữ ẩn ----
-  const onPointerMove = (e) => {
+  const applyMove = () => {
+    moveRaf.current = 0;
     const s = stage.current;
     const g = ghost.current;
     if (!s || !g) return;
+    const { x, y } = lastMove.current;
     const sr = s.getBoundingClientRect();
     const r = g.getBoundingClientRect();
     const clampEye = (n) => clamp(n, -1, 1);
-    s.style.setProperty('--ex', clampEye((e.clientX - (r.left + r.width / 2)) / 160));
-    s.style.setProperty('--ey', clampEye((e.clientY - (r.top + r.height / 2)) / 120));
-    s.style.setProperty('--mx', `${e.clientX - sr.left}px`);
-    s.style.setProperty('--my', `${e.clientY - sr.top}px`);
+    s.style.setProperty('--ex', clampEye((x - (r.left + r.width / 2)) / 160));
+    s.style.setProperty('--ey', clampEye((y - (r.top + r.height / 2)) / 120));
+    s.style.setProperty('--mx', `${x - sr.left}px`);
+    s.style.setProperty('--my', `${y - sr.top}px`);
     s.dataset.track = '1';
     const p = st.current;
     p.inside = true;
     p.lastMove = performance.now();
-    p.mx = e.clientX - sr.left;
-    p.my = e.clientY - sr.top;
-    p.px = e.clientX - (sr.left + sr.width / 2);
-    p.py = e.clientY - (sr.top + sr.height * 0.44);
+    p.mx = x - sr.left;
+    p.my = y - sr.top;
+    p.px = x - (sr.left + sr.width / 2);
+    p.py = y - (sr.top + sr.height * 0.44);
+  };
+  const onPointerMove = (e) => {
+    lastMove.current = { x: e.clientX, y: e.clientY };
+    if (!moveRaf.current) moveRaf.current = requestAnimationFrame(applyMove);
   };
   const onPointerLeave = () => {
+    cancelAnimationFrame(moveRaf.current);
+    moveRaf.current = 0;
     const s = stage.current;
     if (s) {
       delete s.dataset.track;

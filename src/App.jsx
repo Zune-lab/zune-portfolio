@@ -26,6 +26,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const savedHomeScroll = useRef(0);
   const navTimer = useRef(0);
+  const glowRef = useRef(null);
   const viewRef = useRef(view);
   viewRef.current = view;
 
@@ -81,13 +82,14 @@ export default function App() {
 
   // nền chấm bi sáng quanh con trỏ (CSS đọc --mx/--my)
   useEffect(() => {
-    const root = document.documentElement;
+    const glow = glowRef.current;
+    if (!glow || !window.matchMedia('(hover: hover)').matches) return; // cảm ứng: không cần theo dõi con trỏ
     let raf = 0;
     const move = (e) => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        root.style.setProperty('--mx', e.clientX + 'px');
-        root.style.setProperty('--my', e.clientY + 'px');
+        glow.style.setProperty('--mx', e.clientX + 'px');
+        glow.style.setProperty('--my', e.clientY + 'px');
       });
     };
     window.addEventListener('pointermove', move, { passive: true });
@@ -156,6 +158,7 @@ export default function App() {
 
   return (
     <>
+      <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       {isLoading && <Loader />}
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />

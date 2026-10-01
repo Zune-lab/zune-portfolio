@@ -352,7 +352,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               ref={mainRowRef}
               inert={inTab ? '' : undefined}
               style={fadeRight(!inTab && mainHasMore)}
-              className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-all duration-300 ease-in-out ${
+              className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-0 -translate-x-3 pointer-events-none'
                   : 'opacity-100 translate-x-0 delay-150'
@@ -375,7 +375,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               ref={subRowRef}
               inert={inTab ? undefined : ''}
               style={fadeRight(inTab && subHasMore)}
-              className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-all duration-300 ease-in-out ${
+              className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-100 translate-x-0 delay-150'
                   : 'opacity-0 translate-x-3 pointer-events-none'
@@ -482,7 +482,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
         }`}
       >
         <div
-          className={`pl-3 transition-all duration-300 ease-out ${
+          className={`pl-3 transition-[opacity,transform] duration-300 ease-out ${
             inTab
               ? 'opacity-0 scale-75 -translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0'
               : 'opacity-0 scale-75 -translate-x-2'
