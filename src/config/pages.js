@@ -13,7 +13,7 @@ import Projects from '../projects/Projects.jsx';
 import Lab from '../components/lab/Lab.jsx';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
-import { BASE } from '../lib/paths.js';
+import { BASE, pathOf } from '../lib/paths.js';
 
 export const PAGES = [
   {
