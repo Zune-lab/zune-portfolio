@@ -1,6 +1,6 @@
-import SectionHead from './SectionHead.jsx';
+import SectionHead from '../ui/SectionHead.jsx';
 import './SocialButton.css';
-import { socials } from '../data.js';
+import { socials } from '../../data/socials.js';
 
 function SocialButton({ name, href, brand, viewBox, path, zalo }) {
   return (

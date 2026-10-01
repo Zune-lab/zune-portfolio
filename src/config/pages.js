@@ -2,18 +2,18 @@
 //
 //   home      -> /zune-portfolio/
 //   <id>      -> /zune-portfolio/<id>      (about, projects, ...)
-//   lab/<slug>-> /zune-portfolio/lab/<slug> (từng mục trong lab, khai báo ở src/lab-items.js)
+//   lab/<slug>-> /zune-portfolio/lab/<slug> (từng mục trong lab, khai báo ở src/config/lab-items.js)
 //
 // THÊM TRANG MỚI: tạo component rồi thêm 1 mục vào PAGES bên dưới. Nav chính, nav
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
 // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
 // chạy nhờ 404.html do scripts/spa-404.mjs tạo lúc build.
-import About from './components/about/About.jsx';
-import Projects from './projects/Projects.jsx';
-import Lab from './components/lab/Lab.jsx';
+import About from '../components/about/About.jsx';
+import Projects from '../projects/Projects.jsx';
+import Lab from '../components/lab/Lab.jsx';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
-import { BASE } from './lib/paths.js';
+import { BASE } from '../lib/paths.js';
 
 export const PAGES = [
   {
@@ -40,7 +40,7 @@ export const PAGES = [
     label: 'lab.css',
     title: 'lab.css — Zune',
     Component: Lab,
-    // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/lab-items.js
+    // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/config/lab-items.js
     children: LAB_ITEMS.map((i) => i.slug),
     sub: LAB_ITEMS.map((i) => ({ view: `lab/${i.slug}`, href: pathOf(`lab/${i.slug}`), label: i.file })),
   },

@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react';
-import SectionHead from '../SectionHead.jsx';
+import SectionHead from '../ui/SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
-import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../lab-items.js';
+import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../config/lab-items.js';
 import { pathOf } from '../../lib/paths.js';
 import { isPlainClick } from '../../lib/dom.js';
 import './Lab.css';

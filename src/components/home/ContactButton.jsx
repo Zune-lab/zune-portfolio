@@ -1,4 +1,4 @@
-import { isPlainClick, scrollToAnchor } from '../lib/dom.js';
+import { isPlainClick, scrollToAnchor } from '../../lib/dom.js';
 import './ContactButton.css';
 
 export default function ContactButton({ href }) {

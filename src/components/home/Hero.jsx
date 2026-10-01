@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import Btn31 from './Btn31.jsx';
+import Btn31 from '../ui/Btn31.jsx';
 import ContactButton from './ContactButton.jsx';
 import Terminal from './Terminal.jsx';
-import { isOnlineHour } from '../lib/vnTime.js';
-import { storageGet, storageSet } from '../lib/storage.js';
+import { isOnlineHour } from '../../lib/vnTime.js';
+import { storageGet, storageSet } from '../../lib/storage.js';
 
 // online/offline is inferred from the Vietnam clock (no backend needed);
 // busy/focus can only be picked by hand, a machine can't know those.

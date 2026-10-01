@@ -23,7 +23,7 @@ The following are personal content of the author and are **not** licensed for
 reuse. If you use this project as a template, replace all of it with your own:
 
 - Name, handle, signature (`Signature.jsx` / `Signature.css`) and branding
-- Texts about the author: about, journey log, bio, taglines (`src/data.js`, `src/components/about/`)
+- Texts about the author: about, journey log, bio, taglines (`src/data/profile.js`, `src/components/about/`)
 - Personal links, social accounts and contact details
 - Personal photos, avatars and the written content of the showcased projects
 

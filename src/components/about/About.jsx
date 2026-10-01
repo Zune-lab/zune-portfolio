@@ -1,5 +1,5 @@
-import SectionHead from '../SectionHead.jsx';
-import { gitLog, stack } from '../../data.js';
+import SectionHead from '../ui/SectionHead.jsx';
+import { gitLog, stack } from '../../data/profile.js';
 
 function SubHead({ children }) {
   return (

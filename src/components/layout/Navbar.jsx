@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ThemeToggleTorch from './ThemeToggleTorch.jsx';
 import ScrollArrow from './ScrollArrow.jsx';
-import { PAGES, pageOfView, topOf } from '../pages.js';
-import { pathOf } from '../lib/paths.js';
-import { isPlainClick, scrollToAnchor } from '../lib/dom.js';
+import { PAGES, pageOfView, topOf } from '../../config/pages.js';
+import { pathOf } from '../../lib/paths.js';
+import { isPlainClick, scrollToAnchor } from '../../lib/dom.js';
 import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
-// src/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
+// src/config/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
 const mainLinks = [
   ...PAGES.map((p) => ({ href: `#${p.id}`, label: p.label, tab: p.id })),
   { href: '#feedback', label: 'feedback.sh' },

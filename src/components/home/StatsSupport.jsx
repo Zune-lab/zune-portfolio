@@ -1,5 +1,5 @@
-import SectionHead from './SectionHead.jsx';
-import Btn31 from './Btn31.jsx';
+import SectionHead from '../ui/SectionHead.jsx';
+import Btn31 from '../ui/Btn31.jsx';
 
 export function Stats() {
   return (

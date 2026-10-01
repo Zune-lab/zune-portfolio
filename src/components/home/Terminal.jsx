@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PAGES } from '../pages.js';
+import { PAGES } from '../../config/pages.js';
 import './Terminal.css';
 
 const INTRO = [
@@ -13,7 +13,7 @@ const FILES = {
   'tea.txt': 'tea > coffee. always.',
   'stack.txt': 'HTML CSS JS TS React Node Next Tailwind Figma',
 };
-const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/pages.js
+const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
 
 function exec(raw, { onNavigate, clear }) {
   const [cmd = '', ...args] = raw.trim().split(/\s+/);

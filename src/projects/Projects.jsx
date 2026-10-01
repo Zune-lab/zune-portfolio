@@ -1,4 +1,4 @@
-import SectionHead from '../components/SectionHead.jsx';
+import SectionHead from '../components/ui/SectionHead.jsx';
 import ProjectCard from './ProjectCard.jsx';
 import { projects } from './index.js';
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import SectionHead from './SectionHead.jsx';
-import Btn31 from './Btn31.jsx';
+import SectionHead from '../ui/SectionHead.jsx';
+import Btn31 from '../ui/Btn31.jsx';
 
 const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
 

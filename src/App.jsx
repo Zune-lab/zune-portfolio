@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import Preloader from './components/Preloader.jsx';
-import Loader from './components/Loader.jsx';
-import Navbar from './components/Navbar.jsx';
-import Hero from './components/Hero.jsx';
-import { Stats, Support } from './components/StatsSupport.jsx';
-import Feedback from './components/Feedback.jsx';
-import Socials from './components/Socials.jsx';
-import { Signature, Footer } from './components/Signature.jsx';
-import BackToTop from './components/BackToTop.jsx';
-import { pageOfView, titleOf, topOf, viewFromLocation } from './pages.js';
+import Preloader from './components/layout/Preloader.jsx';
+import Loader from './components/layout/Loader.jsx';
+import Navbar from './components/layout/Navbar.jsx';
+import Hero from './components/home/Hero.jsx';
+import { Stats, Support } from './components/home/StatsSupport.jsx';
+import Feedback from './components/home/Feedback.jsx';
+import Socials from './components/home/Socials.jsx';
+import { Signature, Footer } from './components/layout/Signature.jsx';
+import BackToTop from './components/layout/BackToTop.jsx';
+import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
 import { pathOf } from './lib/paths.js';
 import { storageSet } from './lib/storage.js';
 import { timeOfDay } from './lib/vnTime.js';
@@ -21,7 +21,7 @@ export default function App() {
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
   );
-  const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/pages.js) | '<id>/<con>' vd 'lab/snake'
+  const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/config/pages.js) | '<id>/<con>' vd 'lab/snake'
   const [pendingScroll, setPendingScroll] = useState(null); // string selector | number Y | null
   const [isLoading, setIsLoading] = useState(false);
   const savedHomeScroll = useRef(0);
