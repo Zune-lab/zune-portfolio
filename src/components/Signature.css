@@ -1,55 +1,109 @@
-/* signature card — border + label reveal on hover */
+/* signature card — V → √uong. Trạng thái mở = class .is-open (hover chuột / chạm / phím), theo card Uiverse */
 
-/* card có viền mảnh + glow amber rất nhẹ để tách khỏi nền */
 .sig-card {
   border: 1px solid var(--line);
   box-shadow: 0 30px 70px -40px color-mix(in srgb, var(--amber) 45%, transparent);
+  cursor: default;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sig-card.is-open {
+  transform: scale(1.05);
 }
 
+/* viền: xoay thẳng lại + thu vào */
 .sig-border {
   opacity: 0;
   transform: rotate(8deg);
-  transition: all var(--dur-slow) var(--ease);
+  transition: inset var(--dur-slow) var(--ease), opacity var(--dur-slow) var(--ease),
+    transform var(--dur-slow) var(--ease);
 }
-.sig-bottom {
-  opacity: 0;
-  transition: all var(--dur-slow) var(--ease);
-}
-.sig-card:hover {
-  transform: scale(1.05);
-}
-.sig-card:hover .sig-border {
+.is-open .sig-border {
   inset: 12px;
   opacity: 1;
   transform: rotate(0);
 }
-.sig-card:hover .sig-bottom {
+
+/* label: như code gốc, chữ co lại từ giãn rộng (7px → 3px) + hiện dần */
+.sig-bottom {
+  opacity: 0;
+  letter-spacing: 7px;
+  transition: opacity var(--dur-slow) var(--ease), letter-spacing var(--dur-slow) var(--ease);
+}
+.is-open .sig-bottom {
   opacity: 1;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
 }
 
-/* chữ Zune dùng JetBrains Mono như toàn trang; tự vẽ nét khi cuộn tới (stroke-dashoffset), rồi đổ màu */
-.sig-text {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 700;
-  font-size: 54px;
-  letter-spacing: -0.02em;
-  fill: transparent;
-  stroke: var(--amber);
-  stroke-width: 1;
-  stroke-linejoin: round;
-  stroke-dasharray: 320;
-  stroke-dashoffset: 320;
+/* khung logo: vừa chữ V, mở thì rộng ra hết "Vuong" (clip bằng overflow) */
+.sig-logo {
+  width: calc(52px * var(--sig-s, 1));
+  height: calc(74px * var(--sig-s, 1));
+  overflow: hidden;
+  transition: width 0.5s var(--ease);
 }
-.sig-text.is-drawn {
-  animation: sig-draw 2.2s var(--ease) forwards, sig-fill 0.6s ease 1.9s forwards;
+.is-open .sig-logo {
+  width: calc(200px * var(--sig-s, 1));
+  transition-duration: 0.9s;
+}
+.sig-svg {
+  display: block;
+  width: calc(200px * var(--sig-s, 1));
+  height: calc(74px * var(--sig-s, 1));
+}
+
+/* V + thanh gạch: dasharray "100 200" để lúc chưa vẽ không bị chấm nhỏ ở đầu nét bo tròn */
+.sig-v,
+.sig-bar {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100 200;
+  stroke-dashoffset: 100;
+}
+.is-drawn .sig-v {
+  animation: sig-draw 1.6s var(--ease) forwards;
 }
 @keyframes sig-draw {
   to { stroke-dashoffset: 0; }
 }
-@keyframes sig-fill {
-  to { fill: var(--amber); }
+
+/* delay chỉ áp dụng lúc mở; lúc đóng thu về ngay */
+.sig-bar {
+  transition: stroke-dashoffset 0.4s var(--ease);
 }
+.is-open .sig-bar {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.8s var(--ease) 0.25s;
+}
+
+/* "uong": outline mảnh như logo2 gốc */
+.sig-rest {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  font-size: 54px;
+  fill: transparent;
+  stroke: var(--amber);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.is-open .sig-rest {
+  opacity: 1;
+  transition: opacity 0.5s ease 0.45s;
+}
+
+/* màn hình nhỏ: card co lại theo viewport nên thu logo + label cho vừa khung (viewBox tự scale cả chữ) */
+@media (max-width: 359px) {
+  .sig-card { --sig-s: 0.8; }
+  .sig-bottom { font-size: 8px; }
+  .is-open .sig-bottom { letter-spacing: 1.5px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sig-text { stroke-dashoffset: 0; fill: var(--amber); animation: none !important; }
+  .sig-v { stroke-dashoffset: 0; animation: none !important; }
+  .sig-logo, .sig-bar, .sig-rest, .sig-border, .sig-bottom { transition: none !important; }
 }

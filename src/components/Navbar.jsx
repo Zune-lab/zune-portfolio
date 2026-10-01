@@ -312,13 +312,20 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               if (inTab) goHome();
               else window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="font-mono text-sm flex items-center gap-2 cursor-pointer"
+            className="brand font-mono text-sm flex items-center gap-2 cursor-pointer"
           >
-            <span
-              className="w-2 h-2 rounded-full"
-              style={{ background: 'var(--amber)', boxShadow: '0 0 6px var(--amber)' }}
-            />
-            zune.dev
+            {/* hover/focus: chấm → "{", chữ lăn sang "cd ~/", "}" trượt vào */}
+            <span className="brand-mark" aria-hidden="true">
+              <span className="brand-dot" />
+              <b>{'{'}</b>
+            </span>
+            <span className="brand-word">
+              <span className="brand-roll">
+                <span>zune.dev</span>
+                <span aria-hidden="true">cd ~/</span>
+              </span>
+              <b className="brand-close" aria-hidden="true">{'}'}</b>
+            </span>
           </a>
 
           <div className="hidden md:flex relative h-full items-center min-w-0 flex-1 pr-4">

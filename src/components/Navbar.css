@@ -323,3 +323,70 @@
     animation: none;
   }
 }
+
+/* logo zune.dev (về home): chấm → "{", chữ lăn "zune.dev" → "cd ~/", "}" trượt vào hai bên */
+.brand-mark {
+  display: grid;
+  place-items: center;
+  grid-template: 8px / 8px; /* track cố định: không để ô lưới giãn theo chiều cao "{" làm lệch xuống */
+  width: 8px;
+  height: 8px;
+}
+.brand-mark > * {
+  grid-area: 1 / 1;
+  transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+}
+.brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+}
+.brand-mark b,
+.brand-close {
+  font-weight: 400;
+  color: var(--amber);
+}
+.brand-mark b {
+  line-height: 1.4em; /* cùng line-height với chữ để thẳng hàng baseline */
+  opacity: 0;
+  transform: scale(0.6);
+}
+.brand-word {
+  position: relative;
+  display: inline-block;
+}
+.brand-roll {
+  display: inline-block;
+  vertical-align: top;
+  height: 1.4em;
+  line-height: 1.4em;
+  overflow: hidden;
+}
+.brand-roll > span {
+  display: block;
+  transition: transform 0.35s var(--ease);
+}
+.brand-roll > span + span {
+  color: var(--amber);
+}
+/* "}" bám theo đuôi "cd ~/" (ngắn hơn "zune.dev" 3 ký tự), không chiếm chỗ trong layout */
+.brand-close {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 6.5px;
+  line-height: 1.4em;
+  opacity: 0;
+  transform: translateX(calc(-3ch + 8px));
+  transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+}
+.brand:is(:hover, :focus-visible) .brand-roll > span { transform: translateY(-100%); }
+.brand:is(:hover, :focus-visible) .brand-dot { opacity: 0; transform: scale(0); }
+.brand:is(:hover, :focus-visible) .brand-mark b { opacity: 1; transform: translateX(2.5px); }
+.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(-3ch); }
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark > *, .brand-roll > span, .brand-close { transition: none; }
+}
