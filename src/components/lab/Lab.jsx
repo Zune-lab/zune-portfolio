@@ -1,5 +1,6 @@
 import { Suspense, useState } from 'react';
 import SectionHead from '../SectionHead.jsx';
+import LabIcon from './LabIcon.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../lab-items.js';
 import { pathOf } from '../../lib/paths.js';
 import './Lab.css';
@@ -76,8 +77,8 @@ function LabGrid({ kind, setKind, onNavigate }) {
             style={{ background: 'var(--panel)' }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="lab-card-icon text-[26px] leading-none" aria-hidden="true">
-                {i.icon}
+              <span className="lab-card-icon leading-none" aria-hidden="true">
+                <LabIcon name={i.slug} />
               </span>
               <span className="lab-card-tag font-mono text-[11px] uppercase tracking-[0.08em] text-dim border border-line rounded px-1.5 py-0.5">
                 {i.kind}
