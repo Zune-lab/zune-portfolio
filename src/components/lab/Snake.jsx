@@ -1,0 +1,270 @@
+import { useEffect, useRef, useState } from 'react';
+
+const N = 18; // lưới N x N
+const CELL = 20;
+const SIZE = N * CELL;
+const BEST_KEY = 'zune-snake-best';
+
+const DIRS = {
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+};
+const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
+const KEYS = {
+  arrowup: 'up', w: 'up',
+  arrowdown: 'down', s: 'down',
+  arrowleft: 'left', a: 'left',
+  arrowright: 'right', d: 'right',
+};
+
+const readBest = () => {
+  try {
+    return Number(localStorage.getItem(BEST_KEY)) || 0;
+  } catch {
+    return 0;
+  }
+};
+const saveBest = (n) => {
+  try {
+    localStorage.setItem(BEST_KEY, String(n));
+  } catch {
+    /* bỏ qua nếu không ghi được */
+  }
+};
+
+const placeFood = (snake) => {
+  const free = [];
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      if (!snake.some((s) => s.x === x && s.y === y)) free.push({ x, y });
+    }
+  }
+  return free.length ? free[Math.floor(Math.random() * free.length)] : null;
+};
+
+const fresh = () => {
+  const snake = [{ x: 5, y: 9 }, { x: 4, y: 9 }, { x: 3, y: 9 }];
+  return { snake, dir: 'right', queue: [], food: placeFood(snake) };
+};
+
+// mini game: rắn săn mồi. Phím mũi tên / WASD, nút bấm hoặc vuốt trên màn hình cảm ứng
+export default function Snake() {
+  const [status, setStatus] = useState('idle'); // idle | playing | over
+  const [score, setScore] = useState(0);
+  const [best, setBest] = useState(readBest);
+  const [round, setRound] = useState(0);
+  const [newBest, setNewBest] = useState(false);
+
+  const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
+  const game = useRef(fresh());
+  const scoreRef = useRef(0);
+  const swipe = useRef(null);
+
+  const draw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas && canvas.getContext('2d');
+    if (!ctx) return;
+    // đọc màu từ token theme mỗi lần vẽ -> đổi sáng/tối là ăn theo
+    const css = getComputedStyle(document.documentElement);
+    const v = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
+    const g = game.current;
+
+    ctx.fillStyle = v('--panel', '#10141b');
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    ctx.fillStyle = v('--line', '#1d232c');
+    for (let x = 0; x < N; x++) {
+      for (let y = 0; y < N; y++) {
+        if ((x + y) % 2 === 0) ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+      }
+    }
+
+    if (g.food) {
+      ctx.fillStyle = v('--amber', '#ffc857');
+      ctx.beginPath();
+      ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = v('--green', '#7ee081');
+    g.snake.forEach((s, i) => {
+      ctx.globalAlpha = i === 0 ? 1 : 0.8;
+      ctx.fillRect(s.x * CELL + 1, s.y * CELL + 1, CELL - 2, CELL - 2);
+    });
+    ctx.globalAlpha = 1;
+  };
+
+  const turn = (name) => {
+    const g = game.current;
+    const last = g.queue.length ? g.queue[g.queue.length - 1] : g.dir;
+    if (name === last || name === OPPOSITE[last] || g.queue.length >= 2) return;
+    g.queue.push(name);
+  };
+
+  // đi 1 bước; trả về false khi chết (đụng tường, đụng thân) hoặc đã ăn kín bàn
+  const tick = () => {
+    const g = game.current;
+    if (g.queue.length) g.dir = g.queue.shift();
+    const d = DIRS[g.dir];
+    const head = g.snake[0];
+    const nx = head.x + d.x;
+    const ny = head.y + d.y;
+    const eating = g.food && nx === g.food.x && ny === g.food.y;
+    const body = eating ? g.snake : g.snake.slice(0, -1); // đuôi sẽ rời đi nên không tính
+    if (nx < 0 || ny < 0 || nx >= N || ny >= N || body.some((s) => s.x === nx && s.y === ny)) {
+      return false;
+    }
+    g.snake.unshift({ x: nx, y: ny });
+    if (!eating) {
+      g.snake.pop();
+      return true;
+    }
+    scoreRef.current += 1;
+    setScore(scoreRef.current);
+    g.food = placeFood(g.snake);
+    return g.food !== null;
+  };
+
+  const start = () => {
+    game.current = fresh();
+    scoreRef.current = 0;
+    setScore(0);
+    setNewBest(false);
+    setStatus('playing');
+    setRound((r) => r + 1);
+    wrapRef.current?.focus({ preventScroll: true });
+  };
+
+  // vòng đời một ván: chạy bằng setTimeout để tăng tốc dần; dọn timer khi hết ván hoặc rời trang
+  useEffect(() => {
+    draw();
+    if (status !== 'playing') return;
+    let timer;
+    const step = () => {
+      const alive = tick();
+      draw();
+      if (!alive) {
+        setStatus('over');
+        return;
+      }
+      timer = window.setTimeout(step, Math.max(60, 140 - scoreRef.current * 3));
+    };
+    timer = window.setTimeout(step, 140);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, round]);
+
+  // hết ván -> cập nhật kỷ lục
+  useEffect(() => {
+    if (status === 'over' && scoreRef.current > best) {
+      setBest(scoreRef.current);
+      saveBest(scoreRef.current);
+      setNewBest(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
+  const onKeyDown = (e) => {
+    const name = KEYS[e.key.toLowerCase()];
+    if (!name || status !== 'playing') return;
+    e.preventDefault(); // không cho phím mũi tên cuộn trang khi đang chơi
+    turn(name);
+  };
+
+  const onPointerDown = (e) => {
+    swipe.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerUp = (e) => {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s || status !== 'playing') return;
+    const dx = e.clientX - s.x;
+    const dy = e.clientY - s.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up');
+  };
+
+  const pad = (name, label, cls) => (
+    <button
+      type="button"
+      onPointerDown={() => status === 'playing' && turn(name)}
+      aria-label={`turn ${name}`}
+      className={`lab-cell w-11 h-11 rounded-md border border-line hover:border-amber text-ink font-mono touch-manipulation ${cls}`}
+    >
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
+      <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[13px] mb-5">
+        <div className="flex gap-5">
+          <span>
+            <span className="text-dim">score </span>
+            <span style={{ color: 'var(--green)' }}>{score}</span>
+          </span>
+          <span>
+            <span className="text-dim">best </span>
+            <span>{best}</span>
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={start}
+          className="lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink"
+        >
+          {status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start'}
+        </button>
+      </div>
+
+      <div
+        ref={wrapRef}
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        aria-label="snake game, use arrow keys or WASD"
+        className="relative mx-auto max-w-[360px] outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--amber)] rounded-lg"
+      >
+        <canvas
+          ref={canvasRef}
+          width={SIZE}
+          height={SIZE}
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          className="block w-full h-auto rounded-lg border border-line"
+          style={{ touchAction: 'none' }}
+        />
+
+        {status !== 'playing' && (
+          <div
+            className="absolute inset-0 rounded-lg flex flex-col items-center justify-center text-center gap-2 font-mono text-[13px] px-4"
+            style={{ background: 'color-mix(in srgb, var(--bg) 82%, transparent)' }}
+          >
+            {status === 'idle' ? (
+              <>
+                <p className="text-ink">eat the dots, don't eat yourself.</p>
+                <p className="text-dim">arrow keys / WASD, or swipe.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-ink">
+                  segfault: <span style={{ color: 'var(--green)' }}>{score}</span> eaten
+                </p>
+                <p className="text-dim">{newBest ? 'new best!' : 'one more try?'}</p>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-1.5 w-fit mx-auto sm:hidden">
+        {pad('up', '↑', 'col-start-2')}
+        {pad('left', '←', 'col-start-1 row-start-2')}
+        {pad('down', '↓', 'col-start-2 row-start-2')}
+        {pad('right', '→', 'col-start-3 row-start-2')}
+      </div>
+    </div>
+  );
+}

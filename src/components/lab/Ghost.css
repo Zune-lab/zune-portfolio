@@ -1,0 +1,143 @@
+/* Con ma bay lơ lửng: thuần CSS, mọi tên class/keyframes có tiền tố ghost-/lab-ghost để không đụng Cat.css */
+.lab-ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 40%, #3a2a6e 0%, #241a45 60%, #170f2e 100%);
+  overflow: hidden;
+}
+
+.ghost-star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.2;
+  animation: ghost-twinkle 2.4s ease-in-out infinite;
+}
+@keyframes ghost-twinkle {
+  50% { opacity: 1; transform: scale(1.6); }
+}
+
+.ghost-float {
+  position: relative;
+  margin-top: -30px;
+  animation: ghost-bob 3s ease-in-out infinite;
+}
+@keyframes ghost-bob {
+  50% { transform: translateY(-16px); }
+}
+
+.ghost {
+  position: relative;
+  width: 90px;
+  height: 110px;
+  background: #fff;
+  border-radius: 45px 45px 0 0;
+  filter: drop-shadow(0 0 18px rgba(190, 170, 255, 0.55));
+  transition: transform 0.2s;
+}
+/* gấu váy lượn sóng: mỗi ô 30x15 cắt 1 vòng tròn để chừa 3 "chân" nhọn */
+.ghost::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -15px;
+  width: 100%;
+  height: 15px;
+  background: radial-gradient(circle at 15px 0, transparent 14px, #fff 15px) repeat-x;
+  background-size: 30px 15px;
+}
+
+.ghost-eyes {
+  position: absolute;
+  top: 38px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  animation: ghost-look 6s ease-in-out infinite;
+}
+@keyframes ghost-look {
+  0%, 15% { transform: translateX(0); }
+  30%, 50% { transform: translateX(-7px); }
+  65%, 85% { transform: translateX(7px); }
+  100% { transform: translateX(0); }
+}
+.ghost-eye {
+  width: 12px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1c1530;
+  animation: ghost-blink 4s infinite;
+  transition: transform 0.2s;
+}
+@keyframes ghost-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+
+.ghost-cheek {
+  position: absolute;
+  top: 62px;
+  width: 12px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 130, 170, 0.55);
+}
+.ghost-cheek-l { left: 14px; }
+.ghost-cheek-r { right: 14px; }
+
+.ghost-mouth {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  width: 10px;
+  height: 6px;
+  margin-left: -5px;
+  border-radius: 0 0 10px 10px;
+  background: #1c1530;
+  transition: all 0.2s;
+}
+
+.ghost-shadow {
+  position: absolute;
+  bottom: 52px;
+  width: 80px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  animation: ghost-shadow 3s ease-in-out infinite;
+}
+@keyframes ghost-shadow {
+  50% { transform: scaleX(0.7); opacity: 0.6; }
+}
+
+/* rê chuột: ma hoảng, run, miệng há to, mắt tròn xoe */
+.lab-ghost:hover .ghost {
+  animation: ghost-shiver 0.12s linear infinite;
+}
+@keyframes ghost-shiver {
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+.lab-ghost:hover .ghost-eye { transform: scale(1.3); }
+.lab-ghost:hover .ghost-mouth {
+  width: 14px;
+  height: 18px;
+  margin-left: -7px;
+  border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-star,
+  .ghost-float,
+  .ghost-eyes,
+  .ghost-eye,
+  .ghost-shadow,
+  .lab-ghost:hover .ghost { animation: none; }
+}

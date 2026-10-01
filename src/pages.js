@@ -39,8 +39,11 @@ export const PAGES = [
     sub: [
       { href: '#lab-reptile', label: 'reptile.js' },
       { href: '#lab-cat', label: 'cat.css' },
+      { href: '#lab-ghost', label: 'ghost.css' },
       { href: '#lab-playground', label: 'banner-maker.js' },
       { href: '#lab-game', label: 'bug-squash.js' },
+      { href: '#lab-memory', label: 'memory-match.js' },
+      { href: '#lab-snake', label: 'snake.js' },
     ],
   },
 ];
