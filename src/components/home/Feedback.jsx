@@ -1,133 +1,54 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31.jsx';
-import { FEEDBACK_ENDPOINT, GOOGLE_CLIENT_ID } from '../../config/feedback.js';
-import { sendFeedback } from '../../lib/feedback.js';
-import { loadGsi, readToken, isFresh } from '../../lib/google-auth.js';
-import { storageGet, storageSet } from '../../lib/storage.js';
 
-const MAX_LEN = 2000; // khớp giới hạn phía Apps Script
-const COOLDOWN_MS = 30 * 1000; // chống bấm gửi liên tục (cũng giữ cho khỏi cạn hạn mức mail/ngày)
-const LAST_KEY = 'zune-feedback-last';
-
-const ERRORS = {
-  'not-configured': 'Feedback is not set up yet, sorry! Try the socials below.',
-  rate: 'Too many messages at once, please try again in a few minutes.',
-  signin: 'Sign in with Google first, so I know the email is really yours.',
-  expired: 'Your Google sign-in expired. Please sign in again (your text is still here).',
-  auth: 'Google sign-in could not be verified. Please sign in again (your text is still here).',
-  gmail: 'Please sign in with a Gmail account (@gmail.com).',
-  'gsi-failed': "Couldn't load Google sign-in (adblock or offline?). Try the socials below.",
-  empty: 'Write a bit more first :)',
-  timeout: 'That took too long. Your text is still here, try again.',
-  network: "Couldn't reach the server. Your text is still here, try again.",
-  server: 'Something went wrong on my side. Your text is still here, try again.',
-};
+const MAX_MAILTO = 1900;
+const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
 
 export default function Feedback() {
   const [text, setText] = useState('');
-  const [auth, setAuth] = useState(null); // { credential, email, exp } sau khi đăng nhập Google
-  const [gsiState, setGsiState] = useState(GOOGLE_CLIENT_ID ? 'loading' : 'off'); // loading | ready | failed | off
-  const btnRef = useRef(null);
-  const openedAt = useRef(Date.now()); // thời gian điền form: gửi lên để server nhận ra bot (gõ + gửi trong vài trăm ms)
   const [mood, setMood] = useState(null);
-  const [sending, setSending] = useState(false);
-  const [note, setNote] = useState(null); // { ok: boolean, text: string } | null
+  const [note, setNote] = useState('');
+  const [copied, setCopied] = useState(false);
 
-  // khởi tạo nút "Sign in with Google" 1 lần
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return undefined;
-    let cancelled = false;
-    loadGsi()
-      .then((gid) => {
-        if (cancelled) return;
-        gid.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          auto_select: false,
-          callback: ({ credential }) => {
-            const info = readToken(credential);
-            if (info) setAuth({ credential, email: info.email, exp: info.exp });
-          },
-        });
-        setGsiState('ready');
-      })
-      .catch(() => !cancelled && setGsiState('failed'));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // vẽ nút Google mỗi khi cần (lúc chưa đăng nhập)
-  useEffect(() => {
-    if (gsiState !== 'ready' || auth || !btnRef.current) return;
-    const light = document.documentElement.dataset.theme === 'light';
-    globalThis.google.accounts.id.renderButton(btnRef.current, {
-      type: 'standard',
-      theme: light ? 'outline' : 'filled_black',
-      size: 'large',
-      text: 'signin_with',
-      shape: 'rectangular',
-    });
-  }, [gsiState, auth]);
-
-  const signOut = () => {
-    globalThis.google?.accounts?.id?.disableAutoSelect();
-    setAuth(null);
+  // máy không có app mail thì mailto: không làm gì cả -> cho copy địa chỉ để gửi bằng cách khác
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(TO_EMAIL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setNote(`Couldn't copy automatically, my email is ${TO_EMAIL}`);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (sending) return;
     const message = text.trim();
     if (!message) return;
 
-    // ô ẩn "website": người thật không thấy nên không điền; bot điền -> giả vờ thành công, không gửi gì
-    if (new FormData(e.currentTarget).get('website')) {
-      setText('');
-      setNote({ ok: true, text: 'Sent! Thanks for the feedback.' });
-      return;
+    const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
+    const subject = encodeURIComponent('Feedback from zune.dev' + moodTag);
+    const head = `mailto:${TO_EMAIL}?subject=${subject}&body=`;
+    // link mailto: dài quá ~2000 ký tự sẽ bị một số client cắt im lặng -> cắt trước và báo cho người dùng
+    let body = encodeURIComponent(message);
+    let cut = false;
+    if (head.length + body.length > MAX_MAILTO) {
+      cut = true;
+      const chars = Array.from(message); // theo code point: cắt giữa emoji sẽ làm encodeURIComponent ném URIError
+      let n = chars.length;
+      while (n > 0 && head.length + encodeURIComponent(chars.slice(0, n).join('')).length > MAX_MAILTO) n -= 50;
+      body = encodeURIComponent(chars.slice(0, Math.max(n, 0)).join(''));
+      navigator.clipboard?.writeText(message).catch(() => {}); // bản đầy đủ nằm trong clipboard
     }
+    window.location.href = head + body;
 
-    if (gsiState === 'failed') {
-      setNote({ ok: false, text: ERRORS['gsi-failed'] });
-      return;
-    }
-    if (!auth) {
-      setNote({ ok: false, text: ERRORS[GOOGLE_CLIENT_ID ? 'signin' : 'not-configured'] });
-      return;
-    }
-    if (!isFresh(auth)) {
-      setAuth(null);
-      setNote({ ok: false, text: ERRORS.expired });
-      return;
-    }
-
-    const wait = COOLDOWN_MS - (Date.now() - (Number(storageGet(LAST_KEY)) || 0));
-    if (wait > 0) {
-      setNote({ ok: false, text: `Please wait ${Math.ceil(wait / 1000)}s before sending another one.` });
-      return;
-    }
-
-    setSending(true);
-    setNote(null);
-    const res = await sendFeedback(FEEDBACK_ENDPOINT, {
-      message: message.slice(0, MAX_LEN),
-      credential: auth.credential,
-      mood,
-      elapsed: Date.now() - openedAt.current,
-    });
-    setSending(false);
-
-    if (res.ok) {
-      storageSet(LAST_KEY, Date.now());
-      setText('');
-      setMood(null);
-      openedAt.current = Date.now();
-      setNote({ ok: true, text: 'Sent! Thanks for the feedback.' });
-    } else {
-      if (res.reason === 'auth' || res.reason === 'gmail') setAuth(null); // buộc đăng nhập lại
-      setNote({ ok: false, text: ERRORS[res.reason] ?? ERRORS.server }); // giữ nguyên nội dung để người dùng không mất những gì đã viết
-    }
+    // giữ nguyên nội dung: nếu máy không có ứng dụng mail thì người dùng không mất những gì đã viết
+    setNote(
+      cut
+        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${TO_EMAIL} directly.`
+        : `Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`
+    );
   };
 
   return (
@@ -141,51 +62,10 @@ export default function Feedback() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            maxLength={MAX_LEN}
-            readOnly={sending}
             placeholder="Write something about this page..."
             required
             aria-label="Your feedback"
             className="w-full min-h-[110px] resize-y bg-panel border border-line rounded-lg px-3.5 py-3 text-ink text-sm outline-none focus:border-amber placeholder:text-dim"
-          />
-          <div className="flex flex-col gap-1.5">
-            <span className="font-mono text-[12px] text-dim">
-              sign in with Google so I can reply (I only see your verified email, nothing else).{' '}
-              <a href={`${import.meta.env.BASE_URL}privacy.html`} target="_blank" rel="noreferrer" className="underline hover:text-amber">
-                privacy
-              </a>
-            </span>
-            {auth ? (
-              <div className="flex items-center justify-between gap-3 bg-panel border border-line rounded-lg px-3.5 py-2.5 text-sm">
-                <span className="text-ink truncate" title={auth.email}>
-                  {auth.email}
-                </span>
-                <button
-                  type="button"
-                  onClick={signOut}
-                  disabled={sending}
-                  className="font-mono text-[12px] text-dim hover:text-amber transition-colors"
-                >
-                  change
-                </button>
-              </div>
-            ) : gsiState === 'off' ? (
-              <span className="font-mono text-[12px] text-dim">Feedback is not set up yet.</span>
-            ) : gsiState === 'failed' ? (
-              <span className="font-mono text-[12px]" style={{ color: 'var(--amber)' }}>
-                {ERRORS['gsi-failed']}
-              </span>
-            ) : (
-              <div ref={btnRef} className="min-h-[44px]" />
-            )}
-          </div>
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            className="absolute -left-[9999px] w-px h-px opacity-0"
           />
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex gap-2">
@@ -226,7 +106,6 @@ export default function Feedback() {
             </div>
             <Btn31
               type="submit"
-              disabled={sending}
               icon={
                 <svg fill="none" viewBox="0 0 24 24" className="w-full h-full">
                   <path
@@ -240,17 +119,23 @@ export default function Feedback() {
                 </svg>
               }
             >
-              {sending ? 'sending...' : 'send'}
+              send
             </Btn31>
           </div>
-          <span
-            role="status"
-            className="font-mono text-xs min-h-[16px]"
-            style={{ color: note?.ok ? 'var(--green)' : 'var(--amber)' }}
-          >
-            {note?.text}
+          <span role="status" className="font-mono text-xs min-h-[16px]" style={{ color: 'var(--green)' }}>
+            {note}
           </span>
         </form>
+        <p className="font-mono text-[12.5px] text-dim mt-4 max-w-[520px]">
+          // no mail app? copy my email and write from anywhere:{' '}
+          <button
+            type="button"
+            onClick={copyEmail}
+            className="underline underline-offset-2 hover:text-amber transition-colors"
+          >
+            {copied ? 'copied!' : 'copy email'}
+          </button>
+        </p>
       </div>
     </section>
   );
