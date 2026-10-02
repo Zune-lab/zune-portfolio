@@ -124,7 +124,7 @@ function LabItem({ item, onNavigate }) {
         <span className="ml-auto text-dim text-[12px] uppercase tracking-[0.08em]">{item.kind}</span>
       </nav>
 
-      <h3 className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-dim mb-4">// {item.file}</h3>
+      <h2 className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-dim mb-4">// {item.file}</h2>
       <p className="text-[13.5px] text-dim mb-5">{item.blurb}</p>
 
       <ErrorBoundary inline>
@@ -153,7 +153,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="01" title={item ? item.file : 'lab.css'} />
+        <SectionHead num="01" title={item ? item.file : 'lab.css'} level={1} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid kind={kind} setKind={setKind} onNavigate={onNavigate} />}
       </div>
     </section>

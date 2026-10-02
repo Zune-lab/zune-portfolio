@@ -111,6 +111,15 @@ function SubMenu({ label, links, onSelect }) {
 
   // mũi tên trên nút mở menu + điều hướng trong menu (Up/Down/Home/End, Esc trả focus về nút, Tab đóng)
   const onTriggerKeyDown = (e) => {
+    if (e.key === ' ') {
+      e.preventDefault(); // <a> mặc định không kích hoạt bằng Space
+      if (open) setOpen(false);
+      else {
+        focusOnOpen.current = true;
+        show();
+      }
+      return;
+    }
     if (e.key !== 'ArrowDown') return;
     e.preventDefault();
     focusOnOpen.current = true;
@@ -131,7 +140,11 @@ function SubMenu({ label, links, onSelect }) {
     else if (e.key === 'Escape') {
       setOpen(false);
       btnRef.current?.focus();
-    } else if (e.key === 'Tab') setOpen(false);
+    } else if (e.key === 'Tab') {
+      // menu nằm cuối <body> (portal): trả focus về nút rồi để Tab đi tiếp từ đó, không nhảy xuống cuối trang
+      btnRef.current?.focus();
+      setOpen(false);
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 // Phần giao diện dùng chung của các mini game (Snake, BugSquash, MemoryMatch):
 // khung ngoài, thanh chỉ số + nút chính, và lớp phủ giữa bàn chơi.
 
-export const GAME_BTN = 'lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink';
+const GAME_BTN = 'lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink';
 
 // stats: [{ label, value, color? }]  — color là biến CSS, vd 'var(--green)'
 export function GameFrame({ stats, action, children }) {

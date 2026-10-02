@@ -23,9 +23,10 @@ export default function Feedback() {
     let cut = false;
     if (head.length + body.length > MAX_MAILTO) {
       cut = true;
-      let n = message.length;
-      while (n > 0 && head.length + encodeURIComponent(message.slice(0, n)).length > MAX_MAILTO) n -= 50;
-      body = encodeURIComponent(message.slice(0, Math.max(n, 0)));
+      const chars = Array.from(message); // theo code point: cắt giữa emoji sẽ làm encodeURIComponent ném URIError
+      let n = chars.length;
+      while (n > 0 && head.length + encodeURIComponent(chars.slice(0, n).join('')).length > MAX_MAILTO) n -= 50;
+      body = encodeURIComponent(chars.slice(0, Math.max(n, 0)).join(''));
       navigator.clipboard?.writeText(message).catch(() => {}); // bản đầy đủ nằm trong clipboard
     }
     window.location.href = head + body;

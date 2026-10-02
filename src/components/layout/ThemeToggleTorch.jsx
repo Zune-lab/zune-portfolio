@@ -28,7 +28,7 @@ export default function ThemeToggleTorch({ theme, onToggle }) {
         </span>
       </span>
       <span
-        className="torch-click-me mt-0.5 whitespace-nowrap font-mono text-[9px] leading-none font-extrabold"
+        className="torch-click-me mt-0.5 whitespace-nowrap font-mono text-[9px] leading-none font-bold"
         aria-hidden="true"
       >
         Click me!

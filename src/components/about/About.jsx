@@ -13,7 +13,7 @@ export default function About() {
   return (
     <section id="about" className="py-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="01" title="about.js" />
+        <SectionHead num="01" title="about.js" level={1} />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-10">
           // a few things about me
         </p>

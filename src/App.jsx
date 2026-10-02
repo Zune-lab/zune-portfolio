@@ -29,6 +29,8 @@ export default function App() {
   const savedHomeScroll = useRef(0);
   const navTimer = useRef(0);
   const glowRef = useRef(null);
+  const mainRef = useRef(null);
+  const firstView = useRef(true);
   const viewRef = useRef(view);
   viewRef.current = view;
 
@@ -53,6 +55,9 @@ export default function App() {
 
   useEffect(() => {
     document.title = titleOf(view);
+    // đổi trang -> đưa focus vào nội dung (trừ lần tải đầu), người dùng bàn phím / đọc màn hình không bị kẹt ở nav cũ
+    if (firstView.current) firstView.current = false;
+    else mainRef.current?.focus({ preventScroll: true });
   }, [view]);
 
   // mở thẳng địa chỉ có #anchor của trang chính (vd Ctrl+click "socials/" ra tab mới):
@@ -164,12 +169,18 @@ export default function App() {
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       {isLoading && <Loader />}
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-md focus:bg-panel focus:text-ink focus:border focus:border-amber font-mono text-[13px]">
+      <a
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          mainRef.current?.focus(); // không thêm #main vào URL
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-md focus:bg-panel focus:text-ink focus:border focus:border-amber font-mono text-[13px]">
         skip to content
       </a>
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
 
-      <main id="main" tabIndex={-1} className="outline-none">
+      <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">
       <ErrorBoundary key={view} inline>
       {page ? (
         <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
