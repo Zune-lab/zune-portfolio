@@ -18,10 +18,7 @@
   background: currentColor;
   opacity: 0.35;
 }
-.cal-head.today {
-  opacity: 1;
-  box-shadow: 0 0 10px -1px currentColor;
-}
+.cal-head.today { opacity: 1; }
 .cal-cell {
   display: flex;
   align-items: center;
@@ -37,8 +34,7 @@
 }
 .cal-cell.today {
   border-color: currentColor;
-  box-shadow: 0 0 16px -5px currentColor;
-  animation: cal-blink 2.4s ease-in-out infinite;
+  background: color-mix(in srgb, currentColor 24%, transparent);
 }
 /* con dấu ghi tên thứ: nghiêng nhẹ, "đóng" xuống một lần khi hiện ra */
 .cal-stamp {
@@ -57,10 +53,6 @@
   from { opacity: 0; transform: rotate(-9deg) scale(1.9); }
   to { opacity: 1; transform: rotate(-9deg) scale(1); }
 }
-@keyframes cal-blink {
-  0%, 100% { background: color-mix(in srgb, currentColor 10%, transparent); }
-  50% { background: color-mix(in srgb, currentColor 45%, transparent); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .cal-cell.today, .cal-stamp { animation: none; }
+  .cal-stamp { animation: none; }
 }
