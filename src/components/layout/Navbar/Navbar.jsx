@@ -239,6 +239,7 @@ function useMoreDot(deps) {
       el.removeEventListener('wheel', wheel);
       window.removeEventListener('resize', check);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps are passed in by the caller
   }, deps);
 
   return [ref, hasMore];
@@ -379,7 +380,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
           <a
             href={pathOf('home')}
-            aria-label="zune.dev — về trang chính"
+            aria-label="zune.dev — back to home"
             onClick={(e) => {
               if (!isPlainClick(e)) return;
               e.preventDefault();

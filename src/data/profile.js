@@ -1,3 +1,6 @@
+export const role = 'Web Developer';
+export const location = 'Ho Chi Minh City';
+
 export const stack = [
   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
 ];

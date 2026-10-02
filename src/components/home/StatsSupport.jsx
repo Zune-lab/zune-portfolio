@@ -1,5 +1,6 @@
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
+import { githubUrl } from '../../data/socials.js';
 
 export function Stats() {
   return (
@@ -11,7 +12,7 @@ export function Stats() {
             Detailed coding activity (commits, streaks, languages...) already lives on GitHub, so check it there
             for the real numbers.
           </p>
-          <Btn31 href="https://github.com/Zune-lab">open github profile ↗</Btn31>
+          <Btn31 href={githubUrl}>open github profile ↗</Btn31>
         </div>
       </div>
     </section>

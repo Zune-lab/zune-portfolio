@@ -46,16 +46,16 @@ export default class ErrorBoundary extends Component {
     const chunk = isChunkError(error);
     const box = (
       <div role="alert" className="font-mono text-center max-w-[420px] mx-auto px-6 py-10">
-        <p className="text-amber text-[13px] mb-2">// {chunk ? 'không tải được phần này' : 'có lỗi xảy ra'}</p>
+        <p className="text-amber text-[13px] mb-2">// {chunk ? 'could not load this part' : 'something went wrong'}</p>
         <p className="text-dim text-[13px] mb-5">
-          {chunk ? 'Có thể trang vừa được cập nhật hoặc mạng đang chập chờn.' : 'Phần này bị lỗi, phần còn lại của trang vẫn dùng được.'}
+          {chunk ? 'The site may have just been updated, or your connection is unstable.' : 'This part crashed, but the rest of the page still works.'}
         </p>
         <button
           type="button"
           onClick={this.retry}
           className="px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink text-[13px]"
         >
-          {chunk ? 'reload' : 'thử lại'}
+          {chunk ? 'reload' : 'try again'}
         </button>
       </div>
     );

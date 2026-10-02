@@ -33,7 +33,7 @@ export const DYES = DYE_LIST.map(([id, hex]) => ({
   rgb: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)),
 }));
 
-export const DYE = Object.fromEntries(DYES.map((d) => [d.id, d]));
+const DYE = Object.fromEntries(DYES.map((d) => [d.id, d]));
 
 // một màu là id trong bảng 16 màu ('sky') hoặc mã hex tuỳ chọn ('#3ab0e6')
 export const isCustom = (c) => typeof c === 'string' && c.startsWith('#');
@@ -42,7 +42,7 @@ const parseHex = (hex) => {
   const rgb = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   return rgb.every((n) => Number.isFinite(n)) ? rgb : [0, 0, 0];
 };
-export const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
+const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
 export const hexOf = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c] ?? DYE.ink).hex);
 export const colorName = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c]?.name ?? c));
 

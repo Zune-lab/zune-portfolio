@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './Signature.css';
+import { location } from '../../../data/profile.js';
 
 export function Signature() {
   const ref = useRef(null);
@@ -79,7 +80,7 @@ export function Signature() {
 export function Footer() {
   return (
     <footer className="py-9 text-center font-mono text-[12.5px] text-dim border-t border-line">
-      // built solo in Ho Chi Minh City · © 2026 zune
+      // built solo in {location} · © 2026 zune
     </footer>
   );
 }

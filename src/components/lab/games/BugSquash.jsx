@@ -71,6 +71,7 @@ export default function BugSquash() {
       saveBest(BEST_KEY, score);
       setNewBest(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the round ends; score/best are current then
   }, [status]);
 
   const press = (i) => {

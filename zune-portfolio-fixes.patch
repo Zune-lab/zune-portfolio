@@ -1,0 +1,400 @@
+diff --git a/.gitignore b/.gitignore
+index 6dcb015..9145c03 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,4 +2,3 @@ node_modules/
+ dist/
+ .env
+ .DS_Store
+-Zune-lab/
+diff --git a/src/components/about/About.jsx b/src/components/about/About.jsx
+index 97834db..e9d4fb2 100644
+--- a/src/components/about/About.jsx
++++ b/src/components/about/About.jsx
+@@ -1,5 +1,5 @@
+ import SectionHead from '../ui/SectionHead.jsx';
+-import { gitLog, stack } from '../../data/profile.js';
++import { gitLog, stack, role, location } from '../../data/profile.js';
+ 
+ function SubHead({ children }) {
+   return (
+@@ -24,9 +24,9 @@ export default function About() {
+           <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-sm overflow-x-auto text-ink">
+             <span style={{ color: 'var(--amber)' }}>const</span> zune = {'{'}
+             {'\n  role: '}
+-            <span style={{ color: 'var(--green)' }}>"Web Developer"</span>,
++            <span style={{ color: 'var(--green)' }}>"{role}"</span>,
+             {'\n  based_in: '}
+-            <span style={{ color: 'var(--green)' }}>"Ho Chi Minh City, VN"</span>,
++            <span style={{ color: 'var(--green)' }}>"{location}, VN"</span>,
+             {'\n  started_coding: '}
+             <span style={{ color: 'var(--css-lang)' }}>2022</span>,
+             {'\n  favorite_stack: '}
+diff --git a/src/components/home/Hero.jsx b/src/components/home/Hero.jsx
+index 3c5583a..66cd828 100644
+--- a/src/components/home/Hero.jsx
++++ b/src/components/home/Hero.jsx
+@@ -1,47 +1,11 @@
+-import { useEffect, useState } from 'react';
+ import Btn31 from '../ui/Btn31/Btn31.jsx';
+ import ContactButton from './ContactButton/ContactButton.jsx';
+ import Terminal from './Terminal/Terminal.jsx';
+-import { isOnlineHour } from '../../lib/vnTime.js';
+-import { storageGet, storageSet } from '../../lib/storage.js';
+-
+-// online/offline is inferred from the Vietnam clock (no backend needed);
+-// busy/focus can only be picked by hand, a machine can't know those.
+-const STATUS_CONFIG = {
+-  online: { label: 'online', color: 'var(--green)', pulse: true },
+-  offline: { label: 'offline', color: 'var(--text-dim)', pulse: false },
+-  busy: { label: 'busy - replies may be slow', color: 'var(--amber)', pulse: false },
+-  focus: { label: 'in focus mode', color: 'var(--css-lang)', pulse: false },
+-};
+-
+-const CYCLE = ['auto', 'busy', 'focus', 'offline'];
+-const STORAGE_KEY = 'zune-status-override';
+-
+-function autoStatusByHour() {
+-  return isOnlineHour() ? 'online' : 'offline';
+-}
+-
+-function readOverride() {
+-  const v = storageGet(STORAGE_KEY);
+-  return CYCLE.includes(v) ? v : 'auto';
+-}
++import { role, location } from '../../data/profile.js';
++import { cycleStatus, useStatus } from '../../lib/status.js';
+ 
+ export default function Hero({ onNavigate }) {
+-  const [override, setOverride] = useState(readOverride);
+-  const [autoStatus, setAutoStatus] = useState(autoStatusByHour);
+-
+-  useEffect(() => {
+-    const id = setInterval(() => setAutoStatus(autoStatusByHour()), 60 * 1000);
+-    return () => clearInterval(id);
+-  }, []);
+-
+-  const status = STATUS_CONFIG[override === 'auto' ? autoStatus : override];
+-
+-  const cycleStatus = () => {
+-    const next = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
+-    setOverride(next);
+-    storageSet(STORAGE_KEY, next === 'auto' ? null : next); // storage bị chặn thì override chỉ sống trong phiên này
+-  };
++  const status = useStatus();
+ 
+   return (
+     <header className="hero relative pt-12 pb-[130px]">
+@@ -64,14 +28,14 @@ export default function Hero({ onNavigate }) {
+               <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: status.color }} />
+             </span>
+             {status.label}
+-            {override === 'auto' && <span className="opacity-60">· auto</span>}
++            {status.isAuto && <span className="opacity-60">· auto</span>}
+           </button>
+           <h1 className="font-mono font-bold leading-[1.25] tracking-[-0.5px] text-[clamp(34px,5vw,52px)]">
+             Hi, I'm <span className="text-amber">Zune</span>.<br />
+             I code for fun.
+           </h1>
+           <p className="mt-5 text-dim text-base max-w-[420px]">
+-            Web developer in Ho Chi Minh City. I love messing around with CSS and building tiny pages just to see
++            {role} in {location}. I love messing around with CSS and building tiny pages just to see
+             if they work.
+           </p>
+           <div className="flex gap-3.5 mt-9 flex-wrap items-center">
+diff --git a/src/components/home/StatsSupport.jsx b/src/components/home/StatsSupport.jsx
+index 74d9835..4d8c77e 100644
+--- a/src/components/home/StatsSupport.jsx
++++ b/src/components/home/StatsSupport.jsx
+@@ -1,5 +1,6 @@
+ import SectionHead from '../ui/SectionHead.jsx';
+ import Btn31 from '../ui/Btn31/Btn31.jsx';
++import { githubUrl } from '../../data/socials.js';
+ 
+ export function Stats() {
+   return (
+@@ -11,7 +12,7 @@ export function Stats() {
+             Detailed coding activity (commits, streaks, languages...) already lives on GitHub, so check it there
+             for the real numbers.
+           </p>
+-          <Btn31 href="https://github.com/Zune-lab">open github profile ↗</Btn31>
++          <Btn31 href={githubUrl}>open github profile ↗</Btn31>
+         </div>
+       </div>
+     </section>
+diff --git a/src/components/home/Terminal/Terminal.jsx b/src/components/home/Terminal/Terminal.jsx
+index 358772f..d212e17 100644
+--- a/src/components/home/Terminal/Terminal.jsx
++++ b/src/components/home/Terminal/Terminal.jsx
+@@ -1,16 +1,18 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { PAGES } from '../../../config/pages.js';
+-import { stack } from '../../../data/profile.js';
++import { stack, role, location } from '../../../data/profile.js';
++import { useStatus } from '../../../lib/status.js';
+ import './Terminal.css';
+ 
+ // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
+-const WHOAMI = 'zune - web developer, Ho Chi Minh City';
++const WHOAMI = `zune - ${role.toLowerCase()}, ${location}`;
+ const MOOD = 'chillax guys. code for fun, ship small weird things.';
+ 
+-const INTRO = [
++// the status line follows the badge in the Hero (same shared store), so the two never contradict each other
++const introLines = (statusBlurb) => [
+   { cmd: 'whoami', out: WHOAMI },
+   { cmd: 'cat mood.txt', out: MOOD },
+-  { cmd: 'echo $STATUS', out: 'open to new projects - type help to play around' },
++  { cmd: 'echo $STATUS', out: `${statusBlurb} - type help to play around` },
+ ];
+ 
+ const FILES = {
+@@ -59,6 +61,9 @@ const Cursor = () => <span className="term-cursor">{'\u00a0'}</span>;
+ const Prompt = () => <span style={{ color: 'var(--green)' }}>$ </span>;
+ 
+ export default function Terminal({ onNavigate }) {
++  const { blurb } = useStatus();
++  const blurbRef = useRef(blurb); // read once when the intro starts; typing animation shouldn't restart on a status change
++  blurbRef.current = blurb;
+   const [lines, setLines] = useState([]);
+   const [ready, setReady] = useState(false);
+   const [value, setValue] = useState('');
+@@ -73,6 +78,7 @@ export default function Terminal({ onNavigate }) {
+     let cancelled = false;
+     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+     const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
++    const INTRO = introLines(blurbRef.current);
+     const buf = [];
+     const flush = () => setLines([...buf]);
+ 
+diff --git a/src/components/lab/BannerMaker/banner.js b/src/components/lab/BannerMaker/banner.js
+index c218ffc..6bb8056 100644
+--- a/src/components/lab/BannerMaker/banner.js
++++ b/src/components/lab/BannerMaker/banner.js
+@@ -33,7 +33,7 @@ export const DYES = DYE_LIST.map(([id, hex]) => ({
+   rgb: [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)),
+ }));
+ 
+-export const DYE = Object.fromEntries(DYES.map((d) => [d.id, d]));
++const DYE = Object.fromEntries(DYES.map((d) => [d.id, d]));
+ 
+ // một màu là id trong bảng 16 màu ('sky') hoặc mã hex tuỳ chọn ('#3ab0e6')
+ export const isCustom = (c) => typeof c === 'string' && c.startsWith('#');
+@@ -42,7 +42,7 @@ const parseHex = (hex) => {
+   const rgb = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+   return rgb.every((n) => Number.isFinite(n)) ? rgb : [0, 0, 0];
+ };
+-export const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
++const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
+ export const hexOf = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c] ?? DYE.ink).hex);
+ export const colorName = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c]?.name ?? c));
+ 
+diff --git a/src/components/lab/games/BugSquash.jsx b/src/components/lab/games/BugSquash.jsx
+index 1bab21e..fa33494 100644
+--- a/src/components/lab/games/BugSquash.jsx
++++ b/src/components/lab/games/BugSquash.jsx
+@@ -71,6 +71,7 @@ export default function BugSquash() {
+       saveBest(BEST_KEY, score);
+       setNewBest(true);
+     }
++    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the round ends; score/best are current then
+   }, [status]);
+ 
+   const press = (i) => {
+diff --git a/src/components/lab/games/Snake.jsx b/src/components/lab/games/Snake.jsx
+index 0f64234..978801c 100644
+--- a/src/components/lab/games/Snake.jsx
++++ b/src/components/lab/games/Snake.jsx
+@@ -171,6 +171,7 @@ export default function Snake() {
+       saveBest(BEST_KEY, scoreRef.current);
+       setNewBest(true);
+     }
++    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the game ends; best is current then
+   }, [status]);
+ 
+   const onKeyDown = (e) => {
+diff --git a/src/components/layout/ErrorBoundary.jsx b/src/components/layout/ErrorBoundary.jsx
+index eeaa9d3..2ab831f 100644
+--- a/src/components/layout/ErrorBoundary.jsx
++++ b/src/components/layout/ErrorBoundary.jsx
+@@ -46,16 +46,16 @@ export default class ErrorBoundary extends Component {
+     const chunk = isChunkError(error);
+     const box = (
+       <div role="alert" className="font-mono text-center max-w-[420px] mx-auto px-6 py-10">
+-        <p className="text-amber text-[13px] mb-2">// {chunk ? 'không tải được phần này' : 'có lỗi xảy ra'}</p>
++        <p className="text-amber text-[13px] mb-2">// {chunk ? 'could not load this part' : 'something went wrong'}</p>
+         <p className="text-dim text-[13px] mb-5">
+-          {chunk ? 'Có thể trang vừa được cập nhật hoặc mạng đang chập chờn.' : 'Phần này bị lỗi, phần còn lại của trang vẫn dùng được.'}
++          {chunk ? 'The site may have just been updated, or your connection is unstable.' : 'This part crashed, but the rest of the page still works.'}
+         </p>
+         <button
+           type="button"
+           onClick={this.retry}
+           className="px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink text-[13px]"
+         >
+-          {chunk ? 'reload' : 'thử lại'}
++          {chunk ? 'reload' : 'try again'}
+         </button>
+       </div>
+     );
+diff --git a/src/components/layout/Navbar/Navbar.jsx b/src/components/layout/Navbar/Navbar.jsx
+index 0498b78..2ae17d8 100644
+--- a/src/components/layout/Navbar/Navbar.jsx
++++ b/src/components/layout/Navbar/Navbar.jsx
+@@ -239,6 +239,7 @@ function useMoreDot(deps) {
+       el.removeEventListener('wheel', wheel);
+       window.removeEventListener('resize', check);
+     };
++    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps are passed in by the caller
+   }, deps);
+ 
+   return [ref, hasMore];
+@@ -379,7 +380,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
+         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
+           <a
+             href={pathOf('home')}
+-            aria-label="zune.dev — về trang chính"
++            aria-label="zune.dev — back to home"
+             onClick={(e) => {
+               if (!isPlainClick(e)) return;
+               e.preventDefault();
+diff --git a/src/components/layout/Signature/Signature.jsx b/src/components/layout/Signature/Signature.jsx
+index 807c199..0fbcad4 100644
+--- a/src/components/layout/Signature/Signature.jsx
++++ b/src/components/layout/Signature/Signature.jsx
+@@ -1,5 +1,6 @@
+ import { useEffect, useRef, useState } from 'react';
+ import './Signature.css';
++import { location } from '../../../data/profile.js';
+ 
+ export function Signature() {
+   const ref = useRef(null);
+@@ -79,7 +80,7 @@ export function Signature() {
+ export function Footer() {
+   return (
+     <footer className="py-9 text-center font-mono text-[12.5px] text-dim border-t border-line">
+-      // built solo in Ho Chi Minh City · © 2026 zune
++      // built solo in {location} · © 2026 zune
+     </footer>
+   );
+ }
+diff --git a/src/config/pages.js b/src/config/pages.js
+index c6f7201..cc27f91 100644
+--- a/src/config/pages.js
++++ b/src/config/pages.js
+@@ -12,6 +12,7 @@ import { lazy } from 'react';
+ import { LAB_ITEMS, labItemOf } from './lab-items.js';
+ 
+ import { BASE, pathOf } from '../lib/paths.js';
++import { role } from '../data/profile.js';
+ 
+ // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
+ const About = lazy(() => import('../components/about/About.jsx'));
+@@ -49,11 +50,11 @@ export const PAGES = [
+   },
+ ];
+ 
+-export const HOME_TITLE = 'Zune — Web Developer';
++const HOME_TITLE = `Zune — ${role}`;
+ 
+ // "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
+ export const topOf = (view) => view.split('/')[0];
+-export const pageOf = (id) => PAGES.find((p) => p.id === id);
++const pageOf = (id) => PAGES.find((p) => p.id === id);
+ export const pageOfView = (view) => pageOf(topOf(view));
+ 
+ export const titleOf = (view) => {
+diff --git a/src/data/profile.js b/src/data/profile.js
+index 4e8272e..cc4472b 100644
+--- a/src/data/profile.js
++++ b/src/data/profile.js
+@@ -1,3 +1,6 @@
++export const role = 'Web Developer';
++export const location = 'Ho Chi Minh City';
++
+ export const stack = [
+   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
+ ];
+diff --git a/src/data/socials.js b/src/data/socials.js
+index b771370..1c5d68a 100644
+--- a/src/data/socials.js
++++ b/src/data/socials.js
+@@ -50,3 +50,6 @@ export const socials = [
+     path: 'M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z',
+   },
+ ];
++
++// single source for the GitHub profile link
++export const githubUrl = socials.find((s) => s.name === 'github').href;
+diff --git a/src/lib/status.js b/src/lib/status.js
+new file mode 100644
+index 0000000..0f089f0
+--- /dev/null
++++ b/src/lib/status.js
+@@ -0,0 +1,54 @@
++import { useSyncExternalStore } from 'react';
++import { isOnlineHour } from './vnTime.js';
++import { storageGet, storageSet } from './storage.js';
++
++// online/offline is inferred from the Vietnam clock (no backend needed);
++// busy/focus can only be picked by hand, a machine can't know those.
++// `label` is shown on the Hero badge, `blurb` is what the terminal prints.
++export const STATUS_CONFIG = {
++  online: { label: 'online', blurb: 'open to new projects', color: 'var(--green)', pulse: true },
++  offline: { label: 'offline', blurb: 'offline right now, will reply later', color: 'var(--text-dim)', pulse: false },
++  busy: { label: 'busy - replies may be slow', blurb: 'busy, replies may be slow', color: 'var(--amber)', pulse: false },
++  focus: { label: 'in focus mode', blurb: 'in focus mode, replies may be slow', color: 'var(--css-lang)', pulse: false },
++};
++
++const CYCLE = ['auto', 'busy', 'focus', 'offline'];
++const STORAGE_KEY = 'zune-status-override';
++
++const autoStatus = () => (isOnlineHour() ? 'online' : 'offline');
++
++function readOverride() {
++  const v = storageGet(STORAGE_KEY);
++  return CYCLE.includes(v) ? v : 'auto';
++}
++
++// One shared store, so the Hero badge and the terminal can never disagree.
++let override = readOverride();
++const listeners = new Set();
++let timer = null;
++
++const emit = () => listeners.forEach((l) => l());
++const current = () => (override === 'auto' ? autoStatus() : override);
++// snapshot is a string so React can compare it cheaply; it includes `override` so the "· auto" tag also updates
++// when cycling back to auto lands on the same status key
++const snapshot = () => `${override}:${current()}`;
++
++function subscribe(cb) {
++  listeners.add(cb);
++  if (listeners.size === 1) timer = setInterval(emit, 60 * 1000); // re-check the clock; React only re-renders on change
++  return () => {
++    listeners.delete(cb);
++    if (listeners.size === 0) clearInterval(timer);
++  };
++}
++
++export function cycleStatus() {
++  override = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
++  storageSet(STORAGE_KEY, override === 'auto' ? null : override); // if storage is blocked the override lives for this session only
++  emit();
++}
++
++export function useStatus() {
++  const [mode, key] = useSyncExternalStore(subscribe, snapshot).split(':');
++  return { key, isAuto: mode === 'auto', ...STATUS_CONFIG[key] };
++}
+diff --git a/src/lib/vnTime.js b/src/lib/vnTime.js
+index 50c404f..2cf2d5e 100644
+--- a/src/lib/vnTime.js
++++ b/src/lib/vnTime.js
+@@ -1,6 +1,6 @@
+ // Một nguồn duy nhất cho "giờ VN" – nền (data-tod) và trạng thái online/offline
+ // cùng dùng chung để không bao giờ lệch mốc nhau.
+-export function vnHour() {
++function vnHour() {
+   return parseInt(
+     new Date().toLocaleString('en-US', {
+       timeZone: 'Asia/Ho_Chi_Minh',

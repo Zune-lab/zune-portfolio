@@ -171,6 +171,7 @@ export default function Snake() {
       saveBest(BEST_KEY, scoreRef.current);
       setNewBest(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the game ends; best is current then
   }, [status]);
 
   const onKeyDown = (e) => {

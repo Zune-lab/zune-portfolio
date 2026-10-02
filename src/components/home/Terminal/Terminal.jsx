@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../../config/pages.js';
-import { stack } from '../../../data/profile.js';
+import { stack, role, location } from '../../../data/profile.js';
+import { useStatus } from '../../../lib/status.js';
 import './Terminal.css';
 
 // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
-const WHOAMI = 'zune - web developer, Ho Chi Minh City';
+const WHOAMI = `zune - ${role.toLowerCase()}, ${location}`;
 const MOOD = 'chillax guys. code for fun, ship small weird things.';
 
-const INTRO = [
+// the status line follows the badge in the Hero (same shared store), so the two never contradict each other
+const introLines = (statusBlurb) => [
   { cmd: 'whoami', out: WHOAMI },
   { cmd: 'cat mood.txt', out: MOOD },
-  { cmd: 'echo $STATUS', out: 'open to new projects - type help to play around' },
+  { cmd: 'echo $STATUS', out: `${statusBlurb} - type help to play around` },
 ];
 
 const FILES = {
@@ -59,6 +61,9 @@ const Cursor = () => <span className="term-cursor">{'\u00a0'}</span>;
 const Prompt = () => <span style={{ color: 'var(--green)' }}>$ </span>;
 
 export default function Terminal({ onNavigate }) {
+  const { blurb } = useStatus();
+  const blurbRef = useRef(blurb); // read once when the intro starts; typing animation shouldn't restart on a status change
+  blurbRef.current = blurb;
   const [lines, setLines] = useState([]);
   const [ready, setReady] = useState(false);
   const [value, setValue] = useState('');
@@ -73,6 +78,7 @@ export default function Terminal({ onNavigate }) {
     let cancelled = false;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+    const INTRO = introLines(blurbRef.current);
     const buf = [];
     const flush = () => setLines([...buf]);
 

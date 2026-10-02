@@ -1,47 +1,11 @@
-import { useEffect, useState } from 'react';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import ContactButton from './ContactButton/ContactButton.jsx';
 import Terminal from './Terminal/Terminal.jsx';
-import { isOnlineHour } from '../../lib/vnTime.js';
-import { storageGet, storageSet } from '../../lib/storage.js';
-
-// online/offline is inferred from the Vietnam clock (no backend needed);
-// busy/focus can only be picked by hand, a machine can't know those.
-const STATUS_CONFIG = {
-  online: { label: 'online', color: 'var(--green)', pulse: true },
-  offline: { label: 'offline', color: 'var(--text-dim)', pulse: false },
-  busy: { label: 'busy - replies may be slow', color: 'var(--amber)', pulse: false },
-  focus: { label: 'in focus mode', color: 'var(--css-lang)', pulse: false },
-};
-
-const CYCLE = ['auto', 'busy', 'focus', 'offline'];
-const STORAGE_KEY = 'zune-status-override';
-
-function autoStatusByHour() {
-  return isOnlineHour() ? 'online' : 'offline';
-}
-
-function readOverride() {
-  const v = storageGet(STORAGE_KEY);
-  return CYCLE.includes(v) ? v : 'auto';
-}
+import { role, location } from '../../data/profile.js';
+import { cycleStatus, useStatus } from '../../lib/status.js';
 
 export default function Hero({ onNavigate }) {
-  const [override, setOverride] = useState(readOverride);
-  const [autoStatus, setAutoStatus] = useState(autoStatusByHour);
-
-  useEffect(() => {
-    const id = setInterval(() => setAutoStatus(autoStatusByHour()), 60 * 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const status = STATUS_CONFIG[override === 'auto' ? autoStatus : override];
-
-  const cycleStatus = () => {
-    const next = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
-    setOverride(next);
-    storageSet(STORAGE_KEY, next === 'auto' ? null : next); // storage bị chặn thì override chỉ sống trong phiên này
-  };
+  const status = useStatus();
 
   return (
     <header className="hero relative pt-12 pb-[130px]">
@@ -64,14 +28,14 @@ export default function Hero({ onNavigate }) {
               <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: status.color }} />
             </span>
             {status.label}
-            {override === 'auto' && <span className="opacity-60">· auto</span>}
+            {status.isAuto && <span className="opacity-60">· auto</span>}
           </button>
           <h1 className="font-mono font-bold leading-[1.25] tracking-[-0.5px] text-[clamp(34px,5vw,52px)]">
             Hi, I'm <span className="text-amber">Zune</span>.<br />
             I code for fun.
           </h1>
           <p className="mt-5 text-dim text-base max-w-[420px]">
-            Web developer in Ho Chi Minh City. I love messing around with CSS and building tiny pages just to see
+            {role} in {location}. I love messing around with CSS and building tiny pages just to see
             if they work.
           </p>
           <div className="flex gap-3.5 mt-9 flex-wrap items-center">

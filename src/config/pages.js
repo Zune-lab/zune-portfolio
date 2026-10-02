@@ -12,6 +12,7 @@ import { lazy } from 'react';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
 import { BASE, pathOf } from '../lib/paths.js';
+import { role } from '../data/profile.js';
 
 // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
 const About = lazy(() => import('../components/about/About.jsx'));
@@ -49,11 +50,11 @@ export const PAGES = [
   },
 ];
 
-export const HOME_TITLE = 'Zune — Web Developer';
+const HOME_TITLE = `Zune — ${role}`;
 
 // "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
 export const topOf = (view) => view.split('/')[0];
-export const pageOf = (id) => PAGES.find((p) => p.id === id);
+const pageOf = (id) => PAGES.find((p) => p.id === id);
 export const pageOfView = (view) => pageOf(topOf(view));
 
 export const titleOf = (view) => {

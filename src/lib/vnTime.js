@@ -1,6 +1,6 @@
 // Một nguồn duy nhất cho "giờ VN" – nền (data-tod) và trạng thái online/offline
 // cùng dùng chung để không bao giờ lệch mốc nhau.
-export function vnHour() {
+function vnHour() {
   return parseInt(
     new Date().toLocaleString('en-US', {
       timeZone: 'Asia/Ho_Chi_Minh',

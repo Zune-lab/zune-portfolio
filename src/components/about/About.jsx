@@ -1,5 +1,5 @@
 import SectionHead from '../ui/SectionHead.jsx';
-import { gitLog, stack } from '../../data/profile.js';
+import { gitLog, stack, role, location } from '../../data/profile.js';
 
 function SubHead({ children }) {
   return (
@@ -24,9 +24,9 @@ export default function About() {
           <pre className="bg-inset border border-line rounded-[10px] px-[26px] py-[22px] font-mono text-sm overflow-x-auto text-ink">
             <span style={{ color: 'var(--amber)' }}>const</span> zune = {'{'}
             {'\n  role: '}
-            <span style={{ color: 'var(--green)' }}>"Web Developer"</span>,
+            <span style={{ color: 'var(--green)' }}>"{role}"</span>,
             {'\n  based_in: '}
-            <span style={{ color: 'var(--green)' }}>"Ho Chi Minh City, VN"</span>,
+            <span style={{ color: 'var(--green)' }}>"{location}, VN"</span>,
             {'\n  started_coding: '}
             <span style={{ color: 'var(--css-lang)' }}>2022</span>,
             {'\n  favorite_stack: '}
