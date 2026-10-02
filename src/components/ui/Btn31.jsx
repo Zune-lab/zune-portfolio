@@ -1,6 +1,6 @@
 import './Btn31.css';
 
-export default function Btn31({ href, onClick, type = 'button', icon, children, className = '' }) {
+export default function Btn31({ href, onClick, type = 'button', icon, disabled, children, className = '' }) {
   const Tag = href ? 'a' : 'button';
   return (
     <Tag
@@ -9,7 +9,8 @@ export default function Btn31({ href, onClick, type = 'button', icon, children, 
       rel={href ? 'noreferrer' : undefined}
       type={href ? undefined : type}
       onClick={onClick}
-      className={`btn-31 inline-flex items-center justify-center gap-2 px-6 py-3.5 font-mono text-[13px] font-bold uppercase tracking-wide ${className}`}
+      disabled={href ? undefined : disabled}
+      className={`btn-31 inline-flex items-center justify-center gap-2 px-6 py-3.5 font-mono text-[13px] font-bold uppercase tracking-wide disabled:opacity-60 disabled:pointer-events-none ${className}`}
     >
       {icon && <span className="btn-31-icon relative z-[1] w-4 h-4 flex-none">{icon}</span>}
       <span className="text-container block overflow-hidden relative">
