@@ -1,19 +1,15 @@
 .cal-art {
   position: absolute;
   inset: 0;
-  display: flex;
-  justify-content: center; /* lưới nằm giữa card (trước đây neo sát trái) */
-  padding: 26px 0 0;
-  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 50% 20%, #000 0%, transparent 100%);
-  mask-image: radial-gradient(ellipse 72% 95% at 50% 20%, #000 0%, transparent 100%);
+  padding: 22px 28px 0;
+  /* lưới giãn đều theo bề rộng card; rìa + đáy tan dần để chừa chỗ cho nhãn */
+  -webkit-mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
 }
 .cal-grid {
   display: grid;
-  grid-template-columns: repeat(7, 36px);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 9px;
-  flex: none;
-  transform: scale(1.25);
-  transform-origin: top center;
 }
 .cal-head {
   height: 5px;
@@ -22,7 +18,14 @@
   background: currentColor;
   opacity: 0.35;
 }
+.cal-head.today {
+  opacity: 1;
+  box-shadow: 0 0 10px -1px currentColor;
+}
 .cal-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 36px;
   border-radius: 7px;
   border: 1px solid var(--line);
@@ -34,12 +37,30 @@
 }
 .cal-cell.today {
   border-color: currentColor;
+  box-shadow: 0 0 16px -5px currentColor;
   animation: cal-blink 2.4s ease-in-out infinite;
+}
+/* con dấu ghi tên thứ: nghiêng nhẹ, "đóng" xuống một lần khi hiện ra */
+.cal-stamp {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  padding: 3px 5px;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  transform: rotate(-9deg);
+  animation: cal-stamp-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) 0.35s both;
+}
+@keyframes cal-stamp-in {
+  from { opacity: 0; transform: rotate(-9deg) scale(1.9); }
+  to { opacity: 1; transform: rotate(-9deg) scale(1); }
 }
 @keyframes cal-blink {
   0%, 100% { background: color-mix(in srgb, currentColor 10%, transparent); }
   50% { background: color-mix(in srgb, currentColor 45%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cal-cell.today { animation: none; }
+  .cal-cell.today, .cal-stamp { animation: none; }
 }
