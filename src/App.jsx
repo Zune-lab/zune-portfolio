@@ -142,7 +142,10 @@ export default function App() {
     // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
     const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
     if (!sameTab && !reducedMotion()) setIsLoading(true);
-    navTimer.current = window.setTimeout(() => {
+    // start downloading the target page's code right away; the swap waits for BOTH the loader time and the chunk
+    // (a failed preload is ignored here: the ErrorBoundary shows the retry UI once the page tries to render)
+    const preloaded = pageOfView(nextView)?.preload?.().catch(() => {});
+    const swap = () => {
       navTimer.current = 0;
       if (viewRef.current === 'home' && nextView !== 'home') {
         savedHomeScroll.current = window.scrollY;
@@ -158,7 +161,17 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
       setIsLoading(false);
-    }, sameTab || reducedMotion() ? 0 : TAB_LOADER_MS);
+    };
+    const wait = sameTab || reducedMotion() ? 0 : TAB_LOADER_MS;
+    const id = window.setTimeout(() => {
+      // a newer click replaced this navigation while the chunk was downloading -> drop this one
+      if (navTimer.current !== id) return;
+      if (!preloaded) return swap();
+      preloaded.then(() => {
+        if (navTimer.current === id) swap();
+      });
+    }, wait);
+    navTimer.current = id;
   };
   const handleNavigate = (nextView, scrollTarget) => goTo(nextView, scrollTarget, true);
 
@@ -168,7 +181,7 @@ export default function App() {
     <>
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
-      {isLoading && <Loader />}
+      <Loader show={isLoading} />
       <a
         href="#main"
         onClick={(e) => {

@@ -2,9 +2,23 @@
    Dùng cho MỌI lúc chuyển trang/tab (about, projects, quay về home...),
    trừ lần load trang chính đầu tiên (đã có Preloader riêng lo việc đó). */
 
+/* No backdrop-filter here on purpose: blurring the whole page behind a full-screen overlay dropped the
+   switch to ~23fps in a headless-Chrome test (60fps without it), so the dim is a plain, slightly denser tint. */
 .page-loader {
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
-  backdrop-filter: blur(2px);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  animation: loader-fade-in 0.15s ease-out both;
+}
+.page-loader.is-leaving {
+  pointer-events: none;
+  animation: loader-fade-out 0.18s ease-in both;
+}
+@keyframes loader-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes loader-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes square-animation {

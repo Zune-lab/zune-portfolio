@@ -8,16 +8,26 @@
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
 // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
 // chạy nhờ 404.html do system/scripts/spa-404.mjs tạo lúc build.
-import { lazy } from 'react';
+import { createElement, lazy } from 'react';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
 import { BASE, pathOf } from '../lib/paths.js';
 import { role } from '../data/profile.js';
 
 // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
-const About = lazy(() => import('../components/about/About.jsx'));
-const Projects = lazy(() => import('../projects/Projects.jsx'));
-const Lab = lazy(() => import('../components/lab/Lab/Lab.jsx'));
+// Lazy page with a `preload`: App calls it while the tab loader is showing. Once the chunk is in, the page renders
+// synchronously. Plain React.lazy would still suspend for one render even with the module cached, which showed
+// an empty page (footer jumping up and back down) for a few frames right after the swap.
+function lazyPage(load) {
+  let Loaded = null;
+  const Lazy = lazy(load);
+  const Page = (props) => createElement(Loaded || Lazy, props);
+  Page.preload = () => load().then((m) => { Loaded = m.default; });
+  return Page;
+}
+const About = lazyPage(() => import('../components/about/About.jsx'));
+const Projects = lazyPage(() => import('../projects/Projects.jsx'));
+const Lab = lazyPage(() => import('../components/lab/Lab/Lab.jsx'));
 
 export const PAGES = [
   {
@@ -25,6 +35,7 @@ export const PAGES = [
     label: 'about.js', // chữ hiện ở nav
     title: 'about.js — Zune', // tiêu đề tab trình duyệt
     Component: About,
+    preload: About.preload,
     // mục con hiện ở nav phụ khi đứng trong trang này (cuộn trong trang, không đổi trang)
     sub: [
       { href: '#about-intro', label: 'about.js' },
@@ -37,6 +48,7 @@ export const PAGES = [
     label: 'projects/',
     title: 'projects/ — Zune',
     Component: Projects,
+    preload: Projects.preload,
     sub: [],
   },
   {
@@ -44,6 +56,7 @@ export const PAGES = [
     label: 'lab.css',
     title: 'lab.css — Zune',
     Component: Lab,
+    preload: Lab.preload,
     // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/config/lab-items.js
     children: LAB_ITEMS.map((i) => i.slug),
     sub: LAB_ITEMS.map((i) => ({ view: `lab/${i.slug}`, href: pathOf(`lab/${i.slug}`), label: i.file })),

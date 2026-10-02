@@ -1,0 +1,163 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 2d2fd72..1703f87 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -142,7 +142,10 @@ export default function App() {
+     // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
+     const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
+     if (!sameTab && !reducedMotion()) setIsLoading(true);
+-    navTimer.current = window.setTimeout(() => {
++    // start downloading the target page's code right away; the swap waits for BOTH the loader time and the chunk
++    // (a failed preload is ignored here: the ErrorBoundary shows the retry UI once the page tries to render)
++    const preloaded = pageOfView(nextView)?.preload?.().catch(() => {});
++    const swap = () => {
+       navTimer.current = 0;
+       if (viewRef.current === 'home' && nextView !== 'home') {
+         savedHomeScroll.current = window.scrollY;
+@@ -158,7 +161,17 @@ export default function App() {
+         window.scrollTo({ top: 0, behavior: 'instant' });
+       }
+       setIsLoading(false);
+-    }, sameTab || reducedMotion() ? 0 : TAB_LOADER_MS);
++    };
++    const wait = sameTab || reducedMotion() ? 0 : TAB_LOADER_MS;
++    const id = window.setTimeout(() => {
++      // a newer click replaced this navigation while the chunk was downloading -> drop this one
++      if (navTimer.current !== id) return;
++      if (!preloaded) return swap();
++      preloaded.then(() => {
++        if (navTimer.current === id) swap();
++      });
++    }, wait);
++    navTimer.current = id;
+   };
+   const handleNavigate = (nextView, scrollTarget) => goTo(nextView, scrollTarget, true);
+ 
+@@ -168,7 +181,7 @@ export default function App() {
+     <>
+       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
+       <Preloader />
+-      {isLoading && <Loader />}
++      <Loader show={isLoading} />
+       <a
+         href="#main"
+         onClick={(e) => {
+diff --git a/src/components/layout/Loader/Loader.css b/src/components/layout/Loader/Loader.css
+index 14f79d8..b25b959 100644
+--- a/src/components/layout/Loader/Loader.css
++++ b/src/components/layout/Loader/Loader.css
+@@ -2,9 +2,23 @@
+    Dùng cho MỌI lúc chuyển trang/tab (about, projects, quay về home...),
+    trừ lần load trang chính đầu tiên (đã có Preloader riêng lo việc đó). */
+ 
++/* No backdrop-filter here on purpose: blurring the whole page behind a full-screen overlay dropped the
++   switch to ~23fps in a headless-Chrome test (60fps without it), so the dim is a plain, slightly denser tint. */
+ .page-loader {
+-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+-  backdrop-filter: blur(2px);
++  background: color-mix(in srgb, var(--bg) 88%, transparent);
++  animation: loader-fade-in 0.15s ease-out both;
++}
++.page-loader.is-leaving {
++  pointer-events: none;
++  animation: loader-fade-out 0.18s ease-in both;
++}
++@keyframes loader-fade-in {
++  from { opacity: 0; }
++  to { opacity: 1; }
++}
++@keyframes loader-fade-out {
++  from { opacity: 1; }
++  to { opacity: 0; }
+ }
+ 
+ @keyframes square-animation {
+diff --git a/src/components/layout/Loader/Loader.jsx b/src/components/layout/Loader/Loader.jsx
+index 33cb73b..05b5a39 100644
+--- a/src/components/layout/Loader/Loader.jsx
++++ b/src/components/layout/Loader/Loader.jsx
+@@ -1,8 +1,23 @@
++import { useEffect, useState } from 'react';
+ import './Loader.css';
+ 
+-export default function Loader() {
++// `show` goes false -> the overlay fades out (~180ms) before it unmounts, instead of cutting away in one frame.
++export default function Loader({ show }) {
++  const [mounted, setMounted] = useState(show);
++
++  useEffect(() => {
++    if (show) {
++      setMounted(true);
++      return;
++    }
++    const t = setTimeout(() => setMounted(false), 200);
++    return () => clearTimeout(t);
++  }, [show]);
++
++  if (!show && !mounted) return null;
++
+   return (
+-    <div className="page-loader fixed inset-0 z-[90] flex items-center justify-center">
++    <div className={`page-loader fixed inset-0 z-[90] flex items-center justify-center${show ? '' : ' is-leaving'}`}>
+       <div className="loader">
+         {Array.from({ length: 7 }).map((_, i) => (
+           <div key={i} className="loader-square" />
+diff --git a/src/config/pages.js b/src/config/pages.js
+index cc27f91..e60cf8e 100644
+--- a/src/config/pages.js
++++ b/src/config/pages.js
+@@ -8,16 +8,26 @@
+ // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
+ // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
+ // chạy nhờ 404.html do system/scripts/spa-404.mjs tạo lúc build.
+-import { lazy } from 'react';
++import { createElement, lazy } from 'react';
+ import { LAB_ITEMS, labItemOf } from './lab-items.js';
+ 
+ import { BASE, pathOf } from '../lib/paths.js';
+ import { role } from '../data/profile.js';
+ 
+ // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
+-const About = lazy(() => import('../components/about/About.jsx'));
+-const Projects = lazy(() => import('../projects/Projects.jsx'));
+-const Lab = lazy(() => import('../components/lab/Lab/Lab.jsx'));
++// Lazy page with a `preload`: App calls it while the tab loader is showing. Once the chunk is in, the page renders
++// synchronously. Plain React.lazy would still suspend for one render even with the module cached, which showed
++// an empty page (footer jumping up and back down) for a few frames right after the swap.
++function lazyPage(load) {
++  let Loaded = null;
++  const Lazy = lazy(load);
++  const Page = (props) => createElement(Loaded || Lazy, props);
++  Page.preload = () => load().then((m) => { Loaded = m.default; });
++  return Page;
++}
++const About = lazyPage(() => import('../components/about/About.jsx'));
++const Projects = lazyPage(() => import('../projects/Projects.jsx'));
++const Lab = lazyPage(() => import('../components/lab/Lab/Lab.jsx'));
+ 
+ export const PAGES = [
+   {
+@@ -25,6 +35,7 @@ export const PAGES = [
+     label: 'about.js', // chữ hiện ở nav
+     title: 'about.js — Zune', // tiêu đề tab trình duyệt
+     Component: About,
++    preload: About.preload,
+     // mục con hiện ở nav phụ khi đứng trong trang này (cuộn trong trang, không đổi trang)
+     sub: [
+       { href: '#about-intro', label: 'about.js' },
+@@ -37,6 +48,7 @@ export const PAGES = [
+     label: 'projects/',
+     title: 'projects/ — Zune',
+     Component: Projects,
++    preload: Projects.preload,
+     sub: [],
+   },
+   {
+@@ -44,6 +56,7 @@ export const PAGES = [
+     label: 'lab.css',
+     title: 'lab.css — Zune',
+     Component: Lab,
++    preload: Lab.preload,
+     // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/config/lab-items.js
+     children: LAB_ITEMS.map((i) => i.slug),
+     sub: LAB_ITEMS.map((i) => ({ view: `lab/${i.slug}`, href: pathOf(`lab/${i.slug}`), label: i.file })),
