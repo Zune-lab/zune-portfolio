@@ -1,16 +1,15 @@
 .cal-art {
   position: absolute;
   inset: 0;
-  padding: 26px 0 0 34px;
-  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
-  mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+  padding: 22px 28px 0;
+  /* lưới giãn đều theo bề rộng card; rìa + đáy tan dần để chừa chỗ cho nhãn */
+  -webkit-mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
 }
 .cal-grid {
   display: grid;
-  grid-template-columns: repeat(7, 36px);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 9px;
-  transform: scale(1.25);
-  transform-origin: top left;
 }
 .cal-head {
   height: 5px;
