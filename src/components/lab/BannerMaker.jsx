@@ -182,7 +182,7 @@ export default function BannerMaker() {
   const [tool, setTool] = useState('pencil');
   const [mirror, setMirror] = useState(false);
   const [ink, setInk] = useState('honey');
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false); // false | 'ok' | 'fail'
   const canvasRef = useRef(null);
   const stroke = useRef(null); // { last: [x, y], pushed: boolean } trong lúc đang kéo chuột
   const paintRef = useRef(paint); // bản mới nhất của paint, để nhiều sự kiện pointer liên tiếp không đọc nhầm state cũ
@@ -398,14 +398,15 @@ export default function BannerMaker() {
   };
 
   const copy = async () => {
+    let result = 'ok';
     try {
       await navigator.clipboard.writeText(code);
-      setCopied(true);
-      clearTimeout(copiedTimer.current);
-      copiedTimer.current = setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* trình duyệt chặn clipboard: bỏ qua, người xem vẫn tự bôi đen được */
+      result = 'fail'; // trình duyệt chặn clipboard: báo để người dùng tự bôi đen
     }
+    setCopied(result);
+    clearTimeout(copiedTimer.current);
+    copiedTimer.current = setTimeout(() => setCopied(false), result === 'ok' ? 1500 : 3000);
   };
 
   const rowCls = (active) =>
@@ -660,7 +661,7 @@ export default function BannerMaker() {
                   className="lab-cell absolute top-2 right-3 px-2.5 py-1 rounded-md border border-line hover:border-amber font-mono text-[12px] text-dim hover:text-ink"
                   style={{ background: 'var(--panel)' }}
                 >
-                  {copied ? 'copied!' : 'copy code'}
+                  {copied === 'ok' ? 'copied!' : copied === 'fail' ? 'blocked: select & copy by hand' : 'copy code'}
                 </button>
               </div>
             )}

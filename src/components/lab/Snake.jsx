@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../lib/storage.js';
+import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const N = 18; // lưới N x N
 const CELL = 20;
 const SIZE = N * CELL;
 const BEST_KEY = 'zune-snake-best';
+const DPR = Math.min(window.devicePixelRatio || 1, 2); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
 
 const DIRS = {
   up: { x: 0, y: -1 },
@@ -59,6 +61,7 @@ export default function Snake() {
     const v = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
     const g = game.current;
 
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // toạ độ vẽ vẫn tính theo SIZE x SIZE
     ctx.fillStyle = v('--panel', '#10141b');
     ctx.fillRect(0, 0, SIZE, SIZE);
 
@@ -112,6 +115,7 @@ export default function Snake() {
     scoreRef.current += 1;
     setScore(scoreRef.current);
     g.food = placeFood(g.snake);
+    if (g.food === null) g.won = true; // ăn kín bàn: thắng, không phải chết
     return g.food !== null;
   };
 
@@ -203,27 +207,13 @@ export default function Snake() {
   );
 
   return (
-    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
-      <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[13px] mb-5">
-        <div className="flex gap-5">
-          <span>
-            <span className="text-dim">score </span>
-            <span style={{ color: 'var(--green)' }}>{score}</span>
-          </span>
-          <span>
-            <span className="text-dim">best </span>
-            <span>{best}</span>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={start}
-          className="lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink"
-        >
-          {status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start'}
-        </button>
-      </div>
-
+    <GameFrame
+      stats={[
+        { label: 'score', value: score, color: 'var(--green)' },
+        { label: 'best', value: best },
+      ]}
+      action={{ onClick: start, label: status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start' }}
+    >
       <div
         ref={wrapRef}
         tabIndex={0}
@@ -233,8 +223,8 @@ export default function Snake() {
       >
         <canvas
           ref={canvasRef}
-          width={SIZE}
-          height={SIZE}
+          width={SIZE * DPR}
+          height={SIZE * DPR}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerCancel={() => (swipe.current = null)}
@@ -243,10 +233,7 @@ export default function Snake() {
         />
 
         {status !== 'playing' && (
-          <div
-            className="absolute inset-0 rounded-lg flex flex-col items-center justify-center text-center gap-2 font-mono text-[13px] px-4"
-            style={{ background: 'color-mix(in srgb, var(--bg) 82%, transparent)' }}
-          >
+          <GameOverlay>
             {status === 'idle' ? (
               <>
                 <p className="text-ink">eat the dots, don't eat yourself.</p>
@@ -255,12 +242,13 @@ export default function Snake() {
             ) : (
               <>
                 <p className="text-ink">
-                  segfault: <span style={{ color: 'var(--green)' }}>{score}</span> eaten
+                  {game.current.won ? 'board cleared: ' : 'segfault: '}
+                  <span style={{ color: 'var(--green)' }}>{score}</span> eaten
                 </p>
                 <p className="text-dim">{newBest ? 'new best!' : 'one more try?'}</p>
               </>
             )}
-          </div>
+          </GameOverlay>
         )}
       </div>
 
@@ -270,6 +258,6 @@ export default function Snake() {
         {pad('down', '↓', 'col-start-2 row-start-2')}
         {pad('right', '→', 'col-start-3 row-start-2')}
       </div>
-    </div>
+    </GameFrame>
   );
 }

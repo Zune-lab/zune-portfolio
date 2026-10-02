@@ -53,8 +53,14 @@ function SubMenu({ label, links, onSelect }) {
   const btnRef = useRef(null);
   const menuRef = useRef(null);
   const closeTimer = useRef(0);
+  const focusOnOpen = useRef(false); // mở bằng bàn phím -> chuyển focus vào menu
 
   useEffect(() => () => clearTimeout(closeTimer.current), []);
+
+  useEffect(() => {
+    if (open && focusOnOpen.current) menuRef.current?.querySelector('[role="menuitem"]')?.focus();
+    focusOnOpen.current = false;
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -97,7 +103,35 @@ function SubMenu({ label, links, onSelect }) {
     // click bằng chuột: menu đã mở sẵn nhờ hover, bấm vào đừng làm nó đóng lại
     if (e.detail > 0 && canHover()) return show();
     if (open) setOpen(false);
+    else {
+      focusOnOpen.current = e.detail === 0; // Enter / Space trên nút
+      show();
+    }
+  };
+
+  // mũi tên trên nút mở menu + điều hướng trong menu (Up/Down/Home/End, Esc trả focus về nút, Tab đóng)
+  const onTriggerKeyDown = (e) => {
+    if (e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    focusOnOpen.current = true;
+    if (open) menuRef.current?.querySelector('[role="menuitem"]')?.focus();
     else show();
+  };
+  const onMenuKeyDown = (e) => {
+    const items = [...menuRef.current.querySelectorAll('[role="menuitem"]')];
+    const i = items.indexOf(document.activeElement);
+    const go = (n) => {
+      e.preventDefault();
+      items[(n + items.length) % items.length]?.focus();
+    };
+    if (e.key === 'ArrowDown') go(i + 1);
+    else if (e.key === 'ArrowUp') go(i - 1);
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(items.length - 1);
+    else if (e.key === 'Escape') {
+      setOpen(false);
+      btnRef.current?.focus();
+    } else if (e.key === 'Tab') setOpen(false);
   };
 
   return (
@@ -106,6 +140,7 @@ function SubMenu({ label, links, onSelect }) {
         href="#"
         linkRef={btnRef}
         onClick={onTriggerClick}
+        onKeyDown={onTriggerKeyDown}
         onPointerEnter={mouseOnly(show)}
         onPointerLeave={mouseOnly(hideSoon)}
         aria-haspopup="menu"
@@ -122,6 +157,7 @@ function SubMenu({ label, links, onSelect }) {
           <div
             ref={menuRef}
             role="menu"
+            onKeyDown={onMenuKeyDown}
             className="sub-menu"
             style={{ top: pos.top, left: pos.left, width: MENU_W }}
             onPointerEnter={mouseOnly(keepOpen)}
@@ -132,6 +168,7 @@ function SubMenu({ label, links, onSelect }) {
                 key={l.href}
                 href={l.href}
                 role="menuitem"
+                tabIndex={-1}
                 className="sub-menu-item"
                 onClick={(e) => {
                   if (!isPlainClick(e)) return;
@@ -259,6 +296,12 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
 
   useEffect(() => setMenuOpen(false), [view]); // đổi trang thì đóng menu
 
+  // `inert` đặt qua DOM property: JSX `inert=""` chạy ở React 18 nhưng hỏng ở React 19 (chuỗi rỗng bị coi là false)
+  useEffect(() => {
+    if (mainRowRef.current) mainRowRef.current.inert = inTab;
+    if (subRowRef.current) subRowRef.current.inert = !inTab;
+  }, [inTab, mainRowRef, subRowRef]);
+
   useEffect(() => {
     if (!menuOpen) return;
     const onDown = (e) => {
@@ -323,7 +366,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
           <a
             href={pathOf('home')}
-            aria-label="Về trang chính"
+            aria-label="zune.dev — về trang chính"
             onClick={(e) => {
               if (!isPlainClick(e)) return;
               e.preventDefault();
@@ -350,7 +393,6 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             {/* nav chính — trượt ra bên trái khi vào tab, trượt vào (trễ 150ms) khi quay lại */}
             <div
               ref={mainRowRef}
-              inert={inTab ? '' : undefined}
               style={fadeRight(!inTab && mainHasMore)}
               className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
@@ -373,7 +415,6 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             {/* nav phụ — trượt vào từ bên phải (trễ 150ms) khi vào tab, trượt ra khi thoát */}
             <div
               ref={subRowRef}
-              inert={inTab ? undefined : ''}
               style={fadeRight(inTab && subHasMore)}
               className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
@@ -471,13 +512,13 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
       </nav>
 
       {/* vùng sát mép trái màn hình — tách riêng, không nằm trong nav. Chỉ
-          desktop (md trở lên), lúc bình thường trong suốt hoàn toàn; rê
+          màn rộng (xl trở lên — dưới đó nội dung sát mép trái sẽ bị dải này đè lên, bấm nhầm thành "back"), lúc bình thường trong suốt hoàn toàn; rê
           chuột vào mới hiện nút ScrollArrow (mờ dần + phóng to + trượt vào,
           đúng hiệu ứng vòng tròn/icon trượt gốc) kèm đổi cursor. Mobile giữ
           nguyên, không đụng. */}
       <div
         aria-hidden="true"
-        className={`edge-back-zone group hidden md:flex items-center fixed left-0 top-14 bottom-0 w-16 z-40 ${
+        className={`edge-back-zone group hidden xl:flex items-center fixed left-0 top-14 bottom-0 w-16 z-40 ${
           inTab ? '' : 'pointer-events-none'
         }`}
       >
@@ -488,7 +529,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               : 'opacity-0 scale-75 -translate-x-2'
           }`}
         >
-          <ScrollArrow rotate={0} ariaLabel="Go back" onClick={goBack} tabIndex={-1} />
+          <ScrollArrow ariaLabel="Go back" onClick={goBack} tabIndex={-1} />
         </div>
       </div>
     </>

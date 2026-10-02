@@ -28,8 +28,19 @@ export default function Reptile() {
     let raf = 0;
     let last = 0;
     let visible = true;
-    let frame = 0;
     let stroke = '';
+    let fastUntil = 0;
+
+    // màu nét vẽ lấy từ CSS (text-ink). Khi đổi theme phải đọc lại NGAY, không thì con vật
+    // vẫn vẽ bằng màu cũ trên nền mới (cùng màu -> biến mất tới lần làm mới kế tiếp).
+    // Trong lúc theme đang chuyển (transition ~0.6s) đọc mỗi khung để màu mượt, không bị kẹt giữa chừng.
+    const readStroke = () => (stroke = getComputedStyle(box).color);
+    readStroke();
+    const mo = new MutationObserver(() => {
+      readStroke();
+      fastUntil = performance.now() + 800;
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     const resize = () => {
       w = box.clientWidth;
@@ -68,7 +79,7 @@ export default function Reptile() {
       last = t;
       env.ctx = ctx;
       ctx.clearRect(0, 0, w, h);
-      if (frame++ % 20 === 0) stroke = getComputedStyle(box).color; // màu theo theme, không cần đọc style mỗi khung hình
+      if (t < fastUntil) readStroke();
       ctx.strokeStyle = stroke;
       state.current.critter.follow(env.mouse.x, env.mouse.y);
     };
@@ -78,6 +89,7 @@ export default function Reptile() {
       cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
+      mo.disconnect();
       canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerdown', move);
     };

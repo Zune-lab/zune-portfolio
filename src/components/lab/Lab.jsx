@@ -1,4 +1,5 @@
 import { Suspense, useState } from 'react';
+import ErrorBoundary from '../layout/ErrorBoundary.jsx';
 import SectionHead from '../ui/SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../config/lab-items.js';
@@ -126,6 +127,7 @@ function LabItem({ item, onNavigate }) {
       <h3 className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-dim mb-4">// {item.file}</h3>
       <p className="text-[13.5px] text-dim mb-5">{item.blurb}</p>
 
+      <ErrorBoundary inline>
       <Suspense fallback={<div className="font-mono text-[13px] text-dim py-10">loading {item.file}…</div>}>
         {framed ? (
           <div
@@ -138,6 +140,7 @@ function LabItem({ item, onNavigate }) {
           <Component />
         )}
       </Suspense>
+      </ErrorBoundary>
     </>
   );
 }
@@ -150,7 +153,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="07" title={item ? item.file : 'lab.css'} />
+        <SectionHead num="01" title={item ? item.file : 'lab.css'} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid kind={kind} setKind={setKind} onNavigate={onNavigate} />}
       </div>
     </section>

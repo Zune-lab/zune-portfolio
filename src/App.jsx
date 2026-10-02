@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Preloader from './components/layout/Preloader.jsx';
+import ErrorBoundary from './components/layout/ErrorBoundary.jsx';
 import Loader from './components/layout/Loader.jsx';
 import Navbar from './components/layout/Navbar.jsx';
 import Hero from './components/home/Hero.jsx';
@@ -16,6 +17,7 @@ import { timeOfDay } from './lib/vnTime.js';
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
 const TAB_LOADER_MS = 450;
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function App() {
   const [theme, setTheme] = useState(
@@ -32,6 +34,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f3ec' : '#0a0c10');
     storageSet('zune-theme', theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
   }, [theme]);
 
@@ -133,7 +136,7 @@ export default function App() {
 
     // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
     const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
-    if (!sameTab) setIsLoading(true);
+    if (!sameTab && !reducedMotion()) setIsLoading(true);
     navTimer.current = window.setTimeout(() => {
       navTimer.current = 0;
       if (viewRef.current === 'home' && nextView !== 'home') {
@@ -150,7 +153,7 @@ export default function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
       setIsLoading(false);
-    }, sameTab ? 0 : TAB_LOADER_MS);
+    }, sameTab || reducedMotion() ? 0 : TAB_LOADER_MS);
   };
   const handleNavigate = (nextView, scrollTarget) => goTo(nextView, scrollTarget, true);
 
@@ -161,10 +164,17 @@ export default function App() {
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       {isLoading && <Loader />}
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-md focus:bg-panel focus:text-ink focus:border focus:border-amber font-mono text-[13px]">
+        skip to content
+      </a>
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
 
+      <main id="main" tabIndex={-1} className="outline-none">
+      <ErrorBoundary key={view} inline>
       {page ? (
-        <page.Component view={view} onNavigate={handleNavigate} />
+        <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+          <page.Component view={view} onNavigate={handleNavigate} />
+        </Suspense>
       ) : (
         <>
           <Hero onNavigate={handleNavigate} />
@@ -174,6 +184,8 @@ export default function App() {
           <Socials />
         </>
       )}
+      </ErrorBoundary>
+      </main>
 
       <Signature />
       <Footer />

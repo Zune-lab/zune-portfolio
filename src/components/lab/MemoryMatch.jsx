@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../lib/storage.js';
+import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
 const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
@@ -60,33 +61,14 @@ export default function MemoryMatch() {
   };
 
   return (
-    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
-      <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[13px] mb-5">
-        <div className="flex gap-5">
-          <span>
-            <span className="text-dim">moves </span>
-            <span style={{ color: 'var(--amber)' }}>{moves}</span>
-          </span>
-          <span>
-            <span className="text-dim">pairs </span>
-            <span style={{ color: 'var(--green)' }}>
-              {done.length}/{SYMBOLS.length}
-            </span>
-          </span>
-          <span>
-            <span className="text-dim">best </span>
-            <span>{best || '-'}</span>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={reset}
-          className="lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink"
-        >
-          {won ? 'play again' : 'shuffle'}
-        </button>
-      </div>
-
+    <GameFrame
+      stats={[
+        { label: 'moves', value: moves, color: 'var(--amber)' },
+        { label: 'pairs', value: `${done.length}/${SYMBOLS.length}`, color: 'var(--green)' },
+        { label: 'best', value: best || '-' },
+      ]}
+      action={{ onClick: reset, label: won ? 'play again' : 'shuffle' }}
+    >
       <div className="relative mx-auto max-w-[360px]">
         <div className="grid grid-cols-4 gap-3" role="group" aria-label="memory match board">
           {deck.map((c, i) => {
@@ -124,17 +106,14 @@ export default function MemoryMatch() {
         </div>
 
         {won && (
-          <div
-            className="absolute inset-0 rounded-lg flex flex-col items-center justify-center text-center gap-2 font-mono text-[13px] px-4"
-            style={{ background: 'color-mix(in srgb, var(--bg) 82%, transparent)' }}
-          >
+          <GameOverlay>
             <p className="text-ink">
               all merged in <span style={{ color: 'var(--green)' }}>{moves}</span> moves
             </p>
             <p className="text-dim">{newBest ? 'new best!' : 'can you do it in fewer?'}</p>
-          </div>
+          </GameOverlay>
         )}
       </div>
-    </div>
+    </GameFrame>
   );
 }

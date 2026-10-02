@@ -259,6 +259,9 @@ export default function Ghost() {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const s = st.current;
+      // ma đang ngủ và đã đứng yên hẳn: bỏ qua khung hình (không tính vật lý, không đụng DOM/canvas)
+      if (L.awake) s.rest = false;
+      else if (s.rest) return;
       s.t += dt;
 
       // 1. ma trôi: theo con trỏ (lười, có độ trễ) hoặc tự lang thang khi không ai đụng tới
@@ -286,6 +289,7 @@ export default function Ghost() {
       ctx.clearRect(0, 0, w, h);
       if (!L.awake) {
         parts = [];
+        s.rest = Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.vx) + Math.abs(s.vy) < 0.05;
         return;
       }
       const hue = L.konami ? (now * 0.18) % 360 : null;

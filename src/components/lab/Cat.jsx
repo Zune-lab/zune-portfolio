@@ -31,7 +31,7 @@ export default function Cat() {
             </div>
             <div className="brow_cont">
               <div className="brow"></div>
-              <div className="brow">     </div>
+              <div className="brow"></div>
             </div>
             <div className="ear_l">
               <div className="inner"></div>

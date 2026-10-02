@@ -24,15 +24,20 @@
     "dev": "vite",
     "build": "vite build && node scripts/spa-404.mjs",
     "preview": "vite preview",
-    "previews": "node scripts/make-previews.mjs"
+    "previews": "node scripts/make-previews.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.13.0",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "vite": "^7.3.6"

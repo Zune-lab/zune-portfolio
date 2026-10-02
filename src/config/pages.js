@@ -8,12 +8,15 @@
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
 // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
 // chạy nhờ 404.html do scripts/spa-404.mjs tạo lúc build.
-import About from '../components/about/About.jsx';
-import Projects from '../projects/Projects.jsx';
-import Lab from '../components/lab/Lab.jsx';
+import { lazy } from 'react';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
 import { BASE, pathOf } from '../lib/paths.js';
+
+// mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
+const About = lazy(() => import('../components/about/About.jsx'));
+const Projects = lazy(() => import('../projects/Projects.jsx'));
+const Lab = lazy(() => import('../components/lab/Lab.jsx'));
 
 export const PAGES = [
   {

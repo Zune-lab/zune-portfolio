@@ -50,7 +50,7 @@ export default function Hero({ onNavigate }) {
           <button
             type="button"
             onClick={cycleStatus}
-            title="Click to change status (saved on this device only)"
+            title="Click to change status (auto → busy → focus → offline). Saved on this device only."
             className="font-pixel text-[11px] tracking-wide mb-[22px] flex items-center gap-2 cursor-pointer"
             style={{ color: status.color }}
           >
@@ -64,6 +64,7 @@ export default function Hero({ onNavigate }) {
               <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: status.color }} />
             </span>
             {status.label}
+            {override === 'auto' && <span className="opacity-60">· auto</span>}
           </button>
           <h1 className="font-mono font-bold leading-[1.25] tracking-[-0.5px] text-[clamp(34px,5vw,52px)]">
             Hi, I'm <span className="text-amber">Zune</span>.<br />

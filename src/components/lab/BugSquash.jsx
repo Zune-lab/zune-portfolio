@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../lib/storage.js';
+import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const CELLS = 9;
 const DURATION = 30; // giây
@@ -89,31 +90,14 @@ export default function BugSquash() {
   const accuracy = total ? Math.round((score / total) * 100) : 0;
 
   return (
-    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
-      <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[13px] mb-5">
-        <div className="flex gap-5">
-          <span>
-            <span className="text-dim">bugs </span>
-            <span style={{ color: 'var(--green)' }}>{score}</span>
-          </span>
-          <span>
-            <span className="text-dim">time </span>
-            <span style={{ color: 'var(--amber)' }}>{timeLeft}s</span>
-          </span>
-          <span>
-            <span className="text-dim">best </span>
-            <span>{best}</span>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={start}
-          className="lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink"
-        >
-          {status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start'}
-        </button>
-      </div>
-
+    <GameFrame
+      stats={[
+        { label: 'bugs', value: score, color: 'var(--green)' },
+        { label: 'time', value: `${timeLeft}s`, color: 'var(--amber)' },
+        { label: 'best', value: best },
+      ]}
+      action={{ onClick: start, label: status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start' }}
+    >
       <div className="relative mx-auto max-w-[360px]">
         <div className="grid grid-cols-3 gap-3" role="group" aria-label="bug squash board">
           {Array.from({ length: CELLS }, (_, i) => (
@@ -145,10 +129,7 @@ export default function BugSquash() {
         </div>
 
         {status !== 'playing' && (
-          <div
-            className="absolute inset-0 rounded-lg flex flex-col items-center justify-center text-center gap-2 font-mono text-[13px] px-4"
-            style={{ background: 'color-mix(in srgb, var(--bg) 82%, transparent)' }}
-          >
+          <GameOverlay>
             {status === 'idle' ? (
               <>
                 <p className="text-ink">squash the bugs before time runs out.</p>
@@ -164,9 +145,9 @@ export default function BugSquash() {
                 </p>
               </>
             )}
-          </div>
+          </GameOverlay>
         )}
       </div>
-    </div>
+    </GameFrame>
   );
 }

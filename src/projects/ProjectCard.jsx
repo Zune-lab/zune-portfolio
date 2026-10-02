@@ -11,6 +11,8 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
   const [shotOk, setShotOk] = useState(Boolean(shot));
   const slug = file.replace(/\.[^.]+$/, '');
   const Art = arts[slug];
+  // thiết bị cảm ứng ẩn Art bằng CSS (hover: none) -> không mount luôn cho đỡ chạy animation vô ích
+  const canHover = window.matchMedia('(hover: hover)').matches;
 
   return (
     <a
@@ -20,9 +22,9 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
       rel="noreferrer"
       className={`project-card ${shotOk ? 'has-shot' : ''} relative h-[180px] rounded-[10px] overflow-hidden bg-panel border border-line flex items-center justify-center cursor-pointer transition-[transform,box-shadow,border-color] duration-500 hover:scale-[1.04] hover:shadow-[0_18px_30px_-14px_rgba(0,0,0,0.5)] hover:border-amber-dim scroll-mt-20`}
     >
-      {Art && (
+      {Art && canHover && (
         <div className="project-card-preview absolute inset-0" style={{ color }} aria-hidden="true">
-          <Art color={color} />
+          <Art />
         </div>
       )}
 

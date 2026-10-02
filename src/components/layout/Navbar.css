@@ -107,9 +107,6 @@
    khi hover vào CẢ vùng rộng (64px), không cần rê trúng chính xác cái nút
    tròn nhỏ bên trong — tránh trường hợp chuột nằm trong vùng nhưng chưa
    chạm đúng nút nên không thấy hiệu ứng gì. */
-/* vùng mũi tên quay lại ở mép trái: kích hoạt hiệu ứng của ScrollArrow ngay
-   khi hover vào CẢ vùng rộng (64px), không cần rê trúng chính xác cái nút
-   tròn nhỏ bên trong. */
 .edge-back-zone:hover .scroll-arrow::before {
   opacity: 0;
   transform: scale(0.7);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31.jsx';
 
+const MAX_MAILTO = 1900;
 const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
 
 export default function Feedback() {
@@ -16,17 +17,31 @@ export default function Feedback() {
 
     const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
     const subject = encodeURIComponent('Feedback from zune.dev' + moodTag);
-    const body = encodeURIComponent(message);
-    window.location.href = `mailto:${TO_EMAIL}?subject=${subject}&body=${body}`;
+    const head = `mailto:${TO_EMAIL}?subject=${subject}&body=`;
+    // link mailto: dài quá ~2000 ký tự sẽ bị một số client cắt im lặng -> cắt trước và báo cho người dùng
+    let body = encodeURIComponent(message);
+    let cut = false;
+    if (head.length + body.length > MAX_MAILTO) {
+      cut = true;
+      let n = message.length;
+      while (n > 0 && head.length + encodeURIComponent(message.slice(0, n)).length > MAX_MAILTO) n -= 50;
+      body = encodeURIComponent(message.slice(0, Math.max(n, 0)));
+      navigator.clipboard?.writeText(message).catch(() => {}); // bản đầy đủ nằm trong clipboard
+    }
+    window.location.href = head + body;
 
     // giữ nguyên nội dung: nếu máy không có ứng dụng mail thì người dùng không mất những gì đã viết
-    setNote(`Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`);
+    setNote(
+      cut
+        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${TO_EMAIL} directly.`
+        : `Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`
+    );
   };
 
   return (
     <section id="feedback" className="py-20 border-t border-line">
       <div className="wrap max-w-[1040px] mx-auto px-8">
-        <SectionHead num="05" title="feedback.sh" />
+        <SectionHead num="03" title="feedback.sh" />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
           // even a one-line note is fine, I read everything
         </p>
@@ -36,6 +51,7 @@ export default function Feedback() {
             onChange={(e) => setText(e.target.value)}
             placeholder="Write something about this page..."
             required
+            aria-label="Your feedback"
             className="w-full min-h-[110px] resize-y bg-panel border border-line rounded-lg px-3.5 py-3 text-ink text-sm outline-none focus:border-amber placeholder:text-dim"
           />
           <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -44,6 +60,7 @@ export default function Feedback() {
                 type="button"
                 onClick={() => setMood(mood === 'good' ? null : 'good')}
                 aria-label="I like this page"
+                aria-pressed={mood === 'good'}
                 className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
                   mood === 'good' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
                 }`}
@@ -60,6 +77,7 @@ export default function Feedback() {
                 type="button"
                 onClick={() => setMood(mood === 'bad' ? null : 'bad')}
                 aria-label="Not a fan"
+                aria-pressed={mood === 'bad'}
                 className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
                   mood === 'bad' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
                 }`}
@@ -91,7 +109,7 @@ export default function Feedback() {
               send
             </Btn31>
           </div>
-          <span className="font-mono text-xs min-h-[16px]" style={{ color: 'var(--green)' }}>
+          <span role="status" className="font-mono text-xs min-h-[16px]" style={{ color: 'var(--green)' }}>
             {note}
           </span>
         </form>

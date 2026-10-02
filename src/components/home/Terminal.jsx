@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../config/pages.js';
+import { stack } from '../../data/profile.js';
 import './Terminal.css';
 
+// mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
+const WHOAMI = 'zune - web developer, Ho Chi Minh City';
+const MOOD = 'chillax guys. code for fun, ship small weird things.';
+
 const INTRO = [
-  { cmd: 'whoami', out: 'zune - web developer, Ho Chi Minh City' },
-  { cmd: 'cat mood.txt', out: 'chillax guys. code for fun, ship small weird things.' },
+  { cmd: 'whoami', out: WHOAMI },
+  { cmd: 'cat mood.txt', out: MOOD },
   { cmd: 'echo $STATUS', out: 'open to new projects - type help to play around' },
 ];
 
 const FILES = {
-  'mood.txt': 'chillax guys. code for fun, ship small weird things.',
+  'mood.txt': MOOD,
   'tea.txt': 'tea > coffee. always.',
-  'stack.txt': 'HTML CSS JS TS React Node Next Tailwind Figma',
+  'stack.txt': stack.join('  '), // lấy từ data/profile.js, không giữ bản thứ hai
 };
 const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
 
@@ -25,11 +30,11 @@ function exec(raw, { onNavigate, clear }) {
     case 'help':
       return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | clear`, 'try: sudo hire zune'];
     case 'whoami':
-      return ['zune - web developer, Ho Chi Minh City'];
+      return [WHOAMI];
     case 'ls':
       return [Object.keys(FILES).join('  ') + TABS.map((t) => `  ${t}/`).join('')];
     case 'cat':
-      return [Object.hasOwn(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
+      return [Object.prototype.hasOwnProperty.call(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
     case 'cd':
       if (TABS.includes(dir)) {
         onNavigate?.(dir);
