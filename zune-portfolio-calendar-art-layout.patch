@@ -1,0 +1,56 @@
+From c940a6b3ca7c5c8996fba2bd9611234d6ee23ae8 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 10:01:11 +0000
+Subject: [PATCH] calendar art: stretch grid to card width, keep highlighted
+ cells off the label
+
+---
+ src/projects/calendar/Art.css | 11 +++++------
+ src/projects/calendar/Art.jsx |  5 +++--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/src/projects/calendar/Art.css b/src/projects/calendar/Art.css
+index b6fad03..0e71c16 100644
+--- a/src/projects/calendar/Art.css
++++ b/src/projects/calendar/Art.css
+@@ -1,16 +1,15 @@
+ .cal-art {
+   position: absolute;
+   inset: 0;
+-  padding: 26px 0 0 34px;
+-  -webkit-mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
+-  mask-image: radial-gradient(ellipse 72% 95% at 16% 20%, #000 0%, transparent 100%);
++  padding: 22px 28px 0;
++  /* lưới giãn đều theo bề rộng card; rìa + đáy tan dần để chừa chỗ cho nhãn */
++  -webkit-mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
++  mask-image: radial-gradient(ellipse 80% 95% at 50% 18%, #000 30%, transparent 100%);
+ }
+ .cal-grid {
+   display: grid;
+-  grid-template-columns: repeat(7, 36px);
++  grid-template-columns: repeat(7, minmax(0, 1fr));
+   gap: 9px;
+-  transform: scale(1.25);
+-  transform-origin: top left;
+ }
+ .cal-head {
+   height: 5px;
+diff --git a/src/projects/calendar/Art.jsx b/src/projects/calendar/Art.jsx
+index 04b090f..00fe009 100644
+--- a/src/projects/calendar/Art.jsx
++++ b/src/projects/calendar/Art.jsx
+@@ -3,8 +3,9 @@ import './Art.css';
+ // góc lịch: 35 ô (5 tuần x 7 ngày), vài ô sáng lên, 1 ô "hôm nay" nhấp nháy.
+ // Không có chữ số nào -> chỉ gợi ý đây là lịch, không lộ nội dung thật.
+ const CELLS = Array.from({ length: 35 }, (_, i) => i);
+-const ON = new Set([4, 9, 10, 17, 23]);
+-const TODAY = 16;
++// các ô sáng nằm lệch khỏi cột giữa (nơi có nhãn số + tên file) để chữ luôn đọc được
++const ON = new Set([1, 4, 8, 14, 19]);
++const TODAY = 12;
+ 
+ export default function Art() {
+   return (
+-- 
+2.43.0
+
