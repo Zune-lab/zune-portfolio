@@ -33,7 +33,7 @@ You may not present this content as your own.
 
 - Several small effects are inspired by or adapted from community elements on
   [uiverse.io](https://uiverse.io) (flashlight switch, contact button,
-  back-to-top button, scroll arrow, loader, signature card). Credit to their
+  back-to-top button, scroll arrow, loader, signature card, copy-email button). Credit to their
   original authors; check each element's page on Uiverse for its author and terms.
 - Fonts (JetBrains Mono, Inter, Silkscreen) are loaded from Google Fonts under
   the SIL Open Font License.

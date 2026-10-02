@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
+import CopyEmail from './CopyEmail/CopyEmail.jsx';
 
 const MAX_MAILTO = 1900;
 const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
@@ -126,16 +127,10 @@ export default function Feedback() {
             {note}
           </span>
         </form>
-        <p className="font-mono text-[12.5px] text-dim mt-4 max-w-[520px]">
-          // no mail app? copy my email and write from anywhere:{' '}
-          <button
-            type="button"
-            onClick={copyEmail}
-            className="underline underline-offset-2 hover:text-amber transition-colors"
-          >
-            {copied ? 'copied!' : 'copy email'}
-          </button>
-        </p>
+        <div className="mt-6 max-w-[520px]">
+          <p className="font-mono text-[12.5px] text-dim mb-3">// no mail app? copy my email and write from anywhere</p>
+          <CopyEmail email={TO_EMAIL} copied={copied} onCopy={copyEmail} />
+        </div>
       </div>
     </section>
   );
