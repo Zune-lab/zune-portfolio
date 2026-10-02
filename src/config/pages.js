@@ -7,7 +7,7 @@
 // THÊM TRANG MỚI: tạo component rồi thêm 1 mục vào PAGES bên dưới. Nav chính, nav
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
 // không phải sửa chỗ nào khác. Mở thẳng địa chỉ trang mới trên GitHub Pages cũng
-// chạy nhờ 404.html do scripts/spa-404.mjs tạo lúc build.
+// chạy nhờ 404.html do system/scripts/spa-404.mjs tạo lúc build.
 import { lazy } from 'react';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
@@ -16,7 +16,7 @@ import { BASE, pathOf } from '../lib/paths.js';
 // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
 const About = lazy(() => import('../components/about/About.jsx'));
 const Projects = lazy(() => import('../projects/Projects.jsx'));
-const Lab = lazy(() => import('../components/lab/Lab.jsx'));
+const Lab = lazy(() => import('../components/lab/Lab/Lab.jsx'));
 
 export const PAGES = [
   {

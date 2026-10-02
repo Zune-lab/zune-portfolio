@@ -1,10 +1,10 @@
 import { Suspense, useState } from 'react';
-import ErrorBoundary from '../layout/ErrorBoundary.jsx';
-import SectionHead from '../ui/SectionHead.jsx';
+import ErrorBoundary from '../../layout/ErrorBoundary.jsx';
+import SectionHead from '../../ui/SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
-import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../config/lab-items.js';
-import { pathOf } from '../../lib/paths.js';
-import { isPlainClick } from '../../lib/dom.js';
+import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../../config/lab-items.js';
+import { pathOf } from '../../../lib/paths.js';
+import { isPlainClick } from '../../../lib/dom.js';
 import './Lab.css';
 import './LabFx.css';
 

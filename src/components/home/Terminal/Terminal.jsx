@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { PAGES } from '../../config/pages.js';
-import { stack } from '../../data/profile.js';
+import { PAGES } from '../../../config/pages.js';
+import { stack } from '../../../data/profile.js';
 import './Terminal.css';
 
 // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung

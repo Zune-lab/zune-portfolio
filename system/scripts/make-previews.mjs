@@ -17,7 +17,7 @@ import { chromium } from 'playwright';
 import { mkdir, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
-const PROJECTS_DIR = new URL('../src/projects/', import.meta.url);
+const PROJECTS_DIR = new URL('../../src/projects/', import.meta.url);
 
 async function loadProjects() {
   const entries = await readdir(fileURLToPath(PROJECTS_DIR), { withFileTypes: true });
@@ -35,7 +35,7 @@ async function loadProjects() {
 }
 const projects = await loadProjects();
 
-const OUT = new URL('../public/previews/', import.meta.url);
+const OUT = new URL('../../public/previews/', import.meta.url);
 const VIEWPORT = { width: 1280, height: 720 }; // đúng khung "desktop ảo" của card
 const SETTLE_MS = 1500; // chờ animation vào trang chạy xong rồi mới chụp
 const filter = process.argv[2];

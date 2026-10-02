@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { readBest, saveBest } from '../../lib/storage.js';
+import { readBest, saveBest } from '../../../lib/storage.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const CELLS = 9;

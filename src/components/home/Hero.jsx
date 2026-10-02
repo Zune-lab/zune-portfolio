@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import Btn31 from '../ui/Btn31.jsx';
-import ContactButton from './ContactButton.jsx';
-import Terminal from './Terminal.jsx';
+import Btn31 from '../ui/Btn31/Btn31.jsx';
+import ContactButton from './ContactButton/ContactButton.jsx';
+import Terminal from './Terminal/Terminal.jsx';
 import { isOnlineHour } from '../../lib/vnTime.js';
 import { storageGet, storageSet } from '../../lib/storage.js';
 

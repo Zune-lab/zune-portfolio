@@ -1,5 +1,5 @@
 import SectionHead from '../components/ui/SectionHead.jsx';
-import ProjectCard from './ProjectCard.jsx';
+import ProjectCard from './ProjectCard/ProjectCard.jsx';
 import { projects } from './index.js';
 
 // project nạp từ src/projects/<tên>/meta.js, mỗi cái cần: { file, desc, color, href } (+ shot tuỳ chọn).

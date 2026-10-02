@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
-import Btn31 from '../ui/Btn31.jsx';
+import Btn31 from '../ui/Btn31/Btn31.jsx';
 
 const MAX_MAILTO = 1900;
 const TO_EMAIL = 'nguyenhaivuong06@gmail.com';

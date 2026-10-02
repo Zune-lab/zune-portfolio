@@ -20,7 +20,7 @@ export default [
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'vite.config.js', 'tailwind.config.js', 'postcss.config.js', 'eslint.config.js'],
+    files: ['system/**/*.{js,mjs}'],
     languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: globals.node },
     rules: js.configs.recommended.rules,
   },

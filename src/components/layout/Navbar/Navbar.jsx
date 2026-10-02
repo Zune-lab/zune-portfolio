@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import ThemeToggleTorch from './ThemeToggleTorch.jsx';
-import ScrollArrow from './ScrollArrow.jsx';
-import { PAGES, pageOfView, topOf } from '../../config/pages.js';
-import { pathOf } from '../../lib/paths.js';
-import { isPlainClick, scrollToAnchor } from '../../lib/dom.js';
+import ThemeToggleTorch from '../ThemeToggleTorch/ThemeToggleTorch.jsx';
+import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
+import { PAGES, pageOfView, topOf } from '../../../config/pages.js';
+import { pathOf } from '../../../lib/paths.js';
+import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
 import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở

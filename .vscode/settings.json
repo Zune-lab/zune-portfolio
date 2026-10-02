@@ -1,0 +1,4 @@
+{
+  "eslint.options": { "overrideConfigFile": "system/eslint.config.js" },
+  "tailwindCSS.experimental.configFile": "system/tailwind.config.js"
+}

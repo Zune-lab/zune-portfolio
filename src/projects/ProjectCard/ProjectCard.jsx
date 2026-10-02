@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { arts } from './index.js';
+import { arts } from '../index.js';
 import './ProjectCard.css';
 
 // Card gồm 3 lớp:

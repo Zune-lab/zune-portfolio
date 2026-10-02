@@ -21,11 +21,11 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/spa-404.mjs",
-    "preview": "vite preview",
-    "previews": "node scripts/make-previews.mjs",
-    "lint": "eslint ."
+    "dev": "vite --config system/vite.config.js",
+    "build": "vite build --config system/vite.config.js && node system/scripts/spa-404.mjs",
+    "preview": "vite preview --config system/vite.config.js",
+    "previews": "node system/scripts/make-previews.mjs",
+    "lint": "eslint --config system/eslint.config.js ."
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -41,5 +41,9 @@
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4",
     "vite": "^7.3.6"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "printWidth": 120
   }
 }
