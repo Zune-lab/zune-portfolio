@@ -32,10 +32,6 @@
   border-color: color-mix(in srgb, currentColor 55%, transparent);
   background: color-mix(in srgb, currentColor 28%, transparent);
 }
-.cal-cell.today {
-  border-color: currentColor;
-  background: color-mix(in srgb, currentColor 24%, transparent);
-}
 /* con dấu ghi tên thứ: nghiêng nhẹ, "đóng" xuống một lần khi hiện ra */
 .cal-stamp {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
