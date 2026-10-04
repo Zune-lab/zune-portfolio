@@ -27,12 +27,34 @@ const PAD = 22; // chừa quanh vật cản (nửa đầu sâu ~13px + chút kho
 
 const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
 const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
+const padOf = (r) => grow(r, r.pad ?? PAD); // mỗi vật cản có thể tự đặt độ chừa riêng (nút nhỏ chừa ít hơn thẻ)
+
+// Đẩy một điểm ra khỏi mọi vật cản (nới thêm `pad`) theo cạnh gần nhất. Dùng cho các đốt thân sâu và nhân vật phụ:
+// không phần nào của sâu được nằm sau thẻ/nút (canvas nằm dưới nội dung nên phần nằm sau sẽ bị che mất).
+export function pushOutside(x, y, obstacles, pad = 0) {
+  let px = x;
+  let py = y;
+  for (let pass = 0; pass < 2; pass++) {
+    for (const o of obstacles) {
+      const r = grow(o, pad);
+      if (!inRect(px, py, r)) continue;
+      const pen = [px - r.l, r.r - px, py - r.t, r.b - py];
+      const m = pen.indexOf(Math.min(...pen));
+      if (m === 0) px = r.l;
+      else if (m === 1) px = r.r;
+      else if (m === 2) py = r.t;
+      else py = r.b;
+    }
+  }
+  return { x: px, y: py };
+}
 
 const MARGIN = 44; // sâu không bò sát mép hero hơn mức này (khi chọn đích)
 const SCARE_RANGE = 260; // chuột phải ở gần đầu hơn mức này mới có thể doạ
 const SCARE_CLOSING = 0.95; // px/ms: tốc độ chuột LAO VỀ phía đầu để bị coi là doạ
 const SCARE_MS = 1100;
 const CALM_MS = 1800; // sau khi bị doạ: bấy nhiêu ms không bị doạ lại
+const LOCK_MS = 2600; // chuột nằm trong vật cản bấy lâu thì sâu bỏ cuộc
 const BORED_MS = 6000; // chuột đứng yên bấy lâu thì sâu chán, tự đi dạo
 const QUIPS = ['hm.', '...', 'hmm?', 'la la.', 'nice day.'];
 
@@ -112,6 +134,8 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     wantMove: false,
     obs: [], // vật cản đã nới ra PAD, toạ độ theo hero
     via: '', // góc vật cản đang đi vòng (để không nhảy qua lại giữa hai góc)
+    lockT: 0, // mốc chuột bắt đầu nằm trong vật cản (0 = đang không nằm trong)
+    lockSaid: false,
   };
 
   const inBounds = (x, y) => x >= 8 && x <= s.w - 8 && y >= 8 && y <= s.h - 8;
@@ -270,9 +294,13 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
       s.way = null;
       s.via = '';
     },
+    // bị nhân vật khác doạ (vd crewmate): giật nảy ra xa khỏi điểm p
+    startle(t, p) {
+      return startScare(t, p);
+    },
     // đặt đầu sâu ra chỗ trống gần nhất nếu đang nằm sau vật cản (dùng lúc khởi tạo, chưa vẽ gì nên không thấy nhảy)
     placeOutside(obstacles) {
-      s.obs = obstacles.map((r) => grow(r, PAD));
+      s.obs = obstacles.map(padOf);
       const f = freePoint(s.x, s.y);
       s.x = f.x;
       s.y = f.y;
@@ -282,7 +310,7 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     update(t, dt, inp) {
       const k = clamp(dt / 16.667, 0.3, 3);
       const { pointer, idle, asleep, maxed, sleepy, obstacles = [] } = inp;
-      s.obs = obstacles.map((r) => grow(r, PAD));
+      s.obs = obstacles.map(padOf);
       let say = null;
       if (!s.nextQuip) s.nextQuip = t + 6000;
       if (!s.chkT) s.chkT = t;
@@ -331,7 +359,18 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
         }
       }
       if (s.mode !== 'scared') {
-        const follow = !!pointer && idle < BORED_MS;
+        // chuột nằm trong thẻ/nút mà sâu không vào được: ngồi nhìn một lúc rồi bỏ cuộc, đi chỗ khác (đỡ cảnh cứ ép sát mép như cố chui vào)
+        const inside = !!pointer && blocked(pointer.x, pointer.y);
+        if (!inside) {
+          s.lockT = 0;
+          s.lockSaid = false;
+        } else if (!s.lockT) s.lockT = t;
+        const gaveUp = inside && t - s.lockT > LOCK_MS;
+        if (gaveUp && !s.lockSaid) {
+          s.lockSaid = true;
+          say = { text: 'no entry.', ms: 1800 };
+        }
+        const follow = !!pointer && idle < BORED_MS && !gaveUp;
         if (follow) {
           if (s.mode !== 'follow') {
             s.mode = 'follow';

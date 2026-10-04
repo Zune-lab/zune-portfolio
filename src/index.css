@@ -291,3 +291,33 @@ body::before {
 :root.theme-anim *::after {
   transition: none !important;
 }
+
+/* tiêu đề section tự gõ khi cuộn tới (SectionHead.jsx)
+   Chỉ giới hạn chiều rộng (width + overflow hidden) TRONG lúc đang gõ; gõ xong trả về width auto / overflow visible,
+   để chữ cuối không bao giờ bị cắt dù 1ch lệch vài pixel so với bề rộng chữ thật (font bold, font chưa tải xong...). */
+@media (prefers-reduced-motion: no-preference) {
+  .sh-type {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: bottom;
+    padding-bottom: 0.15em;
+    margin-bottom: -0.15em;
+    width: 0;
+    overflow: hidden;
+    border-right: 0.1em solid var(--amber);
+  }
+  .sh-type.is-in {
+    width: auto;
+    overflow: visible;
+    animation: sh-type calc(var(--n) * 55ms) steps(var(--n), end), sh-caret 0.5s steps(1, end) 5 forwards;
+  }
+}
+@keyframes sh-type {
+  from { width: 0; overflow: hidden; }
+  to { width: calc(var(--n) * 1ch + 0.12em); overflow: hidden; }
+}
+@keyframes sh-caret {
+  0% { border-right-color: var(--amber); }
+  50% { border-right-color: transparent; }
+  100% { border-right-color: transparent; }
+}

@@ -9,6 +9,7 @@ import Feedback from './components/home/Feedback.jsx';
 import Socials from './components/home/Socials/Socials.jsx';
 import { Signature, Footer } from './components/layout/Signature/Signature.jsx';
 import BackToTop from './components/layout/BackToTop/BackToTop.jsx';
+import Alive from './components/layout/Alive/Alive.jsx';
 import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
 import { pathOf } from './lib/paths.js';
 import { storageSet } from './lib/storage.js';
@@ -231,6 +232,7 @@ export default function App() {
       <Signature />
       <Footer />
       <BackToTop />
+      <Alive />
     </>
   );
 }

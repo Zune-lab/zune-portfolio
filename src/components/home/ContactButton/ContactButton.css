@@ -1,7 +1,11 @@
 /* contact button — record icon zooms away, label swaps, converted from contact.html */
 
 .btn-contact svg {
-  transition: transform var(--dur-slow) var(--ease);
+  transition: transform var(--dur-slow) var(--ease), opacity 0.3s ease;
+}
+/* crewmate đang đi dạo ngoài hero (HeroWorm) thì hình trên nút biến mất, nó về là hiện lại */
+.btn-contact[data-away='1'] svg {
+  opacity: 0;
 }
 .btn-contact:hover svg {
   transform: scale(3) translate(50%);
