@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
 import HeroWorm from './HeroWorm.jsx';
+import { isNapping } from '../../lib/nap.js';
 
 // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
 // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
@@ -11,14 +12,24 @@ const PHRASES = ['I code for fun.', 'I fix 3am bugs.', 'I play with CSS.', 'I ma
 
 function Typewriter() {
   const [text, setText] = useState(PHRASES[0]);
+  const cursor = useRef(null);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     let dead = false;
+    let visible = true;
+    const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
+    io.observe(cursor.current);
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên (kiểm tra thưa, gần như không tốn gì), quay lại thì gõ tiếp
+    const idle = () => !visible || document.hidden || isNapping();
+    const rest = async () => {
+      while (idle() && !dead) await sleep(400);
+    };
     (async () => {
       let i = 0;
       await sleep(2800);
       while (!dead) {
+        await rest();
         for (let n = PHRASES[i].length - 1; n >= 0 && !dead; n--) {
           setText(PHRASES[i].slice(0, n));
           await sleep(32);
@@ -34,13 +45,14 @@ function Typewriter() {
     })();
     return () => {
       dead = true;
+      io.disconnect();
     };
   }, []);
 
   return (
     <>
       {text}
-      <span className="term-cursor inline-block w-[0.5em] h-[0.8em] ml-2 align-baseline" />
+      <span ref={cursor} className="term-cursor inline-block w-[0.5em] h-[0.8em] ml-2 align-baseline" />
     </>
   );
 }

@@ -190,20 +190,6 @@ body::before {
 .zune-letter:hover {
   transform: translateY(-0.14em) rotate(-5deg);
 }
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.eyebrow::before {
-  content: '';
-  width: 32px;
-  height: 1px;
-  background: currentColor;
-}
 .hero-link {
   font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
   letter-spacing: 0.1em;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { env, setupLizard } from './creature.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
+import { isNapping } from '../../../lib/nap.js';
 
 const rand = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
 
@@ -71,7 +72,7 @@ export default function Reptile() {
 
     const tick = (t) => {
       raf = requestAnimationFrame(tick);
-      if (!visible || t - last < 33) return; // ~30 khung/giây như bản gốc, dừng khi cuộn khỏi màn hình
+      if (!visible || isNapping() || t - last < 33) return; // ~30 khung/giây như bản gốc, dừng khi cuộn khỏi màn hình
       last = t;
       env.ctx = ctx;
       ctx.clearRect(0, 0, w, h);

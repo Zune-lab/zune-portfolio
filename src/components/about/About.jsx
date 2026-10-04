@@ -25,7 +25,7 @@ const TYPES = {
 };
 const parseMsg = (msg) => {
   const type = msg.slice(0, Math.max(0, msg.indexOf(':')));
-  return Object.hasOwn(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
+  return Object.prototype.hasOwnProperty.call(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
 };
 
 // skills.js: nhóm lại từ danh sách `stack` trong profile.js; mục nào chưa xếp nhóm tự rơi vào "other"

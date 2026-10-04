@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { isNapping } from '../../../lib/nap.js';
 import './Ghost.css';
 
 const STARS = [
@@ -252,8 +253,8 @@ export default function Ghost() {
     const loop = (now) => {
       raf = requestAnimationFrame(loop);
       const L = live.current;
-      if (!L.visible) {
-        last = now;
+      if (!L.visible || isNapping()) {
+        last = now; // khuất / screensaver đang phủ màn hình: không tính vật lý, không vẽ
         return;
       }
       const dt = Math.min(0.05, (now - last) / 1000);

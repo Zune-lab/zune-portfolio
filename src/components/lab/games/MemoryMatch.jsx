@@ -22,6 +22,7 @@ export default function MemoryMatch() {
   const [moves, setMoves] = useState(0);
   const [best, setBest] = useState(() => readBest(BEST_KEY));
   const [newBest, setNewBest] = useState(false);
+  const [round, setRound] = useState(0); // đổi mỗi ván để thẻ được dựng lại, không "trượt" sang vị trí mới lúc đang lật úp
   const timer = useRef(0);
 
   useEffect(() => () => clearTimeout(timer.current), []);
@@ -31,6 +32,7 @@ export default function MemoryMatch() {
   const reset = () => {
     clearTimeout(timer.current);
     setDeck(shuffle());
+    setRound((r) => r + 1);
     setOpen([]);
     setDone([]);
     setMoves(0);
@@ -76,7 +78,7 @@ export default function MemoryMatch() {
             const up = matched || open.includes(i);
             return (
               <button
-                key={c.id}
+                key={`${round}-${c.id}`}
                 type="button"
                 onClick={() => flip(i)}
                 aria-label={up ? `card ${c.sym}` : 'face-down card'}

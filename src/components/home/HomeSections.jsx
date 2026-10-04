@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../../projects/ProjectCard/ProjectCard.css'; // chứa .art-center dùng chung cho mọi Art
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
@@ -29,6 +29,7 @@ export function FeaturedProjects({ onNavigate }) {
   const list = projects.slice(0, 3);
   const [i, setI] = useState(0);
   const timer = useRef(0);
+  useEffect(() => () => clearTimeout(timer.current), []);
   const p = list[i];
   const canHover = window.matchMedia('(hover: hover)').matches;
   // chờ ~80ms trước khi đổi để lướt chuột ngang qua không làm preview chớp

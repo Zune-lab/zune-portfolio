@@ -12,6 +12,7 @@ export default function useHideOnScroll(locked = false) {
   useEffect(() => {
     let last = window.scrollY;
     let ticking = false;
+    let raf = 0;
     const update = () => {
       ticking = false;
       const y = window.scrollY;
@@ -30,11 +31,14 @@ export default function useHideOnScroll(locked = false) {
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(update);
+      raf = requestAnimationFrame(update);
     };
     update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, [locked]);
 
   return [hidden, () => setHidden(false)];

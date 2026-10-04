@@ -162,6 +162,7 @@ export default function Terminal({ onNavigate }) {
 
   const submit = (e) => {
     e.preventDefault();
+    if (busy) return; // nút "ask" đang tự gõ: run() sửa dòng cuối của `lines`, chen lệnh tay vào sẽ làm mất/lẫn dòng
     const raw = value;
     if (raw.trim()) history.current.push(raw);
     hIdx.current = -1;

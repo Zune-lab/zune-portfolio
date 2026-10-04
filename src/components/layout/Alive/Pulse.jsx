@@ -37,6 +37,7 @@ export default function Pulse({ napping, panic }) {
   const text = useRef(null);
   const mood = useRef({ napping, panic });
   mood.current = { napping, panic };
+  const loop = useRef(null); // { start, stop } do effect bên dưới gắn vào, để effect `napping` điều khiển vòng rAF
 
   useEffect(() => {
     const canvas = cvs.current;
@@ -194,9 +195,25 @@ export default function Pulse({ napping, panic }) {
         last = t;
         draw(t, Math.max(1, dt));
       };
-      raf = requestAnimationFrame(tick);
+      // screensaver (napping) phủ mờ cả màn hình -> HUỶ hẳn vòng rAF (không chỉ bỏ qua khung), đường ECG đứng yên ở khung cuối,
+      // dậy thì chạy lại (last = 0 để không bị tính một bước dt khổng lồ)
+      loop.current = {
+        start: () => {
+          if (raf) return;
+          last = 0;
+          raf = requestAnimationFrame(tick);
+        },
+        stop: () => {
+          cancelAnimationFrame(raf);
+          raf = 0;
+          if (text.current) text.current.textContent = 'zzz · napping'; // đứng hình ở khung cuối; chữ đổi theo
+          labelAt = 0;
+        },
+      };
+      if (!mood.current.napping) loop.current.start();
     }
     return () => {
+      loop.current = null;
       cancelAnimationFrame(raf);
       offTheme();
       ro?.disconnect();
@@ -204,6 +221,11 @@ export default function Pulse({ napping, panic }) {
       window.removeEventListener('scroll', drawStatic);
     };
   }, []);
+
+  useEffect(() => {
+    if (napping) loop.current?.stop();
+    else loop.current?.start();
+  }, [napping]);
 
   return (
     <div className="pulse" aria-hidden="true">

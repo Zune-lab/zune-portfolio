@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import CopyEmail from './CopyEmail/CopyEmail.jsx';
@@ -11,13 +11,16 @@ export default function Feedback() {
   const [mood, setMood] = useState(null);
   const [note, setNote] = useState('');
   const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef(0);
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
   // máy không có app mail thì mailto: không làm gì cả -> cho copy địa chỉ để gửi bằng cách khác
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(TO_EMAIL);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      clearTimeout(copiedTimer.current); // bấm liên tiếp: lần trước không được tắt "copied" sớm
+      copiedTimer.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       setNote(`Couldn't copy automatically, my email is ${TO_EMAIL}`);
     }

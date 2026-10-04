@@ -87,7 +87,12 @@ export default function SheetCard() {
           <div className="flex justify-between"><span className="text-dim">social battery</span><span style={{ color }}>{level}%</span></div>
           <Meter value={level} color={color} rainbow={maxed} />
         </div>
-        <div role="button" tabIndex={0} onClick={friendship} onKeyDown={(e) => e.key === 'Enter' && friendship()}
+        <div role="button" tabIndex={0} onClick={friendship} onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault(); // Space không cuộn trang
+            friendship();
+          }
+        }}
           title="???" className="grid gap-1.5 cursor-pointer select-none">
           <div className="flex justify-between"><span className="text-dim">personality unlocked</span><span className="text-amber">{maxed ? 100 : 12 + months}%</span></div>
           <Meter value={maxed ? 100 : 12 + months} color="var(--amber)" rainbow={maxed} />

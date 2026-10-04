@@ -20,17 +20,18 @@ const mainLinks = [
 // Nhờ vậy Ctrl+click / chuột giữa / "mở trong tab mới" ra đúng trang, không chỉ #about.
 const realHref = (l) => (l.tab ? pathOf(l.tab) : pathOf('home') + l.href);
 
-function NavLink({ href, onClick, className = '', linkRef, children, ...rest }) {
+function NavLink({ as: Tag = 'a', href, onClick, className = '', linkRef, children, ...rest }) {
   return (
-    <a
+    <Tag
       ref={linkRef}
-      href={href}
+      href={Tag === 'a' ? href : undefined}
+      type={Tag === 'button' ? 'button' : undefined}
       onClick={onClick}
       {...rest}
       className={`nav-link shrink-0 px-3 py-1.5 font-mono text-[13px] text-dim hover:text-amber ${className}`}
     >
       <span className="nav-link-text whitespace-nowrap">{children}</span>
-    </a>
+    </Tag>
   );
 }
 
@@ -112,15 +113,7 @@ function SubMenu({ label, links, onSelect }) {
 
   // mũi tên trên nút mở menu + điều hướng trong menu (Up/Down/Home/End, Esc trả focus về nút, Tab đóng)
   const onTriggerKeyDown = (e) => {
-    if (e.key === ' ') {
-      e.preventDefault(); // <a> mặc định không kích hoạt bằng Space
-      if (open) setOpen(false);
-      else {
-        focusOnOpen.current = true;
-        show();
-      }
-      return;
-    }
+    // Enter / Space: <button> tự phát click (detail = 0) -> onTriggerClick xử lý, không cần bắt riêng nữa
     if (e.key !== 'ArrowDown') return;
     e.preventDefault();
     focusOnOpen.current = true;
@@ -151,7 +144,7 @@ function SubMenu({ label, links, onSelect }) {
   return (
     <>
       <NavLink
-        href="#"
+        as="button"
         linkRef={btnRef}
         onClick={onTriggerClick}
         onKeyDown={onTriggerKeyDown}

@@ -3,6 +3,7 @@ import { getSocial, isAsleep, levelOf } from '../../lib/social.js';
 import { onThemeChange } from '../../lib/themeSync.js';
 import { createBrain, createPointerTracker, pushOutside } from '../../lib/wormBrain.js';
 import { createCrewmate } from '../../lib/crewmate.js';
+import { isNapping } from '../../lib/nap.js';
 
 // Con "sâu chữ" của riêng trang này, tính cách giống chủ nhân: HƯỚNG NỘI.
 //  - đầu là con trỏ khối của terminal (có mắt, biết chớp, nhìn theo chuột), thân là chữ "zune.dev"
@@ -114,6 +115,7 @@ export default function HeroWorm() {
     let placed = false;
     const crew = createCrewmate();
     const contactEl = host.querySelector('.btn-contact');
+    const obstacleEls = [...host.querySelectorAll('aside, .btn-31, .btn-contact')]; // đứng yên suốt đời hero: chỉ đọc lại toạ độ mỗi khung
     let away = false;
     const tracker = createPointerTracker();
 
@@ -174,7 +176,10 @@ export default function HeroWorm() {
 
     const tick = (t) => {
       raf = requestAnimationFrame(tick);
-      if (!visible) return;
+      if (!visible || isNapping()) {
+        lastT = 0; // screensaver phủ màn hình / hero khuất: bỏ qua tính toán + vẽ; dậy thì không bị tính một bước thời gian khổng lồ
+        return;
+      }
       const dt = lastT ? Math.min(50, t - lastT) : 16.667;
       lastT = t;
       const k = dt / 16.667;
@@ -188,7 +193,7 @@ export default function HeroWorm() {
       const obstacles = [];
       const crewObs = [];
       let contactRect = null;
-      host.querySelectorAll('aside, .btn-31, .btn-contact').forEach((el) => {
+      obstacleEls.forEach((el) => {
         const r = el.getBoundingClientRect();
         if (r.width <= 4 || r.height <= 4) return;
         const o = { l: r.left - hostRect.left, t: r.top - hostRect.top, r: r.right - hostRect.left, b: r.bottom - hostRect.top };

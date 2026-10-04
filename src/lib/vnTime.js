@@ -1,14 +1,14 @@
 // Một nguồn duy nhất cho "giờ VN" – nền (data-tod) và trạng thái online/offline
 // cùng dùng chung để không bao giờ lệch mốc nhau.
+// Tạo Intl.DateTimeFormat rất tốn (~60µs/lần) mà vnHour() bị gọi mỗi khung hình (HeroWorm -> getStatusKey)
+// và mỗi lần React hỏi snapshot, nên tạo MỘT lần rồi dùng lại (~30 lần nhanh hơn).
+const hourFmt = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Ho_Chi_Minh',
+  hour: 'numeric',
+  hourCycle: 'h23',
+});
 function vnHour() {
-  return parseInt(
-    new Date().toLocaleString('en-US', {
-      timeZone: 'Asia/Ho_Chi_Minh',
-      hour: 'numeric',
-      hourCycle: 'h23',
-    }),
-    10
-  );
+  return parseInt(hourFmt.format(new Date()), 10);
 }
 
 // dawn 5-8 | day 8-17 | dusk 17-23 | night 23-5
