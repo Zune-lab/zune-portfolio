@@ -123,7 +123,7 @@ export default function Feedback() {
               send
             </Btn31>
           </div>
-          <span role="status" className="font-mono text-xs min-h-[16px]" style={{ color: 'var(--green)' }}>
+          <span role="status" className="font-mono text-xs empty:-mt-3.5" style={{ color: 'var(--green)' }}>
             {note}
           </span>
         </form>

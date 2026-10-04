@@ -311,6 +311,11 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   // cuộn xuống -> nav trượt lên ẩn đi cho thấy rõ cả trang; cuộn lên / Tab vào nav / mở menu mobile -> hiện lại
   const [navHidden, showNav] = useHideOnScroll(menuOpen);
 
+  // báo cho thanh nhịp tim (Alive/Pulse) biết navbar đang hiện hay ẩn: hiện thì nhịp tim nằm trên đường viền dưới navbar
+  useEffect(() => {
+    document.documentElement.dataset.nav = navHidden ? 'hidden' : 'shown';
+  }, [navHidden]);
+
   useEffect(() => setMenuOpen(false), [view]); // đổi trang thì đóng menu
 
   // `inert` đặt qua DOM property: JSX `inert=""` chạy ở React 18 nhưng hỏng ở React 19 (chuỗi rỗng bị coi là false)

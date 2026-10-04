@@ -1,0 +1,206 @@
+/* about.js: cả trang dựng như cửa sổ code editor / terminal */
+
+.ab-win {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--inset);
+}
+.ab-bar,
+.ab-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  color: var(--text-dim);
+  font: 500 12px/1 'JetBrains Mono', monospace;
+}
+.ab-bar { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.ab-foot { gap: 18px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 11px; }
+.ab-title { color: var(--text); }
+.ab-lang { margin-left: auto; }
+.ab-dots { display: flex; gap: 6px; }
+.ab-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background var(--dur) var(--ease);
+}
+.ab-win:hover .ab-dots i:nth-child(1) { background: #ff5f56; }
+.ab-win:hover .ab-dots i:nth-child(2) { background: #ffbd2e; }
+.ab-win:hover .ab-dots i:nth-child(3) { background: #27c93f; }
+
+/* code có số dòng */
+.ab-code {
+  counter-reset: ln;
+  margin: 0;
+  padding: 18px 0;
+  color: var(--text);
+  font: 13.5px/1.85 'JetBrains Mono', monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ab-line {
+  display: block;
+  position: relative;
+  padding: 0 18px 0 56px;
+  counter-increment: ln;
+  transition: background var(--dur-fast) var(--ease);
+}
+.ab-ind { padding-left: 78px; }
+.ab-line::before {
+  content: counter(ln);
+  position: absolute;
+  left: 0;
+  width: 38px;
+  text-align: right;
+  color: var(--text-dim);
+  opacity: 0.45;
+  transition: opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.ab-line:hover { background: color-mix(in srgb, var(--amber) 8%, transparent); }
+.ab-line:hover::before { color: var(--amber); opacity: 1; }
+.ab-kw { color: var(--amber); font-weight: 400; }
+.ab-str { color: var(--green); }
+.ab-num { color: var(--css-lang); }
+.ab-fn { color: var(--amber); }
+.ab-cm { color: var(--text-dim); }
+
+.ab-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--amber);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ab-caret { animation: ab-blink 1.05s steps(1) infinite; }
+}
+@keyframes ab-blink { 50% { opacity: 0; } }
+
+/* readme + số liệu */
+.ab-card,
+.ab-stat {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.ab-card { padding: 18px 20px; }
+.ab-k {
+  margin-bottom: 12px;
+  color: var(--text-dim);
+  font: 500 12px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ab-stat {
+  height: 100%;
+  padding: 14px;
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
+}
+.ab-stat:hover { border-color: var(--amber); transform: translateY(-3px); }
+.ab-stat b { display: block; color: var(--amber); font: 700 28px/1 'JetBrains Mono', monospace; }
+.ab-stat span { display: block; margin-top: 8px; color: var(--text-dim); font: 11.5px/1.35 'JetBrains Mono', monospace; }
+
+/* log.sh: git graph */
+.ab-term { padding: 20px 22px 22px; color: var(--text); font: 13px/1.7 'JetBrains Mono', monospace; }
+.ab-tl { margin: 0; padding: 0; list-style: none; }
+.ab-tl li { position: relative; padding: 0 0 18px 30px; }
+.ab-tl li:last-child { padding-bottom: 0; }
+.ab-tl li::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: -4px;
+  width: 2px;
+  background: var(--line);
+}
+.ab-tl li:last-child::before { display: none; }
+.ab-dot {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--c);
+  border-radius: 50%;
+  background: var(--inset);
+  transition: background var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.ab-tl li:hover .ab-dot { background: var(--c); box-shadow: 0 0 12px var(--c); }
+.ab-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.ab-hash { color: var(--amber); }
+.ab-date { color: var(--green); }
+.ab-badge,
+.ab-head {
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--c, var(--amber)) 55%, transparent);
+  border-radius: 4px;
+  color: var(--c, var(--amber));
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.ab-head { background: color-mix(in srgb, var(--amber) 14%, transparent); --c: var(--amber); }
+.ab-msg { margin: 2px 0 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .is-now .ab-dot { animation: ab-pulse 1.8s ease-out infinite; }
+}
+@keyframes ab-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 55%, transparent); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+
+/* skills.js */
+.ab-skills { display: grid; gap: 24px; padding: 22px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.ab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  font: 13px/1 'JetBrains Mono', monospace;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
+}
+.ab-chip:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+.ab-chip em {
+  padding: 2px 5px;
+  border: 1px solid color-mix(in srgb, var(--green) 45%, transparent);
+  border-radius: 4px;
+  color: var(--green);
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* hiện dần khi cuộn tới (useReveal trong About.jsx); phần tử nào cũng được trễ thêm tối đa 6 nhịp */
+@media (prefers-reduced-motion: no-preference) {
+  .ab-rev {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    transition-delay: calc(min(var(--i, 0), 6) * 70ms);
+  }
+  .ab-rev.is-in { opacity: 1; transform: none; }
+}
+
+/* dòng status lấy từ trạng thái thật (lib/status.js) + screensaver bật thì con trỏ ngừng nháy */
+.ab-live {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 8px 1px 6px;
+  border-radius: 50%;
+  background: var(--c);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ab-live.is-pulse { animation: ab-pulse 1.8s ease-out infinite; }
+}
+.ab-code.is-asleep .ab-caret { animation: none; opacity: 0.35; }

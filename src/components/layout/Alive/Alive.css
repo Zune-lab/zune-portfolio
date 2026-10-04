@@ -1,10 +1,17 @@
 /* 1) nhịp tim ở mép trên (Pulse.jsx) */
 .pulse {
   position: fixed;
-  inset: 0 0 auto 0;
+  /* navbar cao 56px + 1px viền; đường nền của nhịp tim nằm cách mép trên .pulse 13px
+     (BASE trong Pulse.jsx) -> 43.5px để đường nền trùng đúng đường viền dưới navbar */
+  inset: 43.5px 0 auto 0;
   height: 18px;
   z-index: 80;
   pointer-events: none;
+  transition: top 0.3s ease-in-out; /* trượt cùng nhịp với navbar (duration-300) */
+}
+/* navbar ẩn khi cuộn xuống: nhịp tim lên lại mép trên màn hình */
+:root[data-nav='hidden'] .pulse {
+  top: 0;
 }
 .pulse-cvs {
   display: block;
@@ -33,6 +40,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .pulse-label { display: none; }
+  .pulse { transition: none; }
 }
 
 /* 3) screensaver kiểu logo DVD khi không ai đụng vào trang */
@@ -40,7 +48,7 @@
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 56;
+  z-index: 90; /* trên lớp tối .nap-dim (88) */
   display: flex;
   align-items: center;
   gap: 4px;
@@ -51,6 +59,7 @@
   color: var(--amber);
   font: 800 20px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.02em;
+  box-shadow: 0 0 28px color-mix(in srgb, currentColor 35%, transparent); /* phát sáng như logo DVD trên TV */
   pointer-events: none;
   will-change: transform;
 }
@@ -75,7 +84,7 @@
   position: fixed;
   left: 24px;
   bottom: 48px;
-  z-index: 56;
+  z-index: 90;
   padding: 8px 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -152,4 +161,24 @@
 }
 @keyframes meeting-pop {
   from { transform: scale(0.6); opacity: 0; }
+}
+
+/* 6) screensaver: nền phía sau tối lại để tập trung vào khối DVD, như màn hình chờ trên TV thật */
+.nap-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 88; /* trên navbar (50), nút back-to-top (60), nhịp tim (80); dưới khối DVD (90) và họp khẩn cấp (95) */
+  pointer-events: none;
+  background: #000;
+  opacity: 0;
+  visibility: hidden; /* tắt hẳn khi không dùng, trình duyệt khỏi giữ lớp phủ toàn màn hình */
+  transition: opacity 0.4s ease, visibility 0s 0.4s; /* động vào là sáng lại nhanh */
+}
+.nap-dim.is-on {
+  opacity: 0.88; /* còn ~12% sáng; muốn tối hơn thì tăng lên 0.95 */
+  visibility: visible;
+  transition: opacity 1.4s ease; /* tối dần từ từ */
+}
+@media (prefers-reduced-motion: reduce) {
+  .nap-dim, .nap-dim.is-on { transition: none; }
 }

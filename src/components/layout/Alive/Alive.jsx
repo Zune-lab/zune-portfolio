@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Pulse from './Pulse.jsx';
+import { setNapState } from '../../../lib/nap.js';
 import './Alive.css';
 
 // "Làm cả trang sống động": những chi tiết nhỏ nằm ngoài hero, gom về một chỗ, mỗi cái là một useEffect độc lập.
@@ -124,6 +125,7 @@ export default function Alive() {
     const set = (s) => {
       state = s;
       setNap(s);
+      setNapState(s); // cho trang khác (about.js) biết zune đang ngủ / vừa dậy
     };
     const poke = () => {
       last = performance.now();
@@ -142,6 +144,7 @@ export default function Alive() {
       clearInterval(iv);
       clearTimeout(wakeTimer);
       evs.forEach((e) => window.removeEventListener(e, poke));
+      setNapState('awake');
     };
   }, []);
 
@@ -219,6 +222,7 @@ export default function Alive() {
   return (
     <>
       <Pulse napping={nap === 'nap'} panic={meeting} />
+      <div className={`nap-dim${nap === 'nap' ? ' is-on' : ''}`} aria-hidden="true" />
 
       {nap === 'nap' &&
         (reduced() ? (

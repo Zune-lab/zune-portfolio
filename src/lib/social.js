@@ -35,6 +35,8 @@ function subscribe(cb) {
   };
 }
 export const useSocial = () => useSyncExternalStore(subscribe, getSocial);
+// chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
+export const useAsleep = () => useSyncExternalStore(subscribe, () => isAsleep());
 
 export function sayHi() {
   if (state.maxed) return set({ reply: 'HI!!! :D (this is not normal)', hiAt: performance.now() });
