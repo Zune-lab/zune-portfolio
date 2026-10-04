@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../../config/pages.js';
 import { stack, role, location } from '../../../data/profile.js';
+import { spotMove } from '../../../lib/dom.js';
 import { useStatus } from '../../../lib/status.js';
+import { getSocial, levelOf, unlock } from '../../../lib/social.js';
 import './Terminal.css';
 
 // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
@@ -20,6 +22,13 @@ const FILES = {
   'tea.txt': 'tea > coffee. always.',
   'stack.txt': stack.join('  '), // lấy từ data/profile.js, không giữ bản thứ hai
 };
+const QUICK = [
+  ['who are you?', 'whoami'],
+  ['your mood?', 'cat mood.txt'],
+  ['what do you use?', 'cat stack.txt'],
+  ['show projects', 'cd projects'],
+  ['can I hire you?', 'sudo hire zune'],
+];
 const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
 
 function exec(raw, { onNavigate, clear }) {
@@ -30,7 +39,7 @@ function exec(raw, { onNavigate, clear }) {
     case '':
       return [];
     case 'help':
-      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | clear`, 'try: sudo hire zune'];
+      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, 'try: sudo hire zune'];
     case 'whoami':
       return [WHOAMI];
     case 'ls':
@@ -49,6 +58,25 @@ function exec(raw, { onNavigate, clear }) {
       return /^hire\s+zune$/.test(arg)
         ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
         : ['sudo: you are not in the sudoers file. this incident will be reported.'];
+    case 'battery': {
+      // cùng một pin với thẻ zune.sav và con sâu ở hero
+      const s = getSocial();
+      const lv = levelOf(s);
+      const on = Math.round(lv / 10);
+      return [
+        `social battery: ${lv}% [${'#'.repeat(on)}${'.'.repeat(10 - on)}]`,
+        s.maxed
+          ? 'personality overflow. please stand back.'
+          : lv <= 0
+            ? 'zune is asleep. zzz'
+            : lv <= 20
+              ? 'running on fumes. maybe let zune rest.'
+              : 'ok, still some words left.',
+      ];
+    }
+    case 'konami':
+      unlock('konami accepted. personality 100%. who let this happen?');
+      return ['up up down down left right left right b a', 'personality: 100%. scroll up and look at zune.sav'];
     case 'clear':
       clear();
       return [];
@@ -73,8 +101,20 @@ export default function Terminal({ onNavigate }) {
   const hIdx = useRef(-1);
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
+  const wrapRef = useRef(null);
+  const [started, setStarted] = useState(false); // intro chỉ chạy khi terminal vào khung nhìn, không chạy lúc không ai thấy
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || !('IntersectionObserver' in window)) return setStarted(true);
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setStarted(true), io.disconnect()), { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return undefined;
     let cancelled = false;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
@@ -108,7 +148,7 @@ export default function Terminal({ onNavigate }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [started]);
 
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
@@ -132,6 +172,23 @@ export default function Terminal({ onNavigate }) {
     setLines((l) => [...l, { t: 'cmd', text: raw }, ...out.map((text) => ({ t: 'out', text }))].slice(-200));
   };
 
+  // bấm nút câu hỏi: lệnh tự gõ từng chữ rồi in kết quả, người xem không cần biết lệnh
+  const run = async (cmd) => {
+    if (!ready || busy) return;
+    setBusy(true);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+    setLines((l) => [...l, { t: 'cmd', text: '' }]);
+    for (let i = 1; i <= cmd.length; i++) {
+      await sleep(35);
+      setLines((l) => [...l.slice(0, -1), { t: 'cmd', text: cmd.slice(0, i) }]);
+    }
+    await sleep(250);
+    const out = exec(cmd, { onNavigate, clear: () => {} });
+    setLines((l) => [...l, ...out.map((text) => ({ t: 'out', text }))].slice(-200));
+    setBusy(false);
+  };
+
   const onKeyDown = (e) => {
     const h = history.current;
     if (e.key === 'ArrowUp' && h.length) {
@@ -150,7 +207,7 @@ export default function Terminal({ onNavigate }) {
   const at = value[pos] ?? ' ';
 
   return (
-    <div className="terminal bg-inset border border-line rounded-[10px] overflow-hidden shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
+    <div ref={wrapRef} onMouseMove={spotMove} className="spot terminal bg-inset border border-line rounded-[10px] overflow-hidden shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
       <div className="terminal-bar bg-panel px-3.5 py-2.5 flex items-center gap-2 border-b border-line">
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FF5F57' }} />
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FEBC2E' }} />
@@ -206,6 +263,24 @@ export default function Terminal({ onNavigate }) {
               />
             </div>
           </form>
+        )}
+      </div>
+      <div className="px-5 py-3 border-t border-line flex flex-wrap items-center gap-2 font-mono text-[12px] min-h-[52px]">
+        {ready && (
+          <>
+            <span className="text-dim mr-1">ask:</span>
+            {QUICK.map(([label, cmd]) => (
+              <button
+                key={cmd}
+                type="button"
+                disabled={busy}
+                onClick={() => run(cmd)}
+                className="px-2.5 py-1 border border-line rounded text-dim hover:text-amber hover:border-amber-dim disabled:opacity-50 transition-colors cursor-pointer"
+              >
+                {label}
+              </button>
+            ))}
+          </>
         )}
       </div>
     </div>

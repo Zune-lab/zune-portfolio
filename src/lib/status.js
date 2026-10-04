@@ -29,6 +29,7 @@ let timer = null;
 
 const emit = () => listeners.forEach((l) => l());
 const current = () => (override === 'auto' ? autoStatus() : override);
+export const getStatusKey = current; // đọc nhanh cho code ngoài React (social.js, canvas)
 // snapshot is a string so React can compare it cheaply; it includes `override` so the "· auto" tag also updates
 // when cycling back to auto lands on the same status key
 const snapshot = () => `${override}:${current()}`;

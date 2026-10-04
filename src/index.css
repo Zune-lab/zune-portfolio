@@ -16,6 +16,7 @@
   --css-lang: #a98ae8;
   --dot-grid: rgba(255, 255, 255, 0.035);
   --nav-bg: rgba(10, 12, 16, 0.85);
+  color-scheme: dark; /* ô nhập, thanh cuộn gốc... đổi theo theme thay vì luôn sáng */
 
   /* ngôn ngữ chuyển động chung cho cả trang: 1 easing, 3 mốc thời gian */
   --ease: cubic-bezier(0.23, 1, 0.32, 1);
@@ -38,6 +39,7 @@
   --css-lang: #6b4fa0;
   --dot-grid: rgba(0, 0, 0, 0.05);
   --nav-bg: rgba(246, 243, 236, 0.85);
+  color-scheme: light;
 }
 
 /* tông nền đổi nhẹ theo giờ VN (App.jsx gắn data-tod) */
@@ -66,7 +68,6 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  transition: background 0.6s ease, color 0.4s ease;
   overflow-x: hidden;
 }
 
@@ -136,4 +137,157 @@ body::before {
     scrollbar-width: thin;
     scrollbar-color: var(--amber-dim) var(--bg);
   }
+}
+
+/* ---- hero full màn hình, tiêu đề mono lớn, ánh sáng + ảnh đen trắng bên phải ----
+   Muốn thêm ảnh: bỏ file vào public/ rồi đặt --hero-img: url('/hero.jpg') (ảnh sẽ tự chuyển đen trắng). */
+.hero-full {
+  position: relative;
+  min-height: calc(100svh - 56px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero-full::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    var(--hero-img, none) right center / cover no-repeat,
+    radial-gradient(55% 75% at 82% 38%, color-mix(in srgb, var(--text) 14%, transparent), transparent 70%);
+  filter: grayscale(1);
+}
+.hero-full::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, var(--bg) 18%, transparent 75%),
+    linear-gradient(0deg, var(--bg) 0%, transparent 28%);
+}
+.hero-title {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  font-size: clamp(32px, 6.6vw, 76px);
+  /* tiêu đề đang tự gõ/xoá liên tục nên không chọn chữ được; trước đây kéo chuột vào đây là bắt đầu chọn/kéo-thả chữ
+     và con sâu ở hero mất dấu chuột (xem HeroWorm.jsx) */
+  -webkit-user-select: none;
+  user-select: none;
+  /* bóng cứng lệch kiểu game retro (hợp với đèn pin Minecraft / font pixel), làm chữ dày và nổi hơn */
+  text-shadow: 0.045em 0.045em 0 color-mix(in srgb, var(--amber) 38%, transparent);
+}
+/* từng chữ của "Zune" nảy lên khi rê chuột */
+.zune-letter {
+  display: inline-block;
+  transition: transform 0.35s var(--ease);
+}
+.zune-letter:hover {
+  transform: translateY(-0.14em) rotate(-5deg);
+}
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: currentColor;
+}
+.hero-link {
+  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.hero-link:hover {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+/* .spot: viền + ánh sáng amber chạy theo chuột (dùng cùng spotMove trong lib/dom.js) */
+.spot { position: relative; }
+.spot::before,
+.spot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease);
+}
+.spot::before {
+  padding: 1px;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--amber), transparent 65%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spot::after {
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--amber) 8%, transparent), transparent 70%);
+}
+.spot:hover::before,
+.spot:hover::after { opacity: 1; }
+
+/* "Zune" thở nhẹ như đèn neon */
+.zune-glow {
+  text-shadow: 0.045em 0.045em 0 var(--amber-dim);
+  animation: zune-glow 3.4s ease-in-out infinite;
+}
+@keyframes zune-glow {
+  0%, 100% { text-shadow: 0.045em 0.045em 0 var(--amber-dim), 0 0 0 transparent; }
+  50% { text-shadow: 0.045em 0.045em 0 var(--amber-dim), 0 0 28px color-mix(in srgb, var(--amber) 55%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zune-glow { animation: none; }
+}
+
+/* cầu vồng chạy vòng khi mở khoá "personality" ở thẻ zune.sav */
+.sheet-rainbow { animation: sheet-hue 2.4s linear infinite; }
+@keyframes sheet-hue { to { filter: hue-rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .sheet-rainbow { animation: none; } }
+
+/* ===== đổi theme sáng/tối mượt, ĐỒNG ĐỀU toàn trang =====
+   Trước đây chỉ nền <body> mờ dần 0.6s, còn mọi thứ vẽ bằng var(--bg)/--text (lớp gradient của hero, card, viền...)
+   thì đổi ngay lập tức -> thấy một vệt sáng/tối hình gradient lệch pha rồi mờ dần. @property đăng ký các biến màu
+   là <color> nên bản thân biến chuyển dần theo transition, mọi chỗ dùng nó cùng mờ đúng một nhịp.
+   Trình duyệt chưa hỗ trợ @property thì đổi theme tức thì (không còn vệt). */
+@property --bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --panel { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --inset { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --line { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --text { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --text-dim { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --amber { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --amber-dim { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --green { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --js { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --css-lang { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --dot-grid { syntax: '<color>'; inherits: true; initial-value: transparent; }
+@property --nav-bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
+:root {
+  transition: --bg 0.6s ease, --panel 0.6s ease, --inset 0.6s ease, --line 0.6s ease, --text 0.6s ease, --text-dim 0.6s ease, --amber 0.6s ease, --amber-dim 0.6s ease, --green 0.6s ease, --js 0.6s ease, --css-lang 0.6s ease, --dot-grid 0.6s ease, --nav-bg 0.6s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { transition: none; }
+}
+
+/* chỉ áp lúc đang đổi theme (App.jsx gắn/gỡ class này): để các phần tử con bám sát biến màu đang chuyển */
+:root.theme-anim *,
+:root.theme-anim *::before,
+:root.theme-anim *::after {
+  transition: none !important;
 }

@@ -1,6 +1,8 @@
 export const role = 'Web Developer';
 export const location = 'Ho Chi Minh City';
 
+export const aboutBlurb = 'coding since 2022. Favorite stack is React + Tailwind, and I\'m currently learning the Next.js App Router.';
+
 export const stack = [
   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
 ];

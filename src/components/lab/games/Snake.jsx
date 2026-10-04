@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../../lib/storage.js';
+import { onThemeChange } from '../../../lib/themeSync.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const N = 18; // lưới N x N
@@ -157,12 +158,9 @@ export default function Snake() {
     };
   }, [status, round]);
 
-  // đổi sáng/tối (App đặt data-theme trên <html>) -> vẽ lại canvas dù game đang idle hay đã over
-  useEffect(() => {
-    const mo = new MutationObserver(() => draw());
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => mo.disconnect();
-  }, []);
+  // đổi sáng/tối -> vẽ lại canvas MỖI KHUNG trong lúc biến màu đang chuyển (lib/themeSync.js), dù game idle hay đã over.
+  // Trước đây chỉ vẽ 1 lần lúc data-theme vừa đổi, khi biến màu còn giá trị cũ -> canvas kẹt màu cũ.
+  useEffect(() => onThemeChange(() => draw()), []);
 
   // hết ván -> cập nhật kỷ lục
   useEffect(() => {

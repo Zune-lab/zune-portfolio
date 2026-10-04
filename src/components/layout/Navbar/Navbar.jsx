@@ -5,6 +5,7 @@ import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
 import { PAGES, pageOfView, topOf } from '../../../config/pages.js';
 import { pathOf } from '../../../lib/paths.js';
 import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
+import useHideOnScroll from '../../../lib/useHideOnScroll.js';
 import './Navbar.css';
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
@@ -307,6 +308,8 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const burgerRef = useRef(null);
   const panelRef = useRef(null);
+  // cuộn xuống -> nav trượt lên ẩn đi cho thấy rõ cả trang; cuộn lên / Tab vào nav / mở menu mobile -> hiện lại
+  const [navHidden, showNav] = useHideOnScroll(menuOpen);
 
   useEffect(() => setMenuOpen(false), [view]); // đổi trang thì đóng menu
 
@@ -374,8 +377,11 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   return (
     <>
       <nav
-        className="sticky top-0 z-50 border-b border-line backdrop-blur-md"
+        className={`sticky top-0 z-50 border-b border-line backdrop-blur-md transition-transform duration-300 ease-in-out ${
+          navHidden ? '-translate-y-full' : ''
+        }`}
         style={{ background: 'var(--nav-bg)' }}
+        onFocus={showNav}
       >
         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
           <a

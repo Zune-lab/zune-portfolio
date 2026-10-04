@@ -1,0 +1,312 @@
+diff --git a/src/components/home/HeroWorm.jsx b/src/components/home/HeroWorm.jsx
+index bc8adbb..dd50444 100644
+--- a/src/components/home/HeroWorm.jsx
++++ b/src/components/home/HeroWorm.jsx
+@@ -11,6 +11,8 @@ import { createBrain, createPointerTracker } from '../../lib/wormBrain.js';
+ //  - phản ứng theo "pin xã hội" ở thẻ zune.sav (lib/social.js): bấm `say hi` thì nó chào theo,
+ //    pin yếu thì uể oải, hết pin thì ngủ gật "zzz", mở khoá 100% personality thì nó hoá cầu vồng
+ //  - bấm vào chỗ trống ở hero: nó "nuốt" thêm một chữ (đuôi dài ra, tối đa MAX_N đốt)
++//  - KHÔNG chui ra sau thẻ zune.sav (thẻ nằm trên canvas, chui vào là mất hình): đi vòng quanh thẻ; chuột nằm trong thẻ thì
++//    sâu ngồi ở mép thẻ gần nhất nhìn vào. Bóng thoại và "zzz" tự đổi sang phía không bị thẻ che.
+ // Nằm sau nội dung (z-0), dừng khi cuộn khỏi màn hình, tắt khi người dùng bật "giảm chuyển động".
+ //
+ // Phần "suy nghĩ" (theo dõi chuột, chọn đích, giật mình, đi dạo) nằm ở lib/wormBrain.js (chạy thử được bằng node);
+@@ -53,6 +55,7 @@ export default function HeroWorm() {
+     let seenMax = soc0.maxAt;
+     let wasAsleep = isAsleep(soc0);
+     let brain = null;
++    let placed = false;
+     const tracker = createPointerTracker();
+ 
+     // màu đọc lại MỖI KHUNG trong lúc đổi theme (lib/themeSync.js), không bị kẹt màu cũ
+@@ -118,7 +121,31 @@ export default function HeroWorm() {
+       const k = dt / 16.667;
+ 
+       // --- chuột (chỉ tính khi đang nằm trong hero; toạ độ tính lại mỗi khung -> đúng cả khi trang đang cuộn)
+-      const { pointer, idle } = tracker.read(t, host.getBoundingClientRect());
++      const hostRect = host.getBoundingClientRect();
++      const { pointer, idle } = tracker.read(t, hostRect);
++
++      // --- vật cản: các thẻ <aside> (zune.sav) nằm trên canvas, toạ độ theo hero
++      const obstacles = [];
++      host.querySelectorAll('aside').forEach((a) => {
++        const r = a.getBoundingClientRect();
++        if (r.width > 4 && r.height > 4) obstacles.push({ l: r.left - hostRect.left, t: r.top - hostRect.top, r: r.right - hostRect.left, b: r.bottom - hostRect.top });
++      });
++      if (!placed) {
++        // lần đầu: nếu chỗ xuất phát nằm sau thẻ thì đặt đầu ra chỗ trống gần nhất, thân xếp thành hàng ra phía xa thẻ (chưa vẽ gì nên không thấy nhảy)
++        placed = true;
++        const x0 = brain.state.x;
++        const y0 = brain.state.y;
++        const f = brain.placeOutside(obstacles);
++        if (f.x !== x0 || f.y !== y0) {
++          const dir = obstacles.length && f.x > (obstacles[0].l + obstacles[0].r) / 2 ? 1 : -1;
++          nodes.forEach((n, i) => {
++            n.x = f.x + dir * i * GAP;
++            n.y = f.y;
++            pos[i].x = n.x;
++            pos[i].y = n.y;
++          });
++        }
++      }
+ 
+       // --- pin xã hội
+       const soc = getSocial();
+@@ -137,7 +164,7 @@ export default function HeroWorm() {
+       wasAsleep = asleep;
+ 
+       // --- bộ não quyết định đầu đi đâu; mỗi đốt thân kéo đốt sau theo
+-      const out = brain.update(t, dt, { pointer, idle, asleep, maxed, sleepy });
++      const out = brain.update(t, dt, { pointer, idle, asleep, maxed, sleepy, obstacles });
+       if (out.say && (t >= bubble.until || out.say.text === '!!')) bubble = { text: out.say.text, until: t + out.say.ms };
+       const hs = brain.state;
+       const head = nodes[0];
+@@ -221,22 +248,27 @@ export default function HeroWorm() {
+       ctx.fillRect(2 + eye.x, 4 - (eyeH - 3) + eye.y, 3, eyeH);
+       ctx.restore();
+ 
++      // bóng thoại / "zzz" nằm lệch lên trên-phải đầu; nếu chỗ đó bị thẻ che thì lật sang trái
++      const covered = (bw) =>
++        obstacles.some((o) => head.x + 8 < o.r && head.x + 20 + bw > o.l && head.y - 50 < o.b && head.y > o.t);
+       if (asleep) {
++        const side = covered(50) ? -1 : 1;
+         ctx.fillStyle = amber;
+-        ctx.textAlign = 'left';
++        ctx.textAlign = side > 0 ? 'left' : 'right';
+         for (let k2 = 0; k2 < 3; k2++) {
+           const ph = (t / 1500 + k2 / 3) % 1; // 3 chữ z bay lên lệch pha nhau
+           ctx.globalAlpha = (1 - ph) * 0.9;
+           ctx.font = `700 ${11 + k2 * 3}px ${MONO}`;
+-          ctx.fillText('z', head.x + 14 + ph * 12 + k2 * 6, head.y - 16 - ph * 28 - k2 * 6);
++          ctx.fillText('z', head.x + side * (14 + ph * 12 + k2 * 6), head.y - 16 - ph * 28 - k2 * 6);
+         }
+         ctx.textAlign = 'center';
+       } else if (t < bubble.until) {
++        ctx.font = `600 13px ${MONO}`;
++        const side = covered(ctx.measureText(bubble.text).width) ? -1 : 1;
+         ctx.globalAlpha = Math.min(1, (bubble.until - t) / 400);
+         ctx.fillStyle = amber;
+-        ctx.textAlign = 'left';
+-        ctx.font = `600 13px ${MONO}`;
+-        ctx.fillText(bubble.text, head.x + 20, head.y - 24);
++        ctx.textAlign = side > 0 ? 'left' : 'right';
++        ctx.fillText(bubble.text, head.x + side * 20, head.y - 24);
+         ctx.textAlign = 'center';
+       }
+       ctx.globalAlpha = 1;
+diff --git a/src/lib/wormBrain.js b/src/lib/wormBrain.js
+index ff7bf4d..84eb1e3 100644
+--- a/src/lib/wormBrain.js
++++ b/src/lib/wormBrain.js
+@@ -20,6 +20,14 @@ const angDiff = (a, b) => {
+   return d;
+ };
+ 
++// Vật cản: thẻ zune.sav nằm TRÊN canvas nên sâu chui ra sau thẻ là mất hình (không thấy mặt, bóng thoại, "zzz").
++// Nên coi thẻ như một khối không được chui vào: đầu sâu đi vòng quanh, chuột nằm trong thẻ thì sâu ngồi ở mép thẻ gần nhất
++// nhìn vào. Ngủ cũng vậy: luôn ngủ ở chỗ nhìn thấy được.
++const PAD = 22; // chừa quanh vật cản (nửa đầu sâu ~13px + chút khoảng thở)
++
++const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
++const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
++
+ const MARGIN = 44; // sâu không bò sát mép hero hơn mức này (khi chọn đích)
+ const SCARE_RANGE = 260; // chuột phải ở gần đầu hơn mức này mới có thể doạ
+ const SCARE_CLOSING = 0.95; // px/ms: tốc độ chuột LAO VỀ phía đầu để bị coi là doạ
+@@ -102,6 +110,70 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+     chkX: x,
+     chkY: y,
+     wantMove: false,
++    obs: [], // vật cản đã nới ra PAD, toạ độ theo hero
++    via: '', // góc vật cản đang đi vòng (để không nhảy qua lại giữa hai góc)
++  };
++
++  const inBounds = (x, y) => x >= 8 && x <= s.w - 8 && y >= 8 && y <= s.h - 8;
++  const blocked = (x, y) => s.obs.some((r) => inRect(x, y, r));
++  const segHits = (ax, ay, bx, by, r0) => {
++    const r = grow(r0, -2); // thu nhỏ 2px: đi sát mép (đúng đường biên) không bị tính là xuyên qua
++    for (let i = 1; i <= 16; i++) {
++      const f = i / 16;
++      if (inRect(ax + (bx - ax) * f, ay + (by - ay) * f, r)) return true;
++    }
++    return false;
++  };
++  const segBlocked = (ax, ay, bx, by) => s.obs.some((r) => segHits(ax, ay, bx, by, r));
++  // điểm gần nhất nằm NGOÀI mọi vật cản (nếu (x,y) đã ở ngoài thì giữ nguyên); ưu tiên phía sâu đang đứng để khỏi nhảy bên
++  const freePoint = (x, y) => {
++    const r = s.obs.find((o) => inRect(x, y, o));
++    if (!r) return { x, y };
++    const cand = [
++      { x: r.l, y },
++      { x: r.r, y },
++      { x, y: r.t },
++      { x, y: r.b },
++    ].filter((c) => inBounds(c.x, c.y) && !blocked(c.x, c.y));
++    if (!cand.length) return { x, y };
++    let best = null;
++    for (const c of cand) {
++      const cost = Math.hypot(c.x - x, c.y - y) + 0.5 * Math.hypot(c.x - s.x, c.y - s.y);
++      if (!best || cost < best.cost) best = { ...c, cost };
++    }
++    return { x: best.x, y: best.y };
++  };
++  // từ đầu tới đích mà vướng vật cản thì đi vòng qua góc gần nhất (góc nào cũng phải nằm trong hero và không bị vật cản khác chặn)
++  const route = (tx, ty) => {
++    if (!s.obs.length || blocked(s.x, s.y)) {
++      s.via = '';
++      return null; // đang ở trong vật cản thì cứ đi thẳng ra, không đi vòng
++    }
++    const r = s.obs.find((o) => segHits(s.x, s.y, tx, ty, o));
++    if (!r) {
++      s.via = '';
++      return null;
++    }
++    const cs = [
++      { k: 'tl', x: r.l, y: r.t },
++      { k: 'tr', x: r.r, y: r.t },
++      { k: 'bl', x: r.l, y: r.b },
++      { k: 'br', x: r.r, y: r.b },
++    ].filter((c) => inBounds(c.x, c.y) && !blocked(c.x, c.y) && Math.hypot(c.x - s.x, c.y - s.y) > 12); // góc đang đứng sát thì bỏ qua: sang góc kế tiếp
++    let best = null;
++    for (const c of cs) {
++      // chặng nào còn bị vật cản chặn thì phạt nặng: ưu tiên góc mà từ đó nhìn thẳng thấy đích (nếu chưa có thì đi tới góc nhìn thấy được rồi tính tiếp)
++      const cost =
++        Math.hypot(c.x - s.x, c.y - s.y) +
++        Math.hypot(tx - c.x, ty - c.y) +
++        (segBlocked(s.x, s.y, c.x, c.y) ? 2000 : 0) +
++        (segBlocked(c.x, c.y, tx, ty) ? 2000 : 0) -
++        (c.k === s.via ? 40 : 0);
++      if (!best || cost < best.cost) best = { ...c, cost };
++    }
++    if (!best) return null;
++    s.via = best.k;
++    return best;
+   };
+ 
+   const pickWay = () => {
+@@ -112,11 +184,12 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+         x: MARGIN + rand() * Math.max(1, s.w - MARGIN * 2),
+         y: MARGIN + rand() * Math.max(1, s.h - MARGIN * 2),
+       };
++      if (blocked(c.x, c.y)) continue; // không chọn đích nằm sau thẻ
+       const d = Math.hypot(c.x - s.x, c.y - s.y);
+       if (d >= minD) return c; // chuyến đi dạo đủ dài để nhìn thấy
+       if (!best || d > best.d) best = { ...c, d };
+     }
+-    return best;
++    return best || freePoint(s.x, s.y);
+   };
+ 
+   // chọn đích bỏ chạy: ưu tiên thẳng ra xa chuột, nhưng nếu sát tường thì lệch sang bên để trượt dọc tường
+@@ -128,7 +201,9 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+       const tx = clamp(s.x + Math.cos(a) * 230, MARGIN, s.w - MARGIN);
+       const ty = clamp(s.y + Math.sin(a) * 230, MARGIN, s.h - MARGIN);
+       const gain = Math.hypot(tx - s.x, ty - s.y); // thực sự chạy được bao xa sau khi bị mép chặn
+-      const score = gain - Math.abs(off) * 40;
++      let score = gain - Math.abs(off) * 40;
++      if (blocked(tx, ty)) score -= 1000; // không chạy trốn ra sau thẻ
++      else if (segBlocked(s.x, s.y, tx, ty)) score -= 300;
+       if (!best || score > best.score) best = { x: tx, y: ty, score, a };
+     }
+     return best;
+@@ -136,21 +211,42 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+ 
+   // lái đầu về phía (tx, ty): quay có giới hạn tốc độ quay, tăng/giảm tốc có quán tính -> đường đi cong tự nhiên
+   const steer = (tx, ty, { cap, stop, turn }, k) => {
+-    const dx = tx - s.x;
+-    const dy = ty - s.y;
++    let ax = tx;
++    let ay = ty;
++    let stopD = stop;
++    const via = route(tx, ty);
++    if (via) {
++      ax = via.x;
++      ay = via.y;
++      stopD = 6; // đang đi vòng qua góc: không dừng giữa đường
++    }
++    const dx = ax - s.x;
++    const dy = ay - s.y;
+     const d = Math.hypot(dx, dy) || 1;
+-    s.wantMove = d > stop;
+-    if (d <= stop) {
++    s.wantMove = d > stopD;
++    if (d <= stopD) {
+       s.speed *= Math.pow(0.8, k); // lượn chậm rồi dừng
+     } else {
+       const diff = angDiff(s.heading, Math.atan2(dy, dx));
+       s.heading += clamp(diff, -turn * k, turn * k);
+       const align = Math.max(0.15, Math.cos(diff)); // đang quay lưng với đích thì gần như xoay tại chỗ
+-      const desired = Math.min((d - stop) * 0.1, cap) * align; // tới gần đích thì giảm tốc dần, không lố qua khoảng dừng
++      const desired = Math.min((d - stopD) * 0.1, cap) * align; // tới gần đích thì giảm tốc dần, không lố qua khoảng dừng
+       s.speed += (desired - s.speed) * Math.min(1, 0.2 * k);
+     }
++    const px = s.x;
++    const py = s.y;
+     s.x = clamp(s.x + Math.cos(s.heading) * s.speed * k, 8, s.w - 8);
+     s.y = clamp(s.y + Math.sin(s.heading) * s.speed * k, 8, s.h - 8);
++    // đầu không được chui vào vật cản (trừ khi đang ở sẵn bên trong: lúc đó cứ để nó bò ra)
++    for (const r of s.obs) {
++      if (inRect(px, py, r) || !inRect(s.x, s.y, r)) continue;
++      const pen = [s.x - r.l, r.r - s.x, s.y - r.t, r.b - s.y];
++      const m = pen.indexOf(Math.min(...pen));
++      if (m === 0) s.x = r.l;
++      else if (m === 1) s.x = r.r;
++      else if (m === 2) s.y = r.t;
++      else s.y = r.b;
++    }
+   };
+ 
+   const startScare = (t, p) => {
+@@ -172,22 +268,39 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+       s.x = clamp(s.x, 8, Math.max(8, w2 - 8));
+       s.y = clamp(s.y, 8, Math.max(8, h2 - 8));
+       s.way = null;
++      s.via = '';
++    },
++    // đặt đầu sâu ra chỗ trống gần nhất nếu đang nằm sau vật cản (dùng lúc khởi tạo, chưa vẽ gì nên không thấy nhảy)
++    placeOutside(obstacles) {
++      s.obs = obstacles.map((r) => grow(r, PAD));
++      const f = freePoint(s.x, s.y);
++      s.x = f.x;
++      s.y = f.y;
++      return f;
+     },
+     // inp: { pointer, idle, asleep, maxed, sleepy }. Trả về { moving, scared, mode, look, say }.
+     update(t, dt, inp) {
+       const k = clamp(dt / 16.667, 0.3, 3);
+-      const { pointer, idle, asleep, maxed, sleepy } = inp;
++      const { pointer, idle, asleep, maxed, sleepy, obstacles = [] } = inp;
++      s.obs = obstacles.map((r) => grow(r, PAD));
+       let say = null;
+       if (!s.nextQuip) s.nextQuip = t + 6000;
+       if (!s.chkT) s.chkT = t;
+ 
+       if (asleep) {
+-        s.speed = 0;
+         s.mode = 'roam';
+         s.way = null;
+         s.restUntil = 0;
+-        s.wantMove = false;
+         s.chkT = t;
++        if (blocked(s.x, s.y)) {
++          // đang nằm sau thẻ: bò ra chỗ nhìn thấy được rồi mới ngủ
++          const f = freePoint(s.x, s.y);
++          steer(f.x, f.y, { cap: 4, stop: 2, turn: 0.2 }, k);
++          s.look = { x: Math.cos(s.heading), y: Math.sin(s.heading) };
++          return { moving: s.speed > 0.8, scared: false, mode: s.mode, look: s.look, say, asleepWalking: true };
++        }
++        s.speed = 0;
++        s.wantMove = false;
+         return { moving: false, scared: false, mode: s.mode, look: s.look, say };
+       }
+ 
+@@ -232,7 +345,8 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random
+             s.greeted = true;
+             say = { text: 'hi.', ms: 2600 };
+           }
+-          steer(pointer.x, pointer.y, { cap: 14 * moodCap, stop, turn: 0.2 }, k);
++          const tgt = freePoint(pointer.x, pointer.y); // chuột nằm trong thẻ thì ra ngồi ở mép thẻ gần nhất
++          steer(tgt.x, tgt.y, { cap: 14 * moodCap, stop, turn: 0.2 }, k);
+           s.look = { x: pointer.x - s.x, y: pointer.y - s.y };
+         } else {
+           // tự đi dạo: chọn đích -> đi tới -> nghỉ nhìn quanh một lúc -> chọn đích mới

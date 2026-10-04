@@ -4,7 +4,7 @@ import ErrorBoundary from './components/layout/ErrorBoundary.jsx';
 import Loader from './components/layout/Loader/Loader.jsx';
 import Navbar from './components/layout/Navbar/Navbar.jsx';
 import Hero from './components/home/Hero.jsx';
-import { Stats, Support } from './components/home/StatsSupport.jsx';
+import { FeaturedProjects, AboutTeaser, LabTeaser, TerminalSection } from './components/home/HomeSections.jsx';
 import Feedback from './components/home/Feedback.jsx';
 import Socials from './components/home/Socials/Socials.jsx';
 import { Signature, Footer } from './components/layout/Signature/Signature.jsx';
@@ -29,6 +29,7 @@ export default function App() {
   const savedHomeScroll = useRef(0);
   const navTimer = useRef(0);
   const glowRef = useRef(null);
+  const themeTimer = useRef(0);
   const mainRef = useRef(null);
   const firstView = useRef(true);
   const viewRef = useRef(view);
@@ -117,7 +118,21 @@ export default function App() {
     return () => clearInterval(id);
   }, []);
 
-  const toggleTheme = () => setTheme((t) => (t === 'light' ? 'dark' : 'light'));
+  // Trong lúc đổi theme, tắt transition riêng của mọi phần tử con để chúng bám đúng biến màu đang mờ dần
+  // (nếu không, ô pin/nút có transition-colors sẽ chạy trễ so với khung -> lệch màu giữa chừng).
+  // Ba lỗi "trễ màu" đã sửa ở đây:
+  //  1) data-theme đổi ĐỒNG BỘ cùng lúc gắn class (trước đây chờ useEffect sau khi React render xong, lệch vài chục ms);
+  //  2) chỉ có MỘT timer: bấm đổi theme liên tiếp thì timer cũ bị huỷ (trước đây nó gỡ class giữa lúc lần đổi sau còn đang chạy);
+  //  3) gỡ class sau 900ms (transition 0.6s + dư) rồi mới trả transition riêng cho các phần tử con.
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    window.clearTimeout(themeTimer.current);
+    root.classList.add('theme-anim');
+    root.dataset.theme = next;
+    themeTimer.current = window.setTimeout(() => root.classList.remove('theme-anim'), 900);
+    setTheme(next);
+  };
 
   // nextView: 'home' | 'about' | 'projects' | 'lab' | 'lab/<slug>'.
   // scrollTarget (tùy chọn): css selector cần cuộn tới sau khi về home (vd
@@ -202,8 +217,10 @@ export default function App() {
       ) : (
         <>
           <Hero onNavigate={handleNavigate} />
-          <Stats />
-          <Support />
+          <TerminalSection onNavigate={handleNavigate} />
+          <FeaturedProjects onNavigate={handleNavigate} />
+          <AboutTeaser onNavigate={handleNavigate} />
+          <LabTeaser onNavigate={handleNavigate} />
           <Feedback />
           <Socials />
         </>

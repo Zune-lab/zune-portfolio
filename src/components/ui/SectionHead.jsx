@@ -6,7 +6,7 @@ export default function SectionHead({ num, title, level = 2 }) {
       <span className="font-mono text-sm" style={{ color: 'var(--amber-dim)' }}>
         {num}
       </span>
-      <H className="font-mono font-bold text-[clamp(22px,3vw,28px)]">{title}</H>
+      <H className="font-mono font-bold text-[clamp(24px,3.6vw,36px)]">{title}</H>
     </div>
   );
 }
