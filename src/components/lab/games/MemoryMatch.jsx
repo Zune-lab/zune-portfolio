@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import useBest from '../../../lib/useBest.js';
+import { storageKey } from '../../../config/site.js';
 import { shuffled } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
-const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
+const BEST_KEY = storageKey('memory-best'); // kỷ lục = số lượt ít nhất
 
 const shuffle = () => shuffled([...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym })));
 

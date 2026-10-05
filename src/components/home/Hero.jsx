@@ -7,10 +7,11 @@ import HeroWorm from './HeroWorm.jsx';
 import { isPaused, onPauseChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
 import { observeVisible } from '../../lib/observe.js';
+import { site } from '../../config/site.js';
 
 // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
 // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
-const PHRASES = ['I code for fun.', 'I fix 3am bugs.', 'I play with CSS.', 'I make tiny pages.'];
+const PHRASES = site.content.phrases; // khai báo ở config/site.js
 
 function Typewriter() {
   const [text, setText] = useState(PHRASES[0]);
@@ -71,11 +72,11 @@ export default function Hero({ onNavigate }) {
     <header className="hero-full">
       <HeroWorm />
       <div className="wrap relative z-[1] max-w-[1040px] w-full mx-auto px-8 pt-10 pb-24">
-        <h1 className="hero-title" aria-label="Hi, I'm Zune. I code for fun.">
+        <h1 className="hero-title" aria-label={`Hi, I'm ${site.name}. ${PHRASES[0]}`}>
           <span aria-hidden="true">
             Hi, I'm{' '}
             <span className="text-amber zune-glow">
-              {[...'Zune'].map((ch, n) => (
+              {[...site.name].map((ch, n) => (
                 <span key={n} className="zune-letter">
                   {ch}
                 </span>
@@ -89,9 +90,9 @@ export default function Hero({ onNavigate }) {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.05fr] gap-10 md:gap-14 mt-9 items-start">
           <div>
             <p className="text-ink text-lg leading-relaxed max-w-[440px]">
-              I love messing around with CSS and building tiny pages just to see if they work.
+              {site.content.heroIntro}
             </p>
-            <p className="font-mono text-[13px] text-dim mt-4">// introvert by default. say hi anyway →</p>
+            <p className="font-mono text-[13px] text-dim mt-4">{site.content.heroNote}</p>
             <div className="flex gap-3.5 mt-8 flex-wrap items-center">
               <Btn31 onClick={() => scrollToAnchor('#featured')}>view projects</Btn31>
               <ContactButton href="#socials" />

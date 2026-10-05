@@ -1,4 +1,4 @@
-// SỔ ĐĂNG KÝ CÁC MỤC TRONG LAB (mỗi mục có địa chỉ riêng /zune-portfolio/lab/<slug>).
+// SỔ ĐĂNG KÝ CÁC MỤC TRONG LAB (mỗi mục có địa chỉ riêng /<repo>/lab/<slug>).
 //
 // THÊM MỤC MỚI: tạo component trong src/components/lab/<Tên>/ (jsx + css chung 1 thư mục) rồi thêm 1 object vào LAB_ITEMS.
 // Thẻ ở lưới, bộ lọc, nút random, prev/next, nav phụ `ls lab/`, tiêu đề tab và
@@ -7,7 +7,7 @@
 // LƯU Ý: dùng khóa `slug:` (không dùng `id:`), vì system/scripts/spa-404.mjs đọc file này bằng regex
 // `slug: '...'` ở đầu dòng, mỗi dòng như vậy sẽ thành 1 thư mục dist/lab/<slug>/.
 //
-//   slug   -> đường dẫn: /zune-portfolio/lab/<slug>
+//   slug   -> đường dẫn: /<repo>/lab/<slug>
 //   file   -> tên "file" hiện ở nav, tiêu đề tab và đầu trang
 //   (icon  -> lấy theo slug trong components/lab/Lab/LabIcon.jsx)
 //   kind   -> nhãn lọc: 'game' | 'toy' | 'tool'

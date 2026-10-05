@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './Preloader.css';
+import { site } from '../../../config/site.js';
 
 export default function Preloader() {
   const [hidden, setHidden] = useState(false);
@@ -47,7 +48,7 @@ export default function Preloader() {
           <div key={i} className="banter-loader__box" />
         ))}
       </div>
-      <span className="font-mono text-[13px] text-dim">booting zune.dev …</span>
+      <span className="font-mono text-[13px] text-dim">booting {site.handle} …</span>
     </div>
   );
 }

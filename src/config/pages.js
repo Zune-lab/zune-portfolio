@@ -1,8 +1,9 @@
 // SỔ ĐĂNG KÝ CÁC TRANG RIÊNG (mỗi trang có địa chỉ riêng).
 //
-//   home      -> /zune-portfolio/
-//   <id>      -> /zune-portfolio/<id>      (about, projects, ...)
-//   lab/<slug>-> /zune-portfolio/lab/<slug> (từng mục trong lab, khai báo ở src/config/lab-items.js)
+//   home      -> /<repo>/
+//   <id>      -> /<repo>/<id>      (about, projects, ...)
+//   lab/<slug>-> /<repo>/lab/<slug> (từng mục trong lab, khai báo ở src/config/lab-items.js)
+// (<repo> = site.repo ở src/config/site.js; tiêu đề tab lấy tên từ site.name)
 //
 // THÊM TRANG MỚI: tạo component rồi thêm 1 mục vào PAGES bên dưới. Nav chính, nav
 // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
@@ -12,7 +13,7 @@ import { createElement, lazy } from 'react';
 import { LAB_ITEMS, labItemOf } from './lab-items.js';
 
 import { BASE, pathOf } from '../lib/paths.js';
-import { role } from '../data/profile.js';
+import { site, title as HOME_TITLE } from './site.js';
 
 // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
 // Lazy page with a `preload`: App calls it while the tab loader is showing. Once the chunk is in, the page renders
@@ -31,9 +32,9 @@ const Lab = lazyPage(() => import('../components/lab/Lab/Lab.jsx'));
 
 export const PAGES = [
   {
-    id: 'about', // = đường dẫn: /zune-portfolio/about
+    id: 'about', // = đường dẫn: /<repo>/about
     label: 'about.js', // chữ hiện ở nav
-    title: 'about.js — Zune', // tiêu đề tab trình duyệt
+    title: `about.js — ${site.name}`, // tiêu đề tab trình duyệt
     Component: About,
     preload: About.preload,
     // mục con hiện ở nav phụ khi đứng trong trang này (cuộn trong trang, không đổi trang)
@@ -46,7 +47,7 @@ export const PAGES = [
   {
     id: 'projects',
     label: 'projects/',
-    title: 'projects/ — Zune',
+    title: `projects/ — ${site.name}`,
     Component: Projects,
     preload: Projects.preload,
     sub: [],
@@ -54,7 +55,7 @@ export const PAGES = [
   {
     id: 'lab',
     label: 'lab.css',
-    title: 'lab.css — Zune',
+    title: `lab.css — ${site.name}`,
     Component: Lab,
     preload: Lab.preload,
     // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/config/lab-items.js
@@ -62,8 +63,6 @@ export const PAGES = [
     sub: LAB_ITEMS.map((i) => ({ view: `lab/${i.slug}`, href: pathOf(`lab/${i.slug}`), label: i.file })),
   },
 ];
-
-const HOME_TITLE = `Zune — ${role}`;
 
 // "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
 export const topOf = (view) => view.split('/')[0];
@@ -73,7 +72,7 @@ export const pageOfView = (view) => pageOf(topOf(view));
 export const titleOf = (view) => {
   const slug = view.split('/')[1];
   const item = slug && labItemOf(slug);
-  if (topOf(view) === 'lab' && item) return `${item.file} — Zune`;
+  if (topOf(view) === 'lab' && item) return `${item.file} — ${site.name}`;
   return pageOfView(view)?.title ?? HOME_TITLE;
 };
 

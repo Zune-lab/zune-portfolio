@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useBest from '../../../lib/useBest.js';
+import { storageKey } from '../../../config/site.js';
 import { randInt } from '../../../lib/math.js';
 import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 
 const CELLS = 9;
 const DURATION = 30; // giây
-const BEST_KEY = 'zune-bugsquash-best';
+const BEST_KEY = storageKey('bugsquash-best');
 
 // mini game: bug nhô lên ở ô ngẫu nhiên, bấm trúng để diệt, càng về sau càng nhanh
 export default function BugSquash() {

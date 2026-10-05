@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { storageKey } from '../../config/site.js';
 
 // Lỗi tải chunk lazy: thường do deploy mới làm mất file hash cũ, hoặc mạng chập chờn
 const isChunkError = (err) =>
@@ -6,7 +7,7 @@ const isChunkError = (err) =>
     String(err?.message || err)
   );
 
-const RELOAD_KEY = 'zune-chunk-reload';
+const RELOAD_KEY = storageKey('chunk-reload');
 
 // Chặn lỗi render để 1 component hỏng (game, chunk lazy lỗi) không làm trắng cả site.
 //  - `inline`: hiện khung nhỏ tại chỗ (dùng cho từng mục Lab); mặc định chiếm cả màn hình.

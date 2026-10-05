@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../../config/pages.js';
-import { stack, role, location } from '../../../data/profile.js';
+import { stack } from '../../../data/profile.js';
+import { site } from '../../../config/site.js';
 import { spotMove } from '../../../lib/dom.js';
 import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/env.js';
 import { observeOnce } from '../../../lib/observe.js';
 import { useStatus } from '../../../lib/status.js';
-import { vnDateTime } from '../../../lib/vnTime.js';
+import { siteDateTime } from '../../../lib/siteTime.js';
 import { getSocial, levelOf, unlock } from '../../../lib/social.js';
 import './Terminal.css';
 
 // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
-const WHOAMI = `zune - ${role.toLowerCase()}, ${location}`;
-const MOOD = 'chillax guys. code for fun, ship small weird things.';
+const { id, role, location, content } = site;
+const WHOAMI = `${id} - ${role.toLowerCase()}, ${location}`;
+const MOOD = content.mood;
+const HIRE = `hire ${id}`; // `sudo hire <id>`
 
 // the status line follows the badge in the Hero (same shared store), so the two never contradict each other
 const introLines = (statusBlurb) => [
@@ -22,7 +25,7 @@ const introLines = (statusBlurb) => [
 
 const FILES = {
   'mood.txt': MOOD,
-  'tea.txt': 'tea > coffee. always.',
+  'tea.txt': content.teaLine,
   'stack.txt': stack.join('  '), // lấy từ data/profile.js, không giữ bản thứ hai
 };
 const QUICK = [
@@ -30,7 +33,7 @@ const QUICK = [
   ['your mood?', 'cat mood.txt'],
   ['what do you use?', 'cat stack.txt'],
   ['show projects', 'cd projects'],
-  ['can I hire you?', 'sudo hire zune'],
+  ['can I hire you?', `sudo ${HIRE}`],
 ];
 const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
 
@@ -42,7 +45,7 @@ function exec(raw, { onNavigate, clear }) {
     case '':
       return [];
     case 'help':
-      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, 'try: sudo hire zune'];
+      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, `try: sudo ${HIRE}`];
     case 'whoami':
       return [WHOAMI];
     case 'ls':
@@ -56,13 +59,13 @@ function exec(raw, { onNavigate, clear }) {
       }
       return [`cd: ${arg || '?'}: No such file or directory`];
     case 'date':
-      return [vnDateTime()];
+      return [siteDateTime()];
     case 'sudo':
-      return /^hire\s+zune$/.test(arg)
+      return arg === HIRE
         ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
         : ['sudo: you are not in the sudoers file. this incident will be reported.'];
     case 'battery': {
-      // cùng một pin với thẻ zune.sav và con sâu ở hero
+      // cùng một pin với thẻ sav và con sâu ở hero
       const s = getSocial();
       const lv = levelOf(s);
       const on = Math.round(lv / 10);
@@ -71,15 +74,15 @@ function exec(raw, { onNavigate, clear }) {
         s.maxed
           ? 'personality overflow. please stand back.'
           : lv <= 0
-            ? 'zune is asleep. zzz'
+            ? `${id} is asleep. zzz`
             : lv <= 20
-              ? 'running on fumes. maybe let zune rest.'
+              ? `running on fumes. maybe let ${id} rest.`
               : 'ok, still some words left.',
       ];
     }
     case 'konami':
       unlock('konami accepted. personality 100%. who let this happen?');
-      return ['up up down down left right left right b a', 'personality: 100%. scroll up and look at zune.sav'];
+      return ['up up down down left right left right b a', `personality: 100%. scroll up and look at ${id}.sav`];
     case 'clear':
       clear();
       return [];
@@ -210,7 +213,7 @@ export default function Terminal({ onNavigate }) {
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FF5F57' }} />
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FEBC2E' }} />
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#28C840' }} />
-        <span className="ml-2 font-mono text-xs text-dim">zune@hcmc: ~</span>
+        <span className="ml-2 font-mono text-xs text-dim">{id}@{site.host}: ~</span>
       </div>
       <div
         ref={bodyRef}

@@ -10,12 +10,13 @@
 // vì index.js dùng import.meta.glob của Vite mà Node không hiểu).
 //
 // Link trang chạy thật lấy từ trường `site` trong meta.js (tuỳ chọn); không có thì đoán
-// https://zune-lab.github.io/<tên-repo>/ (tên repo lấy từ href). Trang trả về
+// https://<githubUser>.github.io/<tên-repo>/ (tên repo lấy từ href, githubUser từ src/config/site.js). Trang trả về
 // lỗi (404...) thì BỎ QUA, không ghi ảnh rác.
 
 import { chromium } from 'playwright';
 import { mkdir, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { pagesOrigin } from '../../src/config/site.js';
 
 const PROJECTS_DIR = new URL('../../src/projects/', import.meta.url);
 
@@ -40,7 +41,7 @@ const VIEWPORT = { width: 1280, height: 720 }; // đúng khung "desktop ảo" c�
 const SETTLE_MS = 1500; // chờ animation vào trang chạy xong rồi mới chụp
 const filter = process.argv[2];
 
-const siteOf = (p) => p.site || `https://zune-lab.github.io/${p.href.split('/').filter(Boolean).pop()}/`;
+const siteOf = (p) => p.site || `${pagesOrigin}/${p.href.split('/').filter(Boolean).pop()}/`;
 const slugOf = (file) => file.replace(/\.[^.]+$/, '');
 
 await mkdir(fileURLToPath(OUT), { recursive: true });

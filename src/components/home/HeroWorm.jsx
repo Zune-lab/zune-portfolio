@@ -8,6 +8,7 @@ import { isNapping } from '../../lib/nap.js';
 import { cssVar, fitCanvas } from '../../lib/canvas.js';
 import { prefersReducedMotion } from '../../lib/env.js';
 import { TAU } from '../../lib/math.js';
+import { site } from '../../config/site.js';
 
 const NAP_SETTLE_MS = 2500; // thời gian sâu "đi ngủ" sau khi screensaver bật, trước khi dừng hẳn vòng vẽ
 
@@ -32,7 +33,7 @@ const NAP_SETTLE_MS = 2500; // thời gian sâu "đi ngủ" sau khi screensaver 
 // Theo dõi chuột: nghe ở cấp window và tự kiểm tra "chuột có đang nằm trong hero không" mỗi khung hình,
 // thay vì dựa vào pointermove/pointerleave của riêng hero. Cách cũ dễ hỏng khi kéo chuột (chọn chữ, kéo-thả
 // chữ đang tự gõ): trình duyệt bắn pointercancel / dragover thay cho pointermove nên sâu đứng khựng hoặc bỏ chạy.
-const WORD = 'zune.dev ';
+const WORD = `${site.handle} `;
 const START_N = 10; // 1 đầu + 9 chữ (có 1 khoảng trống ngay sau đầu)
 const MAX_N = 28;
 const GAP = 28;

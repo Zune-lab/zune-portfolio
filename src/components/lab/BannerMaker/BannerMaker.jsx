@@ -1,4 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { site } from '../../../config/site.js';
 import {
   DYES,
   PATTERNS,
@@ -391,7 +392,7 @@ export default function BannerMaker() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'zune-banner.png';
+      a.download = `${site.id}-banner.png`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000); // thu hồi ngay có thể làm một số trình duyệt huỷ lượt tải
     }, 'image/png');

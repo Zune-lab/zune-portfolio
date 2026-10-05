@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Pulse from './Pulse.jsx';
 import { setNapState } from '../../../lib/nap.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
+import { site } from '../../../config/site.js';
 import { pick, randInt, TAU } from '../../../lib/math.js';
 import './Alive.css';
 
@@ -15,7 +16,7 @@ import './Alive.css';
 // Tất cả tắt hoặc giảm khi người dùng bật "giảm chuyển động".
 
 const NAP_MS = 45000;
-const AWAY_TITLES = ['psst. still here.', 'come back :(', 'zune.dev misses you', 'did you leave?'];
+const AWAY_TITLES = ['psst. still here.', 'come back :(', `${site.handle} misses you`, 'did you leave?'];
 const POP_CHARS = ['{', '}', '</>', '0', '1', ';', '*', '()', '=>'];
 const POP_SKIP = 'a,button,input,textarea,select,label,canvas,summary,[role="button"],[contenteditable],.hero-full,.no-pop';
 
@@ -83,7 +84,7 @@ function Bouncer() {
   }, []);
   return (
     <div ref={el} className="bouncer" aria-hidden="true">
-      zune.dev<i />
+      {site.handle}<i />
       {msg && <span className="bouncer-msg">{msg}</span>}
     </div>
   );
@@ -247,7 +248,7 @@ export default function Alive() {
       {nap === 'nap' &&
         (prefersReducedMotion() ? (
           <div className="nap-bubble" role="status">
-            zune.dev is napping. wiggle the mouse.
+            {site.handle} is napping. wiggle the mouse.
           </div>
         ) : (
           <Bouncer />

@@ -1,27 +1,27 @@
 <!doctype html>
 <!--
-  zune-portfolio © 2026 Zune (https://github.com/Zune-lab)
+  {{repo}} © {{year}} {{name}} ({{githubUrl}})
   Code: MIT License, keep the copyright notice. Personal content: all rights reserved.
-  Original: https://github.com/Zune-lab/zune-portfolio
+  Original: {{repoUrl}}
 -->
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zune — Web Developer</title>
-    <meta name="author" content="Zune" />
-    <meta name="copyright" content="© 2026 Zune" />
-    <meta name="description" content="Zune's portfolio: a web developer building small, playful things with React." />
+    <title>{{title}}</title>
+    <meta name="author" content="{{name}}" />
+    <meta name="copyright" content="© {{year}} {{name}}" />
+    <meta name="description" content="{{description}}" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Zune — Web Developer" />
-    <meta property="og:description" content="Zune's portfolio: a web developer building small, playful things with React." />
-    <meta property="og:url" content="https://zune-lab.github.io/zune-portfolio/" />
-    <meta property="og:site_name" content="zune.dev" />
-    <meta property="og:image" content="https://zune-lab.github.io/zune-portfolio/og.png" />
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:url" content="{{siteUrl}}" />
+    <meta property="og:site_name" content="{{handle}}" />
+    <meta property="og:image" content="{{siteUrl}}og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://zune-lab.github.io/zune-portfolio/og.png" />
+    <meta name="twitter:image" content="{{siteUrl}}og.png" />
     <meta name="theme-color" content="#0a0c10" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,7 +44,7 @@
       (function () {
         var saved = null;
         try {
-          saved = localStorage.getItem('zune-theme');
+          saved = localStorage.getItem('{{themeKey}}');
         } catch (e) {} // storage bị chặn: dùng mặc định dark
         document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
       })();

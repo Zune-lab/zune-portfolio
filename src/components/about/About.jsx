@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
-import { aboutBlurb, gitLog, stack, role, location, startYear, mainStack, learning } from '../../data/profile.js';
+import { aboutBlurb, gitLog, stack, skillGroups, learningSkills, startYear, mainStack, learning } from '../../data/profile.js';
+import { site } from '../../config/site.js';
 import { useStatus } from '../../lib/status.js';
 import { useNap } from '../../lib/nap.js';
 import { has, prefersReducedMotion } from '../../lib/env.js';
@@ -9,15 +10,15 @@ import { useAsleep } from '../../lib/social.js';
 import './About.css';
 import { WRAP } from '../../config/ui.js';
 
-// các dòng trong object `zune` ở about.js (role / based_in lấy từ data/profile.js); dòng `status` bên dưới lấy trạng thái thật
+// các dòng trong object `<id>` ở about.js (lấy từ config/site.js và data/profile.js); dòng `status` bên dưới lấy trạng thái thật
 const FACTS = [
-  ['role', role],
-  ['based_in', `${location}, VN`],
+  ['role', site.role],
+  ['based_in', `${site.location}, ${site.country}`],
   ['started_coding', startYear],
   ['favorite_stack', mainStack],
   ['currently_learning', learning],
-  ['fun_fact', 'debugging CSS all night and never getting bored'],
-  ['coffee_or_tea', 'tea'],
+  ['fun_fact', site.content.funFact],
+  ['coffee_or_tea', site.content.drink],
 ];
 
 // màu theo loại commit trong log.sh (tiền tố "feat:", "fix:"... của msg)
@@ -30,17 +31,12 @@ const parseMsg = (msg) => {
   return has(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
 };
 
-// skills.js: nhóm lại từ danh sách `stack` trong profile.js; mục nào chưa xếp nhóm tự rơi vào "other"
-const GROUPS = [
-  ['languages', ['HTML', 'CSS', 'JavaScript', 'TypeScript']],
-  ['frameworks', ['React', 'Next.js', 'Tailwind CSS', 'Node.js']],
-  ['design', ['Figma']],
-];
+// skills.js: nhóm lại từ danh sách `stack` (nhóm và mục đang học khai báo ở data/profile.js); mục nào chưa xếp nhóm tự rơi vào "other"
+const LEARNING = new Set(learningSkills);
 const MIN_SLEEP_MS = 3000;
-const LEARNING = new Set(['TypeScript', 'Next.js']);
 const SKILLS = (() => {
-  const grouped = new Set(GROUPS.flatMap(([, items]) => items));
-  return [...GROUPS, ['other', stack.filter((s) => !grouped.has(s))]]
+  const grouped = new Set(skillGroups.flatMap(([, items]) => items));
+  return [...skillGroups, ['other', stack.filter((s) => !grouped.has(s))]]
     .map(([name, items]) => [name, items.filter((s) => stack.includes(s))])
     .filter(([, items]) => items.length);
 })();
@@ -88,7 +84,7 @@ function HelloLine({ sleeping, why }) {
   }, [sleeping, why]);
   return (
     <span className="ab-line">
-      zune.<span className="ab-fn">{word}</span>()
+      {site.id}.<span className="ab-fn">{word}</span>()
       {note && <span className="ab-cm">{note}</span>}
       <span className="ab-caret" aria-hidden="true" />
     </span>
@@ -131,7 +127,7 @@ function CodeWindow() {
       foot={<><span>Ln {FACTS.length + 5}, Col 1</span><span>UTF-8</span><span>Spaces: 2</span></>}
     >
       <pre className={`ab-code${sleeping ? ' is-asleep' : ''}`}>
-        <span className="ab-line"><b className="ab-kw">const</b> zune = {'{'}</span>
+        <span className="ab-line"><b className="ab-kw">const</b> {site.id} = {'{'}</span>
         {FACTS.map(([k, v]) => (
           <span key={k} className="ab-line ab-ind">
             {k}:{' '}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import useBest from '../../../lib/useBest.js';
+import { storageKey } from '../../../config/site.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { cssVar } from '../../../lib/canvas.js';
 import { getDpr } from '../../../lib/env.js';
@@ -9,7 +10,7 @@ import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 const N = 18; // lưới N x N
 const CELL = 20;
 const SIZE = N * CELL;
-const BEST_KEY = 'zune-snake-best';
+const BEST_KEY = storageKey('snake-best');
 const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
 
 const DIRS = {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './Signature.css';
-import { location } from '../../../data/profile.js';
+import { site } from '../../../config/site.js';
 import { observeOnce } from '../../../lib/observe.js';
 
 export function Signature() {
@@ -31,7 +31,7 @@ export function Signature() {
           role="button"
           tabIndex={0}
           aria-pressed={open}
-          aria-label="Vuong, zune.dev"
+          aria-label={`${site.realName}, ${site.handle}`}
           className={`sig-card relative w-[300px] h-[190px] bg-panel grid place-content-center rounded-[10px] overflow-hidden transition-all duration-500${open ? ' is-open' : ''}`}
           onPointerEnter={(e) => isMouse(e) && setOpen(true)}
           onPointerLeave={(e) => isMouse(e) && setOpen(false)}
@@ -48,11 +48,11 @@ export function Signature() {
                 <path className="sig-v" d="M8 16 L26 58 L44 16" pathLength="100" />
                 <path className="sig-bar" d="M44 16 H194" pathLength="100" />
                 <text className="sig-rest" x="56" y="58" textLength="130" lengthAdjust="spacing">
-                  uong
+                  {site.realName.slice(1)}
                 </text>
               </svg>
             </div>
-            <span className="font-mono text-[13px] text-dim tracking-[0.14em]">zune.dev</span>
+            <span className="font-mono text-[13px] text-dim tracking-[0.14em]">{site.handle}</span>
           </div>
           <span
             className="sig-bottom absolute left-1/2 -translate-x-1/2 bottom-3.5 font-mono text-[9px] uppercase bg-panel px-1.5 whitespace-nowrap"
@@ -69,7 +69,7 @@ export function Signature() {
 export function Footer() {
   return (
     <footer className="py-9 text-center font-mono text-[12.5px] text-dim border-t border-line">
-      // built solo in {location} · © 2026 zune
+      // built solo in {site.location} · © {site.year} {site.id}
     </footer>
   );
 }

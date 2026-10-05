@@ -1,7 +1,6 @@
-export const role = 'Web Developer';
-export const location = 'Ho Chi Minh City';
-export const email = 'nguyenhaivuong06@gmail.com';
+import { site } from '../config/site.js';
 
+// Hồ sơ dạng danh sách. Danh tính, nơi ở, email, giờ giấc nằm ở src/config/site.js.
 export const startYear = 2022;
 export const mainStack = 'React + Tailwind';
 export const learning = 'Next.js App Router';
@@ -11,6 +10,15 @@ export const aboutBlurb = `coding since ${startYear}. Favorite stack is ${mainSt
 export const stack = [
   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
 ];
+
+// skills.js ở trang About: nhóm lại từ `stack`; mục nào chưa xếp nhóm tự rơi vào "other"
+export const skillGroups = [
+  ['languages', ['HTML', 'CSS', 'JavaScript', 'TypeScript']],
+  ['frameworks', ['React', 'Next.js', 'Tailwind CSS', 'Node.js']],
+  ['design', ['Figma']],
+];
+// các kỹ năng đang học (hiện nhãn "learning" cạnh tên)
+export const learningSkills = ['TypeScript', 'Next.js'];
 
 // Nhật ký cuộc đời, từ lúc sinh ra tới giờ (cũ -> mới). Hiện ở About > log.sh.
 // Mỗi mục: hash (chuỗi hex 7 ký tự, tự đặt cho vui), date ('YYYY' | 'YYYY-MM' | 'now'),
@@ -27,5 +35,5 @@ export const gitLog = [
   { hash: '4e7b0c2', date: '2024-08', msg: 'fix: 3am CSS bug. it was a missing semicolon' },
   { hash: 'f6a7b8c', date: '2025-01', msg: 'refactor: learning TypeScript' },
   { hash: '8a2d5e7', date: '2025-09', msg: 'wip: unlock full personality (requires 6+ months of friendship)' },
-  { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
+  { hash: 'a9b0c1d', date: 'now', msg: `feat: building ${site.handle}` },
 ];

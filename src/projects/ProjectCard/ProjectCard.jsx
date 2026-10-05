@@ -30,7 +30,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
         </div>
       )}
 
-      {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /zune-portfolio/ */}
+      {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /<repo>/ */}
       {shotOk && (
         <img
           src={`${BASE}previews/${slug}.png`}

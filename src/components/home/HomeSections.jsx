@@ -4,7 +4,8 @@ import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { projects, arts } from '../../projects/index.js';
 import { LAB_ITEMS } from '../../config/lab-items.js';
-import { gitLog, stack, role, location, aboutBlurb } from '../../data/profile.js';
+import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
+import { site } from '../../config/site.js';
 import PageLink from '../ui/PageLink.jsx';
 import { spotMove } from '../../lib/dom.js';
 import { canHover } from '../../lib/env.js';
@@ -122,7 +123,7 @@ export function AboutTeaser({ onNavigate }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <p className="text-ink text-lg leading-relaxed max-w-[460px]">
-              {role} in {location}, {aboutBlurb}
+              {site.role} in {site.location}, {aboutBlurb}
             </p>
             <ul className="flex flex-wrap gap-2 mt-6 p-0 list-none">
               {stack.map((s) => (

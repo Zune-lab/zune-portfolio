@@ -13,8 +13,9 @@ import Alive from './components/layout/Alive/Alive.jsx';
 import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
 import { pathOf } from './lib/paths.js';
 import { storageSet } from './lib/storage.js';
+import { storageKey } from './config/site.js';
 import { canHover, prefersReducedMotion } from './lib/env.js';
-import { timeOfDay } from './lib/vnTime.js';
+import { timeOfDay } from './lib/siteTime.js';
 import { pausableInterval } from './lib/timers.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
@@ -40,7 +41,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f3ec' : '#0a0c10');
-    storageSet('zune-theme', theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
+    storageSet(storageKey('theme'), theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
   }, [theme]);
 
   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể

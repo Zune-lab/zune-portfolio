@@ -321,7 +321,7 @@
   }
 }
 
-/* logo zune.dev (về home): chấm → "{", chữ lăn "zune.dev" → "cd ~/", "}" trượt vào hai bên */
+/* logo (về home): chấm → "{", chữ handle lăn → "cd ~/", "}" trượt vào hai bên */
 .brand-mark {
   display: grid;
   place-items: center;
@@ -368,7 +368,7 @@
 .brand-roll > span + span {
   color: var(--amber);
 }
-/* "}" bám theo đuôi "cd ~/" (ngắn hơn "zune.dev" 3 ký tự), không chiếm chỗ trong layout */
+/* "}" bám theo đuôi "cd ~/" (ngắn hơn handle `--brand-shrink` ký tự, Navbar.jsx đặt biến này), không chiếm chỗ trong layout */
 .brand-close {
   position: absolute;
   top: 0;
@@ -376,13 +376,13 @@
   margin-left: 6.5px;
   line-height: 1.4em;
   opacity: 0;
-  transform: translateX(calc(-3ch + 8px));
+  transform: translateX(calc(var(--brand-shrink, 3) * -1ch + 8px));
   transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
 }
 .brand:is(:hover, :focus-visible) .brand-roll > span { transform: translateY(-100%); }
 .brand:is(:hover, :focus-visible) .brand-dot { opacity: 0; transform: scale(0); }
 .brand:is(:hover, :focus-visible) .brand-mark b { opacity: 1; transform: translateX(2.5px); }
-.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(-3ch); }
+.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(calc(var(--brand-shrink, 3) * -1ch)); }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark > *, .brand-roll > span, .brand-close { transition: none; }

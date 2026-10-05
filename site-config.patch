@@ -1,0 +1,1288 @@
+diff --git a/index.html b/index.html
+index cdf3ab0..79eac3d 100644
+--- a/index.html
++++ b/index.html
+@@ -1,27 +1,27 @@
+ <!doctype html>
+ <!--
+-  zune-portfolio © 2026 Zune (https://github.com/Zune-lab)
++  {{repo}} © {{year}} {{name}} ({{githubUrl}})
+   Code: MIT License, keep the copyright notice. Personal content: all rights reserved.
+-  Original: https://github.com/Zune-lab/zune-portfolio
++  Original: {{repoUrl}}
+ -->
+ <html lang="en" data-theme="dark">
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <title>Zune — Web Developer</title>
+-    <meta name="author" content="Zune" />
+-    <meta name="copyright" content="© 2026 Zune" />
+-    <meta name="description" content="Zune's portfolio: a web developer building small, playful things with React." />
++    <title>{{title}}</title>
++    <meta name="author" content="{{name}}" />
++    <meta name="copyright" content="© {{year}} {{name}}" />
++    <meta name="description" content="{{description}}" />
+     <meta property="og:type" content="website" />
+-    <meta property="og:title" content="Zune — Web Developer" />
+-    <meta property="og:description" content="Zune's portfolio: a web developer building small, playful things with React." />
+-    <meta property="og:url" content="https://zune-lab.github.io/zune-portfolio/" />
+-    <meta property="og:site_name" content="zune.dev" />
+-    <meta property="og:image" content="https://zune-lab.github.io/zune-portfolio/og.png" />
++    <meta property="og:title" content="{{title}}" />
++    <meta property="og:description" content="{{description}}" />
++    <meta property="og:url" content="{{siteUrl}}" />
++    <meta property="og:site_name" content="{{handle}}" />
++    <meta property="og:image" content="{{siteUrl}}og.png" />
+     <meta property="og:image:width" content="1200" />
+     <meta property="og:image:height" content="630" />
+     <meta name="twitter:card" content="summary_large_image" />
+-    <meta name="twitter:image" content="https://zune-lab.github.io/zune-portfolio/og.png" />
++    <meta name="twitter:image" content="{{siteUrl}}og.png" />
+     <meta name="theme-color" content="#0a0c10" />
+     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+     <link rel="preconnect" href="https://fonts.googleapis.com" />
+@@ -44,7 +44,7 @@
+       (function () {
+         var saved = null;
+         try {
+-          saved = localStorage.getItem('zune-theme');
++          saved = localStorage.getItem('{{themeKey}}');
+         } catch (e) {} // storage bị chặn: dùng mặc định dark
+         document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+       })();
+diff --git a/src/App.jsx b/src/App.jsx
+index 90ac436..acef5e2 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -13,8 +13,9 @@ import Alive from './components/layout/Alive/Alive.jsx';
+ import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
+ import { pathOf } from './lib/paths.js';
+ import { storageSet } from './lib/storage.js';
++import { storageKey } from './config/site.js';
+ import { canHover, prefersReducedMotion } from './lib/env.js';
+-import { timeOfDay } from './lib/vnTime.js';
++import { timeOfDay } from './lib/siteTime.js';
+ import { pausableInterval } from './lib/timers.js';
+ 
+ // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
+@@ -40,7 +41,7 @@ export default function App() {
+   useEffect(() => {
+     document.documentElement.dataset.theme = theme;
+     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f3ec' : '#0a0c10');
+-    storageSet('zune-theme', theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
++    storageSet(storageKey('theme'), theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
+   }, [theme]);
+ 
+   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể
+diff --git a/src/components/about/About.jsx b/src/components/about/About.jsx
+index 26434b8..5530c96 100644
+--- a/src/components/about/About.jsx
++++ b/src/components/about/About.jsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useRef, useState } from 'react';
+ import SectionHead from '../ui/SectionHead.jsx';
+-import { aboutBlurb, gitLog, stack, role, location, startYear, mainStack, learning } from '../../data/profile.js';
++import { aboutBlurb, gitLog, stack, skillGroups, learningSkills, startYear, mainStack, learning } from '../../data/profile.js';
++import { site } from '../../config/site.js';
+ import { useStatus } from '../../lib/status.js';
+ import { useNap } from '../../lib/nap.js';
+ import { has, prefersReducedMotion } from '../../lib/env.js';
+@@ -9,15 +10,15 @@ import { useAsleep } from '../../lib/social.js';
+ import './About.css';
+ import { WRAP } from '../../config/ui.js';
+ 
+-// các dòng trong object `zune` ở about.js (role / based_in lấy từ data/profile.js); dòng `status` bên dưới lấy trạng thái thật
++// các dòng trong object `<id>` ở about.js (lấy từ config/site.js và data/profile.js); dòng `status` bên dưới lấy trạng thái thật
+ const FACTS = [
+-  ['role', role],
+-  ['based_in', `${location}, VN`],
++  ['role', site.role],
++  ['based_in', `${site.location}, ${site.country}`],
+   ['started_coding', startYear],
+   ['favorite_stack', mainStack],
+   ['currently_learning', learning],
+-  ['fun_fact', 'debugging CSS all night and never getting bored'],
+-  ['coffee_or_tea', 'tea'],
++  ['fun_fact', site.content.funFact],
++  ['coffee_or_tea', site.content.drink],
+ ];
+ 
+ // màu theo loại commit trong log.sh (tiền tố "feat:", "fix:"... của msg)
+@@ -30,17 +31,12 @@ const parseMsg = (msg) => {
+   return has(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
+ };
+ 
+-// skills.js: nhóm lại từ danh sách `stack` trong profile.js; mục nào chưa xếp nhóm tự rơi vào "other"
+-const GROUPS = [
+-  ['languages', ['HTML', 'CSS', 'JavaScript', 'TypeScript']],
+-  ['frameworks', ['React', 'Next.js', 'Tailwind CSS', 'Node.js']],
+-  ['design', ['Figma']],
+-];
++// skills.js: nhóm lại từ danh sách `stack` (nhóm và mục đang học khai báo ở data/profile.js); mục nào chưa xếp nhóm tự rơi vào "other"
++const LEARNING = new Set(learningSkills);
+ const MIN_SLEEP_MS = 3000;
+-const LEARNING = new Set(['TypeScript', 'Next.js']);
+ const SKILLS = (() => {
+-  const grouped = new Set(GROUPS.flatMap(([, items]) => items));
+-  return [...GROUPS, ['other', stack.filter((s) => !grouped.has(s))]]
++  const grouped = new Set(skillGroups.flatMap(([, items]) => items));
++  return [...skillGroups, ['other', stack.filter((s) => !grouped.has(s))]]
+     .map(([name, items]) => [name, items.filter((s) => stack.includes(s))])
+     .filter(([, items]) => items.length);
+ })();
+@@ -88,7 +84,7 @@ function HelloLine({ sleeping, why }) {
+   }, [sleeping, why]);
+   return (
+     <span className="ab-line">
+-      zune.<span className="ab-fn">{word}</span>()
++      {site.id}.<span className="ab-fn">{word}</span>()
+       {note && <span className="ab-cm">{note}</span>}
+       <span className="ab-caret" aria-hidden="true" />
+     </span>
+@@ -131,7 +127,7 @@ function CodeWindow() {
+       foot={<><span>Ln {FACTS.length + 5}, Col 1</span><span>UTF-8</span><span>Spaces: 2</span></>}
+     >
+       <pre className={`ab-code${sleeping ? ' is-asleep' : ''}`}>
+-        <span className="ab-line"><b className="ab-kw">const</b> zune = {'{'}</span>
++        <span className="ab-line"><b className="ab-kw">const</b> {site.id} = {'{'}</span>
+         {FACTS.map(([k, v]) => (
+           <span key={k} className="ab-line ab-ind">
+             {k}:{' '}
+diff --git a/src/components/home/Feedback.jsx b/src/components/home/Feedback.jsx
+index efeb3c8..7c1b1e2 100644
+--- a/src/components/home/Feedback.jsx
++++ b/src/components/home/Feedback.jsx
+@@ -2,7 +2,7 @@ import { useState } from 'react';
+ import SectionHead from '../ui/SectionHead.jsx';
+ import Btn31 from '../ui/Btn31/Btn31.jsx';
+ import CopyEmail from './CopyEmail/CopyEmail.jsx';
+-import { email as TO_EMAIL } from '../../data/profile.js';
++import { site } from '../../config/site.js';
+ import useTimer from '../../lib/useTimer.js';
+ import { WRAP } from '../../config/ui.js';
+ 
+@@ -44,11 +44,11 @@ export default function Feedback() {
+   // máy không có app mail thì mailto: không làm gì cả -> cho copy địa chỉ để gửi bằng cách khác
+   const copyEmail = async () => {
+     try {
+-      await navigator.clipboard.writeText(TO_EMAIL);
++      await navigator.clipboard.writeText(site.email);
+       setCopied(true);
+       copiedT.set(() => setCopied(false), 2000);
+     } catch {
+-      setNote(`Couldn't copy automatically, my email is ${TO_EMAIL}`);
++      setNote(`Couldn't copy automatically, my email is ${site.email}`);
+     }
+   };
+ 
+@@ -58,8 +58,8 @@ export default function Feedback() {
+     if (!message) return;
+ 
+     const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
+-    const subject = encodeURIComponent('Feedback from zune.dev' + moodTag);
+-    const head = `mailto:${TO_EMAIL}?subject=${subject}&body=`;
++    const subject = encodeURIComponent(`Feedback from ${site.handle}` + moodTag);
++    const head = `mailto:${site.email}?subject=${subject}&body=`;
+     // link mailto: dài quá ~2000 ký tự sẽ bị một số client cắt im lặng -> cắt trước và báo cho người dùng
+     let body = encodeURIComponent(message);
+     let cut = false;
+@@ -76,8 +76,8 @@ export default function Feedback() {
+     // giữ nguyên nội dung: nếu máy không có ứng dụng mail thì người dùng không mất những gì đã viết
+     setNote(
+       cut
+-        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${TO_EMAIL} directly.`
+-        : `Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`
++        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${site.email} directly.`
++        : `Mail app should open. If nothing happens, email ${site.email} directly - thanks!`
+     );
+   };
+ 
+@@ -126,7 +126,7 @@ export default function Feedback() {
+         </form>
+         <div className="mt-6 max-w-[520px]">
+           <p className="font-mono text-[12.5px] text-dim mb-3">// no mail app? copy my email and write from anywhere</p>
+-          <CopyEmail email={TO_EMAIL} copied={copied} onCopy={copyEmail} />
++          <CopyEmail email={site.email} copied={copied} onCopy={copyEmail} />
+         </div>
+       </div>
+     </section>
+diff --git a/src/components/home/Hero.jsx b/src/components/home/Hero.jsx
+index 83ee265..6bdc8ab 100644
+--- a/src/components/home/Hero.jsx
++++ b/src/components/home/Hero.jsx
+@@ -7,10 +7,11 @@ import HeroWorm from './HeroWorm.jsx';
+ import { isPaused, onPauseChange } from '../../lib/nap.js';
+ import { prefersReducedMotion, sleep } from '../../lib/env.js';
+ import { observeVisible } from '../../lib/observe.js';
++import { site } from '../../config/site.js';
+ 
+ // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
+ // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
+-const PHRASES = ['I code for fun.', 'I fix 3am bugs.', 'I play with CSS.', 'I make tiny pages.'];
++const PHRASES = site.content.phrases; // khai báo ở config/site.js
+ 
+ function Typewriter() {
+   const [text, setText] = useState(PHRASES[0]);
+@@ -71,11 +72,11 @@ export default function Hero({ onNavigate }) {
+     <header className="hero-full">
+       <HeroWorm />
+       <div className="wrap relative z-[1] max-w-[1040px] w-full mx-auto px-8 pt-10 pb-24">
+-        <h1 className="hero-title" aria-label="Hi, I'm Zune. I code for fun.">
++        <h1 className="hero-title" aria-label={`Hi, I'm ${site.name}. ${PHRASES[0]}`}>
+           <span aria-hidden="true">
+             Hi, I'm{' '}
+             <span className="text-amber zune-glow">
+-              {[...'Zune'].map((ch, n) => (
++              {[...site.name].map((ch, n) => (
+                 <span key={n} className="zune-letter">
+                   {ch}
+                 </span>
+@@ -89,9 +90,9 @@ export default function Hero({ onNavigate }) {
+         <div className="grid grid-cols-1 md:grid-cols-[1fr_1.05fr] gap-10 md:gap-14 mt-9 items-start">
+           <div>
+             <p className="text-ink text-lg leading-relaxed max-w-[440px]">
+-              I love messing around with CSS and building tiny pages just to see if they work.
++              {site.content.heroIntro}
+             </p>
+-            <p className="font-mono text-[13px] text-dim mt-4">// introvert by default. say hi anyway →</p>
++            <p className="font-mono text-[13px] text-dim mt-4">{site.content.heroNote}</p>
+             <div className="flex gap-3.5 mt-8 flex-wrap items-center">
+               <Btn31 onClick={() => scrollToAnchor('#featured')}>view projects</Btn31>
+               <ContactButton href="#socials" />
+diff --git a/src/components/home/HeroWorm.jsx b/src/components/home/HeroWorm.jsx
+index 988ab25..325ec52 100644
+--- a/src/components/home/HeroWorm.jsx
++++ b/src/components/home/HeroWorm.jsx
+@@ -8,6 +8,7 @@ import { isNapping } from '../../lib/nap.js';
+ import { cssVar, fitCanvas } from '../../lib/canvas.js';
+ import { prefersReducedMotion } from '../../lib/env.js';
+ import { TAU } from '../../lib/math.js';
++import { site } from '../../config/site.js';
+ 
+ const NAP_SETTLE_MS = 2500; // thời gian sâu "đi ngủ" sau khi screensaver bật, trước khi dừng hẳn vòng vẽ
+ 
+@@ -32,7 +33,7 @@ const NAP_SETTLE_MS = 2500; // thời gian sâu "đi ngủ" sau khi screensaver
+ // Theo dõi chuột: nghe ở cấp window và tự kiểm tra "chuột có đang nằm trong hero không" mỗi khung hình,
+ // thay vì dựa vào pointermove/pointerleave của riêng hero. Cách cũ dễ hỏng khi kéo chuột (chọn chữ, kéo-thả
+ // chữ đang tự gõ): trình duyệt bắn pointercancel / dragover thay cho pointermove nên sâu đứng khựng hoặc bỏ chạy.
+-const WORD = 'zune.dev ';
++const WORD = `${site.handle} `;
+ const START_N = 10; // 1 đầu + 9 chữ (có 1 khoảng trống ngay sau đầu)
+ const MAX_N = 28;
+ const GAP = 28;
+diff --git a/src/components/home/HomeSections.jsx b/src/components/home/HomeSections.jsx
+index f33d8bf..555d6d6 100644
+--- a/src/components/home/HomeSections.jsx
++++ b/src/components/home/HomeSections.jsx
+@@ -4,7 +4,8 @@ import SectionHead from '../ui/SectionHead.jsx';
+ import Terminal from './Terminal/Terminal.jsx';
+ import { projects, arts } from '../../projects/index.js';
+ import { LAB_ITEMS } from '../../config/lab-items.js';
+-import { gitLog, stack, role, location, aboutBlurb } from '../../data/profile.js';
++import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
++import { site } from '../../config/site.js';
+ import PageLink from '../ui/PageLink.jsx';
+ import { spotMove } from '../../lib/dom.js';
+ import { canHover } from '../../lib/env.js';
+@@ -122,7 +123,7 @@ export function AboutTeaser({ onNavigate }) {
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+           <div>
+             <p className="text-ink text-lg leading-relaxed max-w-[460px]">
+-              {role} in {location}, {aboutBlurb}
++              {site.role} in {site.location}, {aboutBlurb}
+             </p>
+             <ul className="flex flex-wrap gap-2 mt-6 p-0 list-none">
+               {stack.map((s) => (
+diff --git a/src/components/home/SheetCard.jsx b/src/components/home/SheetCard.jsx
+index 2ff0e86..9ee70f9 100644
+--- a/src/components/home/SheetCard.jsx
++++ b/src/components/home/SheetCard.jsx
+@@ -1,7 +1,8 @@
+ import { useEffect, useState } from 'react';
+-import { role, location, mainStack, learning } from '../../data/profile.js';
++import { mainStack, learning } from '../../data/profile.js';
++import { site } from '../../config/site.js';
+ import { spotMove } from '../../lib/dom.js';
+-import { vnClock } from '../../lib/vnTime.js';
++import { gmtLabel, siteClock } from '../../lib/siteTime.js';
+ import { cycleStatus, useStatus } from '../../lib/status.js';
+ import { useKonami } from '../../lib/konami.js';
+ import { pausableInterval } from '../../lib/timers.js';
+@@ -9,7 +10,7 @@ import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../l
+ 
+ // Pin nhỏ nhưng đúng chất Zune: hướng nội, pin xã hội tụt khi bị "say hi", tự sạc lại theo thời gian.
+ // Trạng thái pin nằm ở lib/social.js (dùng chung với sâu chữ ở hero và lệnh `battery` trong terminal).
+-const CLASSES = [null, 'Bug Summoner', 'CSS Wizard', 'Tea Enjoyer', 'Introvert (lvl 99)']; // null = role thật
++const CLASSES = [null, ...site.content.classes]; // null = role thật
+ const CELLS = 10;
+ 
+ function Meter({ value, color, rainbow }) {
+@@ -34,11 +35,11 @@ const Row = ({ k, children }) => (
+ export default function SheetCard() {
+   const status = useStatus();
+   const { drain, months, maxed, reply } = useSocial();
+-  const [time, setTime] = useState(vnClock);
++  const [time, setTime] = useState(siteClock);
+   const [cls, setCls] = useState(0);
+ 
+   // đồng hồ 1 giây/lần: screensaver bật hoặc tab ẩn thì dừng hẳn (không render lại thẻ vô ích), dậy thì cập nhật ngay rồi chạy tiếp
+-  useEffect(() => pausableInterval(() => setTime(vnClock()), 1000), []);
++  useEffect(() => pausableInterval(() => setTime(siteClock()), 1000), []);
+ 
+   // easter egg: Konami code -> 100% personality (cũng mở được bằng 6 lần bấm thanh personality hoặc lệnh `konami`)
+   useKonami(() => unlock('konami accepted. personality 100%. who let this happen?'));
+@@ -53,7 +54,7 @@ export default function SheetCard() {
+         maxed ? 'border-amber shadow-[0_0_44px_-8px_var(--amber)]' : 'border-line shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]'
+       }`}>
+       <div className="bg-panel px-4 py-2.5 border-b border-line flex items-center justify-between">
+-        <span className="text-dim">{maxed ? 'zune.sav [MAX]' : 'zune.sav'}</span>
++        <span className="text-dim">{maxed ? `${site.id}.sav [MAX]` : `${site.id}.sav`}</span>
+         <button type="button" onClick={cycleStatus} className="font-pixel text-[10px] flex items-center gap-2 cursor-pointer"
+           style={{ color: status.color }} title="Click to change status (auto → busy → focus → offline). Saved on this device only.">
+           <span className="inline-block h-2 w-2 rounded-full" style={{ background: status.color }} />
+@@ -65,10 +66,10 @@ export default function SheetCard() {
+         <Row k="class">
+           <button type="button" onClick={() => setCls((c) => (c + 1) % CLASSES.length)} title="click to change class"
+             className="text-left cursor-pointer hover:text-amber transition-colors">
+-            {CLASSES[cls] ?? role} <span className="text-dim">↻</span>
++            {CLASSES[cls] ?? site.role} <span className="text-dim">↻</span>
+           </button>
+         </Row>
+-        <Row k="location">{location} <span className="text-dim">· {time} GMT+7</span></Row>
++        <Row k="location">{site.location} <span className="text-dim">· {time} {gmtLabel()}</span></Row>
+         <Row k="main quest">{mainStack}</Row>
+         <Row k="side quest">{learning}</Row>
+ 
+diff --git a/src/components/home/Terminal/Terminal.jsx b/src/components/home/Terminal/Terminal.jsx
+index 2cbfb8d..25756be 100644
+--- a/src/components/home/Terminal/Terminal.jsx
++++ b/src/components/home/Terminal/Terminal.jsx
+@@ -1,17 +1,20 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { PAGES } from '../../../config/pages.js';
+-import { stack, role, location } from '../../../data/profile.js';
++import { stack } from '../../../data/profile.js';
++import { site } from '../../../config/site.js';
+ import { spotMove } from '../../../lib/dom.js';
+ import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/env.js';
+ import { observeOnce } from '../../../lib/observe.js';
+ import { useStatus } from '../../../lib/status.js';
+-import { vnDateTime } from '../../../lib/vnTime.js';
++import { siteDateTime } from '../../../lib/siteTime.js';
+ import { getSocial, levelOf, unlock } from '../../../lib/social.js';
+ import './Terminal.css';
+ 
+ // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
+-const WHOAMI = `zune - ${role.toLowerCase()}, ${location}`;
+-const MOOD = 'chillax guys. code for fun, ship small weird things.';
++const { id, role, location, content } = site;
++const WHOAMI = `${id} - ${role.toLowerCase()}, ${location}`;
++const MOOD = content.mood;
++const HIRE = `hire ${id}`; // `sudo hire <id>`
+ 
+ // the status line follows the badge in the Hero (same shared store), so the two never contradict each other
+ const introLines = (statusBlurb) => [
+@@ -22,7 +25,7 @@ const introLines = (statusBlurb) => [
+ 
+ const FILES = {
+   'mood.txt': MOOD,
+-  'tea.txt': 'tea > coffee. always.',
++  'tea.txt': content.teaLine,
+   'stack.txt': stack.join('  '), // lấy từ data/profile.js, không giữ bản thứ hai
+ };
+ const QUICK = [
+@@ -30,7 +33,7 @@ const QUICK = [
+   ['your mood?', 'cat mood.txt'],
+   ['what do you use?', 'cat stack.txt'],
+   ['show projects', 'cd projects'],
+-  ['can I hire you?', 'sudo hire zune'],
++  ['can I hire you?', `sudo ${HIRE}`],
+ ];
+ const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
+ 
+@@ -42,7 +45,7 @@ function exec(raw, { onNavigate, clear }) {
+     case '':
+       return [];
+     case 'help':
+-      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, 'try: sudo hire zune'];
++      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, `try: sudo ${HIRE}`];
+     case 'whoami':
+       return [WHOAMI];
+     case 'ls':
+@@ -56,13 +59,13 @@ function exec(raw, { onNavigate, clear }) {
+       }
+       return [`cd: ${arg || '?'}: No such file or directory`];
+     case 'date':
+-      return [vnDateTime()];
++      return [siteDateTime()];
+     case 'sudo':
+-      return /^hire\s+zune$/.test(arg)
++      return arg === HIRE
+         ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
+         : ['sudo: you are not in the sudoers file. this incident will be reported.'];
+     case 'battery': {
+-      // cùng một pin với thẻ zune.sav và con sâu ở hero
++      // cùng một pin với thẻ sav và con sâu ở hero
+       const s = getSocial();
+       const lv = levelOf(s);
+       const on = Math.round(lv / 10);
+@@ -71,15 +74,15 @@ function exec(raw, { onNavigate, clear }) {
+         s.maxed
+           ? 'personality overflow. please stand back.'
+           : lv <= 0
+-            ? 'zune is asleep. zzz'
++            ? `${id} is asleep. zzz`
+             : lv <= 20
+-              ? 'running on fumes. maybe let zune rest.'
++              ? `running on fumes. maybe let ${id} rest.`
+               : 'ok, still some words left.',
+       ];
+     }
+     case 'konami':
+       unlock('konami accepted. personality 100%. who let this happen?');
+-      return ['up up down down left right left right b a', 'personality: 100%. scroll up and look at zune.sav'];
++      return ['up up down down left right left right b a', `personality: 100%. scroll up and look at ${id}.sav`];
+     case 'clear':
+       clear();
+       return [];
+@@ -210,7 +213,7 @@ export default function Terminal({ onNavigate }) {
+         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FF5F57' }} />
+         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FEBC2E' }} />
+         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#28C840' }} />
+-        <span className="ml-2 font-mono text-xs text-dim">zune@hcmc: ~</span>
++        <span className="ml-2 font-mono text-xs text-dim">{id}@{site.host}: ~</span>
+       </div>
+       <div
+         ref={bodyRef}
+diff --git a/src/components/lab/BannerMaker/BannerMaker.jsx b/src/components/lab/BannerMaker/BannerMaker.jsx
+index 3532fd4..fc701fe 100644
+--- a/src/components/lab/BannerMaker/BannerMaker.jsx
++++ b/src/components/lab/BannerMaker/BannerMaker.jsx
+@@ -1,4 +1,5 @@
+ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
++import { site } from '../../../config/site.js';
+ import {
+   DYES,
+   PATTERNS,
+@@ -391,7 +392,7 @@ export default function BannerMaker() {
+       const url = URL.createObjectURL(blob);
+       const a = document.createElement('a');
+       a.href = url;
+-      a.download = 'zune-banner.png';
++      a.download = `${site.id}-banner.png`;
+       a.click();
+       setTimeout(() => URL.revokeObjectURL(url), 1000); // thu hồi ngay có thể làm một số trình duyệt huỷ lượt tải
+     }, 'image/png');
+diff --git a/src/components/lab/games/BugSquash.jsx b/src/components/lab/games/BugSquash.jsx
+index 31f0518..09b2470 100644
+--- a/src/components/lab/games/BugSquash.jsx
++++ b/src/components/lab/games/BugSquash.jsx
+@@ -1,11 +1,12 @@
+ import { useCallback, useEffect, useRef, useState } from 'react';
+ import useBest from '../../../lib/useBest.js';
++import { storageKey } from '../../../config/site.js';
+ import { randInt } from '../../../lib/math.js';
+ import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
+ 
+ const CELLS = 9;
+ const DURATION = 30; // giây
+-const BEST_KEY = 'zune-bugsquash-best';
++const BEST_KEY = storageKey('bugsquash-best');
+ 
+ // mini game: bug nhô lên ở ô ngẫu nhiên, bấm trúng để diệt, càng về sau càng nhanh
+ export default function BugSquash() {
+diff --git a/src/components/lab/games/MemoryMatch.jsx b/src/components/lab/games/MemoryMatch.jsx
+index 90df9d3..7da34f6 100644
+--- a/src/components/lab/games/MemoryMatch.jsx
++++ b/src/components/lab/games/MemoryMatch.jsx
+@@ -1,10 +1,11 @@
+ import { useEffect, useRef, useState } from 'react';
+ import useBest from '../../../lib/useBest.js';
++import { storageKey } from '../../../config/site.js';
+ import { shuffled } from '../../../lib/math.js';
+ import { GameFrame, GameOverlay } from './GameShell.jsx';
+ 
+ const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
+-const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
++const BEST_KEY = storageKey('memory-best'); // kỷ lục = số lượt ít nhất
+ 
+ const shuffle = () => shuffled([...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym })));
+ 
+diff --git a/src/components/lab/games/Snake.jsx b/src/components/lab/games/Snake.jsx
+index 244fdb1..8516661 100644
+--- a/src/components/lab/games/Snake.jsx
++++ b/src/components/lab/games/Snake.jsx
+@@ -1,5 +1,6 @@
+ import { useEffect, useRef, useState } from 'react';
+ import useBest from '../../../lib/useBest.js';
++import { storageKey } from '../../../config/site.js';
+ import { onThemeChange } from '../../../lib/themeSync.js';
+ import { cssVar } from '../../../lib/canvas.js';
+ import { getDpr } from '../../../lib/env.js';
+@@ -9,7 +10,7 @@ import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
+ const N = 18; // lưới N x N
+ const CELL = 20;
+ const SIZE = N * CELL;
+-const BEST_KEY = 'zune-snake-best';
++const BEST_KEY = storageKey('snake-best');
+ const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
+ 
+ const DIRS = {
+diff --git a/src/components/layout/Alive/Alive.jsx b/src/components/layout/Alive/Alive.jsx
+index d43ac81..b09e8ee 100644
+--- a/src/components/layout/Alive/Alive.jsx
++++ b/src/components/layout/Alive/Alive.jsx
+@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
+ import Pulse from './Pulse.jsx';
+ import { setNapState } from '../../../lib/nap.js';
+ import { prefersReducedMotion } from '../../../lib/env.js';
++import { site } from '../../../config/site.js';
+ import { pick, randInt, TAU } from '../../../lib/math.js';
+ import './Alive.css';
+ 
+@@ -15,7 +16,7 @@ import './Alive.css';
+ // Tất cả tắt hoặc giảm khi người dùng bật "giảm chuyển động".
+ 
+ const NAP_MS = 45000;
+-const AWAY_TITLES = ['psst. still here.', 'come back :(', 'zune.dev misses you', 'did you leave?'];
++const AWAY_TITLES = ['psst. still here.', 'come back :(', `${site.handle} misses you`, 'did you leave?'];
+ const POP_CHARS = ['{', '}', '</>', '0', '1', ';', '*', '()', '=>'];
+ const POP_SKIP = 'a,button,input,textarea,select,label,canvas,summary,[role="button"],[contenteditable],.hero-full,.no-pop';
+ 
+@@ -83,7 +84,7 @@ function Bouncer() {
+   }, []);
+   return (
+     <div ref={el} className="bouncer" aria-hidden="true">
+-      zune.dev<i />
++      {site.handle}<i />
+       {msg && <span className="bouncer-msg">{msg}</span>}
+     </div>
+   );
+@@ -247,7 +248,7 @@ export default function Alive() {
+       {nap === 'nap' &&
+         (prefersReducedMotion() ? (
+           <div className="nap-bubble" role="status">
+-            zune.dev is napping. wiggle the mouse.
++            {site.handle} is napping. wiggle the mouse.
+           </div>
+         ) : (
+           <Bouncer />
+diff --git a/src/components/layout/ErrorBoundary.jsx b/src/components/layout/ErrorBoundary.jsx
+index 2ab831f..8b686e5 100644
+--- a/src/components/layout/ErrorBoundary.jsx
++++ b/src/components/layout/ErrorBoundary.jsx
+@@ -1,4 +1,5 @@
+ import { Component } from 'react';
++import { storageKey } from '../../config/site.js';
+ 
+ // Lỗi tải chunk lazy: thường do deploy mới làm mất file hash cũ, hoặc mạng chập chờn
+ const isChunkError = (err) =>
+@@ -6,7 +7,7 @@ const isChunkError = (err) =>
+     String(err?.message || err)
+   );
+ 
+-const RELOAD_KEY = 'zune-chunk-reload';
++const RELOAD_KEY = storageKey('chunk-reload');
+ 
+ // Chặn lỗi render để 1 component hỏng (game, chunk lazy lỗi) không làm trắng cả site.
+ //  - `inline`: hiện khung nhỏ tại chỗ (dùng cho từng mục Lab); mặc định chiếm cả màn hình.
+diff --git a/src/components/layout/Navbar/Navbar.css b/src/components/layout/Navbar/Navbar.css
+index 6390592..ca9e2a9 100644
+--- a/src/components/layout/Navbar/Navbar.css
++++ b/src/components/layout/Navbar/Navbar.css
+@@ -321,7 +321,7 @@
+   }
+ }
+ 
+-/* logo zune.dev (về home): chấm → "{", chữ lăn "zune.dev" → "cd ~/", "}" trượt vào hai bên */
++/* logo (về home): chấm → "{", chữ handle lăn → "cd ~/", "}" trượt vào hai bên */
+ .brand-mark {
+   display: grid;
+   place-items: center;
+@@ -368,7 +368,7 @@
+ .brand-roll > span + span {
+   color: var(--amber);
+ }
+-/* "}" bám theo đuôi "cd ~/" (ngắn hơn "zune.dev" 3 ký tự), không chiếm chỗ trong layout */
++/* "}" bám theo đuôi "cd ~/" (ngắn hơn handle `--brand-shrink` ký tự, Navbar.jsx đặt biến này), không chiếm chỗ trong layout */
+ .brand-close {
+   position: absolute;
+   top: 0;
+@@ -376,13 +376,13 @@
+   margin-left: 6.5px;
+   line-height: 1.4em;
+   opacity: 0;
+-  transform: translateX(calc(-3ch + 8px));
++  transform: translateX(calc(var(--brand-shrink, 3) * -1ch + 8px));
+   transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+ }
+ .brand:is(:hover, :focus-visible) .brand-roll > span { transform: translateY(-100%); }
+ .brand:is(:hover, :focus-visible) .brand-dot { opacity: 0; transform: scale(0); }
+ .brand:is(:hover, :focus-visible) .brand-mark b { opacity: 1; transform: translateX(2.5px); }
+-.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(-3ch); }
++.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(calc(var(--brand-shrink, 3) * -1ch)); }
+ 
+ @media (prefers-reduced-motion: reduce) {
+   .brand-mark > *, .brand-roll > span, .brand-close { transition: none; }
+diff --git a/src/components/layout/Navbar/Navbar.jsx b/src/components/layout/Navbar/Navbar.jsx
+index a69f965..1b04d05 100644
+--- a/src/components/layout/Navbar/Navbar.jsx
++++ b/src/components/layout/Navbar/Navbar.jsx
+@@ -8,6 +8,10 @@ import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
+ import { hasFinePointer } from '../../../lib/env.js';
+ import useHideOnScroll from '../../../lib/useHideOnScroll.js';
+ import './Navbar.css';
++import { site } from '../../../config/site.js';
++
++// chữ lăn từ handle sang "cd ~/" (5 ký tự): dấu } phải trượt ngược đúng số ký tự handle dài hơn "cd ~/" (xem .brand-close ở Navbar.css)
++const BRAND_SHRINK = Math.max(0, site.handle.length - 'cd ~/'.length);
+ 
+ // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
+ // src/config/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
+@@ -384,7 +388,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
+         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
+           <a
+             href={pathOf('home')}
+-            aria-label="zune.dev — back to home"
++            aria-label={`${site.handle} — back to home`}
+             onClick={(e) => {
+               if (!isPlainClick(e)) return;
+               e.preventDefault();
+@@ -392,6 +396,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
+               else window.scrollTo({ top: 0, behavior: 'smooth' });
+             }}
+             className="brand font-mono text-sm flex items-center gap-2 cursor-pointer"
++            style={{ '--brand-shrink': BRAND_SHRINK }}
+           >
+             {/* hover/focus: chấm → "{", chữ lăn sang "cd ~/", "}" trượt vào */}
+             <span className="brand-mark" aria-hidden="true">
+@@ -400,7 +405,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
+             </span>
+             <span className="brand-word">
+               <span className="brand-roll">
+-                <span>zune.dev</span>
++                <span>{site.handle}</span>
+                 <span aria-hidden="true">cd ~/</span>
+               </span>
+               <b className="brand-close" aria-hidden="true">{'}'}</b>
+diff --git a/src/components/layout/Preloader/Preloader.jsx b/src/components/layout/Preloader/Preloader.jsx
+index b825c31..4e01506 100644
+--- a/src/components/layout/Preloader/Preloader.jsx
++++ b/src/components/layout/Preloader/Preloader.jsx
+@@ -1,5 +1,6 @@
+ import { useEffect, useState } from 'react';
+ import './Preloader.css';
++import { site } from '../../../config/site.js';
+ 
+ export default function Preloader() {
+   const [hidden, setHidden] = useState(false);
+@@ -47,7 +48,7 @@ export default function Preloader() {
+           <div key={i} className="banter-loader__box" />
+         ))}
+       </div>
+-      <span className="font-mono text-[13px] text-dim">booting zune.dev …</span>
++      <span className="font-mono text-[13px] text-dim">booting {site.handle} …</span>
+     </div>
+   );
+ }
+diff --git a/src/components/layout/Signature/Signature.jsx b/src/components/layout/Signature/Signature.jsx
+index f63d0b5..85b798d 100644
+--- a/src/components/layout/Signature/Signature.jsx
++++ b/src/components/layout/Signature/Signature.jsx
+@@ -1,6 +1,6 @@
+ import { useEffect, useRef, useState } from 'react';
+ import './Signature.css';
+-import { location } from '../../../data/profile.js';
++import { site } from '../../../config/site.js';
+ import { observeOnce } from '../../../lib/observe.js';
+ 
+ export function Signature() {
+@@ -31,7 +31,7 @@ export function Signature() {
+           role="button"
+           tabIndex={0}
+           aria-pressed={open}
+-          aria-label="Vuong, zune.dev"
++          aria-label={`${site.realName}, ${site.handle}`}
+           className={`sig-card relative w-[300px] h-[190px] bg-panel grid place-content-center rounded-[10px] overflow-hidden transition-all duration-500${open ? ' is-open' : ''}`}
+           onPointerEnter={(e) => isMouse(e) && setOpen(true)}
+           onPointerLeave={(e) => isMouse(e) && setOpen(false)}
+@@ -48,11 +48,11 @@ export function Signature() {
+                 <path className="sig-v" d="M8 16 L26 58 L44 16" pathLength="100" />
+                 <path className="sig-bar" d="M44 16 H194" pathLength="100" />
+                 <text className="sig-rest" x="56" y="58" textLength="130" lengthAdjust="spacing">
+-                  uong
++                  {site.realName.slice(1)}
+                 </text>
+               </svg>
+             </div>
+-            <span className="font-mono text-[13px] text-dim tracking-[0.14em]">zune.dev</span>
++            <span className="font-mono text-[13px] text-dim tracking-[0.14em]">{site.handle}</span>
+           </div>
+           <span
+             className="sig-bottom absolute left-1/2 -translate-x-1/2 bottom-3.5 font-mono text-[9px] uppercase bg-panel px-1.5 whitespace-nowrap"
+@@ -69,7 +69,7 @@ export function Signature() {
+ export function Footer() {
+   return (
+     <footer className="py-9 text-center font-mono text-[12.5px] text-dim border-t border-line">
+-      // built solo in {location} · © 2026 zune
++      // built solo in {site.location} · © {site.year} {site.id}
+     </footer>
+   );
+ }
+diff --git a/src/config/lab-items.js b/src/config/lab-items.js
+index 82ef598..06742f5 100644
+--- a/src/config/lab-items.js
++++ b/src/config/lab-items.js
+@@ -1,4 +1,4 @@
+-// SỔ ĐĂNG KÝ CÁC MỤC TRONG LAB (mỗi mục có địa chỉ riêng /zune-portfolio/lab/<slug>).
++// SỔ ĐĂNG KÝ CÁC MỤC TRONG LAB (mỗi mục có địa chỉ riêng /<repo>/lab/<slug>).
+ //
+ // THÊM MỤC MỚI: tạo component trong src/components/lab/<Tên>/ (jsx + css chung 1 thư mục) rồi thêm 1 object vào LAB_ITEMS.
+ // Thẻ ở lưới, bộ lọc, nút random, prev/next, nav phụ `ls lab/`, tiêu đề tab và
+@@ -7,7 +7,7 @@
+ // LƯU Ý: dùng khóa `slug:` (không dùng `id:`), vì system/scripts/spa-404.mjs đọc file này bằng regex
+ // `slug: '...'` ở đầu dòng, mỗi dòng như vậy sẽ thành 1 thư mục dist/lab/<slug>/.
+ //
+-//   slug   -> đường dẫn: /zune-portfolio/lab/<slug>
++//   slug   -> đường dẫn: /<repo>/lab/<slug>
+ //   file   -> tên "file" hiện ở nav, tiêu đề tab và đầu trang
+ //   (icon  -> lấy theo slug trong components/lab/Lab/LabIcon.jsx)
+ //   kind   -> nhãn lọc: 'game' | 'toy' | 'tool'
+diff --git a/src/config/pages.js b/src/config/pages.js
+index e60cf8e..440a0ad 100644
+--- a/src/config/pages.js
++++ b/src/config/pages.js
+@@ -1,8 +1,9 @@
+ // SỔ ĐĂNG KÝ CÁC TRANG RIÊNG (mỗi trang có địa chỉ riêng).
+ //
+-//   home      -> /zune-portfolio/
+-//   <id>      -> /zune-portfolio/<id>      (about, projects, ...)
+-//   lab/<slug>-> /zune-portfolio/lab/<slug> (từng mục trong lab, khai báo ở src/config/lab-items.js)
++//   home      -> /<repo>/
++//   <id>      -> /<repo>/<id>      (about, projects, ...)
++//   lab/<slug>-> /<repo>/lab/<slug> (từng mục trong lab, khai báo ở src/config/lab-items.js)
++// (<repo> = site.repo ở src/config/site.js; tiêu đề tab lấy tên từ site.name)
+ //
+ // THÊM TRANG MỚI: tạo component rồi thêm 1 mục vào PAGES bên dưới. Nav chính, nav
+ // phụ, URL, tiêu đề tab trình duyệt và lệnh `cd`/`ls` trong terminal tự theo,
+@@ -12,7 +13,7 @@ import { createElement, lazy } from 'react';
+ import { LAB_ITEMS, labItemOf } from './lab-items.js';
+ 
+ import { BASE, pathOf } from '../lib/paths.js';
+-import { role } from '../data/profile.js';
++import { site, title as HOME_TITLE } from './site.js';
+ 
+ // mỗi trang là 1 chunk riêng: trang chủ không phải tải mã của About / Projects / Lab
+ // Lazy page with a `preload`: App calls it while the tab loader is showing. Once the chunk is in, the page renders
+@@ -31,9 +32,9 @@ const Lab = lazyPage(() => import('../components/lab/Lab/Lab.jsx'));
+ 
+ export const PAGES = [
+   {
+-    id: 'about', // = đường dẫn: /zune-portfolio/about
++    id: 'about', // = đường dẫn: /<repo>/about
+     label: 'about.js', // chữ hiện ở nav
+-    title: 'about.js — Zune', // tiêu đề tab trình duyệt
++    title: `about.js — ${site.name}`, // tiêu đề tab trình duyệt
+     Component: About,
+     preload: About.preload,
+     // mục con hiện ở nav phụ khi đứng trong trang này (cuộn trong trang, không đổi trang)
+@@ -46,7 +47,7 @@ export const PAGES = [
+   {
+     id: 'projects',
+     label: 'projects/',
+-    title: 'projects/ — Zune',
++    title: `projects/ — ${site.name}`,
+     Component: Projects,
+     preload: Projects.preload,
+     sub: [],
+@@ -54,7 +55,7 @@ export const PAGES = [
+   {
+     id: 'lab',
+     label: 'lab.css',
+-    title: 'lab.css — Zune',
++    title: `lab.css — ${site.name}`,
+     Component: Lab,
+     preload: Lab.preload,
+     // mỗi mục lab là 1 "view" riêng (lab/<slug>) có địa chỉ thật, lấy từ src/config/lab-items.js
+@@ -63,8 +64,6 @@ export const PAGES = [
+   },
+ ];
+ 
+-const HOME_TITLE = `Zune — ${role}`;
+-
+ // "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
+ export const topOf = (view) => view.split('/')[0];
+ const pageOf = (id) => PAGES.find((p) => p.id === id);
+@@ -73,7 +72,7 @@ export const pageOfView = (view) => pageOf(topOf(view));
+ export const titleOf = (view) => {
+   const slug = view.split('/')[1];
+   const item = slug && labItemOf(slug);
+-  if (topOf(view) === 'lab' && item) return `${item.file} — Zune`;
++  if (topOf(view) === 'lab' && item) return `${item.file} — ${site.name}`;
+   return pageOfView(view)?.title ?? HOME_TITLE;
+ };
+ 
+diff --git a/src/config/site.js b/src/config/site.js
+new file mode 100644
+index 0000000..e321c92
+--- /dev/null
++++ b/src/config/site.js
+@@ -0,0 +1,60 @@
++// NGUỒN DUY NHẤT cho mọi thứ "của riêng chủ site". Fork repo này thì chỉ cần sửa file này (cộng src/data/profile.js, socials.js
++// và meta.js của từng project), không phải đi tìm từng chỗ trong component.
++//
++// File này là dữ liệu thuần (không import.meta.env, không import React) vì ba nơi cùng đọc nó:
++//   - component React (qua import thường)
++//   - system/vite.config.js: `base`, dòng bản quyền trong bundle, và điền các {{token}} trong index.html (title, og, theme key...)
++//   - system/scripts/*.mjs chạy bằng Node
++//
++// Chia việc với src/data/profile.js: site.js = danh tính, nơi ở, giờ giấc, repo, và các câu chữ nhỏ rải trong giao diện;
++// profile.js = nội dung "hồ sơ" dạng danh sách dài (stack, nhóm kỹ năng, git log).
++export const site = {
++  // --- danh tính
++  name: 'Zune', // tên hiển thị: tiêu đề hero, tiêu đề tab, meta
++  realName: 'Vuong', // tên thật, chỉ dùng cho nhãn đọc màn hình của chữ ký (Signature); chữ cái đầu là hình SVG vẽ tay (chữ V)
++  id: 'zune', // định danh viết thường: prompt terminal, zune.sav, `const zune`, tiền tố khoá localStorage
++  handle: 'zune.dev', // tên thương hiệu dạng domain: logo nav, preloader, sâu chữ ở hero, screensaver, og:site_name
++  year: 2026, // năm bản quyền
++
++  // --- công việc, nơi ở, liên hệ
++  role: 'Web Developer',
++  location: 'Ho Chi Minh City',
++  country: 'VN',
++  host: 'hcmc', // tên máy ở prompt terminal: zune@hcmc
++  email: 'nguyenhaivuong06@gmail.com',
++
++  // --- giờ giấc: trạng thái online/offline và tông nền (data-tod) đều suy ra từ đây, không cần backend
++  timezone: 'Asia/Ho_Chi_Minh', // tên IANA
++  // giờ bắt đầu mỗi buổi, theo giờ của `timezone`, phải tăng dần: dawn < day < dusk < night.
++  // online = từ `day` tới trước `night`; còn lại (dawn + night) là offline
++  schedule: { dawn: 5, day: 8, dusk: 17, night: 23 },
++
++  // --- nơi host: https://<githubUser>.github.io/<repo>/
++  githubUser: 'Zune-lab',
++  repo: 'zune-portfolio',
++
++  // --- SEO (meta description, og:description)
++  description: "Zune's portfolio: a web developer building small, playful things with React.",
++
++  // --- câu chữ riêng rải trong giao diện
++  content: {
++    phrases: ['I code for fun.', 'I fix 3am bugs.', 'I play with CSS.', 'I make tiny pages.'], // dòng tự gõ ở hero (câu đầu cũng là aria-label của tiêu đề)
++    heroIntro: 'I love messing around with CSS and building tiny pages just to see if they work.',
++    heroNote: '// introvert by default. say hi anyway →',
++    mood: 'chillax guys. code for fun, ship small weird things.', // `cat mood.txt` trong terminal
++    teaLine: 'tea > coffee. always.', // `cat tea.txt`
++    funFact: 'debugging CSS all night and never getting bored', // about.js
++    drink: 'tea', // about.js: coffee_or_tea
++    classes: ['Bug Summoner', 'CSS Wizard', 'Tea Enjoyer', 'Introvert (lvl 99)'], // bấm dòng "class" ở thẻ sav để đổi (ngoài ra là `role` thật)
++  },
++};
++
++// --- giá trị suy ra (đừng sửa tay, chỉnh các trường ở trên)
++export const githubUrl = `https://github.com/${site.githubUser}`;
++export const repoUrl = (name = site.repo) => `${githubUrl}/${name}`; // repo của project con: repoUrl('illusion')
++export const pagesOrigin = `https://${site.githubUser.toLowerCase()}.github.io`;
++export const siteUrl = `${pagesOrigin}/${site.repo}/`;
++export const base = `/${site.repo}/`; // Vite `base`: phải khớp tên repo vì site chạy ở subpath (nếu dùng domain riêng thì đổi thành '/')
++export const title = `${site.name} — ${site.role}`;
++// khoá localStorage / sessionStorage: storageKey('theme') -> 'zune-theme' (cùng giá trị cũ nên không mất cài đặt của người dùng)
++export const storageKey = (name) => `${site.id}-${name}`;
+diff --git a/src/data/profile.js b/src/data/profile.js
+index c197428..a7718c6 100644
+--- a/src/data/profile.js
++++ b/src/data/profile.js
+@@ -1,7 +1,6 @@
+-export const role = 'Web Developer';
+-export const location = 'Ho Chi Minh City';
+-export const email = 'nguyenhaivuong06@gmail.com';
++import { site } from '../config/site.js';
+ 
++// Hồ sơ dạng danh sách. Danh tính, nơi ở, email, giờ giấc nằm ở src/config/site.js.
+ export const startYear = 2022;
+ export const mainStack = 'React + Tailwind';
+ export const learning = 'Next.js App Router';
+@@ -12,6 +11,15 @@ export const stack = [
+   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
+ ];
+ 
++// skills.js ở trang About: nhóm lại từ `stack`; mục nào chưa xếp nhóm tự rơi vào "other"
++export const skillGroups = [
++  ['languages', ['HTML', 'CSS', 'JavaScript', 'TypeScript']],
++  ['frameworks', ['React', 'Next.js', 'Tailwind CSS', 'Node.js']],
++  ['design', ['Figma']],
++];
++// các kỹ năng đang học (hiện nhãn "learning" cạnh tên)
++export const learningSkills = ['TypeScript', 'Next.js'];
++
+ // Nhật ký cuộc đời, từ lúc sinh ra tới giờ (cũ -> mới). Hiện ở About > log.sh.
+ // Mỗi mục: hash (chuỗi hex 7 ký tự, tự đặt cho vui), date ('YYYY' | 'YYYY-MM' | 'now'),
+ // msg (kiểu commit message: feat:/fix:/chore:/refactor:...).
+@@ -27,5 +35,5 @@ export const gitLog = [
+   { hash: '4e7b0c2', date: '2024-08', msg: 'fix: 3am CSS bug. it was a missing semicolon' },
+   { hash: 'f6a7b8c', date: '2025-01', msg: 'refactor: learning TypeScript' },
+   { hash: '8a2d5e7', date: '2025-09', msg: 'wip: unlock full personality (requires 6+ months of friendship)' },
+-  { hash: 'a9b0c1d', date: 'now', msg: 'feat: building zune.dev' },
++  { hash: 'a9b0c1d', date: 'now', msg: `feat: building ${site.handle}` },
+ ];
+diff --git a/src/data/socials.js b/src/data/socials.js
+index b771370..9f5c666 100644
+--- a/src/data/socials.js
++++ b/src/data/socials.js
+@@ -1,3 +1,5 @@
++import { githubUrl } from '../config/site.js';
++
+ // icon: raw SVG path data (single <path>) rendered at viewBox 0 0 W H
+ export const socials = [
+   {
+@@ -44,7 +46,7 @@ export const socials = [
+   },
+   {
+     name: 'github',
+-    href: 'https://github.com/Zune-lab',
++    href: githubUrl, // từ config/site.js
+     brand: '#181818',
+     viewBox: '0 0 496 512',
+     path: 'M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z',
+diff --git a/src/lib/siteTime.js b/src/lib/siteTime.js
+new file mode 100644
+index 0000000..c11ed5e
+--- /dev/null
++++ b/src/lib/siteTime.js
+@@ -0,0 +1,44 @@
++import { site } from '../config/site.js';
++
++// Một nguồn duy nhất cho "giờ của chủ site" (site.timezone): nền (data-tod) và trạng thái online/offline
++// cùng dùng chung để không bao giờ lệch mốc nhau. Múi giờ và các mốc giờ khai báo ở config/site.js.
++// Tạo Intl.DateTimeFormat rất tốn (~60µs/lần) mà siteHour() bị gọi mỗi khung hình (HeroWorm -> getStatusKey)
++// và mỗi lần React hỏi snapshot, nên tạo MỘT lần rồi dùng lại (~30 lần nhanh hơn).
++const { timezone, schedule } = site;
++
++const hourFmt = new Intl.DateTimeFormat('en-US', {
++  timeZone: timezone,
++  hour: 'numeric',
++  hourCycle: 'h23',
++});
++function siteHour() {
++  return parseInt(hourFmt.format(new Date()), 10);
++}
++
++// đồng hồ HH:MM:SS (thẻ sav). Tạo formatter một lần như hourFmt ở trên.
++const clockFmt = new Intl.DateTimeFormat('en-GB', {
++  timeZone: timezone,
++  hour: '2-digit',
++  minute: '2-digit',
++  second: '2-digit',
++  hourCycle: 'h23',
++});
++export const siteClock = () => clockFmt.format(new Date());
++
++// nhãn lệch múi giờ, vd "GMT+7" (tự theo site.timezone, kể cả giờ mùa hè); trình duyệt cũ không hỗ trợ thì trả chuỗi rỗng
++const offsetFmt = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'shortOffset' });
++export const gmtLabel = () => offsetFmt.formatToParts(new Date()).find((p) => p.type === 'timeZoneName')?.value ?? '';
++
++// ngày + giờ đầy đủ (lệnh `date` trong terminal; hiếm gọi nên tạo formatter mỗi lần cũng được)
++export const siteDateTime = () => new Date().toLocaleString('en-GB', { timeZone: timezone });
++
++// dawn [dawn, day) | day [day, dusk) | dusk [dusk, night) | night [night, dawn) (qua nửa đêm)
++export function timeOfDay(h = siteHour()) {
++  if (h >= schedule.night || h < schedule.dawn) return 'night';
++  if (h < schedule.day) return 'dawn';
++  if (h < schedule.dusk) return 'day';
++  return 'dusk';
++}
++
++// online = day + dusk; offline = dawn + night
++export const isOnlineHour = (h = siteHour()) => h >= schedule.day && h < schedule.night;
+diff --git a/src/lib/social.js b/src/lib/social.js
+index 24a1d83..5d38bf6 100644
+--- a/src/lib/social.js
++++ b/src/lib/social.js
+@@ -1,6 +1,7 @@
+ import { useSyncExternalStore } from 'react';
+ import { getStatusKey } from './status.js';
+ import { createEmitter } from './store.js';
++import { site } from '../config/site.js';
+ import { pausableInterval } from './timers.js';
+ 
+ // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
+@@ -52,7 +53,7 @@ export function sayHi() {
+   set({
+     drain: next,
+     hiAt: performance.now(),
+-    reply: BASE[key] - next <= 0 ? 'zune has left the chat. (recharging...)' : REPLIES[Math.min(next / 20 - 1, 3)],
++    reply: BASE[key] - next <= 0 ? `${site.id} has left the chat. (recharging...)` : REPLIES[Math.min(next / 20 - 1, 3)],
+   });
+ }
+ 
+diff --git a/src/lib/status.js b/src/lib/status.js
+index 681f0f3..a205c9c 100644
+--- a/src/lib/status.js
++++ b/src/lib/status.js
+@@ -1,6 +1,7 @@
+ import { useSyncExternalStore } from 'react';
+-import { isOnlineHour } from './vnTime.js';
++import { isOnlineHour } from './siteTime.js';
+ import { storageGet, storageSet } from './storage.js';
++import { storageKey } from '../config/site.js';
+ import { createEmitter } from './store.js';
+ import { pausableInterval } from './timers.js';
+ 
+@@ -15,7 +16,7 @@ const STATUS_CONFIG = {
+ };
+ 
+ const CYCLE = ['auto', 'busy', 'focus', 'offline'];
+-const STORAGE_KEY = 'zune-status-override';
++const STORAGE_KEY = storageKey('status-override');
+ 
+ const autoStatus = () => (isOnlineHour() ? 'online' : 'offline');
+ 
+diff --git a/src/lib/vnTime.js b/src/lib/vnTime.js
+deleted file mode 100644
+index 5a63c1d..0000000
+--- a/src/lib/vnTime.js
++++ /dev/null
+@@ -1,36 +0,0 @@
+-// Một nguồn duy nhất cho "giờ VN" – nền (data-tod) và trạng thái online/offline
+-// cùng dùng chung để không bao giờ lệch mốc nhau.
+-// Tạo Intl.DateTimeFormat rất tốn (~60µs/lần) mà vnHour() bị gọi mỗi khung hình (HeroWorm -> getStatusKey)
+-// và mỗi lần React hỏi snapshot, nên tạo MỘT lần rồi dùng lại (~30 lần nhanh hơn).
+-const hourFmt = new Intl.DateTimeFormat('en-US', {
+-  timeZone: 'Asia/Ho_Chi_Minh',
+-  hour: 'numeric',
+-  hourCycle: 'h23',
+-});
+-function vnHour() {
+-  return parseInt(hourFmt.format(new Date()), 10);
+-}
+-
+-// đồng hồ HH:MM:SS theo giờ VN (thẻ zune.sav). Tạo formatter một lần như hourFmt ở trên.
+-const clockFmt = new Intl.DateTimeFormat('en-GB', {
+-  timeZone: 'Asia/Ho_Chi_Minh',
+-  hour: '2-digit',
+-  minute: '2-digit',
+-  second: '2-digit',
+-  hourCycle: 'h23',
+-});
+-export const vnClock = () => clockFmt.format(new Date());
+-
+-// ngày + giờ đầy đủ theo giờ VN (lệnh `date` trong terminal; hiếm gọi nên tạo formatter mỗi lần cũng được)
+-export const vnDateTime = () => new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+-
+-// dawn 5-8 | day 8-17 | dusk 17-23 | night 23-5
+-export function timeOfDay(h = vnHour()) {
+-  if (h >= 23 || h < 5) return 'night';
+-  if (h < 8) return 'dawn';
+-  if (h < 17) return 'day';
+-  return 'dusk';
+-}
+-
+-// online = day + dusk (8h-23h); offline = dawn + night
+-export const isOnlineHour = (h = vnHour()) => h >= 8 && h < 23;
+diff --git a/src/projects/ProjectCard/ProjectCard.jsx b/src/projects/ProjectCard/ProjectCard.jsx
+index 6975e65..fe040d9 100644
+--- a/src/projects/ProjectCard/ProjectCard.jsx
++++ b/src/projects/ProjectCard/ProjectCard.jsx
+@@ -30,7 +30,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
+         </div>
+       )}
+ 
+-      {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /zune-portfolio/ */}
++      {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /<repo>/ */}
+       {shotOk && (
+         <img
+           src={`${BASE}previews/${slug}.png`}
+diff --git a/src/projects/a-dumb-gift/meta.js b/src/projects/a-dumb-gift/meta.js
+index 42e98e8..d07ca72 100644
+--- a/src/projects/a-dumb-gift/meta.js
++++ b/src/projects/a-dumb-gift/meta.js
+@@ -1,8 +1,10 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 1, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'a-dumb-gift.js',
+   desc: 'a small gift, hand-coded, runs straight in the browser',
+   color: 'var(--js)',
+   facts: [['type', 'gift page'], ['runs', 'straight in the browser'], ['mood', 'dumb but cute']], // hiện ở mục Featured trên trang chủ: [nhãn, giá trị]
+-  href: 'https://github.com/Zune-lab/a-dumb-gift',
++  href: repoUrl('a-dumb-gift'),
+ };
+diff --git a/src/projects/a-gift-for-u/meta.js b/src/projects/a-gift-for-u/meta.js
+index 13aed8d..3a3e69b 100644
+--- a/src/projects/a-gift-for-u/meta.js
++++ b/src/projects/a-gift-for-u/meta.js
+@@ -1,7 +1,9 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 6, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'a-gift-for-u.css',
+   desc: 'another gift page, focused on CSS details',
+   color: 'var(--css-lang)',
+-  href: 'https://github.com/Zune-lab/a-gift-for-u',
++  href: repoUrl('a-gift-for-u'),
+ };
+diff --git a/src/projects/calendar/meta.js b/src/projects/calendar/meta.js
+index 9e6806d..c1edbe5 100644
+--- a/src/projects/calendar/meta.js
++++ b/src/projects/calendar/meta.js
+@@ -1,8 +1,10 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 5, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'calendar.js',
+   desc: 'a compact little calendar app, built by hand',
+   color: 'var(--js)',
+-  href: 'https://github.com/Zune-lab/calender',
++  href: repoUrl('calender'),
+   manualShot: true, // trang có màn login -> tự chụp tay (sau khi đăng nhập), lưu public/previews/calendar.png
+ };
+diff --git a/src/projects/illusion/meta.js b/src/projects/illusion/meta.js
+index 4538d59..06e095c 100644
+--- a/src/projects/illusion/meta.js
++++ b/src/projects/illusion/meta.js
+@@ -1,8 +1,10 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 3, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'illusion.css',
+   desc: 'playing with visual illusions in pure CSS',
+   color: 'var(--css-lang)',
+   facts: [['type', 'visual illusion'], ['made with', 'pure CSS'], ['mood', 'stare at it for a while']], // hiện ở mục Featured trên trang chủ: [nhãn, giá trị]
+-  href: 'https://github.com/Zune-lab/illusion',
++  href: repoUrl('illusion'),
+ };
+diff --git a/src/projects/le-tot-nghiep/meta.js b/src/projects/le-tot-nghiep/meta.js
+index 5dc11e5..7506c9f 100644
+--- a/src/projects/le-tot-nghiep/meta.js
++++ b/src/projects/le-tot-nghiep/meta.js
+@@ -1,7 +1,9 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 4, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'le-tot-nghiep.js',
+   desc: 'a keepsake page for graduation day',
+   color: 'var(--js)',
+-  href: 'https://github.com/Zune-lab/le-tot-nghiep',
++  href: repoUrl('le-tot-nghiep'),
+ };
+diff --git a/src/projects/symphony/meta.js b/src/projects/symphony/meta.js
+index e4ab8f7..0cfdcc7 100644
+--- a/src/projects/symphony/meta.js
++++ b/src/projects/symphony/meta.js
+@@ -1,8 +1,10 @@
++import { repoUrl } from '../../config/site.js';
++
+ export default {
+   order: 2, // thứ tự hiển thị (nhỏ đứng trước)
+   file: 'symphony.js',
+   desc: 'experiments with sound and interaction on the web',
+   color: 'var(--js)',
+   facts: [['type', 'sound toy'], ['made with', 'audio + JS'], ['mood', 'press things, hear things']], // hiện ở mục Featured trên trang chủ: [nhãn, giá trị]
+-  href: 'https://github.com/Zune-lab/symphony',
++  href: repoUrl('symphony'),
+ };
+diff --git a/system/scripts/make-previews.mjs b/system/scripts/make-previews.mjs
+index 342e054..627006e 100644
+--- a/system/scripts/make-previews.mjs
++++ b/system/scripts/make-previews.mjs
+@@ -10,12 +10,13 @@
+ // vì index.js dùng import.meta.glob của Vite mà Node không hiểu).
+ //
+ // Link trang chạy thật lấy từ trường `site` trong meta.js (tuỳ chọn); không có thì đoán
+-// https://zune-lab.github.io/<tên-repo>/ (tên repo lấy từ href). Trang trả về
++// https://<githubUser>.github.io/<tên-repo>/ (tên repo lấy từ href, githubUser từ src/config/site.js). Trang trả về
+ // lỗi (404...) thì BỎ QUA, không ghi ảnh rác.
+ 
+ import { chromium } from 'playwright';
+ import { mkdir, readdir } from 'node:fs/promises';
+ import { fileURLToPath } from 'node:url';
++import { pagesOrigin } from '../../src/config/site.js';
+ 
+ const PROJECTS_DIR = new URL('../../src/projects/', import.meta.url);
+ 
+@@ -40,7 +41,7 @@ const VIEWPORT = { width: 1280, height: 720 }; // đúng khung "desktop ảo" c
+ const SETTLE_MS = 1500; // chờ animation vào trang chạy xong rồi mới chụp
+ const filter = process.argv[2];
+ 
+-const siteOf = (p) => p.site || `https://zune-lab.github.io/${p.href.split('/').filter(Boolean).pop()}/`;
++const siteOf = (p) => p.site || `${pagesOrigin}/${p.href.split('/').filter(Boolean).pop()}/`;
+ const slugOf = (file) => file.replace(/\.[^.]+$/, '');
+ 
+ await mkdir(fileURLToPath(OUT), { recursive: true });
+diff --git a/system/scripts/spa-404.mjs b/system/scripts/spa-404.mjs
+index f946fb0..4ef6963 100644
+--- a/system/scripts/spa-404.mjs
++++ b/system/scripts/spa-404.mjs
+@@ -1,6 +1,6 @@
+ // GitHub Pages chỉ phục vụ file có thật, nên với mỗi trang khai báo trong
+ // src/config/pages.js ta tạo dist/<id>/index.html (bản sao của index.html) -> mở thẳng
+-// hoặc F5 ở /zune-portfolio/<id> vẫn trả 200. 404.html là dự phòng cho URL lạ.
++// hoặc F5 ở /<repo>/<id> vẫn trả 200. 404.html là dự phòng cho URL lạ.
+ // Thêm trang mới chỉ cần sửa src/config/pages.js, script này tự đọc danh sách id ở đó.
+ // Mỗi mục lab (src/config/lab-items.js, khóa `slug:`) cũng có dist/lab/<slug>/index.html riêng.
+ import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
+diff --git a/system/vite.config.js b/system/vite.config.js
+index ed8d391..cba0e65 100644
+--- a/system/vite.config.js
++++ b/system/vite.config.js
+@@ -1,9 +1,10 @@
+ import { defineConfig } from 'vite';
+ import react from '@vitejs/plugin-react';
+ import tailwindcss from '@tailwindcss/vite';
++import { site, base, siteUrl, githubUrl, repoUrl, title, storageKey } from '../src/config/site.js';
+ 
+ // thêm dòng bản quyền vào đầu mỗi file JS sau khi build (chạy sau bước minify nên không bị xoá)
+-const BANNER = '/*! zune-portfolio © 2026 Zune (https://github.com/Zune-lab/zune-portfolio) - MIT License */\n';
++const BANNER = `/*! ${site.repo} © ${site.year} ${site.name} (${repoUrl()}) - MIT License */\n`;
+ const copyrightBanner = () => ({
+   name: 'copyright-banner',
+   apply: 'build',
+@@ -14,11 +15,36 @@ const copyrightBanner = () => ({
+   },
+ });
+ 
+-// base phải khớp đúng tên repo, vì site chạy ở
+-// https://zune-lab.github.io/zune-portfolio/ (subpath), không phải domain gốc.
+-// Thiếu dòng này, mọi asset (JS, CSS, ảnh) sau khi build sẽ trỏ nhầm ra
+-// zune-lab.github.io/ thay vì zune-lab.github.io/zune-portfolio/ -> 404 -> trắng trang.
++// điền {{token}} trong index.html từ src/config/site.js (title, meta, og, khoá theme...): sửa thông tin ở một chỗ, cả dev lẫn build.
++// Token lạ (gõ sai tên) thì báo lỗi ngay thay vì để nguyên chuỗi {{...}} lọt lên trang.
++const TOKENS = {
++  name: site.name,
++  handle: site.handle,
++  year: site.year,
++  repo: site.repo,
++  title,
++  description: site.description,
++  siteUrl,
++  githubUrl,
++  repoUrl: repoUrl(),
++  themeKey: storageKey('theme'),
++};
++const escapeHtml = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
++const siteHtml = () => ({
++  name: 'site-html',
++  transformIndexHtml: {
++    order: 'pre',
++    handler: (html) =>
++      html.replace(/\{\{(\w+)\}\}/g, (_, key) => {
++        if (!(key in TOKENS)) throw new Error(`index.html: unknown token {{${key}}} (see TOKENS in system/vite.config.js)`);
++        return escapeHtml(TOKENS[key]);
++      }),
++  },
++});
++
++// base phải khớp đúng tên repo (site.repo), vì site chạy ở https://<githubUser>.github.io/<repo>/ (subpath), không phải domain gốc.
++// Thiếu dòng này, mọi asset (JS, CSS, ảnh) sau khi build sẽ trỏ nhầm ra gốc domain thay vì subpath -> 404 -> trắng trang.
+ export default defineConfig({
+-  base: '/zune-portfolio/',
+-  plugins: [react(), tailwindcss(), copyrightBanner()],
++  base,
++  plugins: [react(), tailwindcss(), siteHtml(), copyrightBanner()],
+ });

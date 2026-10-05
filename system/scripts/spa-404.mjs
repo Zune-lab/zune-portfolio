@@ -1,6 +1,6 @@
 // GitHub Pages chỉ phục vụ file có thật, nên với mỗi trang khai báo trong
 // src/config/pages.js ta tạo dist/<id>/index.html (bản sao của index.html) -> mở thẳng
-// hoặc F5 ở /zune-portfolio/<id> vẫn trả 200. 404.html là dự phòng cho URL lạ.
+// hoặc F5 ở /<repo>/<id> vẫn trả 200. 404.html là dự phòng cho URL lạ.
 // Thêm trang mới chỉ cần sửa src/config/pages.js, script này tự đọc danh sách id ở đó.
 // Mỗi mục lab (src/config/lab-items.js, khóa `slug:`) cũng có dist/lab/<slug>/index.html riêng.
 import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';

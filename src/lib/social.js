@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { getStatusKey } from './status.js';
 import { createEmitter } from './store.js';
+import { site } from '../config/site.js';
 import { pausableInterval } from './timers.js';
 
 // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
@@ -52,7 +53,7 @@ export function sayHi() {
   set({
     drain: next,
     hiAt: performance.now(),
-    reply: BASE[key] - next <= 0 ? 'zune has left the chat. (recharging...)' : REPLIES[Math.min(next / 20 - 1, 3)],
+    reply: BASE[key] - next <= 0 ? `${site.id} has left the chat. (recharging...)` : REPLIES[Math.min(next / 20 - 1, 3)],
   });
 }
 

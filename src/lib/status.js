@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
-import { isOnlineHour } from './vnTime.js';
+import { isOnlineHour } from './siteTime.js';
 import { storageGet, storageSet } from './storage.js';
+import { storageKey } from '../config/site.js';
 import { createEmitter } from './store.js';
 import { pausableInterval } from './timers.js';
 
@@ -15,7 +16,7 @@ const STATUS_CONFIG = {
 };
 
 const CYCLE = ['auto', 'busy', 'focus', 'offline'];
-const STORAGE_KEY = 'zune-status-override';
+const STORAGE_KEY = storageKey('status-override');
 
 const autoStatus = () => (isOnlineHour() ? 'online' : 'offline');
 

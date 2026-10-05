@@ -2,7 +2,7 @@ import { useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import CopyEmail from './CopyEmail/CopyEmail.jsx';
-import { email as TO_EMAIL } from '../../data/profile.js';
+import { site } from '../../config/site.js';
 import useTimer from '../../lib/useTimer.js';
 import { WRAP } from '../../config/ui.js';
 
@@ -44,11 +44,11 @@ export default function Feedback() {
   // máy không có app mail thì mailto: không làm gì cả -> cho copy địa chỉ để gửi bằng cách khác
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(TO_EMAIL);
+      await navigator.clipboard.writeText(site.email);
       setCopied(true);
       copiedT.set(() => setCopied(false), 2000);
     } catch {
-      setNote(`Couldn't copy automatically, my email is ${TO_EMAIL}`);
+      setNote(`Couldn't copy automatically, my email is ${site.email}`);
     }
   };
 
@@ -58,8 +58,8 @@ export default function Feedback() {
     if (!message) return;
 
     const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
-    const subject = encodeURIComponent('Feedback from zune.dev' + moodTag);
-    const head = `mailto:${TO_EMAIL}?subject=${subject}&body=`;
+    const subject = encodeURIComponent(`Feedback from ${site.handle}` + moodTag);
+    const head = `mailto:${site.email}?subject=${subject}&body=`;
     // link mailto: dài quá ~2000 ký tự sẽ bị một số client cắt im lặng -> cắt trước và báo cho người dùng
     let body = encodeURIComponent(message);
     let cut = false;
@@ -76,8 +76,8 @@ export default function Feedback() {
     // giữ nguyên nội dung: nếu máy không có ứng dụng mail thì người dùng không mất những gì đã viết
     setNote(
       cut
-        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${TO_EMAIL} directly.`
-        : `Mail app should open. If nothing happens, email ${TO_EMAIL} directly - thanks!`
+        ? `Message was too long for a mail link, so it was trimmed (full text copied to clipboard if allowed). Or email ${site.email} directly.`
+        : `Mail app should open. If nothing happens, email ${site.email} directly - thanks!`
     );
   };
 
@@ -126,7 +126,7 @@ export default function Feedback() {
         </form>
         <div className="mt-6 max-w-[520px]">
           <p className="font-mono text-[12.5px] text-dim mb-3">// no mail app? copy my email and write from anywhere</p>
-          <CopyEmail email={TO_EMAIL} copied={copied} onCopy={copyEmail} />
+          <CopyEmail email={site.email} copied={copied} onCopy={copyEmail} />
         </div>
       </div>
     </section>

@@ -8,6 +8,10 @@ import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
 import { hasFinePointer } from '../../../lib/env.js';
 import useHideOnScroll from '../../../lib/useHideOnScroll.js';
 import './Navbar.css';
+import { site } from '../../../config/site.js';
+
+// chữ lăn từ handle sang "cd ~/" (5 ký tự): dấu } phải trượt ngược đúng số ký tự handle dài hơn "cd ~/" (xem .brand-close ở Navbar.css)
+const BRAND_SHRINK = Math.max(0, site.handle.length - 'cd ~/'.length);
 
 // mỗi mục ở nav chính: có "tab" = 1 trang riêng (có địa chỉ riêng, khai báo ở
 // src/config/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
@@ -384,7 +388,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
         <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
           <a
             href={pathOf('home')}
-            aria-label="zune.dev — back to home"
+            aria-label={`${site.handle} — back to home`}
             onClick={(e) => {
               if (!isPlainClick(e)) return;
               e.preventDefault();
@@ -392,6 +396,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               else window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className="brand font-mono text-sm flex items-center gap-2 cursor-pointer"
+            style={{ '--brand-shrink': BRAND_SHRINK }}
           >
             {/* hover/focus: chấm → "{", chữ lăn sang "cd ~/", "}" trượt vào */}
             <span className="brand-mark" aria-hidden="true">
@@ -400,7 +405,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             </span>
             <span className="brand-word">
               <span className="brand-roll">
-                <span>zune.dev</span>
+                <span>{site.handle}</span>
                 <span aria-hidden="true">cd ~/</span>
               </span>
               <b className="brand-close" aria-hidden="true">{'}'}</b>
