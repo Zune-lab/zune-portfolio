@@ -58,7 +58,7 @@ function LabGrid({ kind, setKind, onNavigate }) {
               <span className="lab-card-icon leading-none" aria-hidden="true">
                 <LabIcon name={i.slug} />
               </span>
-              <span className="lab-card-tag font-mono text-[11px] uppercase tracking-[0.08em] text-dim border border-line rounded px-1.5 py-0.5">
+              <span className="lab-card-tag font-mono text-[11px] uppercase tracking-[0.08em] text-dim border border-line rounded-sm px-1.5 py-0.5">
                 {i.kind}
               </span>
             </div>

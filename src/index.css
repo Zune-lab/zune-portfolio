@@ -1,6 +1,39 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* chỉ quét index.html + src (như `content` của Tailwind 3), không quét README / file .patch ở thư mục gốc */
+@import 'tailwindcss' source(none);
+@source '../index.html';
+@source './';
+
+/* màu/font của Tailwind trỏ vào CSS variable bên dưới (inline: để class đọc var(--x) lúc dùng, nên đổi theme là ăn ngay) */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-inset: var(--inset);
+  --color-line: var(--line);
+  --color-ink: var(--text);
+  --color-dim: var(--text-dim);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-green: var(--green);
+
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: Inter, 'Segoe UI', sans-serif;
+  --font-pixel: Silkscreen, 'JetBrains Mono', monospace;
+}
+
+/* giữ hành vi như Tailwind 3: viền mặc định theo màu --line (v4 đổi thành currentColor), nút bấm có con trỏ tay */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--line);
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 :root {
   --bg: #0a0c10;

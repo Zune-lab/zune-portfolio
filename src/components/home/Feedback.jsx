@@ -94,7 +94,7 @@ export default function Feedback() {
             placeholder="Write something about this page..."
             required
             aria-label="Your feedback"
-            className="w-full min-h-[110px] resize-y bg-panel border border-line rounded-lg px-3.5 py-3 text-ink text-sm outline-none focus:border-amber placeholder:text-dim"
+            className="w-full min-h-[110px] resize-y bg-panel border border-line rounded-lg px-3.5 py-3 text-ink text-sm outline-hidden focus:border-amber placeholder:text-dim"
           />
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex gap-2">

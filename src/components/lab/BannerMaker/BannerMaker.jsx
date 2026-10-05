@@ -410,7 +410,7 @@ export default function BannerMaker() {
 
   const rowCls = (active) =>
     `flex items-center gap-2 px-2 py-1 rounded-md border text-left text-ink ${active ? 'border-amber' : 'border-line'}`;
-  const swatch = (c) => <span className="w-3.5 h-3.5 rounded-sm border border-line shrink-0" style={{ background: hexOf(c) }} />;
+  const swatch = (c) => <span className="w-3.5 h-3.5 rounded-xs border border-line shrink-0" style={{ background: hexOf(c) }} />;
 
   return (
     <div className="bg-inset border border-line rounded-[10px] p-5">

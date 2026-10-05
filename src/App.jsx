@@ -209,7 +209,7 @@ export default function App() {
       </a>
       <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
 
-      <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">
+      <main id="main" ref={mainRef} tabIndex={-1} className="outline-hidden">
       <ErrorBoundary key={view} inline>
       {page ? (
         <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>

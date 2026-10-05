@@ -38,8 +38,8 @@ export default function Preloader() {
   return (
     <div
       id="preloader"
-      className={`fixed inset-0 z-[999] bg-bg flex flex-col items-center justify-center gap-[22px]${
-        hidden ? ' hide' : ''
+      className={`fixed inset-0 z-[999] bg-bg flex flex-col items-center justify-center gap-[22px] ${
+        hidden ? 'hide' : ''
       }`}
     >
       <div className="relative w-[72px] h-[72px]">

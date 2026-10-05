@@ -101,7 +101,7 @@ export default function SheetCard() {
 
         <div className="flex items-start gap-3 mt-2">
           <button type="button" onClick={sayHi} disabled={empty}
-            className="px-3 py-1.5 border border-line rounded text-ink hover:border-amber hover:text-amber disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink transition-colors cursor-pointer disabled:cursor-not-allowed">
+            className="px-3 py-1.5 border border-line rounded-sm text-ink hover:border-amber hover:text-amber disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink transition-colors cursor-pointer disabled:cursor-not-allowed">
             $ say hi
           </button>
           <span className="text-dim text-[12.5px] leading-snug pt-1.5 min-h-[2.8em] min-w-0 flex-1" aria-live="polite">{reply}</span>

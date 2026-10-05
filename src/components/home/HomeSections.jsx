@@ -125,7 +125,7 @@ export function AboutTeaser({ onNavigate }) {
             </p>
             <ul className="flex flex-wrap gap-2 mt-6 p-0 list-none">
               {stack.map((s) => (
-                <li key={s} className="font-mono text-[12px] px-2.5 py-1 border border-line rounded text-dim">
+                <li key={s} className="font-mono text-[12px] px-2.5 py-1 border border-line rounded-sm text-dim">
                   {s}
                 </li>
               ))}
@@ -166,7 +166,7 @@ export function LabTeaser({ onNavigate }) {
               <PageLink
                 view={`lab/${i.slug}`}
                 onNavigate={onNavigate}
-                className="inline-block font-mono text-[13px] px-3 py-1.5 border border-line rounded text-dim hover:text-amber hover:border-amber-dim transition-colors"
+                className="inline-block font-mono text-[13px] px-3 py-1.5 border border-line rounded-sm text-dim hover:text-amber hover:border-amber-dim transition-colors"
               >
                 {i.file}
               </PageLink>

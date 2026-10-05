@@ -257,7 +257,7 @@ export default function Terminal({ onNavigate }) {
                 spellCheck={false}
                 autoComplete="off"
                 aria-label="terminal input"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-text bg-transparent outline-none"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-text bg-transparent outline-hidden"
               />
             </div>
           </form>
@@ -273,7 +273,7 @@ export default function Terminal({ onNavigate }) {
                 type="button"
                 disabled={busy}
                 onClick={() => run(cmd)}
-                className="px-2.5 py-1 border border-line rounded text-dim hover:text-amber hover:border-amber-dim disabled:opacity-50 transition-colors cursor-pointer"
+                className="px-2.5 py-1 border border-line rounded-sm text-dim hover:text-amber hover:border-amber-dim disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {label}
               </button>

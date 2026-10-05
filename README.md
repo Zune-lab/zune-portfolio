@@ -23,7 +23,7 @@ This is where everything about me lives in one place: who I am, what I've been t
 
 | Tech | Why |
 |---|---|
-| **React 18 + Vite** | Splits the page into small components so changing one thing doesn't break another; Vite makes dev and build very fast. |
+| **React 19 + Vite** | Splits the page into small components so changing one thing doesn't break another; Vite makes dev and build very fast. |
 | **Tailwind CSS + CSS variables** | Fast to style; theme colors and time-of-day colors live in CSS variables (`src/index.css`), so changing a theme doesn't touch any component. |
 | **Plain CSS for complex animation** | The 3D flashlight, preloader, wipe effects and so on are hard to express cleanly with utility classes, so they get their own CSS next to each component. |
 | **No backend** | Time-based status, `mailto:` feedback and everything else runs in the browser: simple, free, and no visitor data is stored. |

@@ -220,7 +220,7 @@ export default function Snake() {
         tabIndex={0}
         onKeyDown={onKeyDown}
         aria-label="snake game, use arrow keys or WASD"
-        className="relative mx-auto max-w-[360px] outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--amber)] rounded-lg"
+        className="relative mx-auto max-w-[360px] outline-hidden focus-visible:ring-1 focus-visible:ring-[color:var(--amber)] rounded-sm-lg"
       >
         <canvas
           ref={canvasRef}

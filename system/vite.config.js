@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'node:url';
+import tailwindcss from '@tailwindcss/vite';
 
 // thêm dòng bản quyền vào đầu mỗi file JS sau khi build (chạy sau bước minify nên không bị xoá)
 const BANNER = '/*! zune-portfolio © 2026 Zune (https://github.com/Zune-lab/zune-portfolio) - MIT License */\n';
@@ -20,7 +20,5 @@ const copyrightBanner = () => ({
 // zune-lab.github.io/ thay vì zune-lab.github.io/zune-portfolio/ -> 404 -> trắng trang.
 export default defineConfig({
   base: '/zune-portfolio/',
-  plugins: [react(), copyrightBanner()],
-  // postcss.config.js nằm cạnh file này (system/), không ở thư mục gốc -> chỉ cho Vite chỗ tìm.
-  css: { postcss: fileURLToPath(new URL('.', import.meta.url)) },
+  plugins: [react(), tailwindcss(), copyrightBanner()],
 });
