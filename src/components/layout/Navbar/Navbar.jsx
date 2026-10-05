@@ -17,8 +17,7 @@ const BRAND_SHRINK = Math.max(0, site.handle.length - 'cd ~/'.length);
 // src/config/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
 const mainLinks = [
   ...PAGES.map((p) => ({ href: `#${p.id}`, label: p.label, tab: p.id })),
-  { href: '#feedback', label: 'feedback.sh' },
-  { href: '#socials', label: 'socials/' },
+  { href: '#contact', label: 'contact.sh' },
 ];
 
 // href THẬT của link: trang riêng -> /zune-portfolio/<id>; anchor -> trang chính + #anchor.

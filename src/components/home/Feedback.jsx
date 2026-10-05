@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import SectionHead from '../ui/SectionHead.jsx';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import CopyEmail from './CopyEmail/CopyEmail.jsx';
 import { site } from '../../config/site.js';
 import useTimer from '../../lib/useTimer.js';
-import { WRAP } from '../../config/ui.js';
 
 const MAX_MAILTO = 1900;
 
@@ -82,13 +80,11 @@ export default function Feedback() {
   };
 
   return (
-    <section id="feedback" className="py-20 border-t border-line">
-      <div className={WRAP}>
-        <SectionHead num="04" title="feedback.sh" />
-        <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
+    <div>
+        <p className="font-mono text-[12.5px] text-dim mb-5">
           // even a one-line note is fine, I read everything
         </p>
-        <form onSubmit={handleSubmit} className="max-w-[520px] bg-inset border border-line rounded-[10px] p-5 flex flex-col gap-3.5">
+        <form onSubmit={handleSubmit} className="bg-inset border border-line rounded-[10px] p-5 flex flex-col gap-3.5">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -124,11 +120,10 @@ export default function Feedback() {
             {note}
           </span>
         </form>
-        <div className="mt-6 max-w-[520px]">
+        <div className="mt-6">
           <p className="font-mono text-[12.5px] text-dim mb-3">// no mail app? copy my email and write from anywhere</p>
           <CopyEmail email={site.email} copied={copied} onCopy={copyEmail} />
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

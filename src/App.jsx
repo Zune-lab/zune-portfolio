@@ -5,8 +5,7 @@ import Loader from './components/layout/Loader/Loader.jsx';
 import Navbar from './components/layout/Navbar/Navbar.jsx';
 import Hero from './components/home/Hero.jsx';
 import { FeaturedProjects, AboutTeaser, LabTeaser, TerminalSection } from './components/home/HomeSections.jsx';
-import Feedback from './components/home/Feedback.jsx';
-import Socials from './components/home/Socials/Socials.jsx';
+import Contact from './components/home/Contact.jsx';
 import { Signature, Footer } from './components/layout/Signature/Signature.jsx';
 import BackToTop from './components/layout/BackToTop/BackToTop.jsx';
 import Alive from './components/layout/Alive/Alive.jsx';
@@ -45,7 +44,7 @@ export default function App() {
   }, [theme]);
 
   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể
-  // (vd '#feedback' khi nhảy thẳng từ tab khác) hoặc vị trí cũ đã lưu lại.
+  // (vd '#contact' khi nhảy thẳng từ tab khác) hoặc vị trí cũ đã lưu lại.
   useEffect(() => {
     if (view !== 'home' || pendingScroll == null) return;
     if (typeof pendingScroll === 'string') {
@@ -64,7 +63,7 @@ export default function App() {
     else mainRef.current?.focus({ preventScroll: true });
   }, [view]);
 
-  // mở thẳng địa chỉ có #anchor của trang chính (vd Ctrl+click "socials/" ra tab mới):
+  // mở thẳng địa chỉ có #anchor của trang chính (vd Ctrl+click "contact.sh" ra tab mới):
   // cuộn tới mục đó rồi bỏ #anchor khỏi thanh địa chỉ cho gọn
   useEffect(() => {
     const id = location.hash.replace(/^#/, '');
@@ -138,7 +137,7 @@ export default function App() {
 
   // nextView: 'home' | 'about' | 'projects' | 'lab' | 'lab/<slug>'.
   // scrollTarget (tùy chọn): css selector cần cuộn tới sau khi về home (vd
-  // '#feedback' khi bấm link nhảy thẳng). Không truyền thì:
+  // '#contact' khi bấm link nhảy thẳng). Không truyền thì:
   //  - về 'home': khôi phục đúng vị trí đã cuộn trước khi rời trang chính
   //  - sang tab khác: luôn bắt đầu từ đầu trang
   // Mọi lần chuyển tab đều hiện Loader trong TAB_LOADER_MS trước khi đổi
@@ -168,7 +167,7 @@ export default function App() {
         savedHomeScroll.current = window.scrollY;
       }
       if (push) {
-        // về home kèm mục (vd '#feedback') vẫn cuộn tới đó nhưng URL giữ sạch, không thêm #anchor
+        // về home kèm mục (vd '#contact') vẫn cuộn tới đó nhưng URL giữ sạch, không thêm #anchor
         history.pushState({ from: viewRef.current }, '', pathOf(nextView)); // `from`: để nút back của Navbar biết có lùi thật được không
       }
       setView(nextView);
@@ -223,8 +222,7 @@ export default function App() {
           <FeaturedProjects onNavigate={handleNavigate} />
           <AboutTeaser onNavigate={handleNavigate} />
           <LabTeaser onNavigate={handleNavigate} />
-          <Feedback />
-          <Socials />
+          <Contact />
         </>
       )}
       </ErrorBoundary>

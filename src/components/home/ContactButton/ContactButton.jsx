@@ -6,7 +6,7 @@ export default function ContactButton({ href }) {
     <a
       href={href}
       onClick={(e) => {
-        // link cuộn trong trang (#socials...): chỉ cuộn, không thêm #anchor vào URL
+        // link cuộn trong trang (#contact...): chỉ cuộn, không thêm #anchor vào URL
         if (isPlainClick(e) && href?.startsWith('#')) {
           e.preventDefault();
           scrollToAnchor(href);

@@ -6,7 +6,7 @@ export const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey ||
 export const isTypingTarget = (t) =>
   !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
 
-// cuộn tới 1 mục theo selector (vd '#socials') mà không thêm #anchor vào URL
+// cuộn tới 1 mục theo selector (vd '#contact') mà không thêm #anchor vào URL
 export const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
 
 // effect "spotlight": lưu vị trí chuột vào --mx/--my của phần tử để CSS vẽ ánh sáng/viền chạy theo

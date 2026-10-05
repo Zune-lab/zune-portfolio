@@ -89,6 +89,7 @@ export default function Projects() {
   const [mode, setMode] = useState('shelf'); // 'shelf' (kệ băng) | 'ls' (danh sách gọn)
   const tabs = useRef({});
   const rail = useRef(null);
+  const consoleRef = useRef(null);
 
   // lọc như `ls projects/ | grep <q> --<tag>`: khớp tên, mô tả hoặc tag
   const list = useMemo(() => {
@@ -151,6 +152,15 @@ export default function Projects() {
     setPicked(slugOf(next));
     tabs.current[slugOf(next)]?.focus();
   };
+  // bấm băng ở kệ (nằm dưới): nếu màn hình máy đã trôi lên khỏi tầm nhìn thì cuộn lên cho thấy,
+  // không bắt người xem tự lướt lên. Máy còn thấy đủ thì không cuộn để khỏi giật trang.
+  const pick = (k) => {
+    setPicked(k);
+    const el = consoleRef.current;
+    if (el && el.getBoundingClientRect().top < 56) {
+      el.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }
+  };
   const nudge = (d) => rail.current?.scrollBy({ left: d * rail.current.clientWidth * 0.8, behavior: 'smooth' });
 
   if (!p) {
@@ -179,7 +189,7 @@ export default function Projects() {
       tabIndex: k === slug ? 0 : -1,
       style: { '--c': x.color },
       'data-off': status[k] === 'off' || undefined,
-      onClick: () => setPicked(k),
+      onClick: () => pick(k),
       onKeyDown: (e) => move(e, i),
     };
     return mode === 'ls' ? (
@@ -209,7 +219,7 @@ export default function Projects() {
           Small things I built for fun. Grab a cartridge to load it.
         </p>
 
-        <div id="proj-panel" role="tabpanel" aria-labelledby={`proj-tab-${slug}`} className="proj-console">
+        <div id="proj-panel" ref={consoleRef} role="tabpanel" aria-labelledby={`proj-tab-${slug}`} className="proj-console scroll-mt-20">
           <div key={slug} className="proj-console-body">
             <div className="proj-screen">
               <div className="proj-art" data-off={st === 'off' || undefined} style={{ color: p.color }} onPointerMove={stageMove} onPointerLeave={stageLeave}>

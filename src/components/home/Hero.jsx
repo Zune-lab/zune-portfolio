@@ -95,7 +95,7 @@ export default function Hero({ onNavigate }) {
             <p className="font-mono text-[13px] text-dim mt-4">{site.content.heroNote}</p>
             <div className="flex gap-3.5 mt-8 flex-wrap items-center">
               <Btn31 onClick={() => scrollToAnchor('#featured')}>view projects</Btn31>
-              <ContactButton href="#socials" />
+              <ContactButton href="#contact" />
             </div>
           </div>
           <SheetCard />

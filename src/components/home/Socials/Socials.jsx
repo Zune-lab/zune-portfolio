@@ -1,7 +1,5 @@
-import SectionHead from '../../ui/SectionHead.jsx';
 import './Socials.css';
 import { socials } from '../../../data/socials.js';
-import { WRAP } from '../../../config/ui.js';
 
 function SocialButton({ name, href, brand, viewBox, path, zalo }) {
   return (
@@ -45,15 +43,13 @@ function SocialButton({ name, href, brand, viewBox, path, zalo }) {
 
 export default function Socials() {
   return (
-    <section id="socials" className="py-20 border-t border-line">
-      <div className={WRAP}>
-        <SectionHead num="05" title="socials/" />
-        <div className="flex flex-wrap gap-x-2 gap-y-6">
-          {socials.map((s) => (
-            <SocialButton key={s.name} {...s} />
-          ))}
-        </div>
+    <div>
+      <p className="font-mono text-[12.5px] text-dim mb-5">// or find me elsewhere</p>
+      <div className="flex flex-wrap gap-x-2 gap-y-6">
+        {socials.map((s) => (
+          <SocialButton key={s.name} {...s} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

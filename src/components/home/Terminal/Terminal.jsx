@@ -62,7 +62,7 @@ function exec(raw, { onNavigate, clear }) {
       return [siteDateTime()];
     case 'sudo':
       return arg === HIRE
-        ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
+        ? ['[sudo] password for you: ********', 'permission granted - message me in the contact section!']
         : ['sudo: you are not in the sudoers file. this incident will be reported.'];
     case 'battery': {
       // cùng một pin với thẻ sav và con sâu ở hero
