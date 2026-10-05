@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './Signature.css';
 import { location } from '../../../data/profile.js';
+import { observeOnce } from '../../../lib/observe.js';
 
 export function Signature() {
   const ref = useRef(null);
@@ -9,19 +10,7 @@ export function Signature() {
   const pointer = useRef('mouse'); // loại con trỏ của lần nhấn gần nhất
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setDrawn(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.4 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    return observeOnce(ref.current, () => setDrawn(true), 0.4);
   }, []);
 
   // chuột: hover mở/đóng. cảm ứng/bút: onClick bật tắt (không dùng :hover vì bị "dính" trên mobile)

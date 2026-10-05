@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { arts } from '../index.js';
+import { canHover } from '../../lib/env.js';
+import { BASE } from '../../lib/paths.js';
 import './ProjectCard.css';
 
 // Card gồm 3 lớp:
@@ -12,7 +14,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
   const slug = file.replace(/\.[^.]+$/, '');
   const Art = arts[slug];
   // thiết bị cảm ứng ẩn Art bằng CSS (hover: none) -> không mount luôn cho đỡ chạy animation vô ích
-  const canHover = window.matchMedia('(hover: hover)').matches;
+  const hoverable = canHover();
 
   return (
     <a
@@ -22,7 +24,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
       rel="noreferrer"
       className={`project-card ${shotOk ? 'has-shot' : ''} relative h-[180px] rounded-[10px] overflow-hidden bg-panel border border-line flex items-center justify-center cursor-pointer transition-[transform,box-shadow,border-color] duration-500 hover:scale-[1.04] hover:shadow-[0_18px_30px_-14px_rgba(0,0,0,0.5)] hover:border-amber-dim scroll-mt-20`}
     >
-      {Art && canHover && (
+      {Art && hoverable && (
         <div className="project-card-preview absolute inset-0" style={{ color }} aria-hidden="true">
           <Art />
         </div>
@@ -31,7 +33,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
       {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /zune-portfolio/ */}
       {shotOk && (
         <img
-          src={`${import.meta.env.BASE_URL}previews/${slug}.png`}
+          src={`${BASE}previews/${slug}.png`}
           alt=""
           loading="lazy"
           onError={() => setShotOk(false)}

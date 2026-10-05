@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { env, setupLizard } from './creature.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { isNapping } from '../../../lib/nap.js';
-
-const rand = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+import { fitCanvas } from '../../../lib/canvas.js';
+import { observeVisible } from '../../../lib/observe.js';
+import { randInt } from '../../../lib/math.js';
 
 // Sinh một con mới: số chân, độ dài đuôi ngẫu nhiên (giống bản gốc, thu nhỏ cho vừa khung)
 function spawn(w, h) {
-  const legs = rand(1, 12);
-  const tail = rand(4, 4 + legs * 8);
+  const legs = randInt(1, 12);
+  const tail = randInt(4, 4 + legs * 8);
   return { legs, critter: setupLizard(4.5 / Math.sqrt(legs), legs, tail, w, h) };
 }
 
@@ -24,7 +25,6 @@ export default function Reptile() {
     const canvas = cvs.current;
     const box = wrap.current;
     const ctx = canvas.getContext('2d');
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let w = 0;
     let h = 0;
     let raf = 0;
@@ -42,9 +42,7 @@ export default function Reptile() {
     const resize = () => {
       w = box.clientWidth;
       h = box.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fitCanvas(canvas, ctx, w, h);
     };
     resize();
     env.ctx = ctx;
@@ -67,8 +65,7 @@ export default function Reptile() {
       env.ctx = ctx;
     });
     ro.observe(box);
-    const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
-    io.observe(box);
+    const offVisible = observeVisible(box, (v) => (visible = v));
 
     const tick = (t) => {
       raf = requestAnimationFrame(tick);
@@ -84,7 +81,7 @@ export default function Reptile() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      io.disconnect();
+      offVisible();
       offTheme();
       canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerdown', move);

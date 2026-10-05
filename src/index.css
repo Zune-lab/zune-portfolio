@@ -11,6 +11,7 @@
   --text-dim: #8a93a3;
   --amber: #ffc857;
   --amber-dim: #c99a3f;
+  --on-amber: #0a0c10; /* chữ/icon nằm trên nền amber: luôn tối ở cả hai theme */
   --green: #7ee081;
   --js: #f1c40f;
   --css-lang: #a98ae8;

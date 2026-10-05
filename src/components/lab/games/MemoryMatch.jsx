@@ -1,18 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../../lib/storage.js';
+import { shuffled } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
 const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
 
-const shuffle = () => {
-  const deck = [...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym }));
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-};
+const shuffle = () => shuffled([...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym })));
 
 // mini game: lật 2 thẻ một lượt, ghép đủ 6 cặp ký hiệu code với ít lượt nhất
 export default function MemoryMatch() {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../../lib/storage.js';
+import { randInt } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const CELLS = 9;
@@ -26,7 +27,7 @@ export default function BugSquash() {
     const life = Math.max(450, 900 - elapsed * 15); // bug sống ngắn dần
     let next;
     do {
-      next = Math.floor(Math.random() * CELLS);
+      next = randInt(0, CELLS - 1);
     } while (next === activeRef.current);
     activeRef.current = next;
     setActive(next);

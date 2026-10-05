@@ -280,6 +280,18 @@ class Creature {
   }
 }
 
+// một đốt sống kèm hai "xương sườn" mảnh hai bên; cổ và đuôi dùng chung, chỉ khác độ dài đoạn cuối xương sườn (`tipLen`)
+function addRibbedSegment(spinal, s, tipLen) {
+  const seg = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
+  for (let ii = -1; ii <= 1; ii += 2) {
+    let node = new Segment(seg, s * 3, ii, 0.1, 2);
+    for (let iii = 0; iii < 3; iii++) {
+      node = new Segment(node, tipLen, -ii * 0.1, 0.1, 2);
+    }
+  }
+  return seg;
+}
+
 export function setupLizard(size, legs, tail, w, h) {
   let s = size;
   //(x,y,angle,fAccel,fFric,fRes,fThresh,rAccel,rFric,rRes,rThresh)
@@ -300,13 +312,7 @@ export function setupLizard(size, legs, tail, w, h) {
   //(parent,size,angle,range,stiffness)
   //Neck
   for (let i = 0; i < 6; i++) {
-    spinal = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
-    for (let ii = -1; ii <= 1; ii += 2) {
-      let node = new Segment(spinal, s * 3, ii, 0.1, 2);
-      for (let iii = 0; iii < 3; iii++) {
-        node = new Segment(node, s * 0.1, -ii * 0.1, 0.1, 2);
-      }
-    }
+    spinal = addRibbedSegment(spinal, s, s * 0.1);
   }
   //Torso and legs
   for (let i = 0; i < legs; i++) {
@@ -339,13 +345,7 @@ export function setupLizard(size, legs, tail, w, h) {
   }
   //Tail
   for (let i = 0; i < tail; i++) {
-    spinal = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
-    for (let ii = -1; ii <= 1; ii += 2) {
-      let node = new Segment(spinal, s * 3, ii, 0.1, 2);
-      for (let iii = 0; iii < 3; iii++) {
-        node = new Segment(node, s * 3 * (tail - i) / tail, -ii * 0.1, 0.1, 2);
-      }
-    }
+    spinal = addRibbedSegment(spinal, s, (s * 3 * (tail - i)) / tail);
   }
   return critter;
 }

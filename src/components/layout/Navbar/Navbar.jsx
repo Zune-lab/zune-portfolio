@@ -5,6 +5,7 @@ import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
 import { PAGES, pageOfView, topOf } from '../../../config/pages.js';
 import { pathOf } from '../../../lib/paths.js';
 import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
+import { hasFinePointer } from '../../../lib/env.js';
 import useHideOnScroll from '../../../lib/useHideOnScroll.js';
 import './Navbar.css';
 
@@ -42,7 +43,6 @@ const MAX_INLINE_SUB = 3;
 const MENU_W = 220;
 const HOVER_CLOSE_MS = 160; // trễ nhẹ khi rời nút để kịp di chuột sang menu mà không bị đóng
 
-const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 // chỉ chuột thật mới kích hoạt hover; cảm ứng vẫn dùng cú chạm (click) để bật/tắt
 const mouseOnly = (fn) => (e) => {
   if (e.pointerType === 'mouse') fn();
@@ -103,7 +103,7 @@ function SubMenu({ label, links, onSelect }) {
   const onTriggerClick = (e) => {
     e.preventDefault();
     // click bằng chuột: menu đã mở sẵn nhờ hover, bấm vào đừng làm nó đóng lại
-    if (e.detail > 0 && canHover()) return show();
+    if (e.detail > 0 && hasFinePointer()) return show();
     if (open) setOpen(false);
     else {
       focusOnOpen.current = e.detail === 0; // Enter / Space trên nút

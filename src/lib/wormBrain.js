@@ -11,8 +11,8 @@
 // Giờ: chỉ giật mình khi chuột đang LAO VỀ PHÍA đầu, chỉ một lần rồi nghỉ (calm) ~1.8s mới giật mình tiếp,
 // đích bỏ chạy được chọn một lần và trượt dọc tường thay vì đâm vào, và có bộ canh "kẹt" tự gỡ.
 
-const TAU = Math.PI * 2;
-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+import { clamp, TAU } from './math.js';
+
 const angDiff = (a, b) => {
   let d = (b - a) % TAU;
   if (d > Math.PI) d -= TAU;

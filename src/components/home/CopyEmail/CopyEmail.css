@@ -3,7 +3,7 @@
 
 .copy-mail {
   --cm-h: 42px;
-  --cm-on: #0a0c10; /* text/icon color on top of the amber / green fill */
+  --cm-on: var(--on-amber); /* text/icon color on top of the amber / green fill */
   position: relative;
   display: inline-flex;
   align-items: stretch;

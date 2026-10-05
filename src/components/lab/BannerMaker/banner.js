@@ -2,6 +2,8 @@
 // khung (hình dáng, bo góc, viền) cũng là một phần của ảnh nên lưu ra PNG giống hệt bản xem trước.
 // file này không đụng tới DOM nên chạy được cả trong node để test.
 
+import { clamp } from '../../../lib/math.js';
+
 export const MIN_SIZE = 12;
 export const MAX_SIZE = 48;
 export const MAX_LAYERS = 6;
@@ -46,7 +48,7 @@ const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
 export const hexOf = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c] ?? DYE.ink).hex);
 export const colorName = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c]?.name ?? c));
 
-const clamp01 = (n) => Math.max(0, Math.min(1, n));
+const clamp01 = (n) => clamp(n, 0, 1);
 const clampInt = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(n)));
 
 export const SHAPES = [

@@ -2,6 +2,10 @@
 // hoặc chuột giữa -> trả lại cho trình duyệt (mở tab mới...)
 export const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 
+// đang gõ vào ô nhập: phím tắt / easter egg toàn trang phải bỏ qua
+export const isTypingTarget = (t) =>
+  !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+
 // cuộn tới 1 mục theo selector (vd '#socials') mà không thêm #anchor vào URL
 export const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
 

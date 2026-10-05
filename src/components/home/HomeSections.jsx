@@ -1,42 +1,23 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import '../../projects/ProjectCard/ProjectCard.css'; // chứa .art-center dùng chung cho mọi Art
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { projects, arts } from '../../projects/index.js';
 import { LAB_ITEMS } from '../../config/lab-items.js';
 import { gitLog, stack, role, location, aboutBlurb } from '../../data/profile.js';
-import { pathOf } from '../../lib/paths.js';
-import { isPlainClick, spotMove } from '../../lib/dom.js';
-
-// link thật (Ctrl+click mở tab mới được) nhưng bấm thường thì chuyển trang mượt trong app
-function PageLink({ view, onNavigate, className = 'hero-link', children }) {
-  return (
-    <a
-      href={pathOf(view)}
-      className={className}
-      onClick={(e) => {
-        if (!isPlainClick(e)) return;
-        e.preventDefault();
-        onNavigate?.(view);
-      }}
-    >
-      {children}
-    </a>
-  );
-}
+import PageLink from '../ui/PageLink.jsx';
+import { spotMove } from '../../lib/dom.js';
+import { canHover } from '../../lib/env.js';
+import useTimer from '../../lib/useTimer.js';
 
 export function FeaturedProjects({ onNavigate }) {
   const list = projects.slice(0, 3);
   const [i, setI] = useState(0);
-  const timer = useRef(0);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const hoverT = useTimer();
   const p = list[i];
-  const canHover = window.matchMedia('(hover: hover)').matches;
+  const hoverable = canHover();
   // chờ ~80ms trước khi đổi để lướt chuột ngang qua không làm preview chớp
-  const pick = (n) => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setI(n), 80);
-  };
+  const pick = (n) => hoverT.set(() => setI(n), 80);
 
   return (
     <section id="featured" className="py-20 border-t border-line scroll-mt-14">
@@ -88,7 +69,7 @@ export function FeaturedProjects({ onNavigate }) {
                   onMouseEnter={() => pick(n)}
                   onFocus={() => setI(n)}
                   onClick={(e) => {
-                    if (n !== i && !canHover) {
+                    if (n !== i && !hoverable) {
                       e.preventDefault();
                       setI(n);
                     }

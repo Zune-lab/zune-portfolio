@@ -13,6 +13,8 @@ import {
   colorName,
   isCustom,
 } from './banner.js';
+import { pick, randInt } from '../../../lib/math.js';
+import useTimer from '../../../lib/useTimer.js';
 
 const STAGE_INNER_W = 296; // vùng xem trước cố định, banner nào cũng co/giãn trong khung này
 const STAGE_INNER_H = 362;
@@ -29,7 +31,6 @@ const SIZE_PRESETS = [
 const DEFAULT_VIEW = { tilt: 0, shadow: 14, hanger: true };
 const RAINBOW = 'conic-gradient(#f43, #fc3, #6d4, #3cf, #84f, #f4b, #f43)';
 
-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const btn = 'lab-cell px-3 py-1 rounded-md border border-line hover:border-amber text-ink disabled:opacity-40 disabled:hover:border-line';
 const chip = (on) => `lab-cell px-2.5 py-0.5 rounded-md border ${on ? 'border-amber text-ink' : 'border-line text-dim hover:border-amber-dim'}`;
 
@@ -186,7 +187,7 @@ export default function BannerMaker() {
   const canvasRef = useRef(null);
   const stroke = useRef(null); // { last: [x, y], pushed: boolean } trong lúc đang kéo chuột
   const paintRef = useRef(paint); // bản mới nhất của paint, để nhiều sự kiện pointer liên tiếp không đọc nhầm state cũ
-  const copiedTimer = useRef(0);
+  const copiedT = useTimer();
 
   const { w, h } = frame;
   const drawing = tab === 'draw';
@@ -226,7 +227,6 @@ export default function BannerMaker() {
     return made;
   }, [inDesign, dw, dh]);
 
-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
 
   useEffect(() => {
     const ctx = canvasRef.current.getContext('2d');
@@ -272,7 +272,7 @@ export default function BannerMaker() {
   };
 
   const randomize = () => {
-    const n = 2 + Math.floor(Math.random() * (MAX_LAYERS - 1));
+    const n = randInt(2, MAX_LAYERS);
     const baseColor = pick(DYES).id;
     let prev = baseColor;
     const next = Array.from({ length: n }, () => {
@@ -405,8 +405,7 @@ export default function BannerMaker() {
       result = 'fail'; // trình duyệt chặn clipboard: báo để người dùng tự bôi đen
     }
     setCopied(result);
-    clearTimeout(copiedTimer.current);
-    copiedTimer.current = setTimeout(() => setCopied(false), result === 'ok' ? 1500 : 3000);
+    copiedT.set(() => setCopied(false), result === 'ok' ? 1500 : 3000);
   };
 
   const rowCls = (active) =>

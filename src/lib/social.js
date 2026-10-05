@@ -3,7 +3,7 @@ import { getStatusKey } from './status.js';
 
 // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
 // Là store ngoài React để canvas (HeroWorm) đọc được mỗi khung hình mà không phải re-render.
-export const BASE = { online: 80, busy: 40, focus: 20, offline: 10 };
+const BASE = { online: 80, busy: 40, focus: 20, offline: 10 };
 const REPLIES = ['hi.', 'oh. hello again.', 'ok, that was a lot of talking', 'running low on words...'];
 const MAX_MS = 9000;
 

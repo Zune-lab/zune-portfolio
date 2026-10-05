@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { isNapping } from '../../../lib/nap.js';
+import { fitCanvas } from '../../../lib/canvas.js';
+import { isTypingTarget } from '../../../lib/dom.js';
+import { prefersReducedMotion } from '../../../lib/env.js';
+import { clamp, pick, TAU } from '../../../lib/math.js';
+import { observeVisible } from '../../../lib/observe.js';
+import useTimer from '../../../lib/useTimer.js';
 import './Ghost.css';
 
 const STARS = [
@@ -58,12 +64,9 @@ const SPARK_COLORS = ['#ffffff', '#ffb3d1', '#c9b6ff'];
 const HEM_A = 'M0,52 C0,23 22,0 50,0 C78,0 100,23 100,52 L100,118 Q87.5,134 75,118 T50,118 T25,118 T0,118 Z';
 const HEM_B = 'M0,52 C0,23 22,0 50,0 C78,0 100,23 100,52 L100,118 Q87.5,102 75,118 T50,118 T25,118 T0,118 Z';
 
-const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
 const makeSparks = () =>
   Array.from({ length: 9 }, (_, i) => {
-    const a = (i / 9) * Math.PI * 2 + Math.random() * 0.5;
+    const a = (i / 9) * TAU + Math.random() * 0.5;
     const dist = 40 + Math.random() * 36;
     return {
       dx: Math.round(Math.cos(a) * dist),
@@ -87,15 +90,15 @@ export default function Ghost() {
   const canvas = useRef(null);
   const seq = useRef(0);
   const timers = useRef(new Set());
-  const sayTimer = useRef(0);
-  const booTimer = useRef(0);
-  const actTimer = useRef(0);
-  const rageTimer = useRef(0);
+  const sayT = useTimer();
+  const booT = useTimer();
+  const actT = useTimer();
+  const rageT = useTimer();
+  const konamiT = useTimer();
+  const eclipseT = useTimer();
+  const toastT = useTimer();
   const moveRaf = useRef(0); // gộp pointermove: tối đa 1 lần đo layout / khung hình
   const lastMove = useRef({ x: 0, y: 0 });
-  const konamiTimer = useRef(0);
-  const eclipseTimer = useRef(0);
-  const toastTimer = useRef(0);
   const clicks = useRef([]);
   const sunClicks = useRef([]);
   const api = useRef({});
@@ -103,7 +106,7 @@ export default function Ghost() {
   const st = useRef({ x: 0, y: 0, vx: 0, vy: 0, px: 0, py: 0, mx: 0, my: 0, inside: false, lastMove: -1e9, t: 0 });
 
   const [reduced] = useState(
-    () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+    () => typeof window !== 'undefined' && prefersReducedMotion(),
   );
   const [day, setDay] = useState(false);
   const [eclipse, setEclipse] = useState(false);
@@ -131,30 +134,25 @@ export default function Ghost() {
     return t;
   };
   const say = (text, ms = 1500) => {
-    clearTimeout(sayTimer.current);
     setMsg(text);
     setSayOn(true);
-    sayTimer.current = window.setTimeout(() => setSayOn(false), ms);
+    sayT.set(() => setSayOn(false), ms);
   };
   const flash = (text, ms = 3400) => {
-    clearTimeout(toastTimer.current);
     setToast({ text, on: true });
-    toastTimer.current = window.setTimeout(() => setToast((t) => ({ ...t, on: false })), ms);
+    toastT.set(() => setToast((t) => ({ ...t, on: false })), ms);
   };
   const doBoo = () => {
-    clearTimeout(booTimer.current);
     setBoo(true);
-    booTimer.current = window.setTimeout(() => setBoo(false), 900);
+    booT.set(() => setBoo(false), 900);
   };
   const doAct = (name, ms) => {
-    clearTimeout(actTimer.current);
     setAct(name);
-    actTimer.current = window.setTimeout(() => setAct(''), ms);
+    actT.set(() => setAct(''), ms);
   };
   const startRage = () => {
     setRage(true);
-    clearTimeout(rageTimer.current);
-    rageTimer.current = window.setTimeout(() => setRage(false), 4200);
+    rageT.set(() => setRage(false), 4200);
   };
   const addBurst = (x, y, ring = false) => {
     const id = ++seq.current;
@@ -172,8 +170,7 @@ export default function Ghost() {
   const startKonami = () => {
     if (!live.current.awake) return sleepyToast();
     setKonami(true);
-    clearTimeout(konamiTimer.current);
-    konamiTimer.current = window.setTimeout(() => setKonami(false), 9000);
+    konamiT.set(() => setKonami(false), 9000);
     say('↑↑↓↓←→←→BA · +30 lives', 2600);
     flash('🕹 konami code · cheat mode on');
     doBoo();
@@ -207,7 +204,6 @@ export default function Ghost() {
   useEffect(() => {
     const ts = timers.current;
     return () => {
-      [sayTimer, booTimer, actTimer, rageTimer, konamiTimer, eclipseTimer, toastTimer].forEach((r) => clearTimeout(r.current));
       cancelAnimationFrame(moveRaf.current);
       ts.forEach(clearTimeout);
     };
@@ -223,27 +219,23 @@ export default function Ghost() {
     let w = 0;
     let h = 0;
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = el.clientWidth;
       h = el.clientHeight;
-      cv.width = w * dpr;
-      cv.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fitCanvas(cv, ctx, w, h);
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(el);
-    const io = new IntersectionObserver(([en]) => {
-      live.current.visible = en.isIntersecting;
+    const offVisible = observeVisible(el, (v) => {
+      live.current.visible = v;
     });
-    io.observe(el);
 
     const orbs = Array.from({ length: 6 }, (_, i) => ({
       x: Math.random() * (w || 400),
       y: (h || 300) * (0.2 + Math.random() * 0.5),
       vx: 0,
       vy: 0,
-      ph: Math.random() * 6.28 + i,
+      ph: Math.random() * TAU + i,
     }));
     let parts = [];
     let spawn = 0;
@@ -323,7 +315,7 @@ export default function Ghost() {
         const k = 1 - p.life / p.max;
         ctx.fillStyle = hue === null ? `rgba(${trail},${(k * 0.5).toFixed(3)})` : `hsla(${(hue + p.x) % 360},90%,70%,${(k * 0.5).toFixed(3)})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * (1 - (1 - k) * 0.4), 0, 6.283);
+        ctx.arc(p.x, p.y, p.r * (1 - (1 - k) * 0.4), 0, TAU);
         ctx.fill();
       }
 
@@ -365,7 +357,7 @@ export default function Ghost() {
         g.addColorStop(1, `${col}0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(o.x, o.y, 16, 0, 6.283);
+        ctx.arc(o.x, o.y, 16, 0, TAU);
         ctx.fill();
       });
       ctx.globalCompositeOperation = 'source-over';
@@ -374,7 +366,7 @@ export default function Ghost() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      io.disconnect();
+      offVisible();
     };
   }, [reduced]);
 
@@ -383,8 +375,7 @@ export default function Ghost() {
     let keys = [];
     let word = '';
     const onKey = (e) => {
-      const t = e.target;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+      if (typeof e.key !== 'string' || isTypingTarget(e.target)) return; // autofill của Chrome bắn keydown không có `key`
       if (!live.current.visible || e.ctrlKey || e.metaKey || e.altKey) return;
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       keys = [...keys, k].slice(-KONAMI.length);
@@ -498,7 +489,7 @@ export default function Ghost() {
     const el = stage.current;
     const c = ghostCenter();
     addBurst(c.x, c.y, true);
-    clearTimeout(actTimer.current);
+    actT.clear();
     setAct('phase');
     later(() => {
       const s = st.current;
@@ -516,12 +507,12 @@ export default function Ghost() {
   };
 
   const toggleDay = () => {
-    clearTimeout(booTimer.current);
-    clearTimeout(sayTimer.current);
+    booT.clear();
+    sayT.clear();
     setBoo(false);
     setSayOn(false);
     if (eclipse) {
-      clearTimeout(eclipseTimer.current);
+      eclipseT.clear();
       setEclipse(false);
       return;
     }
@@ -532,8 +523,7 @@ export default function Ghost() {
       setDay(true);
       setEclipse(true);
       flash('☀ total eclipse · the ghost woke up early');
-      clearTimeout(eclipseTimer.current);
-      eclipseTimer.current = window.setTimeout(() => setEclipse(false), 8000);
+      eclipseT.set(() => setEclipse(false), 8000);
       return;
     }
     setDay((d) => !d);

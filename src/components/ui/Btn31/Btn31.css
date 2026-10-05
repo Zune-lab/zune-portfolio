@@ -20,7 +20,7 @@
   transition: clip-path var(--dur-fast) var(--ease);
 }
 .btn-31:hover {
-  color: #0a0c10;
+  color: var(--on-amber);
   border-color: var(--amber);
 }
 .btn-31:hover::before {

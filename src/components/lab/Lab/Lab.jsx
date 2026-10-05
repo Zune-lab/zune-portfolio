@@ -3,8 +3,9 @@ import ErrorBoundary from '../../layout/ErrorBoundary.jsx';
 import SectionHead from '../../ui/SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../../config/lab-items.js';
-import { pathOf } from '../../../lib/paths.js';
-import { isPlainClick } from '../../../lib/dom.js';
+import PageLink from '../../ui/PageLink.jsx';
+import { spotMove } from '../../../lib/dom.js';
+import { pick } from '../../../lib/math.js';
 import './Lab.css';
 import './LabFx.css';
 
@@ -12,37 +13,15 @@ import './LabFx.css';
 const chip = 'lab-chip px-3 py-1 rounded-md border font-mono text-[12.5px]';
 const btn = 'lab-btn px-3.5 py-1.5 rounded-md border border-line text-ink font-mono text-[13px]';
 
-// đèn pha theo con trỏ trên thẻ: đặt vị trí vào biến CSS --cx/--cy (LabFx.css đọc)
-const trackPointer = (e) => {
-  const r = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty('--cx', `${e.clientX - r.left}px`);
-  e.currentTarget.style.setProperty('--cy', `${e.clientY - r.top}px`);
-};
-
-function Link({ slug, onNavigate, className, children, ...rest }) {
-  const view = slug ? `lab/${slug}` : 'lab';
-  return (
-    <a
-      href={pathOf(view)}
-      onClick={(e) => {
-        if (!isPlainClick(e)) return;
-        e.preventDefault();
-        onNavigate?.(view);
-      }}
-      className={className}
-      {...rest}
-    >
-      {children}
-    </a>
-  );
-}
+// slug rỗng = về lưới lab; có slug = mở 1 mục (lab/<slug>)
+const Link = ({ slug, ...props }) => <PageLink view={slug ? `lab/${slug}` : 'lab'} {...props} />;
 
 // lưới thẻ: bộ lọc theo nhãn + nút random. `kind` nằm ở Lab (không phải ở đây) để mở 1 mục rồi bấm Back vẫn giữ bộ lọc
 function LabGrid({ kind, setKind, onNavigate }) {
   const items = kind === 'all' ? LAB_ITEMS : LAB_ITEMS.filter((i) => i.kind === kind);
   const random = () => {
     const pool = items.length ? items : LAB_ITEMS;
-    onNavigate?.(`lab/${pool[Math.floor(Math.random() * pool.length)].slug}`);
+    onNavigate?.(`lab/${pick(pool).slug}`);
   };
 
   return (
@@ -71,7 +50,7 @@ function LabGrid({ kind, setKind, onNavigate }) {
             key={i.slug}
             slug={i.slug}
             onNavigate={onNavigate}
-            onPointerMove={trackPointer}
+            onPointerMove={spotMove}
             className="lab-card group block p-4 rounded-[10px] border border-line"
             style={{ background: 'var(--panel)' }}
           >
@@ -101,7 +80,7 @@ function LabItem({ item, onNavigate }) {
   const next = LAB_ITEMS[(idx + 1) % LAB_ITEMS.length];
   const random = () => {
     const pool = LAB_ITEMS.filter((i) => i !== item);
-    onNavigate?.(`lab/${pool[Math.floor(Math.random() * pool.length)].slug}`);
+    onNavigate?.(`lab/${pick(pool).slug}`);
   };
   const { Component } = item;
   const framed = item.frame;

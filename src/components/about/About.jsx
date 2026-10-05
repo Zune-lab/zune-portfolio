@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import SectionHead from '../ui/SectionHead.jsx';
-import { aboutBlurb, gitLog, stack, role, location } from '../../data/profile.js';
+import { aboutBlurb, gitLog, stack, role, location, startYear, mainStack, learning } from '../../data/profile.js';
 import { useStatus } from '../../lib/status.js';
 import { useNap } from '../../lib/nap.js';
+import { has, prefersReducedMotion } from '../../lib/env.js';
+import { observeOnce } from '../../lib/observe.js';
 import { useAsleep } from '../../lib/social.js';
 import './About.css';
 
-const START_YEAR = 2022;
 // các dòng trong object `zune` ở about.js (role / based_in lấy từ data/profile.js); dòng `status` bên dưới lấy trạng thái thật
 const FACTS = [
   ['role', role],
   ['based_in', `${location}, VN`],
-  ['started_coding', START_YEAR],
-  ['favorite_stack', 'React + Tailwind'],
-  ['currently_learning', 'Next.js App Router'],
+  ['started_coding', startYear],
+  ['favorite_stack', mainStack],
+  ['currently_learning', learning],
   ['fun_fact', 'debugging CSS all night and never getting bored'],
   ['coffee_or_tea', 'tea'],
 ];
@@ -25,7 +26,7 @@ const TYPES = {
 };
 const parseMsg = (msg) => {
   const type = msg.slice(0, Math.max(0, msg.indexOf(':')));
-  return Object.prototype.hasOwnProperty.call(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
+  return has(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
 };
 
 // skills.js: nhóm lại từ danh sách `stack` trong profile.js; mục nào chưa xếp nhóm tự rơi vào "other"
@@ -52,7 +53,7 @@ function HelloLine({ sleeping, why }) {
   const lastWhy = useRef(why);
   const sleptAt = useRef(0); // lúc bắt đầu ngủ: pin sạc 1%/giây nên ngủ vì hết pin chỉ ~1s, giữ `sleep` hiện đủ lâu để kịp đọc
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduce = prefersReducedMotion();
     let dead = false;
     let timer = 0;
     const wait = (ms) => new Promise((r) => { timer = window.setTimeout(r, reduce ? 0 : ms); });
@@ -97,22 +98,7 @@ function HelloLine({ sleeping, why }) {
 function useReveal() {
   const ref = useRef(null);
   useEffect(() => {
-    const items = ref.current.querySelectorAll('.ab-rev');
-    if (!('IntersectionObserver' in window)) {
-      items.forEach((el) => el.classList.add('is-in'));
-      return undefined;
-    }
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((en) => {
-          if (!en.isIntersecting) return;
-          en.target.classList.add('is-in');
-          io.unobserve(en.target);
-        }),
-      { threshold: 0.12 }
-    );
-    items.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+    return observeOnce(ref.current.querySelectorAll('.ab-rev'), (el) => el.classList.add('is-in'), 0.12);
   }, []);
   return ref;
 }
@@ -170,7 +156,7 @@ const Label = ({ children }) => (
 
 export default function About() {
   const root = useReveal();
-  const years = new Date().getFullYear() - START_YEAR;
+  const years = new Date().getFullYear() - startYear;
   const stats = [
     [years, 'years coding'],
     [gitLog.length, 'commits in life.log'],

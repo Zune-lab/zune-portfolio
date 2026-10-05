@@ -1,0 +1,2107 @@
+diff --git a/src/App.jsx b/src/App.jsx
+index 953a0c7..d1af7b5 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -13,12 +13,12 @@ import Alive from './components/layout/Alive/Alive.jsx';
+ import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
+ import { pathOf } from './lib/paths.js';
+ import { storageSet } from './lib/storage.js';
++import { canHover, prefersReducedMotion } from './lib/env.js';
+ import { timeOfDay } from './lib/vnTime.js';
+ 
+ // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
+ // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
+ const TAB_LOADER_MS = 450;
+-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ 
+ export default function App() {
+   const [theme, setTheme] = useState(
+@@ -93,7 +93,7 @@ export default function App() {
+   // nền chấm bi sáng quanh con trỏ (CSS đọc --mx/--my)
+   useEffect(() => {
+     const glow = glowRef.current;
+-    if (!glow || !window.matchMedia('(hover: hover)').matches) return; // cảm ứng: không cần theo dõi con trỏ
++    if (!glow || !canHover()) return; // cảm ứng: không cần theo dõi con trỏ
+     let raf = 0;
+     const move = (e) => {
+       cancelAnimationFrame(raf);
+@@ -157,7 +157,7 @@ export default function App() {
+ 
+     // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
+     const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
+-    if (!sameTab && !reducedMotion()) setIsLoading(true);
++    if (!sameTab && !prefersReducedMotion()) setIsLoading(true);
+     // start downloading the target page's code right away; the swap waits for BOTH the loader time and the chunk
+     // (a failed preload is ignored here: the ErrorBoundary shows the retry UI once the page tries to render)
+     const preloaded = pageOfView(nextView)?.preload?.().catch(() => {});
+@@ -178,7 +178,7 @@ export default function App() {
+       }
+       setIsLoading(false);
+     };
+-    const wait = sameTab || reducedMotion() ? 0 : TAB_LOADER_MS;
++    const wait = sameTab || prefersReducedMotion() ? 0 : TAB_LOADER_MS;
+     const id = window.setTimeout(() => {
+       // a newer click replaced this navigation while the chunk was downloading -> drop this one
+       if (navTimer.current !== id) return;
+diff --git a/src/components/about/About.jsx b/src/components/about/About.jsx
+index 271c1d2..48531a8 100644
+--- a/src/components/about/About.jsx
++++ b/src/components/about/About.jsx
+@@ -1,19 +1,20 @@
+ import { useEffect, useRef, useState } from 'react';
+ import SectionHead from '../ui/SectionHead.jsx';
+-import { aboutBlurb, gitLog, stack, role, location } from '../../data/profile.js';
++import { aboutBlurb, gitLog, stack, role, location, startYear, mainStack, learning } from '../../data/profile.js';
+ import { useStatus } from '../../lib/status.js';
+ import { useNap } from '../../lib/nap.js';
++import { has, prefersReducedMotion } from '../../lib/env.js';
++import { observeOnce } from '../../lib/observe.js';
+ import { useAsleep } from '../../lib/social.js';
+ import './About.css';
+ 
+-const START_YEAR = 2022;
+ // các dòng trong object `zune` ở about.js (role / based_in lấy từ data/profile.js); dòng `status` bên dưới lấy trạng thái thật
+ const FACTS = [
+   ['role', role],
+   ['based_in', `${location}, VN`],
+-  ['started_coding', START_YEAR],
+-  ['favorite_stack', 'React + Tailwind'],
+-  ['currently_learning', 'Next.js App Router'],
++  ['started_coding', startYear],
++  ['favorite_stack', mainStack],
++  ['currently_learning', learning],
+   ['fun_fact', 'debugging CSS all night and never getting bored'],
+   ['coffee_or_tea', 'tea'],
+ ];
+@@ -25,7 +26,7 @@ const TYPES = {
+ };
+ const parseMsg = (msg) => {
+   const type = msg.slice(0, Math.max(0, msg.indexOf(':')));
+-  return Object.prototype.hasOwnProperty.call(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
++  return has(TYPES, type) ? [type, msg.slice(type.length + 1).trim()] : ['', msg];
+ };
+ 
+ // skills.js: nhóm lại từ danh sách `stack` trong profile.js; mục nào chưa xếp nhóm tự rơi vào "other"
+@@ -52,7 +53,7 @@ function HelloLine({ sleeping, why }) {
+   const lastWhy = useRef(why);
+   const sleptAt = useRef(0); // lúc bắt đầu ngủ: pin sạc 1%/giây nên ngủ vì hết pin chỉ ~1s, giữ `sleep` hiện đủ lâu để kịp đọc
+   useEffect(() => {
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++    const reduce = prefersReducedMotion();
+     let dead = false;
+     let timer = 0;
+     const wait = (ms) => new Promise((r) => { timer = window.setTimeout(r, reduce ? 0 : ms); });
+@@ -97,22 +98,7 @@ function HelloLine({ sleeping, why }) {
+ function useReveal() {
+   const ref = useRef(null);
+   useEffect(() => {
+-    const items = ref.current.querySelectorAll('.ab-rev');
+-    if (!('IntersectionObserver' in window)) {
+-      items.forEach((el) => el.classList.add('is-in'));
+-      return undefined;
+-    }
+-    const io = new IntersectionObserver(
+-      (entries) =>
+-        entries.forEach((en) => {
+-          if (!en.isIntersecting) return;
+-          en.target.classList.add('is-in');
+-          io.unobserve(en.target);
+-        }),
+-      { threshold: 0.12 }
+-    );
+-    items.forEach((el) => io.observe(el));
+-    return () => io.disconnect();
++    return observeOnce(ref.current.querySelectorAll('.ab-rev'), (el) => el.classList.add('is-in'), 0.12);
+   }, []);
+   return ref;
+ }
+@@ -170,7 +156,7 @@ const Label = ({ children }) => (
+ 
+ export default function About() {
+   const root = useReveal();
+-  const years = new Date().getFullYear() - START_YEAR;
++  const years = new Date().getFullYear() - startYear;
+   const stats = [
+     [years, 'years coding'],
+     [gitLog.length, 'commits in life.log'],
+diff --git a/src/components/home/CopyEmail/CopyEmail.css b/src/components/home/CopyEmail/CopyEmail.css
+index 1873750..52c9d7b 100644
+--- a/src/components/home/CopyEmail/CopyEmail.css
++++ b/src/components/home/CopyEmail/CopyEmail.css
+@@ -3,7 +3,7 @@
+ 
+ .copy-mail {
+   --cm-h: 42px;
+-  --cm-on: #0a0c10; /* text/icon color on top of the amber / green fill */
++  --cm-on: var(--on-amber); /* text/icon color on top of the amber / green fill */
+   position: relative;
+   display: inline-flex;
+   align-items: stretch;
+diff --git a/src/components/home/Feedback.jsx b/src/components/home/Feedback.jsx
+index 132028f..7d0b9ce 100644
+--- a/src/components/home/Feedback.jsx
++++ b/src/components/home/Feedback.jsx
+@@ -1,26 +1,51 @@
+-import { useEffect, useRef, useState } from 'react';
++import { useState } from 'react';
+ import SectionHead from '../ui/SectionHead.jsx';
+ import Btn31 from '../ui/Btn31/Btn31.jsx';
+ import CopyEmail from './CopyEmail/CopyEmail.jsx';
++import { email as TO_EMAIL } from '../../data/profile.js';
++import useTimer from '../../lib/useTimer.js';
+ 
+ const MAX_MAILTO = 1900;
+-const TO_EMAIL = 'nguyenhaivuong06@gmail.com';
++
++// icon mặt cười / mặt buồn (Font Awesome, viewBox 512)
++const GOOD_FACE =
++  'M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm177.6 62.1C192.8 334.5 218.8 352 256 352s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z';
++const BAD_FACE =
++  'M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM174.6 384.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4C328.2 358.5 297.2 336 256 336s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z';
++
++// nút chọn cảm xúc: bật thì nền amber, chữ tối
++function MoodButton({ label, on, onClick, path }) {
++  return (
++    <button
++      type="button"
++      onClick={onClick}
++      aria-label={label}
++      aria-pressed={on}
++      className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
++        on ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
++      }`}
++      style={on ? { color: 'var(--on-amber)' } : undefined}
++    >
++      <svg viewBox="0 0 512 512" className="w-[18px] h-[18px]">
++        <path fill="currentColor" d={path} />
++      </svg>
++    </button>
++  );
++}
+ 
+ export default function Feedback() {
+   const [text, setText] = useState('');
+   const [mood, setMood] = useState(null);
+   const [note, setNote] = useState('');
+   const [copied, setCopied] = useState(false);
+-  const copiedTimer = useRef(0);
+-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
++  const copiedT = useTimer(); // bấm liên tiếp: set() huỷ lượt trước nên "copied" không tắt sớm
+ 
+   // máy không có app mail thì mailto: không làm gì cả -> cho copy địa chỉ để gửi bằng cách khác
+   const copyEmail = async () => {
+     try {
+       await navigator.clipboard.writeText(TO_EMAIL);
+       setCopied(true);
+-      clearTimeout(copiedTimer.current); // bấm liên tiếp: lần trước không được tắt "copied" sớm
+-      copiedTimer.current = setTimeout(() => setCopied(false), 2000);
++      copiedT.set(() => setCopied(false), 2000);
+     } catch {
+       setNote(`Couldn't copy automatically, my email is ${TO_EMAIL}`);
+     }
+@@ -73,40 +98,8 @@ export default function Feedback() {
+           />
+           <div className="flex items-center justify-between gap-3 flex-wrap">
+             <div className="flex gap-2">
+-              <button
+-                type="button"
+-                onClick={() => setMood(mood === 'good' ? null : 'good')}
+-                aria-label="I like this page"
+-                aria-pressed={mood === 'good'}
+-                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
+-                  mood === 'good' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
+-                }`}
+-                style={mood === 'good' ? { color: '#0A0C10' } : undefined}
+-              >
+-                <svg viewBox="0 0 512 512" className="w-[18px] h-[18px]">
+-                  <path
+-                    fill="currentColor"
+-                    d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm177.6 62.1C192.8 334.5 218.8 352 256 352s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+-                  />
+-                </svg>
+-              </button>
+-              <button
+-                type="button"
+-                onClick={() => setMood(mood === 'bad' ? null : 'bad')}
+-                aria-label="Not a fan"
+-                aria-pressed={mood === 'bad'}
+-                className={`w-[38px] h-[38px] flex items-center justify-center rounded-lg border transition-colors duration-300 ${
+-                  mood === 'bad' ? 'bg-amber border-amber' : 'bg-panel border-line text-dim hover:border-amber-dim hover:text-amber'
+-                }`}
+-                style={mood === 'bad' ? { color: '#0A0C10' } : undefined}
+-              >
+-                <svg viewBox="0 0 512 512" className="w-[18px] h-[18px]">
+-                  <path
+-                    fill="currentColor"
+-                    d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM174.6 384.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4C328.2 358.5 297.2 336 256 336s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"
+-                  />
+-                </svg>
+-              </button>
++              <MoodButton label="I like this page" on={mood === 'good'} onClick={() => setMood(mood === 'good' ? null : 'good')} path={GOOD_FACE} />
++              <MoodButton label="Not a fan" on={mood === 'bad'} onClick={() => setMood(mood === 'bad' ? null : 'bad')} path={BAD_FACE} />
+             </div>
+             <Btn31
+               type="submit"
+diff --git a/src/components/home/Hero.jsx b/src/components/home/Hero.jsx
+index 9e7505b..918ab0e 100644
+--- a/src/components/home/Hero.jsx
++++ b/src/components/home/Hero.jsx
+@@ -5,6 +5,8 @@ import SheetCard from './SheetCard.jsx';
+ import { scrollToAnchor } from '../../lib/dom.js';
+ import HeroWorm from './HeroWorm.jsx';
+ import { isNapping } from '../../lib/nap.js';
++import { prefersReducedMotion, sleep } from '../../lib/env.js';
++import { observeVisible } from '../../lib/observe.js';
+ 
+ // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
+ // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
+@@ -14,12 +16,10 @@ function Typewriter() {
+   const [text, setText] = useState(PHRASES[0]);
+   const cursor = useRef(null);
+   useEffect(() => {
+-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
++    if (prefersReducedMotion()) return undefined;
+     let dead = false;
+     let visible = true;
+-    const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
+-    io.observe(cursor.current);
+-    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
++    const offVisible = observeVisible(cursor.current, (v) => (visible = v));
+     // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên (kiểm tra thưa, gần như không tốn gì), quay lại thì gõ tiếp
+     const idle = () => !visible || document.hidden || isNapping();
+     const rest = async () => {
+@@ -45,7 +45,7 @@ function Typewriter() {
+     })();
+     return () => {
+       dead = true;
+-      io.disconnect();
++      offVisible();
+     };
+   }, []);
+ 
+diff --git a/src/components/home/HeroWorm.jsx b/src/components/home/HeroWorm.jsx
+index bc0d8b2..4a3b70f 100644
+--- a/src/components/home/HeroWorm.jsx
++++ b/src/components/home/HeroWorm.jsx
+@@ -4,6 +4,10 @@ import { onThemeChange } from '../../lib/themeSync.js';
+ import { createBrain, createPointerTracker, pushOutside } from '../../lib/wormBrain.js';
+ import { createCrewmate } from '../../lib/crewmate.js';
+ import { isNapping } from '../../lib/nap.js';
++import { fitCanvas } from '../../lib/canvas.js';
++import { prefersReducedMotion } from '../../lib/env.js';
++import { TAU } from '../../lib/math.js';
++import { observeVisible } from '../../lib/observe.js';
+ 
+ // Con "sâu chữ" của riêng trang này, tính cách giống chủ nhân: HƯỚNG NỘI.
+ //  - đầu là con trỏ khối của terminal (có mắt, biết chớp, nhìn theo chuột), thân là chữ "zune.dev"
+@@ -31,6 +35,9 @@ const START_N = 10; // 1 đầu + 9 chữ (có 1 khoảng trống ngay sau đầ
+ const MAX_N = 28;
+ const GAP = 28;
+ const MONO = '"JetBrains Mono", monospace';
++// chuỗi font của từng đốt thân, tính một lần (trước đây dựng lại chuỗi cho mỗi chữ ở mỗi khung hình)
++const BODY_FONTS = Array.from({ length: MAX_N }, (_, i) => `700 ${Math.max(12, 22 - i * 0.6)}px ${MONO}`);
++const FONT_BUBBLE = `600 13px ${MONO}`;
+ // bấm vào những thứ này thì KHÔNG tính là "bấm chỗ trống"
+ const INTERACTIVE = 'a,button,input,textarea,select,label,aside,h1,p,[role="button"]';
+ 
+@@ -55,7 +62,7 @@ function drawCrew(ctx, c, t) {
+   ctx.globalAlpha = 0.28; // bóng dưới chân (nhỏ dần khi nhảy cao)
+   ctx.fillStyle = '#000';
+   ctx.beginPath();
+-  ctx.ellipse(0, 17 + lift, 11 - c.hop * 3, 3, 0, 0, Math.PI * 2);
++  ctx.ellipse(0, 17 + lift, 11 - c.hop * 3, 3, 0, 0, TAU);
+   ctx.fill();
+   ctx.globalAlpha = 1;
+   ctx.scale(c.dir, 1); // dir = 1: quay mặt sang phải (kính ở bên phải)
+@@ -90,11 +97,10 @@ export default function HeroWorm() {
+   const cvs = useRef(null);
+ 
+   useEffect(() => {
+-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
++    if (prefersReducedMotion()) return undefined;
+     const canvas = cvs.current;
+     const host = canvas.parentElement;
+     const ctx = canvas.getContext('2d');
+-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+     let w = 0;
+     let h = 0;
+     let raf = 0;
+@@ -132,9 +138,7 @@ export default function HeroWorm() {
+     const resize = () => {
+       w = host.clientWidth;
+       h = host.clientHeight;
+-      canvas.width = w * dpr;
+-      canvas.height = h * dpr;
+-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
++      fitCanvas(canvas, ctx, w, h);
+       if (brain) brain.resize(w, h);
+     };
+     resize();
+@@ -168,11 +172,10 @@ export default function HeroWorm() {
+ 
+     const ro = new ResizeObserver(resize);
+     ro.observe(host);
+-    const io = new IntersectionObserver(([en]) => {
+-      visible = en.isIntersecting;
++    const offVisible = observeVisible(host, (v) => {
++      visible = v;
+       if (!visible) lastT = 0; // quay lại thì không bị tính một bước thời gian khổng lồ
+     });
+-    io.observe(host);
+ 
+     const tick = (t) => {
+       raf = requestAnimationFrame(tick);
+@@ -312,7 +315,7 @@ export default function HeroWorm() {
+         ctx.rotate(ang);
+         ctx.globalAlpha = 0.9 - (i / len) * 0.55;
+         ctx.fillStyle = maxed ? `hsl(${(hue + i * 28) % 360} 85% 62%)` : ink;
+-        ctx.font = `700 ${Math.max(12, 22 - i * 0.6)}px ${MONO}`;
++        ctx.font = BODY_FONTS[i];
+         ctx.fillText(WORD[WORD.length - 1 - ((i - 1) % WORD.length)], 0, 0); // chữ neo theo đầu: đuôi dài ra thì lặp lại "zune.dev "
+         ctx.restore();
+       }
+@@ -353,7 +356,7 @@ export default function HeroWorm() {
+         drawCrew(ctx, crew.state, t);
+         const sy = crew.state.say;
+         if (sy?.text) {
+-          ctx.font = `600 13px ${MONO}`;
++          ctx.font = FONT_BUBBLE;
+           ctx.globalAlpha = Math.min(1, (sy.until - t) / 350);
+           ctx.fillStyle = amber;
+           ctx.textAlign = 'center';
+@@ -377,7 +380,7 @@ export default function HeroWorm() {
+         }
+         ctx.textAlign = 'center';
+       } else if (t < bubble.until) {
+-        ctx.font = `600 13px ${MONO}`;
++        ctx.font = FONT_BUBBLE;
+         const side = covered(ctx.measureText(bubble.text).width) ? -1 : 1;
+         ctx.globalAlpha = Math.min(1, (bubble.until - t) / 400);
+         ctx.fillStyle = amber;
+@@ -392,7 +395,7 @@ export default function HeroWorm() {
+     return () => {
+       cancelAnimationFrame(raf);
+       ro.disconnect();
+-      io.disconnect();
++      offVisible();
+       offTheme();
+       contactEl?.removeAttribute('data-away');
+       host.removeEventListener('click', onClick);
+diff --git a/src/components/home/HomeSections.jsx b/src/components/home/HomeSections.jsx
+index 4c20148..9af04dc 100644
+--- a/src/components/home/HomeSections.jsx
++++ b/src/components/home/HomeSections.jsx
+@@ -1,42 +1,23 @@
+-import { useEffect, useRef, useState } from 'react';
++import { useState } from 'react';
+ import '../../projects/ProjectCard/ProjectCard.css'; // chứa .art-center dùng chung cho mọi Art
+ import SectionHead from '../ui/SectionHead.jsx';
+ import Terminal from './Terminal/Terminal.jsx';
+ import { projects, arts } from '../../projects/index.js';
+ import { LAB_ITEMS } from '../../config/lab-items.js';
+ import { gitLog, stack, role, location, aboutBlurb } from '../../data/profile.js';
+-import { pathOf } from '../../lib/paths.js';
+-import { isPlainClick, spotMove } from '../../lib/dom.js';
+-
+-// link thật (Ctrl+click mở tab mới được) nhưng bấm thường thì chuyển trang mượt trong app
+-function PageLink({ view, onNavigate, className = 'hero-link', children }) {
+-  return (
+-    <a
+-      href={pathOf(view)}
+-      className={className}
+-      onClick={(e) => {
+-        if (!isPlainClick(e)) return;
+-        e.preventDefault();
+-        onNavigate?.(view);
+-      }}
+-    >
+-      {children}
+-    </a>
+-  );
+-}
++import PageLink from '../ui/PageLink.jsx';
++import { spotMove } from '../../lib/dom.js';
++import { canHover } from '../../lib/env.js';
++import useTimer from '../../lib/useTimer.js';
+ 
+ export function FeaturedProjects({ onNavigate }) {
+   const list = projects.slice(0, 3);
+   const [i, setI] = useState(0);
+-  const timer = useRef(0);
+-  useEffect(() => () => clearTimeout(timer.current), []);
++  const hoverT = useTimer();
+   const p = list[i];
+-  const canHover = window.matchMedia('(hover: hover)').matches;
++  const hoverable = canHover();
+   // chờ ~80ms trước khi đổi để lướt chuột ngang qua không làm preview chớp
+-  const pick = (n) => {
+-    clearTimeout(timer.current);
+-    timer.current = setTimeout(() => setI(n), 80);
+-  };
++  const pick = (n) => hoverT.set(() => setI(n), 80);
+ 
+   return (
+     <section id="featured" className="py-20 border-t border-line scroll-mt-14">
+@@ -88,7 +69,7 @@ export function FeaturedProjects({ onNavigate }) {
+                   onMouseEnter={() => pick(n)}
+                   onFocus={() => setI(n)}
+                   onClick={(e) => {
+-                    if (n !== i && !canHover) {
++                    if (n !== i && !hoverable) {
+                       e.preventDefault();
+                       setI(n);
+                     }
+diff --git a/src/components/home/SheetCard.jsx b/src/components/home/SheetCard.jsx
+index 623de60..6ee2b06 100644
+--- a/src/components/home/SheetCard.jsx
++++ b/src/components/home/SheetCard.jsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useState } from 'react';
+-import { role, location } from '../../data/profile.js';
+-import { spotMove } from '../../lib/dom.js';
++import { role, location, mainStack, learning } from '../../data/profile.js';
++import { isTypingTarget, spotMove } from '../../lib/dom.js';
++import { vnClock } from '../../lib/vnTime.js';
+ import { cycleStatus, useStatus } from '../../lib/status.js';
+ import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../lib/social.js';
+ 
+@@ -9,9 +10,6 @@ import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../l
+ const CLASSES = [null, 'Bug Summoner', 'CSS Wizard', 'Tea Enjoyer', 'Introvert (lvl 99)']; // null = role thật
+ const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+ const CELLS = 10;
+-const clock = new Intl.DateTimeFormat('en-GB', {
+-  timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+-});
+ 
+ function Meter({ value, color, rainbow }) {
+   const on = Math.round((value / 100) * CELLS);
+@@ -35,11 +33,11 @@ const Row = ({ k, children }) => (
+ export default function SheetCard() {
+   const status = useStatus();
+   const { drain, months, maxed, reply } = useSocial();
+-  const [time, setTime] = useState(() => clock.format(new Date()));
++  const [time, setTime] = useState(vnClock);
+   const [cls, setCls] = useState(0);
+ 
+   useEffect(() => {
+-    const t = setInterval(() => setTime(clock.format(new Date())), 1000);
++    const t = setInterval(() => setTime(vnClock()), 1000);
+     return () => clearInterval(t);
+   }, []);
+ 
+@@ -47,6 +45,8 @@ export default function SheetCard() {
+   useEffect(() => {
+     let seq = [];
+     const onKey = (e) => {
++      // Chrome autofill bắn keydown không có `key`; đang gõ trong ô nhập (vd feedback) thì không tính vào mã Konami
++      if (typeof e.key !== 'string' || isTypingTarget(e.target)) return;
+       seq = [...seq, e.key.toLowerCase()].slice(-KONAMI.length);
+       if (seq.join() === KONAMI.join()) unlock('konami accepted. personality 100%. who let this happen?');
+     };
+@@ -80,8 +80,8 @@ export default function SheetCard() {
+           </button>
+         </Row>
+         <Row k="location">{location} <span className="text-dim">· {time} GMT+7</span></Row>
+-        <Row k="main quest">React + Tailwind</Row>
+-        <Row k="side quest">Next.js App Router</Row>
++        <Row k="main quest">{mainStack}</Row>
++        <Row k="side quest">{learning}</Row>
+ 
+         <div className="mt-2 grid gap-1.5">
+           <div className="flex justify-between"><span className="text-dim">social battery</span><span style={{ color }}>{level}%</span></div>
+diff --git a/src/components/home/StatsSupport.jsx b/src/components/home/StatsSupport.jsx
+deleted file mode 100644
+index 2487969..0000000
+--- a/src/components/home/StatsSupport.jsx
++++ /dev/null
+@@ -1,38 +0,0 @@
+-import SectionHead from '../ui/SectionHead.jsx';
+-import Btn31 from '../ui/Btn31/Btn31.jsx';
+-import { githubUrl } from '../../data/socials.js';
+-
+-export function Stats() {
+-  return (
+-    <section id="stats" className="py-20 border-t border-line">
+-      <div className="wrap max-w-[1040px] mx-auto px-8">
+-        <SectionHead num="01" title="stats.sh" />
+-        <div className="flex items-center justify-between gap-6 flex-wrap border-y border-line py-8">
+-          <p className="text-dim text-sm max-w-[380px]">
+-            Detailed coding activity (commits, streaks, languages...) already lives on GitHub, so check it there
+-            for the real numbers.
+-          </p>
+-          <Btn31 href={githubUrl}>open github profile ↗</Btn31>
+-        </div>
+-      </div>
+-    </section>
+-  );
+-}
+-
+-export function Support() {
+-  return (
+-    <section id="support" className="py-20 border-t border-line">
+-      <div className="wrap max-w-[1040px] mx-auto px-8">
+-        <SectionHead num="02" title="support.sh" />
+-        <div className="flex items-center justify-between gap-6 flex-wrap border-y border-line py-8">
+-          <p className="text-dim text-sm max-w-[380px]">
+-            If you like what I make, you can buy me{' '}
+-            <span className="font-mono text-amber">$ coffee --small</span> on Ko-fi.
+-          </p>
+-          {/* TODO: đổi thành trang Ko-fi thật của bạn trước khi deploy */}
+-          <Btn31 href="https://ko-fi.com/REPLACE_WITH_YOUR_HANDLE">sponsor --coffee</Btn31>
+-        </div>
+-      </div>
+-    </section>
+-  );
+-}
+diff --git a/src/components/home/Terminal/Terminal.jsx b/src/components/home/Terminal/Terminal.jsx
+index 3ba352c..a79926d 100644
+--- a/src/components/home/Terminal/Terminal.jsx
++++ b/src/components/home/Terminal/Terminal.jsx
+@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
+ import { PAGES } from '../../../config/pages.js';
+ import { stack, role, location } from '../../../data/profile.js';
+ import { spotMove } from '../../../lib/dom.js';
++import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/env.js';
++import { observeOnce } from '../../../lib/observe.js';
+ import { useStatus } from '../../../lib/status.js';
++import { vnDateTime } from '../../../lib/vnTime.js';
+ import { getSocial, levelOf, unlock } from '../../../lib/social.js';
+ import './Terminal.css';
+ 
+@@ -45,7 +48,7 @@ function exec(raw, { onNavigate, clear }) {
+     case 'ls':
+       return [Object.keys(FILES).join('  ') + TABS.map((t) => `  ${t}/`).join('')];
+     case 'cat':
+-      return [Object.prototype.hasOwnProperty.call(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
++      return [has(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
+     case 'cd':
+       if (TABS.includes(dir)) {
+         onNavigate?.(dir);
+@@ -53,7 +56,7 @@ function exec(raw, { onNavigate, clear }) {
+       }
+       return [`cd: ${arg || '?'}: No such file or directory`];
+     case 'date':
+-      return [new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' })];
++      return [vnDateTime()];
+     case 'sudo':
+       return /^hire\s+zune$/.test(arg)
+         ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
+@@ -106,18 +109,13 @@ export default function Terminal({ onNavigate }) {
+   const [busy, setBusy] = useState(false);
+ 
+   useEffect(() => {
+-    const el = wrapRef.current;
+-    if (!el || !('IntersectionObserver' in window)) return setStarted(true);
+-    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setStarted(true), io.disconnect()), { threshold: 0.4 });
+-    io.observe(el);
+-    return () => io.disconnect();
++    return observeOnce(wrapRef.current, () => setStarted(true), 0.4);
+   }, []);
+ 
+   useEffect(() => {
+     if (!started) return undefined;
+     let cancelled = false;
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
++    const reduce = prefersReducedMotion();
+     const INTRO = introLines(blurbRef.current);
+     const buf = [];
+     const flush = () => setLines([...buf]);
+@@ -177,8 +175,6 @@ export default function Terminal({ onNavigate }) {
+   const run = async (cmd) => {
+     if (!ready || busy) return;
+     setBusy(true);
+-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+     setLines((l) => [...l, { t: 'cmd', text: '' }]);
+     for (let i = 1; i <= cmd.length; i++) {
+       await sleep(35);
+@@ -196,7 +192,8 @@ export default function Terminal({ onNavigate }) {
+       e.preventDefault();
+       hIdx.current = Math.min(hIdx.current + 1, h.length - 1);
+       setText(h[h.length - 1 - hIdx.current]);
+-    } else if (e.key === 'ArrowDown') {
++    } else if (e.key === 'ArrowDown' && hIdx.current >= 0) {
++      // chỉ khi đang duyệt lịch sử: nếu không, ↓ lúc đang gõ dở sẽ xoá sạch dòng lệnh
+       e.preventDefault();
+       hIdx.current = Math.max(hIdx.current - 1, -1);
+       setText(hIdx.current === -1 ? '' : h[h.length - 1 - hIdx.current]);
+diff --git a/src/components/lab/BannerMaker/BannerMaker.jsx b/src/components/lab/BannerMaker/BannerMaker.jsx
+index a668f2f..4baeadd 100644
+--- a/src/components/lab/BannerMaker/BannerMaker.jsx
++++ b/src/components/lab/BannerMaker/BannerMaker.jsx
+@@ -13,6 +13,8 @@ import {
+   colorName,
+   isCustom,
+ } from './banner.js';
++import { pick, randInt } from '../../../lib/math.js';
++import useTimer from '../../../lib/useTimer.js';
+ 
+ const STAGE_INNER_W = 296; // vùng xem trước cố định, banner nào cũng co/giãn trong khung này
+ const STAGE_INNER_H = 362;
+@@ -29,7 +31,6 @@ const SIZE_PRESETS = [
+ const DEFAULT_VIEW = { tilt: 0, shadow: 14, hanger: true };
+ const RAINBOW = 'conic-gradient(#f43, #fc3, #6d4, #3cf, #84f, #f4b, #f43)';
+ 
+-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+ const btn = 'lab-cell px-3 py-1 rounded-md border border-line hover:border-amber text-ink disabled:opacity-40 disabled:hover:border-line';
+ const chip = (on) => `lab-cell px-2.5 py-0.5 rounded-md border ${on ? 'border-amber text-ink' : 'border-line text-dim hover:border-amber-dim'}`;
+ 
+@@ -186,7 +187,7 @@ export default function BannerMaker() {
+   const canvasRef = useRef(null);
+   const stroke = useRef(null); // { last: [x, y], pushed: boolean } trong lúc đang kéo chuột
+   const paintRef = useRef(paint); // bản mới nhất của paint, để nhiều sự kiện pointer liên tiếp không đọc nhầm state cũ
+-  const copiedTimer = useRef(0);
++  const copiedT = useTimer();
+ 
+   const { w, h } = frame;
+   const drawing = tab === 'draw';
+@@ -226,7 +227,6 @@ export default function BannerMaker() {
+     return made;
+   }, [inDesign, dw, dh]);
+ 
+-  useEffect(() => () => clearTimeout(copiedTimer.current), []);
+ 
+   useEffect(() => {
+     const ctx = canvasRef.current.getContext('2d');
+@@ -272,7 +272,7 @@ export default function BannerMaker() {
+   };
+ 
+   const randomize = () => {
+-    const n = 2 + Math.floor(Math.random() * (MAX_LAYERS - 1));
++    const n = randInt(2, MAX_LAYERS);
+     const baseColor = pick(DYES).id;
+     let prev = baseColor;
+     const next = Array.from({ length: n }, () => {
+@@ -405,8 +405,7 @@ export default function BannerMaker() {
+       result = 'fail'; // trình duyệt chặn clipboard: báo để người dùng tự bôi đen
+     }
+     setCopied(result);
+-    clearTimeout(copiedTimer.current);
+-    copiedTimer.current = setTimeout(() => setCopied(false), result === 'ok' ? 1500 : 3000);
++    copiedT.set(() => setCopied(false), result === 'ok' ? 1500 : 3000);
+   };
+ 
+   const rowCls = (active) =>
+diff --git a/src/components/lab/BannerMaker/banner.js b/src/components/lab/BannerMaker/banner.js
+index 6bb8056..56a29cc 100644
+--- a/src/components/lab/BannerMaker/banner.js
++++ b/src/components/lab/BannerMaker/banner.js
+@@ -2,6 +2,8 @@
+ // khung (hình dáng, bo góc, viền) cũng là một phần của ảnh nên lưu ra PNG giống hệt bản xem trước.
+ // file này không đụng tới DOM nên chạy được cả trong node để test.
+ 
++import { clamp } from '../../../lib/math.js';
++
+ export const MIN_SIZE = 12;
+ export const MAX_SIZE = 48;
+ export const MAX_LAYERS = 6;
+@@ -46,7 +48,7 @@ const rgbOf = (c) => (isCustom(c) ? parseHex(c) : (DYE[c] ?? DYE.ink).rgb);
+ export const hexOf = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c] ?? DYE.ink).hex);
+ export const colorName = (c) => (isCustom(c) ? c.toLowerCase() : (DYE[c]?.name ?? c));
+ 
+-const clamp01 = (n) => Math.max(0, Math.min(1, n));
++const clamp01 = (n) => clamp(n, 0, 1);
+ const clampInt = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(n)));
+ 
+ export const SHAPES = [
+diff --git a/src/components/lab/Cat/Cat.jsx b/src/components/lab/Cat/Cat.jsx
+index d066eeb..9d10cfa 100644
+--- a/src/components/lab/Cat/Cat.jsx
++++ b/src/components/lab/Cat/Cat.jsx
+@@ -1,5 +1,13 @@
+ import './Cat.css';
+ 
++// hộp chứa đúng 2 phần tử giống nhau (râu, lông mày): DOM giữ nguyên cấu trúc vì CSS chọn theo nth-child
++const Pair = ({ box, item }) => (
++  <div className={box}>
++    <div className={item}></div>
++    <div className={item}></div>
++  </div>
++);
++
+ // Mèo chạy ngược: chỉ CSS animation, không có state
+ export default function Cat() {
+   return (
+@@ -14,25 +22,13 @@ export default function Cat() {
+             <div className="leg"></div>
+           </div>
+           <div className="face">
+-            <div className="mustache_cont">
+-              <div className="mustache"></div>
+-              <div className="mustache"></div>
+-            </div>
+-            <div className="mustache_cont">
+-              <div className="mustache"></div>
+-              <div className="mustache"></div>
+-            </div>
++            <Pair box="mustache_cont" item="mustache" />
++            <Pair box="mustache_cont" item="mustache" />
+             <div className="nose"></div>
+             <div className="eye"></div>
+             <div className="eye"></div>
+-            <div className="brow_cont">
+-              <div className="brow"></div>
+-              <div className="brow"></div>
+-            </div>
+-            <div className="brow_cont">
+-              <div className="brow"></div>
+-              <div className="brow"></div>
+-            </div>
++            <Pair box="brow_cont" item="brow" />
++            <Pair box="brow_cont" item="brow" />
+             <div className="ear_l">
+               <div className="inner"></div>
+             </div>
+diff --git a/src/components/lab/Ghost/Ghost.jsx b/src/components/lab/Ghost/Ghost.jsx
+index 40fc3c0..bb0968c 100644
+--- a/src/components/lab/Ghost/Ghost.jsx
++++ b/src/components/lab/Ghost/Ghost.jsx
+@@ -1,5 +1,11 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { isNapping } from '../../../lib/nap.js';
++import { fitCanvas } from '../../../lib/canvas.js';
++import { isTypingTarget } from '../../../lib/dom.js';
++import { prefersReducedMotion } from '../../../lib/env.js';
++import { clamp, pick, TAU } from '../../../lib/math.js';
++import { observeVisible } from '../../../lib/observe.js';
++import useTimer from '../../../lib/useTimer.js';
+ import './Ghost.css';
+ 
+ const STARS = [
+@@ -58,12 +64,9 @@ const SPARK_COLORS = ['#ffffff', '#ffb3d1', '#c9b6ff'];
+ const HEM_A = 'M0,52 C0,23 22,0 50,0 C78,0 100,23 100,52 L100,118 Q87.5,134 75,118 T50,118 T25,118 T0,118 Z';
+ const HEM_B = 'M0,52 C0,23 22,0 50,0 C78,0 100,23 100,52 L100,118 Q87.5,102 75,118 T50,118 T25,118 T0,118 Z';
+ 
+-const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+-
+ const makeSparks = () =>
+   Array.from({ length: 9 }, (_, i) => {
+-    const a = (i / 9) * Math.PI * 2 + Math.random() * 0.5;
++    const a = (i / 9) * TAU + Math.random() * 0.5;
+     const dist = 40 + Math.random() * 36;
+     return {
+       dx: Math.round(Math.cos(a) * dist),
+@@ -87,15 +90,15 @@ export default function Ghost() {
+   const canvas = useRef(null);
+   const seq = useRef(0);
+   const timers = useRef(new Set());
+-  const sayTimer = useRef(0);
+-  const booTimer = useRef(0);
+-  const actTimer = useRef(0);
+-  const rageTimer = useRef(0);
++  const sayT = useTimer();
++  const booT = useTimer();
++  const actT = useTimer();
++  const rageT = useTimer();
++  const konamiT = useTimer();
++  const eclipseT = useTimer();
++  const toastT = useTimer();
+   const moveRaf = useRef(0); // gộp pointermove: tối đa 1 lần đo layout / khung hình
+   const lastMove = useRef({ x: 0, y: 0 });
+-  const konamiTimer = useRef(0);
+-  const eclipseTimer = useRef(0);
+-  const toastTimer = useRef(0);
+   const clicks = useRef([]);
+   const sunClicks = useRef([]);
+   const api = useRef({});
+@@ -103,7 +106,7 @@ export default function Ghost() {
+   const st = useRef({ x: 0, y: 0, vx: 0, vy: 0, px: 0, py: 0, mx: 0, my: 0, inside: false, lastMove: -1e9, t: 0 });
+ 
+   const [reduced] = useState(
+-    () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
++    () => typeof window !== 'undefined' && prefersReducedMotion(),
+   );
+   const [day, setDay] = useState(false);
+   const [eclipse, setEclipse] = useState(false);
+@@ -131,30 +134,25 @@ export default function Ghost() {
+     return t;
+   };
+   const say = (text, ms = 1500) => {
+-    clearTimeout(sayTimer.current);
+     setMsg(text);
+     setSayOn(true);
+-    sayTimer.current = window.setTimeout(() => setSayOn(false), ms);
++    sayT.set(() => setSayOn(false), ms);
+   };
+   const flash = (text, ms = 3400) => {
+-    clearTimeout(toastTimer.current);
+     setToast({ text, on: true });
+-    toastTimer.current = window.setTimeout(() => setToast((t) => ({ ...t, on: false })), ms);
++    toastT.set(() => setToast((t) => ({ ...t, on: false })), ms);
+   };
+   const doBoo = () => {
+-    clearTimeout(booTimer.current);
+     setBoo(true);
+-    booTimer.current = window.setTimeout(() => setBoo(false), 900);
++    booT.set(() => setBoo(false), 900);
+   };
+   const doAct = (name, ms) => {
+-    clearTimeout(actTimer.current);
+     setAct(name);
+-    actTimer.current = window.setTimeout(() => setAct(''), ms);
++    actT.set(() => setAct(''), ms);
+   };
+   const startRage = () => {
+     setRage(true);
+-    clearTimeout(rageTimer.current);
+-    rageTimer.current = window.setTimeout(() => setRage(false), 4200);
++    rageT.set(() => setRage(false), 4200);
+   };
+   const addBurst = (x, y, ring = false) => {
+     const id = ++seq.current;
+@@ -172,8 +170,7 @@ export default function Ghost() {
+   const startKonami = () => {
+     if (!live.current.awake) return sleepyToast();
+     setKonami(true);
+-    clearTimeout(konamiTimer.current);
+-    konamiTimer.current = window.setTimeout(() => setKonami(false), 9000);
++    konamiT.set(() => setKonami(false), 9000);
+     say('↑↑↓↓←→←→BA · +30 lives', 2600);
+     flash('🕹 konami code · cheat mode on');
+     doBoo();
+@@ -207,7 +204,6 @@ export default function Ghost() {
+   useEffect(() => {
+     const ts = timers.current;
+     return () => {
+-      [sayTimer, booTimer, actTimer, rageTimer, konamiTimer, eclipseTimer, toastTimer].forEach((r) => clearTimeout(r.current));
+       cancelAnimationFrame(moveRaf.current);
+       ts.forEach(clearTimeout);
+     };
+@@ -223,27 +219,23 @@ export default function Ghost() {
+     let w = 0;
+     let h = 0;
+     const resize = () => {
+-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+       w = el.clientWidth;
+       h = el.clientHeight;
+-      cv.width = w * dpr;
+-      cv.height = h * dpr;
+-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
++      fitCanvas(cv, ctx, w, h);
+     };
+     resize();
+     const ro = new ResizeObserver(resize);
+     ro.observe(el);
+-    const io = new IntersectionObserver(([en]) => {
+-      live.current.visible = en.isIntersecting;
++    const offVisible = observeVisible(el, (v) => {
++      live.current.visible = v;
+     });
+-    io.observe(el);
+ 
+     const orbs = Array.from({ length: 6 }, (_, i) => ({
+       x: Math.random() * (w || 400),
+       y: (h || 300) * (0.2 + Math.random() * 0.5),
+       vx: 0,
+       vy: 0,
+-      ph: Math.random() * 6.28 + i,
++      ph: Math.random() * TAU + i,
+     }));
+     let parts = [];
+     let spawn = 0;
+@@ -323,7 +315,7 @@ export default function Ghost() {
+         const k = 1 - p.life / p.max;
+         ctx.fillStyle = hue === null ? `rgba(${trail},${(k * 0.5).toFixed(3)})` : `hsla(${(hue + p.x) % 360},90%,70%,${(k * 0.5).toFixed(3)})`;
+         ctx.beginPath();
+-        ctx.arc(p.x, p.y, p.r * (1 - (1 - k) * 0.4), 0, 6.283);
++        ctx.arc(p.x, p.y, p.r * (1 - (1 - k) * 0.4), 0, TAU);
+         ctx.fill();
+       }
+ 
+@@ -365,7 +357,7 @@ export default function Ghost() {
+         g.addColorStop(1, `${col}0)`);
+         ctx.fillStyle = g;
+         ctx.beginPath();
+-        ctx.arc(o.x, o.y, 16, 0, 6.283);
++        ctx.arc(o.x, o.y, 16, 0, TAU);
+         ctx.fill();
+       });
+       ctx.globalCompositeOperation = 'source-over';
+@@ -374,7 +366,7 @@ export default function Ghost() {
+     return () => {
+       cancelAnimationFrame(raf);
+       ro.disconnect();
+-      io.disconnect();
++      offVisible();
+     };
+   }, [reduced]);
+ 
+@@ -383,8 +375,7 @@ export default function Ghost() {
+     let keys = [];
+     let word = '';
+     const onKey = (e) => {
+-      const t = e.target;
+-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
++      if (typeof e.key !== 'string' || isTypingTarget(e.target)) return; // autofill của Chrome bắn keydown không có `key`
+       if (!live.current.visible || e.ctrlKey || e.metaKey || e.altKey) return;
+       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+       keys = [...keys, k].slice(-KONAMI.length);
+@@ -498,7 +489,7 @@ export default function Ghost() {
+     const el = stage.current;
+     const c = ghostCenter();
+     addBurst(c.x, c.y, true);
+-    clearTimeout(actTimer.current);
++    actT.clear();
+     setAct('phase');
+     later(() => {
+       const s = st.current;
+@@ -516,12 +507,12 @@ export default function Ghost() {
+   };
+ 
+   const toggleDay = () => {
+-    clearTimeout(booTimer.current);
+-    clearTimeout(sayTimer.current);
++    booT.clear();
++    sayT.clear();
+     setBoo(false);
+     setSayOn(false);
+     if (eclipse) {
+-      clearTimeout(eclipseTimer.current);
++      eclipseT.clear();
+       setEclipse(false);
+       return;
+     }
+@@ -532,8 +523,7 @@ export default function Ghost() {
+       setDay(true);
+       setEclipse(true);
+       flash('☀ total eclipse · the ghost woke up early');
+-      clearTimeout(eclipseTimer.current);
+-      eclipseTimer.current = window.setTimeout(() => setEclipse(false), 8000);
++      eclipseT.set(() => setEclipse(false), 8000);
+       return;
+     }
+     setDay((d) => !d);
+diff --git a/src/components/lab/Lab/Lab.jsx b/src/components/lab/Lab/Lab.jsx
+index f977aac..73f9dc6 100644
+--- a/src/components/lab/Lab/Lab.jsx
++++ b/src/components/lab/Lab/Lab.jsx
+@@ -3,8 +3,9 @@ import ErrorBoundary from '../../layout/ErrorBoundary.jsx';
+ import SectionHead from '../../ui/SectionHead.jsx';
+ import LabIcon from './LabIcon.jsx';
+ import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../../config/lab-items.js';
+-import { pathOf } from '../../../lib/paths.js';
+-import { isPlainClick } from '../../../lib/dom.js';
++import PageLink from '../../ui/PageLink.jsx';
++import { spotMove } from '../../../lib/dom.js';
++import { pick } from '../../../lib/math.js';
+ import './Lab.css';
+ import './LabFx.css';
+ 
+@@ -12,37 +13,15 @@ import './LabFx.css';
+ const chip = 'lab-chip px-3 py-1 rounded-md border font-mono text-[12.5px]';
+ const btn = 'lab-btn px-3.5 py-1.5 rounded-md border border-line text-ink font-mono text-[13px]';
+ 
+-// đèn pha theo con trỏ trên thẻ: đặt vị trí vào biến CSS --cx/--cy (LabFx.css đọc)
+-const trackPointer = (e) => {
+-  const r = e.currentTarget.getBoundingClientRect();
+-  e.currentTarget.style.setProperty('--cx', `${e.clientX - r.left}px`);
+-  e.currentTarget.style.setProperty('--cy', `${e.clientY - r.top}px`);
+-};
+-
+-function Link({ slug, onNavigate, className, children, ...rest }) {
+-  const view = slug ? `lab/${slug}` : 'lab';
+-  return (
+-    <a
+-      href={pathOf(view)}
+-      onClick={(e) => {
+-        if (!isPlainClick(e)) return;
+-        e.preventDefault();
+-        onNavigate?.(view);
+-      }}
+-      className={className}
+-      {...rest}
+-    >
+-      {children}
+-    </a>
+-  );
+-}
++// slug rỗng = về lưới lab; có slug = mở 1 mục (lab/<slug>)
++const Link = ({ slug, ...props }) => <PageLink view={slug ? `lab/${slug}` : 'lab'} {...props} />;
+ 
+ // lưới thẻ: bộ lọc theo nhãn + nút random. `kind` nằm ở Lab (không phải ở đây) để mở 1 mục rồi bấm Back vẫn giữ bộ lọc
+ function LabGrid({ kind, setKind, onNavigate }) {
+   const items = kind === 'all' ? LAB_ITEMS : LAB_ITEMS.filter((i) => i.kind === kind);
+   const random = () => {
+     const pool = items.length ? items : LAB_ITEMS;
+-    onNavigate?.(`lab/${pool[Math.floor(Math.random() * pool.length)].slug}`);
++    onNavigate?.(`lab/${pick(pool).slug}`);
+   };
+ 
+   return (
+@@ -71,7 +50,7 @@ function LabGrid({ kind, setKind, onNavigate }) {
+             key={i.slug}
+             slug={i.slug}
+             onNavigate={onNavigate}
+-            onPointerMove={trackPointer}
++            onPointerMove={spotMove}
+             className="lab-card group block p-4 rounded-[10px] border border-line"
+             style={{ background: 'var(--panel)' }}
+           >
+@@ -101,7 +80,7 @@ function LabItem({ item, onNavigate }) {
+   const next = LAB_ITEMS[(idx + 1) % LAB_ITEMS.length];
+   const random = () => {
+     const pool = LAB_ITEMS.filter((i) => i !== item);
+-    onNavigate?.(`lab/${pool[Math.floor(Math.random() * pool.length)].slug}`);
++    onNavigate?.(`lab/${pick(pool).slug}`);
+   };
+   const { Component } = item;
+   const framed = item.frame;
+diff --git a/src/components/lab/Lab/LabFx.css b/src/components/lab/Lab/LabFx.css
+index 844ca40..264bebc 100644
+--- a/src/components/lab/Lab/LabFx.css
++++ b/src/components/lab/Lab/LabFx.css
+@@ -2,7 +2,7 @@
+    Ý tưởng lấy từ thư viện Uiverse.io (MIT), viết lại bằng biến theme của site nên ăn theo dark/light/giờ trong ngày:
+    - .lab-btn   : "twist" quét chéo của adamgiebl (thanh mảnh xoay ra thành nền đặc) + mũi tên trượt kiểu mateusneves
+    - .lab-chip  : gạch chân đổi hướng khi hover của satyamchaudharydev
+-   - .lab-card  : viền conic xoay bằng mask-composite kiểu Clenio21, cộng đèn pha theo con trỏ (JS đặt --cx/--cy) */
++   - .lab-card  : viền conic xoay bằng mask-composite kiểu Clenio21, cộng đèn pha theo con trỏ (JS đặt --mx/--my, xem spotMove trong lib/dom.js) */
+ 
+ @property --lab-angle {
+   syntax: '<angle>';
+@@ -49,7 +49,7 @@
+ @media (hover: hover) and (pointer: fine) {
+   .lab-btn:hover,
+   .lab-btn:focus-visible {
+-    color: #0a0c10;
++    color: var(--on-amber);
+     border-color: var(--amber);
+     box-shadow: 0 0 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
+   }
+@@ -141,7 +141,7 @@
+   z-index: -1;
+   pointer-events: none;
+   background: radial-gradient(
+-    240px circle at var(--cx, 50%) var(--cy, 0%),
++    240px circle at var(--mx, 50%) var(--my, 0%),
+     color-mix(in srgb, var(--amber) 15%, transparent),
+     transparent 72%
+   );
+diff --git a/src/components/lab/Reptile/Reptile.jsx b/src/components/lab/Reptile/Reptile.jsx
+index 4ffd356..c50406e 100644
+--- a/src/components/lab/Reptile/Reptile.jsx
++++ b/src/components/lab/Reptile/Reptile.jsx
+@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
+ import { env, setupLizard } from './creature.js';
+ import { onThemeChange } from '../../../lib/themeSync.js';
+ import { isNapping } from '../../../lib/nap.js';
+-
+-const rand = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
++import { fitCanvas } from '../../../lib/canvas.js';
++import { observeVisible } from '../../../lib/observe.js';
++import { randInt } from '../../../lib/math.js';
+ 
+ // Sinh một con mới: số chân, độ dài đuôi ngẫu nhiên (giống bản gốc, thu nhỏ cho vừa khung)
+ function spawn(w, h) {
+-  const legs = rand(1, 12);
+-  const tail = rand(4, 4 + legs * 8);
++  const legs = randInt(1, 12);
++  const tail = randInt(4, 4 + legs * 8);
+   return { legs, critter: setupLizard(4.5 / Math.sqrt(legs), legs, tail, w, h) };
+ }
+ 
+@@ -24,7 +25,6 @@ export default function Reptile() {
+     const canvas = cvs.current;
+     const box = wrap.current;
+     const ctx = canvas.getContext('2d');
+-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+     let w = 0;
+     let h = 0;
+     let raf = 0;
+@@ -42,9 +42,7 @@ export default function Reptile() {
+     const resize = () => {
+       w = box.clientWidth;
+       h = box.clientHeight;
+-      canvas.width = w * dpr;
+-      canvas.height = h * dpr;
+-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
++      fitCanvas(canvas, ctx, w, h);
+     };
+     resize();
+     env.ctx = ctx;
+@@ -67,8 +65,7 @@ export default function Reptile() {
+       env.ctx = ctx;
+     });
+     ro.observe(box);
+-    const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
+-    io.observe(box);
++    const offVisible = observeVisible(box, (v) => (visible = v));
+ 
+     const tick = (t) => {
+       raf = requestAnimationFrame(tick);
+@@ -84,7 +81,7 @@ export default function Reptile() {
+     return () => {
+       cancelAnimationFrame(raf);
+       ro.disconnect();
+-      io.disconnect();
++      offVisible();
+       offTheme();
+       canvas.removeEventListener('pointermove', move);
+       canvas.removeEventListener('pointerdown', move);
+diff --git a/src/components/lab/Reptile/creature.js b/src/components/lab/Reptile/creature.js
+index 57644e6..4dfccf6 100644
+--- a/src/components/lab/Reptile/creature.js
++++ b/src/components/lab/Reptile/creature.js
+@@ -280,6 +280,18 @@ class Creature {
+   }
+ }
+ 
++// một đốt sống kèm hai "xương sườn" mảnh hai bên; cổ và đuôi dùng chung, chỉ khác độ dài đoạn cuối xương sườn (`tipLen`)
++function addRibbedSegment(spinal, s, tipLen) {
++  const seg = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
++  for (let ii = -1; ii <= 1; ii += 2) {
++    let node = new Segment(seg, s * 3, ii, 0.1, 2);
++    for (let iii = 0; iii < 3; iii++) {
++      node = new Segment(node, tipLen, -ii * 0.1, 0.1, 2);
++    }
++  }
++  return seg;
++}
++
+ export function setupLizard(size, legs, tail, w, h) {
+   let s = size;
+   //(x,y,angle,fAccel,fFric,fRes,fThresh,rAccel,rFric,rRes,rThresh)
+@@ -300,13 +312,7 @@ export function setupLizard(size, legs, tail, w, h) {
+   //(parent,size,angle,range,stiffness)
+   //Neck
+   for (let i = 0; i < 6; i++) {
+-    spinal = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
+-    for (let ii = -1; ii <= 1; ii += 2) {
+-      let node = new Segment(spinal, s * 3, ii, 0.1, 2);
+-      for (let iii = 0; iii < 3; iii++) {
+-        node = new Segment(node, s * 0.1, -ii * 0.1, 0.1, 2);
+-      }
+-    }
++    spinal = addRibbedSegment(spinal, s, s * 0.1);
+   }
+   //Torso and legs
+   for (let i = 0; i < legs; i++) {
+@@ -339,13 +345,7 @@ export function setupLizard(size, legs, tail, w, h) {
+   }
+   //Tail
+   for (let i = 0; i < tail; i++) {
+-    spinal = new Segment(spinal, s * 4, 0, 3.1415 * 2 / 3, 1.1);
+-    for (let ii = -1; ii <= 1; ii += 2) {
+-      let node = new Segment(spinal, s * 3, ii, 0.1, 2);
+-      for (let iii = 0; iii < 3; iii++) {
+-        node = new Segment(node, s * 3 * (tail - i) / tail, -ii * 0.1, 0.1, 2);
+-      }
+-    }
++    spinal = addRibbedSegment(spinal, s, (s * 3 * (tail - i)) / tail);
+   }
+   return critter;
+ }
+diff --git a/src/components/lab/games/BugSquash.jsx b/src/components/lab/games/BugSquash.jsx
+index fa33494..3104026 100644
+--- a/src/components/lab/games/BugSquash.jsx
++++ b/src/components/lab/games/BugSquash.jsx
+@@ -1,5 +1,6 @@
+ import { useCallback, useEffect, useRef, useState } from 'react';
+ import { readBest, saveBest } from '../../../lib/storage.js';
++import { randInt } from '../../../lib/math.js';
+ import { GameFrame, GameOverlay } from './GameShell.jsx';
+ 
+ const CELLS = 9;
+@@ -26,7 +27,7 @@ export default function BugSquash() {
+     const life = Math.max(450, 900 - elapsed * 15); // bug sống ngắn dần
+     let next;
+     do {
+-      next = Math.floor(Math.random() * CELLS);
++      next = randInt(0, CELLS - 1);
+     } while (next === activeRef.current);
+     activeRef.current = next;
+     setActive(next);
+diff --git a/src/components/lab/games/MemoryMatch.jsx b/src/components/lab/games/MemoryMatch.jsx
+index 4d75a15..b66d356 100644
+--- a/src/components/lab/games/MemoryMatch.jsx
++++ b/src/components/lab/games/MemoryMatch.jsx
+@@ -1,18 +1,12 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { readBest, saveBest } from '../../../lib/storage.js';
++import { shuffled } from '../../../lib/math.js';
+ import { GameFrame, GameOverlay } from './GameShell.jsx';
+ 
+ const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
+ const BEST_KEY = 'zune-memory-best'; // kỷ lục = số lượt ít nhất
+ 
+-const shuffle = () => {
+-  const deck = [...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym }));
+-  for (let i = deck.length - 1; i > 0; i--) {
+-    const j = Math.floor(Math.random() * (i + 1));
+-    [deck[i], deck[j]] = [deck[j], deck[i]];
+-  }
+-  return deck;
+-};
++const shuffle = () => shuffled([...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym })));
+ 
+ // mini game: lật 2 thẻ một lượt, ghép đủ 6 cặp ký hiệu code với ít lượt nhất
+ export default function MemoryMatch() {
+diff --git a/src/components/lab/games/Snake.jsx b/src/components/lab/games/Snake.jsx
+index 5347de0..5a95683 100644
+--- a/src/components/lab/games/Snake.jsx
++++ b/src/components/lab/games/Snake.jsx
+@@ -1,13 +1,15 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { readBest, saveBest } from '../../../lib/storage.js';
+ import { onThemeChange } from '../../../lib/themeSync.js';
++import { getDpr } from '../../../lib/env.js';
++import { pick, TAU } from '../../../lib/math.js';
+ import { GameFrame, GameOverlay } from './GameShell.jsx';
+ 
+ const N = 18; // lưới N x N
+ const CELL = 20;
+ const SIZE = N * CELL;
+ const BEST_KEY = 'zune-snake-best';
+-const DPR = Math.min(window.devicePixelRatio || 1, 2); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
++const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
+ 
+ const DIRS = {
+   up: { x: 0, y: -1 },
+@@ -30,7 +32,7 @@ const placeFood = (snake) => {
+       if (!snake.some((s) => s.x === x && s.y === y)) free.push({ x, y });
+     }
+   }
+-  return free.length ? free[Math.floor(Math.random() * free.length)] : null;
++  return free.length ? pick(free) : null;
+ };
+ 
+ const fresh = () => {
+@@ -76,7 +78,7 @@ export default function Snake() {
+     if (g.food) {
+       ctx.fillStyle = v('--amber', '#ffc857');
+       ctx.beginPath();
+-      ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2);
++      ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, TAU);
+       ctx.fill();
+     }
+ 
+diff --git a/src/components/layout/Alive/Alive.jsx b/src/components/layout/Alive/Alive.jsx
+index c99cd39..c7dfd69 100644
+--- a/src/components/layout/Alive/Alive.jsx
++++ b/src/components/layout/Alive/Alive.jsx
+@@ -1,6 +1,8 @@
+ import { useEffect, useRef, useState } from 'react';
+ import Pulse from './Pulse.jsx';
+ import { setNapState } from '../../../lib/nap.js';
++import { prefersReducedMotion } from '../../../lib/env.js';
++import { pick, randInt, TAU } from '../../../lib/math.js';
+ import './Alive.css';
+ 
+ // "Làm cả trang sống động": những chi tiết nhỏ nằm ngoài hero, gom về một chỗ, mỗi cái là một useEffect độc lập.
+@@ -12,7 +14,6 @@ import './Alive.css';
+ //  5) họp khẩn cấp: bật/tắt theme liên tục 4 lần trong ~4s thì "EMERGENCY MEETING" (Among Us)
+ // Tất cả tắt hoặc giảm khi người dùng bật "giảm chuyển động".
+ 
+-const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const NAP_MS = 45000;
+ const AWAY_TITLES = ['psst. still here.', 'come back :(', 'zune.dev misses you', 'did you leave?'];
+ const POP_CHARS = ['{', '}', '</>', '0', '1', ';', '*', '()', '=>'];
+@@ -100,7 +101,7 @@ export default function Alive() {
+       clearTimeout(timer);
+       if (document.hidden) {
+         if (saved === null) saved = document.title;
+-        document.title = AWAY_TITLES[Math.floor(Math.random() * AWAY_TITLES.length)];
++        document.title = pick(AWAY_TITLES);
+       } else if (saved !== null) {
+         document.title = 'oh. hi again.';
+         const back = saved;
+@@ -150,21 +151,21 @@ export default function Alive() {
+ 
+   // 4) bấm chỗ trống: bung ký tự code
+   useEffect(() => {
+-    if (reduced()) return undefined;
++    if (prefersReducedMotion()) return undefined;
+     let live = 0;
+     const onClick = (e) => {
+       if (e.button !== 0 || e.target.closest(POP_SKIP) || window.getSelection()?.toString()) return;
+       if (/\/lab\/[^/]+/.test(location.pathname) || live > 24) return; // trong game thì đừng làm rối
+-      const n = 5 + Math.floor(Math.random() * 3);
++      const n = randInt(5, 7);
+       for (let i = 0; i < n; i++) {
+         const el = document.createElement('span');
+-        el.textContent = POP_CHARS[Math.floor(Math.random() * POP_CHARS.length)];
++        el.textContent = pick(POP_CHARS);
+         el.setAttribute('aria-hidden', 'true');
+         el.className = 'pop-char';
+         el.style.left = `${e.clientX}px`;
+         el.style.top = `${e.clientY}px`;
+         document.body.appendChild(el);
+-        const a = (Math.PI * 2 * i) / n + Math.random() * 0.8 - 0.4;
++        const a = (TAU * i) / n + Math.random() * 0.8 - 0.4;
+         const d = 34 + Math.random() * 46;
+         live++;
+         const anim = el.animate(
+@@ -225,7 +226,7 @@ export default function Alive() {
+       <div className={`nap-dim${nap === 'nap' ? ' is-on' : ''}`} aria-hidden="true" />
+ 
+       {nap === 'nap' &&
+-        (reduced() ? (
++        (prefersReducedMotion() ? (
+           <div className="nap-bubble" role="status">
+             zune.dev is napping. wiggle the mouse.
+           </div>
+diff --git a/src/components/layout/Alive/Pulse.jsx b/src/components/layout/Alive/Pulse.jsx
+index bf146da..a9d88e2 100644
+--- a/src/components/layout/Alive/Pulse.jsx
++++ b/src/components/layout/Alive/Pulse.jsx
+@@ -1,5 +1,8 @@
+ import { useEffect, useRef } from 'react';
+ import { onThemeChange } from '../../../lib/themeSync.js';
++import { fitCanvas } from '../../../lib/canvas.js';
++import { prefersReducedMotion } from '../../../lib/env.js';
++import { clamp, TAU } from '../../../lib/math.js';
+ 
+ // "Trang web có nhịp tim": vạch tiến độ cuộn ở mép TRÊN là một máy đo nhịp tim (ECG) chạy ngang màn hình.
+ //  - đầu vạch (chấm sáng) nằm ở vị trí đang đọc tới (= tiến độ cuộn); phía sau nó là điện tâm đồ chạy lùi về bên trái
+@@ -13,7 +16,6 @@ const H = 18; // cao của dải canvas (px)
+ const BASE = 13; // đường nền (px từ mép trên); nhịp đập vọt lên phía mép trên
+ const PEAK = 11; // biên độ tối đa (px)
+ const L = 140; // khoảng cách giữa hai nhịp (px) trên màn hình
+-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+ 
+ // một nhịp tim PQRST dạng tổng các hàm Gauss; u chạy 0..1 trong một nhịp
+ const WAVES = [
+@@ -42,8 +44,7 @@ export default function Pulse({ napping, panic }) {
+   useEffect(() => {
+     const canvas = cvs.current;
+     const ctx = canvas.getContext('2d');
+-    const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
++    const rm = prefersReducedMotion();
+     let W = 0;
+     let raf = 0;
+     let last = 0;
+@@ -66,20 +67,27 @@ export default function Pulse({ napping, panic }) {
+       dim = cs.getPropertyValue('--text-dim').trim() || dim;
+     };
+     readColors();
+-    const offTheme = onThemeChange(readColors);
++    // chế độ giảm chuyển động không có vòng rAF: phải tự vẽ lại khi đổi theme, không thì vạch kẹt màu cũ
++    const offTheme = onThemeChange(() => {
++      readColors();
++      if (rm) drawStatic();
++    });
+ 
+     const resize = () => {
+       W = canvas.clientWidth || window.innerWidth;
+-      canvas.width = W * dpr;
+-      canvas.height = H * dpr;
+-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
++      fitCanvas(canvas, ctx, W, H);
+     };
+     resize();
+ 
++    // tiến độ cuộn 0..1 (trang quá ngắn thì coi như 0)
++    const scrollProgress = () => {
++      const max = document.documentElement.scrollHeight - window.innerHeight;
++      return max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
++    };
++
+     const draw = (t, dt) => {
+       const k = dt / 16.667;
+-      const max = document.documentElement.scrollHeight - window.innerHeight;
+-      const target = max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
++      const target = scrollProgress();
+       p += (target - p) * Math.min(1, 0.3 * k);
+       const headX = Math.max(3, p * (W - 6));
+       const flat = target >= 0.995;
+@@ -142,7 +150,7 @@ export default function Pulse({ napping, panic }) {
+       ctx.shadowColor = amber;
+       ctx.shadowBlur = 8;
+       ctx.beginPath();
+-      ctx.arc(headX, yHead, 2.4, 0, Math.PI * 2);
++      ctx.arc(headX, yHead, 2.4, 0, TAU);
+       ctx.fill();
+       ctx.shadowBlur = 0;
+ 
+@@ -161,9 +169,7 @@ export default function Pulse({ napping, panic }) {
+ 
+     // giảm chuyển động: chỉ vẽ vạch tiến độ phẳng khi cuộn / đổi cỡ
+     const drawStatic = () => {
+-      const max = document.documentElement.scrollHeight - window.innerHeight;
+-      const pr = max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
+-      const x = Math.max(3, pr * (W - 6));
++      const x = Math.max(3, scrollProgress() * (W - 6));
+       ctx.clearRect(0, 0, W, H);
+       ctx.strokeStyle = amber;
+       ctx.lineWidth = 1.6;
+@@ -173,7 +179,7 @@ export default function Pulse({ napping, panic }) {
+       ctx.stroke();
+       ctx.fillStyle = amber;
+       ctx.beginPath();
+-      ctx.arc(x, BASE, 2.4, 0, Math.PI * 2);
++      ctx.arc(x, BASE, 2.4, 0, TAU);
+       ctx.fill();
+     };
+ 
+diff --git a/src/components/layout/BackToTop/BackToTop.jsx b/src/components/layout/BackToTop/BackToTop.jsx
+index 2ccf0f2..7ca25d2 100644
+--- a/src/components/layout/BackToTop/BackToTop.jsx
++++ b/src/components/layout/BackToTop/BackToTop.jsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useState } from 'react';
++import { prefersReducedMotion } from '../../../lib/env.js';
+ import './BackToTop.css';
+ 
+ export default function BackToTop() {
+@@ -12,8 +13,7 @@ export default function BackToTop() {
+   }, []);
+ 
+   const handleClick = () => {
+-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+-    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
++    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+   };
+ 
+   return (
+@@ -33,7 +33,7 @@ export default function BackToTop() {
+       </svg>
+       <span
+         className="back-to-top-label absolute inset-0 flex items-center justify-center font-mono text-xs whitespace-nowrap"
+-        style={{ color: '#0A0C10' }}
++        style={{ color: 'var(--on-amber)' }}
+       >
+         Back to Top
+       </span>
+diff --git a/src/components/layout/Navbar/Navbar.jsx b/src/components/layout/Navbar/Navbar.jsx
+index d543479..a69f965 100644
+--- a/src/components/layout/Navbar/Navbar.jsx
++++ b/src/components/layout/Navbar/Navbar.jsx
+@@ -5,6 +5,7 @@ import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
+ import { PAGES, pageOfView, topOf } from '../../../config/pages.js';
+ import { pathOf } from '../../../lib/paths.js';
+ import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
++import { hasFinePointer } from '../../../lib/env.js';
+ import useHideOnScroll from '../../../lib/useHideOnScroll.js';
+ import './Navbar.css';
+ 
+@@ -42,7 +43,6 @@ const MAX_INLINE_SUB = 3;
+ const MENU_W = 220;
+ const HOVER_CLOSE_MS = 160; // trễ nhẹ khi rời nút để kịp di chuột sang menu mà không bị đóng
+ 
+-const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+ // chỉ chuột thật mới kích hoạt hover; cảm ứng vẫn dùng cú chạm (click) để bật/tắt
+ const mouseOnly = (fn) => (e) => {
+   if (e.pointerType === 'mouse') fn();
+@@ -103,7 +103,7 @@ function SubMenu({ label, links, onSelect }) {
+   const onTriggerClick = (e) => {
+     e.preventDefault();
+     // click bằng chuột: menu đã mở sẵn nhờ hover, bấm vào đừng làm nó đóng lại
+-    if (e.detail > 0 && canHover()) return show();
++    if (e.detail > 0 && hasFinePointer()) return show();
+     if (open) setOpen(false);
+     else {
+       focusOnOpen.current = e.detail === 0; // Enter / Space trên nút
+diff --git a/src/components/layout/Preloader/Preloader.jsx b/src/components/layout/Preloader/Preloader.jsx
+index a90aa13..900c731 100644
+--- a/src/components/layout/Preloader/Preloader.jsx
++++ b/src/components/layout/Preloader/Preloader.jsx
+@@ -6,20 +6,31 @@ export default function Preloader() {
+   const [removed, setRemoved] = useState(false);
+ 
+   useEffect(() => {
+-    const minDelay = new Promise((resolve) => setTimeout(resolve, 900));
++    let cancelled = false;
++    const timers = [];
++    const wait = (ms) => new Promise((resolve) => timers.push(setTimeout(resolve, ms)));
++    const minDelay = wait(900);
++    let onLoad = null;
+     const pageLoad = new Promise((resolve) => {
+       if (document.readyState === 'complete') resolve();
+-      else window.addEventListener('load', resolve, { once: true });
++      else {
++        onLoad = resolve;
++        window.addEventListener('load', onLoad, { once: true });
++      }
+     });
+     // Không chờ vô hạn: nếu 1 resource (vd Google Fonts) treo thì vẫn mở site sau 4s.
+-    const maxWait = new Promise((resolve) => setTimeout(resolve, 4000));
++    const maxWait = wait(4000);
+ 
+-    let removeTimer;
+     Promise.all([minDelay, Promise.race([pageLoad, maxWait])]).then(() => {
++      if (cancelled) return;
+       setHidden(true);
+-      removeTimer = setTimeout(() => setRemoved(true), 500);
++      timers.push(setTimeout(() => setRemoved(true), 500));
+     });
+-    return () => clearTimeout(removeTimer);
++    return () => {
++      cancelled = true;
++      timers.forEach(clearTimeout);
++      if (onLoad) window.removeEventListener('load', onLoad);
++    };
+   }, []);
+ 
+   if (removed) return null;
+diff --git a/src/components/layout/Signature/Signature.jsx b/src/components/layout/Signature/Signature.jsx
+index 0fbcad4..f63d0b5 100644
+--- a/src/components/layout/Signature/Signature.jsx
++++ b/src/components/layout/Signature/Signature.jsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useRef, useState } from 'react';
+ import './Signature.css';
+ import { location } from '../../../data/profile.js';
++import { observeOnce } from '../../../lib/observe.js';
+ 
+ export function Signature() {
+   const ref = useRef(null);
+@@ -9,19 +10,7 @@ export function Signature() {
+   const pointer = useRef('mouse'); // loại con trỏ của lần nhấn gần nhất
+ 
+   useEffect(() => {
+-    const el = ref.current;
+-    if (!el) return;
+-    const io = new IntersectionObserver(
+-      ([entry]) => {
+-        if (entry.isIntersecting) {
+-          setDrawn(true);
+-          io.disconnect();
+-        }
+-      },
+-      { threshold: 0.4 }
+-    );
+-    io.observe(el);
+-    return () => io.disconnect();
++    return observeOnce(ref.current, () => setDrawn(true), 0.4);
+   }, []);
+ 
+   // chuột: hover mở/đóng. cảm ứng/bút: onClick bật tắt (không dùng :hover vì bị "dính" trên mobile)
+diff --git a/src/components/ui/Btn31/Btn31.css b/src/components/ui/Btn31/Btn31.css
+index 2f43219..077841a 100644
+--- a/src/components/ui/Btn31/Btn31.css
++++ b/src/components/ui/Btn31/Btn31.css
+@@ -20,7 +20,7 @@
+   transition: clip-path var(--dur-fast) var(--ease);
+ }
+ .btn-31:hover {
+-  color: #0a0c10;
++  color: var(--on-amber);
+   border-color: var(--amber);
+ }
+ .btn-31:hover::before {
+diff --git a/src/components/ui/PageLink.jsx b/src/components/ui/PageLink.jsx
+new file mode 100644
+index 0000000..eaef543
+--- /dev/null
++++ b/src/components/ui/PageLink.jsx
+@@ -0,0 +1,21 @@
++import { pathOf } from '../../lib/paths.js';
++import { isPlainClick } from '../../lib/dom.js';
++
++// Link thật (Ctrl+click mở tab mới được) nhưng bấm thường thì chuyển trang mượt trong app.
++// `view`: 'home' | 'about' | 'lab/<slug>'... (xem config/pages.js). Các prop còn lại (rel, title, style...) chuyển thẳng xuống <a>.
++export default function PageLink({ view, onNavigate, className = 'hero-link', children, ...rest }) {
++  return (
++    <a
++      href={pathOf(view)}
++      className={className}
++      onClick={(e) => {
++        if (!isPlainClick(e)) return;
++        e.preventDefault();
++        onNavigate?.(view);
++      }}
++      {...rest}
++    >
++      {children}
++    </a>
++  );
++}
+diff --git a/src/components/ui/SectionHead.jsx b/src/components/ui/SectionHead.jsx
+index 30e75de..0753c0d 100644
+--- a/src/components/ui/SectionHead.jsx
++++ b/src/components/ui/SectionHead.jsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useRef } from 'react';
++import { observeOnce } from '../../lib/observe.js';
+ 
+ // level=1 cho tiêu đề chính của các trang riêng (About / Projects / Lab); trang chủ đã có <h1> ở Hero nên dùng 2
+ // Tiêu đề tự gõ ra khi cuộn tới (CSS ở index.css: .sh-type, chỉ chạy khi không bật "giảm chuyển động").
+@@ -7,23 +8,7 @@ export default function SectionHead({ num, title, level = 2 }) {
+   const H = `h${level}`;
+   const ref = useRef(null);
+   useEffect(() => {
+-    const el = ref.current;
+-    if (!el) return undefined;
+-    if (!('IntersectionObserver' in window)) {
+-      el.classList.add('is-in');
+-      return undefined;
+-    }
+-    const io = new IntersectionObserver(
+-      ([en]) => {
+-        if (en.isIntersecting) {
+-          el.classList.add('is-in');
+-          io.disconnect();
+-        }
+-      },
+-      { threshold: 0.6 }
+-    );
+-    io.observe(el);
+-    return () => io.disconnect();
++    return observeOnce(ref.current, (el) => el.classList.add('is-in'), 0.6);
+   }, []);
+   return (
+     <div className="flex items-baseline gap-3.5 mb-10">
+diff --git a/src/data/profile.js b/src/data/profile.js
+index 28ac642..c197428 100644
+--- a/src/data/profile.js
++++ b/src/data/profile.js
+@@ -1,7 +1,12 @@
+ export const role = 'Web Developer';
+ export const location = 'Ho Chi Minh City';
++export const email = 'nguyenhaivuong06@gmail.com';
+ 
+-export const aboutBlurb = 'coding since 2022. Favorite stack is React + Tailwind, and I\'m currently learning the Next.js App Router.';
++export const startYear = 2022;
++export const mainStack = 'React + Tailwind';
++export const learning = 'Next.js App Router';
++
++export const aboutBlurb = `coding since ${startYear}. Favorite stack is ${mainStack}, and I'm currently learning the ${learning}.`;
+ 
+ export const stack = [
+   'HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'Next.js', 'Tailwind CSS', 'Figma',
+diff --git a/src/data/socials.js b/src/data/socials.js
+index 1c5d68a..b771370 100644
+--- a/src/data/socials.js
++++ b/src/data/socials.js
+@@ -50,6 +50,3 @@ export const socials = [
+     path: 'M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z',
+   },
+ ];
+-
+-// single source for the GitHub profile link
+-export const githubUrl = socials.find((s) => s.name === 'github').href;
+diff --git a/src/index.css b/src/index.css
+index b44f543..56fd9d3 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -11,6 +11,7 @@
+   --text-dim: #8a93a3;
+   --amber: #ffc857;
+   --amber-dim: #c99a3f;
++  --on-amber: #0a0c10; /* chữ/icon nằm trên nền amber: luôn tối ở cả hai theme */
+   --green: #7ee081;
+   --js: #f1c40f;
+   --css-lang: #a98ae8;
+diff --git a/src/lib/canvas.js b/src/lib/canvas.js
+new file mode 100644
+index 0000000..7371e59
+--- /dev/null
++++ b/src/lib/canvas.js
+@@ -0,0 +1,10 @@
++import { getDpr } from './env.js';
++
++// Chỉnh kích thước bộ đệm canvas theo `w` x `h` (px CSS) và mật độ điểm ảnh, rồi đặt lại hệ toạ độ
++// để mã vẽ vẫn dùng px CSS. Trả về dpr đã dùng.
++export function fitCanvas(canvas, ctx, w, h, dpr = getDpr()) {
++  canvas.width = w * dpr;
++  canvas.height = h * dpr;
++  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
++  return dpr;
++}
+diff --git a/src/lib/crewmate.js b/src/lib/crewmate.js
+index 9d993ff..36b84c4 100644
+--- a/src/lib/crewmate.js
++++ b/src/lib/crewmate.js
+@@ -10,11 +10,12 @@
+ //  - sâu đang bị doạ / đang chạy nhanh lao tới thì nó hoảng ("sus!") chạy về nút
+ //  - không bao giờ đi vào sau thẻ zune.sav hay các nút khác (đi vòng qua góc nếu bị chắn)
+ 
+-const TAU = Math.PI * 2;
++import { clamp, TAU } from './math.js';
++
+ const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
+ const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
+ const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
+-const ease = (u) => 1 - Math.pow(1 - Math.min(1, Math.max(0, u)), 3);
++const ease = (u) => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
+ 
+ const NEAR_WORM = 240; // sâu lại gần nút bấy nhiêu px thì crewmate để ý và chui ra
+ const FIRST_MS = 3500; // lần đầu sớm nhất sau khi tải trang
+diff --git a/src/lib/dom.js b/src/lib/dom.js
+index 6e85cf9..4e8585a 100644
+--- a/src/lib/dom.js
++++ b/src/lib/dom.js
+@@ -2,6 +2,10 @@
+ // hoặc chuột giữa -> trả lại cho trình duyệt (mở tab mới...)
+ export const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+ 
++// đang gõ vào ô nhập: phím tắt / easter egg toàn trang phải bỏ qua
++export const isTypingTarget = (t) =>
++  !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
++
+ // cuộn tới 1 mục theo selector (vd '#socials') mà không thêm #anchor vào URL
+ export const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
+ 
+diff --git a/src/lib/env.js b/src/lib/env.js
+new file mode 100644
+index 0000000..7cc5d1f
+--- /dev/null
++++ b/src/lib/env.js
+@@ -0,0 +1,22 @@
++// Kiểm tra môi trường trình duyệt dùng chung. Mỗi hàm đọc lại lúc gọi (không cache) vì người dùng có thể đổi
++// cài đặt hệ điều hành khi trang đang mở.
++
++// người dùng bật "giảm chuyển động": mọi animation trang trí phải tắt hoặc đứng yên
++export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++
++// thiết bị có hover thật (chuột/trackpad); cảm ứng thì false
++export const canHover = () => window.matchMedia('(hover: hover)').matches;
++
++// hover thật VÀ con trỏ chính xác (chuột), loại trừ bút/máy tính bảng có hover yếu
++export const hasFinePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
++
++// canvas theo mật độ điểm ảnh, tối đa 2x (cao hơn chỉ tốn GPU mà mắt không thấy khác)
++export const getDpr = () => Math.min(window.devicePixelRatio || 1, 2);
++
++export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
++
++// như sleep nhưng bỏ qua thời gian chờ khi bật "giảm chuyển động" (dùng cho hiệu ứng gõ chữ)
++export const motionSleep = (ms) => sleep(prefersReducedMotion() ? 0 : ms);
++
++// hasOwnProperty an toàn (Object.hasOwn chưa có ở trình duyệt cũ)
++export const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+diff --git a/src/lib/math.js b/src/lib/math.js
+new file mode 100644
+index 0000000..af72618
+--- /dev/null
++++ b/src/lib/math.js
+@@ -0,0 +1,20 @@
++// Hàm toán/ngẫu nhiên nhỏ dùng chung cho animation + mini game.
++export const TAU = Math.PI * 2;
++
++export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
++
++// phần tử ngẫu nhiên của mảng
++export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
++
++// số nguyên ngẫu nhiên trong [a, b] (gồm cả hai đầu)
++export const randInt = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
++
++// xáo trộn kiểu Fisher-Yates, trả về mảng mới
++export const shuffled = (arr) => {
++  const out = [...arr];
++  for (let i = out.length - 1; i > 0; i--) {
++    const j = Math.floor(Math.random() * (i + 1));
++    [out[i], out[j]] = [out[j], out[i]];
++  }
++  return out;
++};
+diff --git a/src/lib/nap.js b/src/lib/nap.js
+index 2996d8b..6ab6f1a 100644
+--- a/src/lib/nap.js
++++ b/src/lib/nap.js
+@@ -4,7 +4,6 @@ import { useSyncExternalStore } from 'react';
+ let state = 'awake';
+ const listeners = new Set();
+ 
+-export const getNapState = () => state;
+ export const isNapping = () => state === 'nap'; // screensaver đang phủ màn hình: mọi animation nền đều vô hình, nên dừng hẳn
+ 
+ export const setNapState = (s) => {
+diff --git a/src/lib/observe.js b/src/lib/observe.js
+new file mode 100644
+index 0000000..eb11d01
+--- /dev/null
++++ b/src/lib/observe.js
+@@ -0,0 +1,30 @@
++// Bọc IntersectionObserver cho hai kiểu dùng lặp lại trong app. Cả hai đều trả về hàm huỷ (dùng làm cleanup của effect).
++
++// Chạy `onEnter` ĐÚNG MỘT LẦN khi `el` (hoặc từng phần tử trong danh sách) vào khung nhìn.
++// Trình duyệt không có IntersectionObserver thì chạy ngay, để nội dung không bị ẩn mãi.
++export function observeOnce(els, onEnter, threshold = 0.4) {
++  const list = (Array.isArray(els) || els instanceof NodeList ? [...els] : [els]).filter(Boolean);
++  if (!list.length) return () => {};
++  if (!('IntersectionObserver' in window)) {
++    list.forEach(onEnter);
++    return () => {};
++  }
++  const io = new IntersectionObserver(
++    (entries) =>
++      entries.forEach((en) => {
++        if (!en.isIntersecting) return;
++        io.unobserve(en.target);
++        onEnter(en.target);
++      }),
++    { threshold }
++  );
++  list.forEach((el) => io.observe(el));
++  return () => io.disconnect();
++}
++
++// Báo cho `onChange(visible)` mỗi khi `el` vào/ra khỏi khung nhìn: để vòng lặp animation tạm dừng khi không ai thấy.
++export function observeVisible(el, onChange) {
++  const io = new IntersectionObserver(([en]) => onChange(en.isIntersecting));
++  io.observe(el);
++  return () => io.disconnect();
++}
+diff --git a/src/lib/social.js b/src/lib/social.js
+index 2e1c8b2..d683d21 100644
+--- a/src/lib/social.js
++++ b/src/lib/social.js
+@@ -3,7 +3,7 @@ import { getStatusKey } from './status.js';
+ 
+ // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
+ // Là store ngoài React để canvas (HeroWorm) đọc được mỗi khung hình mà không phải re-render.
+-export const BASE = { online: 80, busy: 40, focus: 20, offline: 10 };
++const BASE = { online: 80, busy: 40, focus: 20, offline: 10 };
+ const REPLIES = ['hi.', 'oh. hello again.', 'ok, that was a lot of talking', 'running low on words...'];
+ const MAX_MS = 9000;
+ 
+diff --git a/src/lib/status.js b/src/lib/status.js
+index ad3dfc2..1ade4dd 100644
+--- a/src/lib/status.js
++++ b/src/lib/status.js
+@@ -5,7 +5,7 @@ import { storageGet, storageSet } from './storage.js';
+ // online/offline is inferred from the Vietnam clock (no backend needed);
+ // busy/focus can only be picked by hand, a machine can't know those.
+ // `label` is shown on the Hero badge, `blurb` is what the terminal prints.
+-export const STATUS_CONFIG = {
++const STATUS_CONFIG = {
+   online: { label: 'online', blurb: 'open to new projects', color: 'var(--green)', pulse: true },
+   offline: { label: 'offline', blurb: 'offline right now, will reply later', color: 'var(--text-dim)', pulse: false },
+   busy: { label: 'busy - replies may be slow', blurb: 'busy, replies may be slow', color: 'var(--amber)', pulse: false },
+diff --git a/src/lib/useTimer.js b/src/lib/useTimer.js
+new file mode 100644
+index 0000000..0d25c70
+--- /dev/null
++++ b/src/lib/useTimer.js
+@@ -0,0 +1,17 @@
++import { useCallback, useEffect, useMemo, useRef } from 'react';
++
++// Một timer "thay thế": set() huỷ lượt đang chờ rồi hẹn lượt mới, clear() huỷ hẳn; tự huỷ khi component unmount.
++// Dùng cho mẫu lặp lại "bật cờ rồi N ms sau tắt" (bóng thoại, toast, hiệu ứng tạm...) thay cho useRef + clearTimeout viết tay.
++export default function useTimer() {
++  const id = useRef(0);
++  const clear = useCallback(() => {
++    clearTimeout(id.current);
++    id.current = 0;
++  }, []);
++  const set = useCallback((fn, ms) => {
++    clearTimeout(id.current);
++    id.current = window.setTimeout(fn, ms);
++  }, []);
++  useEffect(() => clear, [clear]);
++  return useMemo(() => ({ set, clear }), [set, clear]);
++}
+diff --git a/src/lib/vnTime.js b/src/lib/vnTime.js
+index e05a3e4..5a63c1d 100644
+--- a/src/lib/vnTime.js
++++ b/src/lib/vnTime.js
+@@ -11,6 +11,19 @@ function vnHour() {
+   return parseInt(hourFmt.format(new Date()), 10);
+ }
+ 
++// đồng hồ HH:MM:SS theo giờ VN (thẻ zune.sav). Tạo formatter một lần như hourFmt ở trên.
++const clockFmt = new Intl.DateTimeFormat('en-GB', {
++  timeZone: 'Asia/Ho_Chi_Minh',
++  hour: '2-digit',
++  minute: '2-digit',
++  second: '2-digit',
++  hourCycle: 'h23',
++});
++export const vnClock = () => clockFmt.format(new Date());
++
++// ngày + giờ đầy đủ theo giờ VN (lệnh `date` trong terminal; hiếm gọi nên tạo formatter mỗi lần cũng được)
++export const vnDateTime = () => new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
++
+ // dawn 5-8 | day 8-17 | dusk 17-23 | night 23-5
+ export function timeOfDay(h = vnHour()) {
+   if (h >= 23 || h < 5) return 'night';
+diff --git a/src/lib/wormBrain.js b/src/lib/wormBrain.js
+index b910b58..f414129 100644
+--- a/src/lib/wormBrain.js
++++ b/src/lib/wormBrain.js
+@@ -11,8 +11,8 @@
+ // Giờ: chỉ giật mình khi chuột đang LAO VỀ PHÍA đầu, chỉ một lần rồi nghỉ (calm) ~1.8s mới giật mình tiếp,
+ // đích bỏ chạy được chọn một lần và trượt dọc tường thay vì đâm vào, và có bộ canh "kẹt" tự gỡ.
+ 
+-const TAU = Math.PI * 2;
+-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
++import { clamp, TAU } from './math.js';
++
+ const angDiff = (a, b) => {
+   let d = (b - a) % TAU;
+   if (d > Math.PI) d -= TAU;
+diff --git a/src/projects/ArtSvg.jsx b/src/projects/ArtSvg.jsx
+new file mode 100644
+index 0000000..b212acb
+--- /dev/null
++++ b/src/projects/ArtSvg.jsx
+@@ -0,0 +1,22 @@
++import './ProjectCard/ProjectCard.css'; // chứa .art-center (căn giữa hình trong thẻ)
++
++// Khung chung cho các Art vẽ bằng nét SVG (a-dumb-gift, a-gift-for-u, le-tot-nghiep): cùng kiểu nét
++// (currentColor, 2.5, bo tròn đầu/góc), mỗi Art chỉ truyền hình vẽ + kích thước.
++export default function ArtSvg({ viewBox = '0 0 120 120', width = 96, height = 96, children }) {
++  return (
++    <div className="art-center">
++      <svg
++        viewBox={viewBox}
++        width={width}
++        height={height}
++        fill="none"
++        stroke="currentColor"
++        strokeWidth="2.5"
++        strokeLinejoin="round"
++        strokeLinecap="round"
++      >
++        {children}
++      </svg>
++    </div>
++  );
++}
+diff --git a/src/projects/ProjectCard/ProjectCard.jsx b/src/projects/ProjectCard/ProjectCard.jsx
+index 1a58397..6975e65 100644
+--- a/src/projects/ProjectCard/ProjectCard.jsx
++++ b/src/projects/ProjectCard/ProjectCard.jsx
+@@ -1,5 +1,7 @@
+ import { useState } from 'react';
+ import { arts } from '../index.js';
++import { canHover } from '../../lib/env.js';
++import { BASE } from '../../lib/paths.js';
+ import './ProjectCard.css';
+ 
+ // Card gồm 3 lớp:
+@@ -12,7 +14,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
+   const slug = file.replace(/\.[^.]+$/, '');
+   const Art = arts[slug];
+   // thiết bị cảm ứng ẩn Art bằng CSS (hover: none) -> không mount luôn cho đỡ chạy animation vô ích
+-  const canHover = window.matchMedia('(hover: hover)').matches;
++  const hoverable = canHover();
+ 
+   return (
+     <a
+@@ -22,7 +24,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
+       rel="noreferrer"
+       className={`project-card ${shotOk ? 'has-shot' : ''} relative h-[180px] rounded-[10px] overflow-hidden bg-panel border border-line flex items-center justify-center cursor-pointer transition-[transform,box-shadow,border-color] duration-500 hover:scale-[1.04] hover:shadow-[0_18px_30px_-14px_rgba(0,0,0,0.5)] hover:border-amber-dim scroll-mt-20`}
+     >
+-      {Art && canHover && (
++      {Art && hoverable && (
+         <div className="project-card-preview absolute inset-0" style={{ color }} aria-hidden="true">
+           <Art />
+         </div>
+@@ -31,7 +33,7 @@ export default function ProjectCard({ num, file, desc, color, href, shot }) {
+       {/* ảnh chụp: chỉ hiện khi hover. BASE_URL vì site chạy ở subpath /zune-portfolio/ */}
+       {shotOk && (
+         <img
+-          src={`${import.meta.env.BASE_URL}previews/${slug}.png`}
++          src={`${BASE}previews/${slug}.png`}
+           alt=""
+           loading="lazy"
+           onError={() => setShotOk(false)}
+diff --git a/src/projects/a-dumb-gift/Art.jsx b/src/projects/a-dumb-gift/Art.jsx
+index f367e3b..3acd991 100644
+--- a/src/projects/a-dumb-gift/Art.jsx
++++ b/src/projects/a-dumb-gift/Art.jsx
+@@ -1,20 +1,16 @@
++import ArtSvg from '../ArtSvg.jsx';
+ import './Art.css';
+ 
+ // hộp quà, nắp khẽ nhấc lên xuống như có gì ở bên trong
+ export default function Art() {
+   return (
+-    <div className="art-center">
+-      <svg
+-        viewBox="0 0 120 120" width="96" height="96" fill="none" stroke="currentColor"
+-        strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"
+-      >
+-        <rect className="gift-fill" x="22" y="58" width="76" height="50" rx="6" />
+-        <path d="M60 58 V108" />
+-        <g className="gift-lid">
+-          <rect className="gift-fill" x="16" y="42" width="88" height="18" rx="5" />
+-          <path d="M60 42 C50 22 32 28 42 40 C48 46 58 44 60 42 C62 44 72 46 78 40 C88 28 70 22 60 42 Z" />
+-        </g>
+-      </svg>
+-    </div>
++    <ArtSvg>
++      <rect className="gift-fill" x="22" y="58" width="76" height="50" rx="6" />
++      <path d="M60 58 V108" />
++      <g className="gift-lid">
++        <rect className="gift-fill" x="16" y="42" width="88" height="18" rx="5" />
++        <path d="M60 42 C50 22 32 28 42 40 C48 46 58 44 60 42 C62 44 72 46 78 40 C88 28 70 22 60 42 Z" />
++      </g>
++    </ArtSvg>
+   );
+ }
+diff --git a/src/projects/a-gift-for-u/Art.jsx b/src/projects/a-gift-for-u/Art.jsx
+index d2b9bfa..0bc5e07 100644
+--- a/src/projects/a-gift-for-u/Art.jsx
++++ b/src/projects/a-gift-for-u/Art.jsx
+@@ -1,22 +1,25 @@
++import ArtSvg from '../ArtSvg.jsx';
+ import './Art.css';
+ 
++// đốm sáng lấp lánh quanh trái tim: toạ độ, bán kính, độ lệch pha của animation
++const SPARKS = [
++  { cx: 18, cy: 24, r: 2.5, delay: '0s' },
++  { cx: 104, cy: 18, r: 2, delay: '-0.7s' },
++  { cx: 106, cy: 86, r: 2.5, delay: '-1.3s' },
++  { cx: 12, cy: 82, r: 2, delay: '-1.9s' },
++];
++
+ // trái tim đập nhẹ, vài đốm sáng lấp lánh xung quanh
+ export default function Art() {
+   return (
+-    <div className="art-center">
+-      <svg
+-        viewBox="0 0 120 120" width="96" height="96" fill="none" stroke="currentColor"
+-        strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"
+-      >
+-        <path
+-          className="love-heart"
+-          d="M60 100 C20 70 10 40 32 28 C46 20 58 28 60 38 C62 28 74 20 88 28 C110 40 100 70 60 100 Z"
+-        />
+-        <circle className="love-spark" style={{ animationDelay: '0s' }} cx="18" cy="24" r="2.5" fill="currentColor" stroke="none" />
+-        <circle className="love-spark" style={{ animationDelay: '-0.7s' }} cx="104" cy="18" r="2" fill="currentColor" stroke="none" />
+-        <circle className="love-spark" style={{ animationDelay: '-1.3s' }} cx="106" cy="86" r="2.5" fill="currentColor" stroke="none" />
+-        <circle className="love-spark" style={{ animationDelay: '-1.9s' }} cx="12" cy="82" r="2" fill="currentColor" stroke="none" />
+-      </svg>
+-    </div>
++    <ArtSvg>
++      <path
++        className="love-heart"
++        d="M60 100 C20 70 10 40 32 28 C46 20 58 28 60 38 C62 28 74 20 88 28 C110 40 100 70 60 100 Z"
++      />
++      {SPARKS.map(({ delay, ...c }) => (
++        <circle key={c.cx} className="love-spark" style={{ animationDelay: delay }} {...c} fill="currentColor" stroke="none" />
++      ))}
++    </ArtSvg>
+   );
+ }
+diff --git a/src/projects/le-tot-nghiep/Art.jsx b/src/projects/le-tot-nghiep/Art.jsx
+index 6a0fded..0a907cb 100644
+--- a/src/projects/le-tot-nghiep/Art.jsx
++++ b/src/projects/le-tot-nghiep/Art.jsx
+@@ -1,20 +1,16 @@
++import ArtSvg from '../ArtSvg.jsx';
+ import './Art.css';
+ 
+ // mũ tốt nghiệp, tua đung đưa nhẹ
+ export default function Art() {
+   return (
+-    <div className="art-center">
+-      <svg
+-        viewBox="0 0 120 100" width="104" height="87" fill="none" stroke="currentColor"
+-        strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"
+-      >
+-        <path className="grad-fill" d="M60 16 L112 38 L60 60 L8 38 Z" />
+-        <path d="M28 50 V72 C28 82 92 82 92 72 V50" />
+-        <g className="grad-tassel">
+-          <path d="M104 41 V70" />
+-          <rect className="grad-fill" x="100" y="70" width="8" height="12" rx="2" />
+-        </g>
+-      </svg>
+-    </div>
++    <ArtSvg viewBox="0 0 120 100" width={104} height={87}>
++      <path className="grad-fill" d="M60 16 L112 38 L60 60 L8 38 Z" />
++      <path d="M28 50 V72 C28 82 92 82 92 72 V50" />
++      <g className="grad-tassel">
++        <path d="M104 41 V70" />
++        <rect className="grad-fill" x="100" y="70" width="8" height="12" rx="2" />
++      </g>
++    </ArtSvg>
+   );
+ }

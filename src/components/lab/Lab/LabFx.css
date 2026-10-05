@@ -2,7 +2,7 @@
    Ý tưởng lấy từ thư viện Uiverse.io (MIT), viết lại bằng biến theme của site nên ăn theo dark/light/giờ trong ngày:
    - .lab-btn   : "twist" quét chéo của adamgiebl (thanh mảnh xoay ra thành nền đặc) + mũi tên trượt kiểu mateusneves
    - .lab-chip  : gạch chân đổi hướng khi hover của satyamchaudharydev
-   - .lab-card  : viền conic xoay bằng mask-composite kiểu Clenio21, cộng đèn pha theo con trỏ (JS đặt --cx/--cy) */
+   - .lab-card  : viền conic xoay bằng mask-composite kiểu Clenio21, cộng đèn pha theo con trỏ (JS đặt --mx/--my, xem spotMove trong lib/dom.js) */
 
 @property --lab-angle {
   syntax: '<angle>';
@@ -49,7 +49,7 @@
 @media (hover: hover) and (pointer: fine) {
   .lab-btn:hover,
   .lab-btn:focus-visible {
-    color: #0a0c10;
+    color: var(--on-amber);
     border-color: var(--amber);
     box-shadow: 0 0 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
   }
@@ -141,7 +141,7 @@
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    240px circle at var(--cx, 50%) var(--cy, 0%),
+    240px circle at var(--mx, 50%) var(--my, 0%),
     color-mix(in srgb, var(--amber) 15%, transparent),
     transparent 72%
   );

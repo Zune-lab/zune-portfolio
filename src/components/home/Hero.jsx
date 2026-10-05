@@ -5,6 +5,8 @@ import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
 import HeroWorm from './HeroWorm.jsx';
 import { isNapping } from '../../lib/nap.js';
+import { prefersReducedMotion, sleep } from '../../lib/env.js';
+import { observeVisible } from '../../lib/observe.js';
 
 // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
 // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
@@ -14,12 +16,10 @@ function Typewriter() {
   const [text, setText] = useState(PHRASES[0]);
   const cursor = useRef(null);
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    if (prefersReducedMotion()) return undefined;
     let dead = false;
     let visible = true;
-    const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
-    io.observe(cursor.current);
-    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const offVisible = observeVisible(cursor.current, (v) => (visible = v));
     // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên (kiểm tra thưa, gần như không tốn gì), quay lại thì gõ tiếp
     const idle = () => !visible || document.hidden || isNapping();
     const rest = async () => {
@@ -45,7 +45,7 @@ function Typewriter() {
     })();
     return () => {
       dead = true;
-      io.disconnect();
+      offVisible();
     };
   }, []);
 

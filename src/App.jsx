@@ -13,12 +13,12 @@ import Alive from './components/layout/Alive/Alive.jsx';
 import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
 import { pathOf } from './lib/paths.js';
 import { storageSet } from './lib/storage.js';
+import { canHover, prefersReducedMotion } from './lib/env.js';
 import { timeOfDay } from './lib/vnTime.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
 const TAB_LOADER_MS = 450;
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export default function App() {
   const [theme, setTheme] = useState(
@@ -93,7 +93,7 @@ export default function App() {
   // nền chấm bi sáng quanh con trỏ (CSS đọc --mx/--my)
   useEffect(() => {
     const glow = glowRef.current;
-    if (!glow || !window.matchMedia('(hover: hover)').matches) return; // cảm ứng: không cần theo dõi con trỏ
+    if (!glow || !canHover()) return; // cảm ứng: không cần theo dõi con trỏ
     let raf = 0;
     const move = (e) => {
       cancelAnimationFrame(raf);
@@ -157,7 +157,7 @@ export default function App() {
 
     // đổi mục trong cùng 1 trang (vd lưới lab <-> lab/snake): chuyển ngay, không hiện Loader
     const sameTab = nextView !== 'home' && viewRef.current !== 'home' && topOf(nextView) === topOf(viewRef.current);
-    if (!sameTab && !reducedMotion()) setIsLoading(true);
+    if (!sameTab && !prefersReducedMotion()) setIsLoading(true);
     // start downloading the target page's code right away; the swap waits for BOTH the loader time and the chunk
     // (a failed preload is ignored here: the ErrorBoundary shows the retry UI once the page tries to render)
     const preloaded = pageOfView(nextView)?.preload?.().catch(() => {});
@@ -178,7 +178,7 @@ export default function App() {
       }
       setIsLoading(false);
     };
-    const wait = sameTab || reducedMotion() ? 0 : TAB_LOADER_MS;
+    const wait = sameTab || prefersReducedMotion() ? 0 : TAB_LOADER_MS;
     const id = window.setTimeout(() => {
       // a newer click replaced this navigation while the chunk was downloading -> drop this one
       if (navTimer.current !== id) return;

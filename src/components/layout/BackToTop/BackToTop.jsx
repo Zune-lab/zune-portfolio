@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { prefersReducedMotion } from '../../../lib/env.js';
 import './BackToTop.css';
 
 export default function BackToTop() {
@@ -12,8 +13,7 @@ export default function BackToTop() {
   }, []);
 
   const handleClick = () => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   };
 
   return (
@@ -33,7 +33,7 @@ export default function BackToTop() {
       </svg>
       <span
         className="back-to-top-label absolute inset-0 flex items-center justify-center font-mono text-xs whitespace-nowrap"
-        style={{ color: '#0A0C10' }}
+        style={{ color: 'var(--on-amber)' }}
       >
         Back to Top
       </span>

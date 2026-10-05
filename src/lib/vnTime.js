@@ -11,6 +11,19 @@ function vnHour() {
   return parseInt(hourFmt.format(new Date()), 10);
 }
 
+// đồng hồ HH:MM:SS theo giờ VN (thẻ zune.sav). Tạo formatter một lần như hourFmt ở trên.
+const clockFmt = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Asia/Ho_Chi_Minh',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+export const vnClock = () => clockFmt.format(new Date());
+
+// ngày + giờ đầy đủ theo giờ VN (lệnh `date` trong terminal; hiếm gọi nên tạo formatter mỗi lần cũng được)
+export const vnDateTime = () => new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
+
 // dawn 5-8 | day 8-17 | dusk 17-23 | night 23-5
 export function timeOfDay(h = vnHour()) {
   if (h >= 23 || h < 5) return 'night';

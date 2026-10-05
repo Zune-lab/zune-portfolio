@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { onThemeChange } from '../../../lib/themeSync.js';
+import { fitCanvas } from '../../../lib/canvas.js';
+import { prefersReducedMotion } from '../../../lib/env.js';
+import { clamp, TAU } from '../../../lib/math.js';
 
 // "Trang web có nhịp tim": vạch tiến độ cuộn ở mép TRÊN là một máy đo nhịp tim (ECG) chạy ngang màn hình.
 //  - đầu vạch (chấm sáng) nằm ở vị trí đang đọc tới (= tiến độ cuộn); phía sau nó là điện tâm đồ chạy lùi về bên trái
@@ -13,7 +16,6 @@ const H = 18; // cao của dải canvas (px)
 const BASE = 13; // đường nền (px từ mép trên); nhịp đập vọt lên phía mép trên
 const PEAK = 11; // biên độ tối đa (px)
 const L = 140; // khoảng cách giữa hai nhịp (px) trên màn hình
-const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 // một nhịp tim PQRST dạng tổng các hàm Gauss; u chạy 0..1 trong một nhịp
 const WAVES = [
@@ -42,8 +44,7 @@ export default function Pulse({ napping, panic }) {
   useEffect(() => {
     const canvas = cvs.current;
     const ctx = canvas.getContext('2d');
-    const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rm = prefersReducedMotion();
     let W = 0;
     let raf = 0;
     let last = 0;
@@ -66,20 +67,27 @@ export default function Pulse({ napping, panic }) {
       dim = cs.getPropertyValue('--text-dim').trim() || dim;
     };
     readColors();
-    const offTheme = onThemeChange(readColors);
+    // chế độ giảm chuyển động không có vòng rAF: phải tự vẽ lại khi đổi theme, không thì vạch kẹt màu cũ
+    const offTheme = onThemeChange(() => {
+      readColors();
+      if (rm) drawStatic();
+    });
 
     const resize = () => {
       W = canvas.clientWidth || window.innerWidth;
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fitCanvas(canvas, ctx, W, H);
     };
     resize();
 
+    // tiến độ cuộn 0..1 (trang quá ngắn thì coi như 0)
+    const scrollProgress = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      return max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
+    };
+
     const draw = (t, dt) => {
       const k = dt / 16.667;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const target = max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
+      const target = scrollProgress();
       p += (target - p) * Math.min(1, 0.3 * k);
       const headX = Math.max(3, p * (W - 6));
       const flat = target >= 0.995;
@@ -142,7 +150,7 @@ export default function Pulse({ napping, panic }) {
       ctx.shadowColor = amber;
       ctx.shadowBlur = 8;
       ctx.beginPath();
-      ctx.arc(headX, yHead, 2.4, 0, Math.PI * 2);
+      ctx.arc(headX, yHead, 2.4, 0, TAU);
       ctx.fill();
       ctx.shadowBlur = 0;
 
@@ -161,9 +169,7 @@ export default function Pulse({ napping, panic }) {
 
     // giảm chuyển động: chỉ vẽ vạch tiến độ phẳng khi cuộn / đổi cỡ
     const drawStatic = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const pr = max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
-      const x = Math.max(3, pr * (W - 6));
+      const x = Math.max(3, scrollProgress() * (W - 6));
       ctx.clearRect(0, 0, W, H);
       ctx.strokeStyle = amber;
       ctx.lineWidth = 1.6;
@@ -173,7 +179,7 @@ export default function Pulse({ napping, panic }) {
       ctx.stroke();
       ctx.fillStyle = amber;
       ctx.beginPath();
-      ctx.arc(x, BASE, 2.4, 0, Math.PI * 2);
+      ctx.arc(x, BASE, 2.4, 0, TAU);
       ctx.fill();
     };
 

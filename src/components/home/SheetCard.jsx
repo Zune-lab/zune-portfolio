@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { role, location } from '../../data/profile.js';
-import { spotMove } from '../../lib/dom.js';
+import { role, location, mainStack, learning } from '../../data/profile.js';
+import { isTypingTarget, spotMove } from '../../lib/dom.js';
+import { vnClock } from '../../lib/vnTime.js';
 import { cycleStatus, useStatus } from '../../lib/status.js';
 import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../lib/social.js';
 
@@ -9,9 +10,6 @@ import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../l
 const CLASSES = [null, 'Bug Summoner', 'CSS Wizard', 'Tea Enjoyer', 'Introvert (lvl 99)']; // null = role thật
 const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 const CELLS = 10;
-const clock = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
-});
 
 function Meter({ value, color, rainbow }) {
   const on = Math.round((value / 100) * CELLS);
@@ -35,11 +33,11 @@ const Row = ({ k, children }) => (
 export default function SheetCard() {
   const status = useStatus();
   const { drain, months, maxed, reply } = useSocial();
-  const [time, setTime] = useState(() => clock.format(new Date()));
+  const [time, setTime] = useState(vnClock);
   const [cls, setCls] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setTime(clock.format(new Date())), 1000);
+    const t = setInterval(() => setTime(vnClock()), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -47,6 +45,8 @@ export default function SheetCard() {
   useEffect(() => {
     let seq = [];
     const onKey = (e) => {
+      // Chrome autofill bắn keydown không có `key`; đang gõ trong ô nhập (vd feedback) thì không tính vào mã Konami
+      if (typeof e.key !== 'string' || isTypingTarget(e.target)) return;
       seq = [...seq, e.key.toLowerCase()].slice(-KONAMI.length);
       if (seq.join() === KONAMI.join()) unlock('konami accepted. personality 100%. who let this happen?');
     };
@@ -80,8 +80,8 @@ export default function SheetCard() {
           </button>
         </Row>
         <Row k="location">{location} <span className="text-dim">· {time} GMT+7</span></Row>
-        <Row k="main quest">React + Tailwind</Row>
-        <Row k="side quest">Next.js App Router</Row>
+        <Row k="main quest">{mainStack}</Row>
+        <Row k="side quest">{learning}</Row>
 
         <div className="mt-2 grid gap-1.5">
           <div className="flex justify-between"><span className="text-dim">social battery</span><span style={{ color }}>{level}%</span></div>

@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../../config/pages.js';
 import { stack, role, location } from '../../../data/profile.js';
 import { spotMove } from '../../../lib/dom.js';
+import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/env.js';
+import { observeOnce } from '../../../lib/observe.js';
 import { useStatus } from '../../../lib/status.js';
+import { vnDateTime } from '../../../lib/vnTime.js';
 import { getSocial, levelOf, unlock } from '../../../lib/social.js';
 import './Terminal.css';
 
@@ -45,7 +48,7 @@ function exec(raw, { onNavigate, clear }) {
     case 'ls':
       return [Object.keys(FILES).join('  ') + TABS.map((t) => `  ${t}/`).join('')];
     case 'cat':
-      return [Object.prototype.hasOwnProperty.call(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
+      return [has(FILES, arg) ? FILES[arg] : `cat: ${arg || '?'}: No such file or directory`];
     case 'cd':
       if (TABS.includes(dir)) {
         onNavigate?.(dir);
@@ -53,7 +56,7 @@ function exec(raw, { onNavigate, clear }) {
       }
       return [`cd: ${arg || '?'}: No such file or directory`];
     case 'date':
-      return [new Date().toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' })];
+      return [vnDateTime()];
     case 'sudo':
       return /^hire\s+zune$/.test(arg)
         ? ['[sudo] password for you: ********', 'permission granted - message me in the socials section!']
@@ -106,18 +109,13 @@ export default function Terminal({ onNavigate }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const el = wrapRef.current;
-    if (!el || !('IntersectionObserver' in window)) return setStarted(true);
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && (setStarted(true), io.disconnect()), { threshold: 0.4 });
-    io.observe(el);
-    return () => io.disconnect();
+    return observeOnce(wrapRef.current, () => setStarted(true), 0.4);
   }, []);
 
   useEffect(() => {
     if (!started) return undefined;
     let cancelled = false;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
+    const reduce = prefersReducedMotion();
     const INTRO = introLines(blurbRef.current);
     const buf = [];
     const flush = () => setLines([...buf]);
@@ -177,8 +175,6 @@ export default function Terminal({ onNavigate }) {
   const run = async (cmd) => {
     if (!ready || busy) return;
     setBusy(true);
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? 0 : ms));
     setLines((l) => [...l, { t: 'cmd', text: '' }]);
     for (let i = 1; i <= cmd.length; i++) {
       await sleep(35);
@@ -196,7 +192,8 @@ export default function Terminal({ onNavigate }) {
       e.preventDefault();
       hIdx.current = Math.min(hIdx.current + 1, h.length - 1);
       setText(h[h.length - 1 - hIdx.current]);
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === 'ArrowDown' && hIdx.current >= 0) {
+      // chỉ khi đang duyệt lịch sử: nếu không, ↓ lúc đang gõ dở sẽ xoá sạch dòng lệnh
       e.preventDefault();
       hIdx.current = Math.max(hIdx.current - 1, -1);
       setText(hIdx.current === -1 ? '' : h[h.length - 1 - hIdx.current]);

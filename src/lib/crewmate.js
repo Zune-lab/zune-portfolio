@@ -10,11 +10,12 @@
 //  - sâu đang bị doạ / đang chạy nhanh lao tới thì nó hoảng ("sus!") chạy về nút
 //  - không bao giờ đi vào sau thẻ zune.sav hay các nút khác (đi vòng qua góc nếu bị chắn)
 
-const TAU = Math.PI * 2;
+import { clamp, TAU } from './math.js';
+
 const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
 const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
-const ease = (u) => 1 - Math.pow(1 - Math.min(1, Math.max(0, u)), 3);
+const ease = (u) => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
 
 const NEAR_WORM = 240; // sâu lại gần nút bấy nhiêu px thì crewmate để ý và chui ra
 const FIRST_MS = 3500; // lần đầu sớm nhất sau khi tải trang

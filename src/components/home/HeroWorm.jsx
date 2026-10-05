@@ -4,6 +4,10 @@ import { onThemeChange } from '../../lib/themeSync.js';
 import { createBrain, createPointerTracker, pushOutside } from '../../lib/wormBrain.js';
 import { createCrewmate } from '../../lib/crewmate.js';
 import { isNapping } from '../../lib/nap.js';
+import { fitCanvas } from '../../lib/canvas.js';
+import { prefersReducedMotion } from '../../lib/env.js';
+import { TAU } from '../../lib/math.js';
+import { observeVisible } from '../../lib/observe.js';
 
 // Con "sâu chữ" của riêng trang này, tính cách giống chủ nhân: HƯỚNG NỘI.
 //  - đầu là con trỏ khối của terminal (có mắt, biết chớp, nhìn theo chuột), thân là chữ "zune.dev"
@@ -31,6 +35,9 @@ const START_N = 10; // 1 đầu + 9 chữ (có 1 khoảng trống ngay sau đầ
 const MAX_N = 28;
 const GAP = 28;
 const MONO = '"JetBrains Mono", monospace';
+// chuỗi font của từng đốt thân, tính một lần (trước đây dựng lại chuỗi cho mỗi chữ ở mỗi khung hình)
+const BODY_FONTS = Array.from({ length: MAX_N }, (_, i) => `700 ${Math.max(12, 22 - i * 0.6)}px ${MONO}`);
+const FONT_BUBBLE = `600 13px ${MONO}`;
 // bấm vào những thứ này thì KHÔNG tính là "bấm chỗ trống"
 const INTERACTIVE = 'a,button,input,textarea,select,label,aside,h1,p,[role="button"]';
 
@@ -55,7 +62,7 @@ function drawCrew(ctx, c, t) {
   ctx.globalAlpha = 0.28; // bóng dưới chân (nhỏ dần khi nhảy cao)
   ctx.fillStyle = '#000';
   ctx.beginPath();
-  ctx.ellipse(0, 17 + lift, 11 - c.hop * 3, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 17 + lift, 11 - c.hop * 3, 3, 0, 0, TAU);
   ctx.fill();
   ctx.globalAlpha = 1;
   ctx.scale(c.dir, 1); // dir = 1: quay mặt sang phải (kính ở bên phải)
@@ -90,11 +97,10 @@ export default function HeroWorm() {
   const cvs = useRef(null);
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+    if (prefersReducedMotion()) return undefined;
     const canvas = cvs.current;
     const host = canvas.parentElement;
     const ctx = canvas.getContext('2d');
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let w = 0;
     let h = 0;
     let raf = 0;
@@ -132,9 +138,7 @@ export default function HeroWorm() {
     const resize = () => {
       w = host.clientWidth;
       h = host.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fitCanvas(canvas, ctx, w, h);
       if (brain) brain.resize(w, h);
     };
     resize();
@@ -168,11 +172,10 @@ export default function HeroWorm() {
 
     const ro = new ResizeObserver(resize);
     ro.observe(host);
-    const io = new IntersectionObserver(([en]) => {
-      visible = en.isIntersecting;
+    const offVisible = observeVisible(host, (v) => {
+      visible = v;
       if (!visible) lastT = 0; // quay lại thì không bị tính một bước thời gian khổng lồ
     });
-    io.observe(host);
 
     const tick = (t) => {
       raf = requestAnimationFrame(tick);
@@ -312,7 +315,7 @@ export default function HeroWorm() {
         ctx.rotate(ang);
         ctx.globalAlpha = 0.9 - (i / len) * 0.55;
         ctx.fillStyle = maxed ? `hsl(${(hue + i * 28) % 360} 85% 62%)` : ink;
-        ctx.font = `700 ${Math.max(12, 22 - i * 0.6)}px ${MONO}`;
+        ctx.font = BODY_FONTS[i];
         ctx.fillText(WORD[WORD.length - 1 - ((i - 1) % WORD.length)], 0, 0); // chữ neo theo đầu: đuôi dài ra thì lặp lại "zune.dev "
         ctx.restore();
       }
@@ -353,7 +356,7 @@ export default function HeroWorm() {
         drawCrew(ctx, crew.state, t);
         const sy = crew.state.say;
         if (sy?.text) {
-          ctx.font = `600 13px ${MONO}`;
+          ctx.font = FONT_BUBBLE;
           ctx.globalAlpha = Math.min(1, (sy.until - t) / 350);
           ctx.fillStyle = amber;
           ctx.textAlign = 'center';
@@ -377,7 +380,7 @@ export default function HeroWorm() {
         }
         ctx.textAlign = 'center';
       } else if (t < bubble.until) {
-        ctx.font = `600 13px ${MONO}`;
+        ctx.font = FONT_BUBBLE;
         const side = covered(ctx.measureText(bubble.text).width) ? -1 : 1;
         ctx.globalAlpha = Math.min(1, (bubble.until - t) / 400);
         ctx.fillStyle = amber;
@@ -392,7 +395,7 @@ export default function HeroWorm() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      io.disconnect();
+      offVisible();
       offTheme();
       contactEl?.removeAttribute('data-away');
       host.removeEventListener('click', onClick);

@@ -6,20 +6,31 @@ export default function Preloader() {
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 900));
+    let cancelled = false;
+    const timers = [];
+    const wait = (ms) => new Promise((resolve) => timers.push(setTimeout(resolve, ms)));
+    const minDelay = wait(900);
+    let onLoad = null;
     const pageLoad = new Promise((resolve) => {
       if (document.readyState === 'complete') resolve();
-      else window.addEventListener('load', resolve, { once: true });
+      else {
+        onLoad = resolve;
+        window.addEventListener('load', onLoad, { once: true });
+      }
     });
     // Không chờ vô hạn: nếu 1 resource (vd Google Fonts) treo thì vẫn mở site sau 4s.
-    const maxWait = new Promise((resolve) => setTimeout(resolve, 4000));
+    const maxWait = wait(4000);
 
-    let removeTimer;
     Promise.all([minDelay, Promise.race([pageLoad, maxWait])]).then(() => {
+      if (cancelled) return;
       setHidden(true);
-      removeTimer = setTimeout(() => setRemoved(true), 500);
+      timers.push(setTimeout(() => setRemoved(true), 500));
     });
-    return () => clearTimeout(removeTimer);
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+      if (onLoad) window.removeEventListener('load', onLoad);
+    };
   }, []);
 
   if (removed) return null;

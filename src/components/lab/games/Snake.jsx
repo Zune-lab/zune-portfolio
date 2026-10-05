@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { readBest, saveBest } from '../../../lib/storage.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
+import { getDpr } from '../../../lib/env.js';
+import { pick, TAU } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
 const N = 18; // lưới N x N
 const CELL = 20;
 const SIZE = N * CELL;
 const BEST_KEY = 'zune-snake-best';
-const DPR = Math.min(window.devicePixelRatio || 1, 2); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
+const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
 
 const DIRS = {
   up: { x: 0, y: -1 },
@@ -30,7 +32,7 @@ const placeFood = (snake) => {
       if (!snake.some((s) => s.x === x && s.y === y)) free.push({ x, y });
     }
   }
-  return free.length ? free[Math.floor(Math.random() * free.length)] : null;
+  return free.length ? pick(free) : null;
 };
 
 const fresh = () => {
@@ -76,7 +78,7 @@ export default function Snake() {
     if (g.food) {
       ctx.fillStyle = v('--amber', '#ffc857');
       ctx.beginPath();
-      ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, Math.PI * 2);
+      ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, TAU);
       ctx.fill();
     }
 

@@ -5,7 +5,7 @@ import { storageGet, storageSet } from './storage.js';
 // online/offline is inferred from the Vietnam clock (no backend needed);
 // busy/focus can only be picked by hand, a machine can't know those.
 // `label` is shown on the Hero badge, `blurb` is what the terminal prints.
-export const STATUS_CONFIG = {
+const STATUS_CONFIG = {
   online: { label: 'online', blurb: 'open to new projects', color: 'var(--green)', pulse: true },
   offline: { label: 'offline', blurb: 'offline right now, will reply later', color: 'var(--text-dim)', pulse: false },
   busy: { label: 'busy - replies may be slow', blurb: 'busy, replies may be slow', color: 'var(--amber)', pulse: false },

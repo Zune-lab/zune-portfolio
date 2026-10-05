@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Pulse from './Pulse.jsx';
 import { setNapState } from '../../../lib/nap.js';
+import { prefersReducedMotion } from '../../../lib/env.js';
+import { pick, randInt, TAU } from '../../../lib/math.js';
 import './Alive.css';
 
 // "Làm cả trang sống động": những chi tiết nhỏ nằm ngoài hero, gom về một chỗ, mỗi cái là một useEffect độc lập.
@@ -12,7 +14,6 @@ import './Alive.css';
 //  5) họp khẩn cấp: bật/tắt theme liên tục 4 lần trong ~4s thì "EMERGENCY MEETING" (Among Us)
 // Tất cả tắt hoặc giảm khi người dùng bật "giảm chuyển động".
 
-const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const NAP_MS = 45000;
 const AWAY_TITLES = ['psst. still here.', 'come back :(', 'zune.dev misses you', 'did you leave?'];
 const POP_CHARS = ['{', '}', '</>', '0', '1', ';', '*', '()', '=>'];
@@ -100,7 +101,7 @@ export default function Alive() {
       clearTimeout(timer);
       if (document.hidden) {
         if (saved === null) saved = document.title;
-        document.title = AWAY_TITLES[Math.floor(Math.random() * AWAY_TITLES.length)];
+        document.title = pick(AWAY_TITLES);
       } else if (saved !== null) {
         document.title = 'oh. hi again.';
         const back = saved;
@@ -150,21 +151,21 @@ export default function Alive() {
 
   // 4) bấm chỗ trống: bung ký tự code
   useEffect(() => {
-    if (reduced()) return undefined;
+    if (prefersReducedMotion()) return undefined;
     let live = 0;
     const onClick = (e) => {
       if (e.button !== 0 || e.target.closest(POP_SKIP) || window.getSelection()?.toString()) return;
       if (/\/lab\/[^/]+/.test(location.pathname) || live > 24) return; // trong game thì đừng làm rối
-      const n = 5 + Math.floor(Math.random() * 3);
+      const n = randInt(5, 7);
       for (let i = 0; i < n; i++) {
         const el = document.createElement('span');
-        el.textContent = POP_CHARS[Math.floor(Math.random() * POP_CHARS.length)];
+        el.textContent = pick(POP_CHARS);
         el.setAttribute('aria-hidden', 'true');
         el.className = 'pop-char';
         el.style.left = `${e.clientX}px`;
         el.style.top = `${e.clientY}px`;
         document.body.appendChild(el);
-        const a = (Math.PI * 2 * i) / n + Math.random() * 0.8 - 0.4;
+        const a = (TAU * i) / n + Math.random() * 0.8 - 0.4;
         const d = 34 + Math.random() * 46;
         live++;
         const anim = el.animate(
@@ -225,7 +226,7 @@ export default function Alive() {
       <div className={`nap-dim${nap === 'nap' ? ' is-on' : ''}`} aria-hidden="true" />
 
       {nap === 'nap' &&
-        (reduced() ? (
+        (prefersReducedMotion() ? (
           <div className="nap-bubble" role="status">
             zune.dev is napping. wiggle the mouse.
           </div>
