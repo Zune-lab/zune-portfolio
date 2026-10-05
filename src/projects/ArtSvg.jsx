@@ -1,4 +1,4 @@
-import './ProjectCard/ProjectCard.css'; // chứa .art-center (căn giữa hình trong thẻ)
+import './Projects.css'; // chứa .art-center (căn giữa hình trong khung)
 
 // Khung chung cho các Art vẽ bằng nét SVG (a-dumb-gift, a-gift-for-u, le-tot-nghiep): cùng kiểu nét
 // (currentColor, 2.5, bo tròn đầu/góc), mỗi Art chỉ truyền hình vẽ + kích thước.

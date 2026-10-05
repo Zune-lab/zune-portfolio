@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../../projects/ProjectCard/ProjectCard.css'; // chứa .art-center dùng chung cho mọi Art
+import '../../projects/Projects.css'; // chứa .art-center dùng chung cho mọi Art
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { projects, arts } from '../../projects/index.js';

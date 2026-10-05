@@ -5,6 +5,7 @@ export default {
   file: 'calendar.js',
   desc: 'a compact little calendar app, built by hand',
   color: 'var(--js)',
+  facts: [['type', 'calendar app'], ['built', 'by hand']],
   href: repoUrl('calender'),
   manualShot: true, // trang có màn login -> tự chụp tay (sau khi đăng nhập), lưu public/previews/calendar.png
 };

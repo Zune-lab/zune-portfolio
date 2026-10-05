@@ -5,5 +5,6 @@ export default {
   file: 'le-tot-nghiep.js',
   desc: 'a keepsake page for graduation day',
   color: 'var(--js)',
+  facts: [['type', 'keepsake page'], ['made for', 'graduation day']],
   href: repoUrl('le-tot-nghiep'),
 };

@@ -5,5 +5,6 @@ export default {
   file: 'a-gift-for-u.css',
   desc: 'another gift page, focused on CSS details',
   color: 'var(--css-lang)',
+  facts: [['type', 'gift page'], ['focus', 'CSS details']],
   href: repoUrl('a-gift-for-u'),
 };
