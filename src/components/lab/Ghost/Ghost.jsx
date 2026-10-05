@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { isNapping } from '../../../lib/nap.js';
+import { frameLoop } from '../../../lib/loop.js';
 import { fitCanvas } from '../../../lib/canvas.js';
 import { isTypingTarget } from '../../../lib/dom.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
@@ -102,6 +102,7 @@ export default function Ghost() {
   const clicks = useRef([]);
   const sunClicks = useRef([]);
   const api = useRef({});
+  const ghostLoop = useRef(null); // frameLoop của vòng chính, để effect đồng bộ cờ gọi sync() khi ma ngủ / dậy
   const live = useRef({ visible: true, awake: true, konami: false, rage: false, busy: false });
   const st = useRef({ x: 0, y: 0, vx: 0, vy: 0, px: 0, py: 0, mx: 0, my: 0, inside: false, lastMove: -1e9, t: 0 });
 
@@ -199,6 +200,7 @@ export default function Ghost() {
     live.current.konami = konami;
     live.current.rage = rage;
     live.current.busy = boo || rage || sayOn || !!act;
+    ghostLoop.current?.sync(); // ma ngủ yên thì vòng rAF tự dừng, ma dậy thì chạy lại
   });
 
   useEffect(() => {
@@ -228,6 +230,7 @@ export default function Ghost() {
     ro.observe(el);
     const offVisible = observeVisible(el, (v) => {
       live.current.visible = v;
+      ghostLoop.current?.setVisible(v);
     });
 
     const orbs = Array.from({ length: 6 }, (_, i) => ({
@@ -240,21 +243,14 @@ export default function Ghost() {
     let parts = [];
     let spawn = 0;
     let last = performance.now();
-    let raf = 0;
 
-    const loop = (now) => {
-      raf = requestAnimationFrame(loop);
+    // frameLoop huỷ hẳn rAF khi: screensaver bật, tab ẩn, khung khuất, hoặc ma đang ngủ và đã đứng yên (canRun) -> không còn khung "chạy rỗng"
+    const frame = (now) => {
       const L = live.current;
-      if (!L.visible || isNapping()) {
-        last = now; // khuất / screensaver đang phủ màn hình: không tính vật lý, không vẽ
-        return;
-      }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const s = st.current;
-      // ma đang ngủ và đã đứng yên hẳn: bỏ qua khung hình (không tính vật lý, không đụng DOM/canvas)
       if (L.awake) s.rest = false;
-      else if (s.rest) return;
       s.t += dt;
 
       // 1. ma trôi: theo con trỏ (lười, có độ trễ) hoặc tự lang thang khi không ai đụng tới
@@ -283,6 +279,7 @@ export default function Ghost() {
       if (!L.awake) {
         parts = [];
         s.rest = Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.vx) + Math.abs(s.vy) < 0.05;
+        if (s.rest) ghostLoop.current?.sync(); // đứng yên hẳn: dừng vòng rAF tới khi ma dậy
         return;
       }
       const hue = L.konami ? (now * 0.18) % 360 : null;
@@ -362,9 +359,13 @@ export default function Ghost() {
       });
       ctx.globalCompositeOperation = 'source-over';
     };
-    raf = requestAnimationFrame(loop);
+    ghostLoop.current = frameLoop(frame, {
+      canRun: () => live.current.awake || !st.current.rest,
+      onResume: () => (last = performance.now()), // không tính một bước vật lý khổng lồ sau khi nghỉ
+    });
     return () => {
-      cancelAnimationFrame(raf);
+      ghostLoop.current.stop();
+      ghostLoop.current = null;
       ro.disconnect();
       offVisible();
     };

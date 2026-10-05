@@ -139,9 +139,15 @@ export default function Alive() {
     const iv = window.setInterval(() => {
       if (state === 'awake' && !document.hidden && performance.now() - last > NAP_MS) set('nap');
     }, 1000);
+    // quay lại tab sau một lúc lâu: tính là vừa có người tới (trước đây `last` còn cũ nên screensaver bật ngay trong vòng 1 giây)
+    const onVisible = () => {
+      if (!document.hidden) last = performance.now();
+    };
+    document.addEventListener('visibilitychange', onVisible);
     const evs = ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
     evs.forEach((e) => window.addEventListener(e, poke, { passive: true }));
     return () => {
+      document.removeEventListener('visibilitychange', onVisible);
       clearInterval(iv);
       clearTimeout(wakeTimer);
       evs.forEach((e) => window.removeEventListener(e, poke));

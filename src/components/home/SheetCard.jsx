@@ -3,6 +3,7 @@ import { role, location, mainStack, learning } from '../../data/profile.js';
 import { isTypingTarget, spotMove } from '../../lib/dom.js';
 import { vnClock } from '../../lib/vnTime.js';
 import { cycleStatus, useStatus } from '../../lib/status.js';
+import { isNapping, onNapChange } from '../../lib/nap.js';
 import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../lib/social.js';
 
 // Pin nhỏ nhưng đúng chất Zune: hướng nội, pin xã hội tụt khi bị "say hi", tự sạc lại theo thời gian.
@@ -36,9 +37,23 @@ export default function SheetCard() {
   const [time, setTime] = useState(vnClock);
   const [cls, setCls] = useState(0);
 
+  // đồng hồ 1 giây/lần: screensaver bật thì dừng hẳn (không render lại thẻ vô ích), dậy thì cập nhật ngay rồi chạy tiếp
   useEffect(() => {
-    const t = setInterval(() => setTime(vnClock()), 1000);
-    return () => clearInterval(t);
+    let t = 0;
+    const run = () => {
+      setTime(vnClock());
+      t = window.setInterval(() => setTime(vnClock()), 1000);
+    };
+    const stop = () => {
+      clearInterval(t);
+      t = 0;
+    };
+    if (!isNapping()) t = window.setInterval(() => setTime(vnClock()), 1000);
+    const off = onNapChange(() => (isNapping() ? stop() : !t && run()));
+    return () => {
+      stop();
+      off();
+    };
   }, []);
 
   // easter egg: Konami code -> 100% personality (cũng mở được bằng 6 lần bấm thanh personality hoặc lệnh `konami`)

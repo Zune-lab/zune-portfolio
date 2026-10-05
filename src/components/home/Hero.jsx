@@ -4,7 +4,7 @@ import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
 import HeroWorm from './HeroWorm.jsx';
-import { isNapping } from '../../lib/nap.js';
+import { isNapping, onNapChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
 import { observeVisible } from '../../lib/observe.js';
 
@@ -19,17 +19,25 @@ function Typewriter() {
     if (prefersReducedMotion()) return undefined;
     let dead = false;
     let visible = true;
-    const offVisible = observeVisible(cursor.current, (v) => (visible = v));
-    // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên (kiểm tra thưa, gần như không tốn gì), quay lại thì gõ tiếp
+    const waiters = [];
+    // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên HẲN (chờ sự kiện, không còn hẹn giờ thăm dò mỗi 400ms), quay lại thì gõ tiếp
     const idle = () => !visible || document.hidden || isNapping();
-    const rest = async () => {
-      while (idle() && !dead) await sleep(400);
+    const wakeUp = () => {
+      if (!idle()) waiters.splice(0).forEach((resolve) => resolve());
     };
+    const offVisible = observeVisible(cursor.current, (v) => {
+      visible = v;
+      wakeUp();
+    });
+    const offNap = onNapChange(wakeUp);
+    document.addEventListener('visibilitychange', wakeUp);
+    const rest = () => (idle() && !dead ? new Promise((resolve) => waiters.push(resolve)) : Promise.resolve());
     (async () => {
       let i = 0;
       await sleep(2800);
       while (!dead) {
         await rest();
+        if (dead) break;
         for (let n = PHRASES[i].length - 1; n >= 0 && !dead; n--) {
           setText(PHRASES[i].slice(0, n));
           await sleep(32);
@@ -46,6 +54,9 @@ function Typewriter() {
     return () => {
       dead = true;
       offVisible();
+      offNap();
+      document.removeEventListener('visibilitychange', wakeUp);
+      waiters.splice(0).forEach((resolve) => resolve()); // để vòng async đang chờ thoát hẳn
     };
   }, []);
 

@@ -341,3 +341,12 @@ body::before {
   50% { border-right-color: transparent; }
   100% { border-right-color: transparent; }
 }
+
+/* Screensaver (nap) đang phủ ~88% đen lên cả trang: mọi animation CSS phía sau đều vô hình nhưng vẫn tốn compositor/GPU.
+   nap.js bật cờ `data-nap` trên <html>; ở đây tạm dừng TẤT CẢ animation (kể cả ::before/::after), chỉ chừa khối DVD, bóng thoại
+   và lớp tối. Dậy thì cờ tắt, animation chạy tiếp đúng chỗ đã dừng (paused giữ nguyên tiến độ, không bị giật về đầu). */
+:root[data-nap] :not(.bouncer, .bouncer *, .nap-bubble, .nap-dim),
+:root[data-nap] :not(.bouncer, .bouncer *, .nap-bubble, .nap-dim)::before,
+:root[data-nap] :not(.bouncer, .bouncer *, .nap-bubble, .nap-dim)::after {
+  animation-play-state: paused !important;
+}

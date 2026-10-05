@@ -3,11 +3,14 @@ import { getSocial, isAsleep, levelOf } from '../../lib/social.js';
 import { onThemeChange } from '../../lib/themeSync.js';
 import { createBrain, createPointerTracker, pushOutside } from '../../lib/wormBrain.js';
 import { createCrewmate } from '../../lib/crewmate.js';
-import { isNapping } from '../../lib/nap.js';
+import { frameLoop } from '../../lib/loop.js';
+import { isNapping, onNapChange } from '../../lib/nap.js';
 import { fitCanvas } from '../../lib/canvas.js';
 import { prefersReducedMotion } from '../../lib/env.js';
 import { TAU } from '../../lib/math.js';
 import { observeVisible } from '../../lib/observe.js';
+
+const NAP_SETTLE_MS = 2500; // thời gian sâu "đi ngủ" sau khi screensaver bật, trước khi dừng hẳn vòng vẽ
 
 // Con "sâu chữ" của riêng trang này, tính cách giống chủ nhân: HƯỚNG NỘI.
 //  - đầu là con trỏ khối của terminal (có mắt, biết chớp, nhìn theo chuột), thân là chữ "zune.dev"
@@ -103,9 +106,10 @@ export default function HeroWorm() {
     const ctx = canvas.getContext('2d');
     let w = 0;
     let h = 0;
-    let raf = 0;
+    let napGrace = false; // screensaver vừa bật: cho sâu chạy thêm vài khung để nằm xuống ngủ, rồi mới đứng hình
+    let napTimer = 0;
+    let loop = null; // frameLoop: huỷ hẳn rAF khi screensaver / tab ẩn / hero khuất
     let lastT = 0;
-    let visible = true;
     let amber = '#ffc857';
     let ink = '#dce1e8';
     let bg = '#0a0c10';
@@ -172,17 +176,9 @@ export default function HeroWorm() {
 
     const ro = new ResizeObserver(resize);
     ro.observe(host);
-    const offVisible = observeVisible(host, (v) => {
-      visible = v;
-      if (!visible) lastT = 0; // quay lại thì không bị tính một bước thời gian khổng lồ
-    });
+    const offVisible = observeVisible(host, (v) => loop?.setVisible(v));
 
     const tick = (t) => {
-      raf = requestAnimationFrame(tick);
-      if (!visible || isNapping()) {
-        lastT = 0; // screensaver phủ màn hình / hero khuất: bỏ qua tính toán + vẽ; dậy thì không bị tính một bước thời gian khổng lồ
-        return;
-      }
       const dt = lastT ? Math.min(50, t - lastT) : 16.667;
       lastT = t;
       const k = dt / 16.667;
@@ -225,7 +221,7 @@ export default function HeroWorm() {
       // --- pin xã hội
       const soc = getSocial();
       const maxed = soc.maxed;
-      const asleep = isAsleep(soc);
+      const asleep = isAsleep(soc) || (isNapping() && !maxed); // screensaver bật thì sâu cũng ngủ (nằm yên, nhắm mắt, zzz)
       const sleepy = !asleep && !maxed && levelOf(soc) <= 20;
       if (soc.hiAt !== seenHi) {
         seenHi = soc.hiAt;
@@ -390,10 +386,25 @@ export default function HeroWorm() {
       }
       ctx.globalAlpha = 1;
     };
-    raf = requestAnimationFrame(tick);
+    // dậy / hero hiện lại: lastT = 0 để khung đầu không bị tính một bước thời gian khổng lồ
+    loop = frameLoop(tick, { onResume: () => (lastT = 0), runWhileNap: () => napGrace });
+    // nap bắt đầu: chạy thêm NAP_SETTLE_MS để sâu bò ra khỏi chỗ khuất / nằm xuống / nhắm mắt, rồi huỷ hẳn rAF (đứng hình ở tư thế ngủ).
+    // dậy: gỡ grace, frameLoop tự chạy lại và sâu chào "huh? oh. hi."
+    const offNap = onNapChange(() => {
+      clearTimeout(napTimer);
+      napGrace = isNapping();
+      if (napGrace) {
+        napTimer = window.setTimeout(() => {
+          napGrace = false;
+          loop.sync();
+        }, NAP_SETTLE_MS);
+      }
+    });
 
     return () => {
-      cancelAnimationFrame(raf);
+      clearTimeout(napTimer);
+      offNap();
+      loop.stop();
       ro.disconnect();
       offVisible();
       offTheme();

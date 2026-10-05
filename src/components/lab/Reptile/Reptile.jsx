@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { env, setupLizard } from './creature.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
-import { isNapping } from '../../../lib/nap.js';
+import { frameLoop } from '../../../lib/loop.js';
 import { fitCanvas } from '../../../lib/canvas.js';
 import { observeVisible } from '../../../lib/observe.js';
 import { randInt } from '../../../lib/math.js';
@@ -27,9 +27,8 @@ export default function Reptile() {
     const ctx = canvas.getContext('2d');
     let w = 0;
     let h = 0;
-    let raf = 0;
     let last = 0;
-    let visible = true;
+    let loop = null; // huỷ hẳn rAF khi screensaver / tab ẩn / khung khuất (lib/loop.js)
     let stroke = '';
 
     // màu nét vẽ lấy từ CSS (text-ink). Khi đổi theme phải đọc lại NGAY, không thì con vật
@@ -65,21 +64,20 @@ export default function Reptile() {
       env.ctx = ctx;
     });
     ro.observe(box);
-    const offVisible = observeVisible(box, (v) => (visible = v));
+    const offVisible = observeVisible(box, (v) => loop?.setVisible(v));
 
     const tick = (t) => {
-      raf = requestAnimationFrame(tick);
-      if (!visible || isNapping() || t - last < 33) return; // ~30 khung/giây như bản gốc, dừng khi cuộn khỏi màn hình
+      if (t - last < 33) return; // ~30 khung/giây như bản gốc
       last = t;
       env.ctx = ctx;
       ctx.clearRect(0, 0, w, h);
       ctx.strokeStyle = stroke;
       state.current.critter.follow(env.mouse.x, env.mouse.y);
     };
-    raf = requestAnimationFrame(tick);
+    loop = frameLoop(tick);
 
     return () => {
-      cancelAnimationFrame(raf);
+      loop.stop();
       ro.disconnect();
       offVisible();
       offTheme();
