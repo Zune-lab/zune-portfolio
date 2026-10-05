@@ -151,7 +151,7 @@ export function createCrewmate({ rand = Math.random } = {}) {
     // inp: { w, h, obstacles (không kể nút contact), button (rect nút contact hoặc null), worm: { x, y, speed, scared, asleep, moving, mode } }
     // Trả về { visible, away (nút đang vắng nhân vật), pokeWorm, wormSay, ... } + trạng thái trong c.
     update(t, dt, inp) {
-      const k = Math.min(3, Math.max(0.3, dt / 16.667));
+      const k = clamp(dt / 16.667, 0.3, 3);
       const { w, h, worm } = inp;
       obs = inp.obstacles || [];
       btn = inp.button || null;

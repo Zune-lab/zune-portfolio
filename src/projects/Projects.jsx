@@ -2,6 +2,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import SectionHead from '../components/ui/SectionHead.jsx';
 import { projects, arts, tags } from './index.js';
 import { WRAP } from '../config/ui.js';
+import { clamp } from '../lib/math.js';
 import { BASE } from '../lib/paths.js';
 import { canHover, prefersReducedMotion } from '../lib/env.js';
 import './Projects.css';
@@ -27,9 +28,9 @@ const checkPages = async (p, signal) => {
     /* sessionStorage bị chặn: bỏ qua cache */
   }
   const r = await fetch(`https://api.github.com/repos/${repo}`, { signal, headers: { Accept: 'application/vnd.github+json' } });
-  if (r.status === 404) return 'off'; // repo không tồn tại hoặc private
-  if (!r.ok) return 'unknown'; // vd hết lượt rate limit: không kết luận
-  const v = (await r.json()).has_pages ? 'live' : 'off';
+  if (r.status !== 404 && !r.ok) return 'unknown'; // vd hết lượt rate limit: không kết luận, không cache
+  // 404 = repo không tồn tại hoặc private -> 'off' (cũng cache để khỏi gọi lại mỗi lần vào trang)
+  const v = r.status !== 404 && (await r.json()).has_pages ? 'live' : 'off';
   try {
     sessionStorage.setItem(key, v);
   } catch {
@@ -121,22 +122,24 @@ export default function Projects() {
     }
   }, [slug, mode]);
 
+  // dò trạng thái deploy của mọi project ngay khi vào trang (không đợi bấm chọn) để cartridge nào "tắt" thì xám sẵn
   useEffect(() => {
-    if (!p || status[slug]) return;
     let stale = false;
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), 6000);
-    const done = (v) => !stale && setStatus((s) => ({ ...s, [slug]: v }));
-    checkPages(p, ctl.signal)
-      .then(done)
-      .catch(() => done('unknown')) // mất mạng: không kết luận là tắt
-      .finally(() => clearTimeout(timer));
+    projects.forEach((x) => {
+      const k = slugOf(x);
+      const done = (v) => !stale && setStatus((s) => ({ ...s, [k]: v }));
+      checkPages(x, ctl.signal)
+        .then(done)
+        .catch(() => done('unknown')); // mất mạng: không kết luận là tắt
+    });
     return () => {
       stale = true;
       clearTimeout(timer);
       ctl.abort();
     };
-  }, [p, slug, status]);
+  }, []);
 
   const move = (e, i) => {
     const last = list.length - 1;
@@ -144,7 +147,7 @@ export default function Projects() {
       { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: last }[e.key];
     if (to == null) return;
     e.preventDefault();
-    const next = list[Math.min(last, Math.max(0, to))];
+    const next = list[clamp(to, 0, last)];
     setPicked(slugOf(next));
     tabs.current[slugOf(next)]?.focus();
   };
@@ -164,7 +167,6 @@ export default function Projects() {
   const cart = (x, i) => {
     const k = slugOf(x);
     const common = {
-      key: k,
       ref: (el) => {
         tabs.current[k] = el;
       },
@@ -181,14 +183,14 @@ export default function Projects() {
       onKeyDown: (e) => move(e, i),
     };
     return mode === 'ls' ? (
-      <button {...common} className="proj-row">
+      <button key={k} {...common} className="proj-row">
         <span className="proj-row-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
         <span className="proj-row-f">{x.file}</span>
         <span className="proj-row-d">{x.desc}</span>
         <span className="proj-row-t" aria-hidden="true">{x.tags?.join(' ')}</span>
       </button>
     ) : (
-      <button {...common} className="proj-cart">
+      <button key={k} {...common} className="proj-cart">
         <span className="proj-cart-grip" aria-hidden="true" />
         <span className="proj-cart-label" aria-hidden="true">
           <span className="proj-cart-ext">{extOf(x)}</span>
@@ -316,11 +318,15 @@ export default function Projects() {
           <div role="tablist" aria-label="Project list" className="proj-ls">{list.map(cart)}</div>
         ) : (
           <div className="proj-shelf">
-            <button type="button" className="proj-nudge l" onClick={() => nudge(-1)} aria-label="Scroll left">‹</button>
+            <button type="button" className="proj-nudge l" onClick={() => nudge(-1)} aria-label="Scroll left">
+              <svg viewBox="0 0 4 7" aria-hidden="true"><path d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM2 4h1v1H2zM1 5h1v1H1zM0 6h1v1H0z" /></svg>
+            </button>
             <div ref={rail} role="tablist" aria-label="Project cartridges" className="proj-cartridges">
               {list.map(cart)}
             </div>
-            <button type="button" className="proj-nudge r" onClick={() => nudge(1)} aria-label="Scroll right">›</button>
+            <button type="button" className="proj-nudge r" onClick={() => nudge(1)} aria-label="Scroll right">
+              <svg viewBox="0 0 4 7" aria-hidden="true"><path d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM2 4h1v1H2zM1 5h1v1H1zM0 6h1v1H0z" /></svg>
+            </button>
             <div className="proj-board" aria-hidden="true" />
           </div>
         )}

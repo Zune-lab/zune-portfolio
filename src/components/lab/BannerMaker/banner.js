@@ -217,8 +217,8 @@ function frameMask(w, h, shape, radius) {
     for (let x = 0; x < w; x++) {
       const u = x + 0.5;
       const v = y + 0.5;
-      const cx = Math.min(Math.max(u, r), w - r);
-      const cy = Math.min(Math.max(v, r), h - r);
+      const cx = clamp(u, r, w - r);
+      const cy = clamp(v, r, h - r);
       let ok = (u - cx) ** 2 + (v - cy) ** 2 <= r * r;
       const dx = Math.abs(u - w / 2) / (w / 2);
       if (ok && shape === 'swallow') ok = v <= h - 0.22 * h * (1 - dx);

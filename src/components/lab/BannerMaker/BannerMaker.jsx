@@ -14,7 +14,7 @@ import {
   colorName,
   isCustom,
 } from './banner.js';
-import { pick, randInt } from '../../../lib/math.js';
+import { clamp, pick, randInt } from '../../../lib/math.js';
 import useTimer from '../../../lib/useTimer.js';
 
 const STAGE_INNER_W = 296; // vùng xem trước cố định, banner nào cũng co/giãn trong khung này
@@ -325,7 +325,7 @@ export default function BannerMaker() {
     if (!rect.width || !rect.height) return null;
     const x = Math.floor(((e.clientX - rect.left) / rect.width) * w);
     const y = Math.floor(((e.clientY - rect.top) / rect.height) * h);
-    return [Math.min(w - 1, Math.max(0, x)), Math.min(h - 1, Math.max(0, y))];
+    return [clamp(x, 0, w - 1), clamp(y, 0, h - 1)];
   };
 
   // tô (hoặc xoá) các ô, có đối xứng trái-phải nếu bật mirror.
