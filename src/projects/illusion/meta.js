@@ -2,6 +2,7 @@ import { repoUrl } from '../../config/site.js';
 
 export default {
   order: 3, // thứ tự hiển thị (nhỏ đứng trước)
+  tags: ['css', 'visual'],
   file: 'illusion.css',
   desc: 'playing with visual illusions in pure CSS',
   color: 'var(--css-lang)',

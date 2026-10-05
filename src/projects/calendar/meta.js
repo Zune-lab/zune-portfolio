@@ -2,6 +2,7 @@ import { repoUrl } from '../../config/site.js';
 
 export default {
   order: 5, // thứ tự hiển thị (nhỏ đứng trước)
+  tags: ['app', 'js'],
   file: 'calendar.js',
   desc: 'a compact little calendar app, built by hand',
   color: 'var(--js)',

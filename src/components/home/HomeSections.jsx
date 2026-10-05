@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import '../../projects/Projects.css'; // chứa .art-center dùng chung cho mọi Art
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
-import { projects, arts } from '../../projects/index.js';
+import { featured, arts } from '../../projects/index.js';
 import { LAB_ITEMS } from '../../config/lab-items.js';
 import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
 import { site } from '../../config/site.js';
@@ -13,13 +13,15 @@ import useTimer from '../../lib/useTimer.js';
 import { WRAP } from '../../config/ui.js';
 
 export function FeaturedProjects({ onNavigate }) {
-  const list = projects.slice(0, 3);
+  const list = featured;
   const [i, setI] = useState(0);
   const hoverT = useTimer();
   const p = list[i];
   const hoverable = canHover();
   // chờ ~80ms trước khi đổi để lướt chuột ngang qua không làm preview chớp
   const pick = (n) => hoverT.set(() => setI(n), 80);
+
+  if (!p) return null;
 
   return (
     <section id="featured" className="py-20 border-t border-line scroll-mt-14">
@@ -47,7 +49,7 @@ export function FeaturedProjects({ onNavigate }) {
                       n === i ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.94] [&_*]:[animation-play-state:paused]'
                     }`}
                   >
-                    <Art />
+                    <Suspense fallback={null}><Art /></Suspense>
                   </div>
                 )
               );
