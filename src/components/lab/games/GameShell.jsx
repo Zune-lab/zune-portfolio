@@ -1,12 +1,20 @@
 // Phần giao diện dùng chung của các mini game (Snake, BugSquash, MemoryMatch):
 // khung ngoài, thanh chỉ số + nút chính, và lớp phủ giữa bàn chơi.
 
+import { PANEL } from '../../../config/ui.js';
+
 const GAME_BTN = 'lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink';
+
+// nút chính của game có trạng thái idle | playing | over: bấm là bắt đầu / chơi lại (Snake, BugSquash)
+export const gameAction = (status, onClick) => ({
+  onClick,
+  label: status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start',
+});
 
 // stats: [{ label, value, color? }]  — color là biến CSS, vd 'var(--green)'
 export function GameFrame({ stats, action, children }) {
   return (
-    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
+    <div className={PANEL}>
       <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[13px] mb-5">
         <div className="flex gap-5">
           {stats.map((s) => (

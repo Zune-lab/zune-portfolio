@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { readBest, saveBest } from '../../../lib/storage.js';
+import useBest from '../../../lib/useBest.js';
 import { randInt } from '../../../lib/math.js';
-import { GameFrame, GameOverlay } from './GameShell.jsx';
+import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 
 const CELLS = 9;
 const DURATION = 30; // giây
@@ -14,9 +14,8 @@ export default function BugSquash() {
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState(0);
   const [active, setActive] = useState(-1);
-  const [best, setBest] = useState(() => readBest(BEST_KEY));
+  const { best, newBest, record, clearNew } = useBest(BEST_KEY);
   const [round, setRound] = useState(0); // tăng mỗi lần bấm start/restart để effect của ván chạy lại từ đầu
-  const [newBest, setNewBest] = useState(false);
 
   const timeRef = useRef(DURATION);
   const activeRef = useRef(-1);
@@ -41,7 +40,7 @@ export default function BugSquash() {
     setScore(0);
     setMisses(0);
     setActive(-1);
-    setNewBest(false);
+    clearNew();
     setStatus('playing');
     setRound((r) => r + 1);
   };
@@ -67,11 +66,7 @@ export default function BugSquash() {
 
   // hết ván -> cập nhật kỷ lục
   useEffect(() => {
-    if (status === 'over' && score > best) {
-      setBest(score);
-      saveBest(BEST_KEY, score);
-      setNewBest(true);
-    }
+    if (status === 'over') record(score);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the round ends; score/best are current then
   }, [status]);
 
@@ -98,7 +93,7 @@ export default function BugSquash() {
         { label: 'time', value: `${timeLeft}s`, color: 'var(--amber)' },
         { label: 'best', value: best },
       ]}
-      action={{ onClick: start, label: status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start' }}
+      action={gameAction(status, start)}
     >
       <div className="relative mx-auto max-w-[360px]">
         <div className="grid grid-cols-3 gap-3" role="group" aria-label="bug squash board">

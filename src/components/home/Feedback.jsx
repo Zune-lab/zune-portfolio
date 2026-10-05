@@ -4,6 +4,7 @@ import Btn31 from '../ui/Btn31/Btn31.jsx';
 import CopyEmail from './CopyEmail/CopyEmail.jsx';
 import { email as TO_EMAIL } from '../../data/profile.js';
 import useTimer from '../../lib/useTimer.js';
+import { WRAP } from '../../config/ui.js';
 
 const MAX_MAILTO = 1900;
 
@@ -82,7 +83,7 @@ export default function Feedback() {
 
   return (
     <section id="feedback" className="py-20 border-t border-line">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="04" title="feedback.sh" />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-5">
           // even a one-line note is fine, I read everything

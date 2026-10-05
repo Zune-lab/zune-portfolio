@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { getStatusKey } from './status.js';
-import { isNapping, onNapChange } from './nap.js';
+import { createEmitter } from './store.js';
+import { pausableInterval } from './timers.js';
 
 // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
 // Là store ngoài React để canvas (HeroWorm) đọc được mỗi khung hình mà không phải re-render.
@@ -10,13 +11,9 @@ const MAX_MS = 9000;
 
 // hiAt / maxAt: mốc performance.now() của lần "say hi" / mở khoá gần nhất, để sâu chữ biết có sự kiện mới
 let state = { drain: 0, months: 0, maxed: false, reply: '', hiAt: 0, maxAt: 0 };
-const listeners = new Set();
-let chargeTimer = 0;
+let stopCharge = null;
 let maxTimer = 0;
-let napAt = 0; // lúc screensaver bắt đầu (0 = không ngủ): dậy thì cộng bù phần pin đáng lẽ đã sạc được
-let offNap = null;
 
-const emit = () => listeners.forEach((l) => l());
 const set = (patch) => {
   state = { ...state, ...patch };
   emit();
@@ -27,44 +24,22 @@ export const levelOf = (s = state, key = getStatusKey()) => (s.maxed ? 100 : Mat
 export const isAsleep = (s = state, key = getStatusKey()) => !s.maxed && BASE[key] - s.drain <= 0;
 
 const chargeTick = () => state.drain > 0 && set({ drain: state.drain - 1 });
-const startCharge = () => {
-  if (!chargeTimer) chargeTimer = window.setInterval(chargeTick, 1000);
-};
-const stopCharge = () => {
-  clearInterval(chargeTimer);
-  chargeTimer = 0;
-};
-// screensaver bật: dừng hẳn bộ sạc (khỏi đánh thức React mỗi giây cho thẻ pin không ai nhìn); dậy: cộng bù đúng số giây đã ngủ rồi sạc tiếp
-function onNapToggle() {
-  if (isNapping()) {
-    napAt = performance.now();
-    stopCharge();
-    return;
-  }
-  const slept = napAt ? Math.floor((performance.now() - napAt) / 1000) : 0;
-  napAt = 0;
+// dậy (hết nap hoặc tab hiện lại): cộng bù đúng số giây đã nghỉ, vì pin sạc 1%/giây dù không ai nhìn
+const catchUp = (ms) => {
+  const slept = Math.floor(ms / 1000);
   if (slept > 0 && state.drain > 0) set({ drain: Math.max(0, state.drain - slept) });
-  startCharge();
-}
+};
 
-function subscribe(cb) {
-  listeners.add(cb);
-  if (listeners.size === 1) {
-    // sạc lại ~1%/giây (chỉ chạy khi có component đang hiển thị pin, và không chạy lúc screensaver)
-    if (isNapping()) napAt = performance.now();
-    else startCharge();
-    offNap = onNapChange(onNapToggle);
-  }
-  return () => {
-    listeners.delete(cb);
-    if (!listeners.size) {
-      stopCharge();
-      offNap?.();
-      offNap = null;
-      napAt = 0;
-    }
-  };
-}
+// sạc lại ~1%/giây: chỉ chạy khi có component đang hiển thị pin, và timer ngủ hẳn lúc screensaver / tab ẩn (lib/timers.js)
+// (khỏi đánh thức React mỗi giây cho thẻ pin không ai nhìn)
+const { subscribe, emit } = createEmitter({
+  onFirst: () => (stopCharge = pausableInterval(chargeTick, 1000, { onResume: catchUp })),
+  onLast: () => {
+    stopCharge?.();
+    stopCharge = null;
+  },
+});
+
 export const useSocial = () => useSyncExternalStore(subscribe, getSocial);
 // chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
 export const useAsleep = () => useSyncExternalStore(subscribe, () => isAsleep());

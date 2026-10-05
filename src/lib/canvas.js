@@ -8,3 +8,7 @@ export function fitCanvas(canvas, ctx, w, h, dpr = getDpr()) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return dpr;
 }
+
+// Đọc một biến CSS (vd '--amber') từ computed style `cs`; chưa có thì dùng `fallback`.
+// Canvas không đọc được biến CSS trực tiếp nên mỗi nơi vẽ phải đọc lại bằng hàm này (xem thêm lib/themeSync.js).
+export const cssVar = (cs, name, fallback) => cs.getPropertyValue(name).trim() || fallback;

@@ -9,6 +9,7 @@ import PageLink from '../ui/PageLink.jsx';
 import { spotMove } from '../../lib/dom.js';
 import { canHover } from '../../lib/env.js';
 import useTimer from '../../lib/useTimer.js';
+import { WRAP } from '../../config/ui.js';
 
 export function FeaturedProjects({ onNavigate }) {
   const list = projects.slice(0, 3);
@@ -21,7 +22,7 @@ export function FeaturedProjects({ onNavigate }) {
 
   return (
     <section id="featured" className="py-20 border-t border-line scroll-mt-14">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="01" title="projects/" />
         <div className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-8 md:gap-12 items-start">
           {/* mọi Art đều nằm sẵn, chỉ crossfade; cái không chọn thì tạm dừng animation cho nhẹ máy */}
@@ -116,7 +117,7 @@ export function FeaturedProjects({ onNavigate }) {
 export function AboutTeaser({ onNavigate }) {
   return (
     <section id="about-me" className="py-20 border-t border-line scroll-mt-14">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="02" title="about.js" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
@@ -157,7 +158,7 @@ export function AboutTeaser({ onNavigate }) {
 export function LabTeaser({ onNavigate }) {
   return (
     <section id="lab-teaser" className="py-20 border-t border-line scroll-mt-14">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="03" title="lab.css" />
         <p className="text-dim text-base max-w-[480px]">Tiny games and toys I build just to see if they work.</p>
         <ul className="flex flex-wrap gap-2.5 mt-6 p-0 list-none">
@@ -186,7 +187,7 @@ export function LabTeaser({ onNavigate }) {
 export function TerminalSection({ onNavigate }) {
   return (
     <section id="terminal" className="py-20 border-t border-line scroll-mt-14">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <p className="font-mono text-[12.5px] text-dim mb-5">// type a command, or just click a question below</p>
         <Terminal onNavigate={onNavigate} />
       </div>

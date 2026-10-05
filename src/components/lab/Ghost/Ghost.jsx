@@ -4,7 +4,8 @@ import { fitCanvas } from '../../../lib/canvas.js';
 import { isTypingTarget } from '../../../lib/dom.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
 import { clamp, pick, TAU } from '../../../lib/math.js';
-import { observeVisible } from '../../../lib/observe.js';
+import { createKonamiMatcher } from '../../../lib/konami.js';
+import { pausableInterval } from '../../../lib/timers.js';
 import useTimer from '../../../lib/useTimer.js';
 import './Ghost.css';
 
@@ -51,7 +52,6 @@ const IDLE = [
 ];
 const RAGE = ['STOP IT', 'I WILL HAUNT YOUR CSS', 'rm -rf your cursor', 'ENOUGH.'];
 const EPITAPHS = ['RIP', 'WIP', '404', 'EOL', 'TODO', 'NaN', 'v1.0'];
-const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 const ACTS = [
   ['yawn', 2200],
   ['shiver', 1000],
@@ -228,10 +228,6 @@ export default function Ghost() {
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(el);
-    const offVisible = observeVisible(el, (v) => {
-      live.current.visible = v;
-      ghostLoop.current?.setVisible(v);
-    });
 
     const orbs = Array.from({ length: 6 }, (_, i) => ({
       x: Math.random() * (w || 400),
@@ -360,6 +356,8 @@ export default function Ghost() {
       ctx.globalCompositeOperation = 'source-over';
     };
     ghostLoop.current = frameLoop(frame, {
+      watch: el,
+      onVisible: (v) => (live.current.visible = v),
       canRun: () => live.current.awake || !st.current.rest,
       onResume: () => (last = performance.now()), // không tính một bước vật lý khổng lồ sau khi nghỉ
     });
@@ -367,22 +365,18 @@ export default function Ghost() {
       ghostLoop.current.stop();
       ghostLoop.current = null;
       ro.disconnect();
-      offVisible();
     };
   }, [reduced]);
 
   // ---- easter egg bàn phím: Konami, "boo", "sudo" (chỉ khi sân khấu đang nằm trong màn hình) ----
   useEffect(() => {
-    let keys = [];
+    const matchKonami = createKonamiMatcher();
     let word = '';
     const onKey = (e) => {
       if (typeof e.key !== 'string' || isTypingTarget(e.target)) return; // autofill của Chrome bắn keydown không có `key`
       if (!live.current.visible || e.ctrlKey || e.metaKey || e.altKey) return;
-      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      keys = [...keys, k].slice(-KONAMI.length);
-      if (e.key.length === 1) word = (word + k).slice(-8);
-      if (keys.length === KONAMI.length && keys.every((x, i) => x === KONAMI[i])) {
-        keys = [];
+      if (e.key.length === 1) word = (word + e.key.toLowerCase()).slice(-8);
+      if (matchKonami(e)) {
         api.current.startKonami();
       } else if (word.endsWith('boo')) {
         word = '';
@@ -396,13 +390,13 @@ export default function Ghost() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // ---- ma tự làm việc riêng mỗi vài giây ----
-  useEffect(() => {
-    let id = 0;
-    const next = () => {
-      id = window.setTimeout(() => {
-        const L = live.current;
-        if (L.awake && L.visible && !L.busy) {
+  // ---- ma tự làm việc riêng mỗi vài giây (timer ngủ hẳn khi screensaver bật / tab ẩn, lib/timers.js) ----
+  useEffect(
+    () =>
+      pausableInterval(
+        () => {
+          const L = live.current;
+          if (!L.awake || !L.visible || L.busy) return;
           const [name, ms] = pick(ACTS);
           if (name === 'mutter') api.current.say(pick(IDLE), 2400);
           else {
@@ -410,13 +404,12 @@ export default function Ghost() {
             if (name === 'yawn') api.current.say('*yaaawn*', 1800);
             if (name === 'shiver') api.current.say('brr… am i cold or dead?', 1400);
           }
-        }
-        next();
-      }, 4500 + Math.random() * 5000);
-    };
-    next();
-    return () => clearTimeout(id);
-  }, []);
+        },
+        () => 4500 + Math.random() * 5000,
+        { onResume: () => {} } // dậy không cần làm gì ngay, cứ chờ lượt kế tiếp
+      ),
+    []
+  );
 
   // ---- con trỏ: mắt dõi theo, ma lệch theo, "đèn pin" soi chữ ẩn ----
   const applyMove = () => {

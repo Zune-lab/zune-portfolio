@@ -4,7 +4,7 @@ import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
 import HeroWorm from './HeroWorm.jsx';
-import { isNapping, onNapChange } from '../../lib/nap.js';
+import { isPaused, onPauseChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
 import { observeVisible } from '../../lib/observe.js';
 
@@ -21,7 +21,7 @@ function Typewriter() {
     let visible = true;
     const waiters = [];
     // hero cuộn khỏi màn hình, tab ẩn hoặc screensaver đang bật: đứng yên HẲN (chờ sự kiện, không còn hẹn giờ thăm dò mỗi 400ms), quay lại thì gõ tiếp
-    const idle = () => !visible || document.hidden || isNapping();
+    const idle = () => !visible || isPaused();
     const wakeUp = () => {
       if (!idle()) waiters.splice(0).forEach((resolve) => resolve());
     };
@@ -29,8 +29,7 @@ function Typewriter() {
       visible = v;
       wakeUp();
     });
-    const offNap = onNapChange(wakeUp);
-    document.addEventListener('visibilitychange', wakeUp);
+    const offPause = onPauseChange(wakeUp);
     const rest = () => (idle() && !dead ? new Promise((resolve) => waiters.push(resolve)) : Promise.resolve());
     (async () => {
       let i = 0;
@@ -54,8 +53,7 @@ function Typewriter() {
     return () => {
       dead = true;
       offVisible();
-      offNap();
-      document.removeEventListener('visibilitychange', wakeUp);
+      offPause();
       waiters.splice(0).forEach((resolve) => resolve()); // để vòng async đang chờ thoát hẳn
     };
   }, []);

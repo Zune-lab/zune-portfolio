@@ -3,8 +3,8 @@ import { env, setupLizard } from './creature.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { frameLoop } from '../../../lib/loop.js';
 import { fitCanvas } from '../../../lib/canvas.js';
-import { observeVisible } from '../../../lib/observe.js';
 import { randInt } from '../../../lib/math.js';
+import { PANEL } from '../../../config/ui.js';
 
 // Sinh một con mới: số chân, độ dài đuôi ngẫu nhiên (giống bản gốc, thu nhỏ cho vừa khung)
 function spawn(w, h) {
@@ -28,7 +28,6 @@ export default function Reptile() {
     let w = 0;
     let h = 0;
     let last = 0;
-    let loop = null; // huỷ hẳn rAF khi screensaver / tab ẩn / khung khuất (lib/loop.js)
     let stroke = '';
 
     // màu nét vẽ lấy từ CSS (text-ink). Khi đổi theme phải đọc lại NGAY, không thì con vật
@@ -64,7 +63,6 @@ export default function Reptile() {
       env.ctx = ctx;
     });
     ro.observe(box);
-    const offVisible = observeVisible(box, (v) => loop?.setVisible(v));
 
     const tick = (t) => {
       if (t - last < 33) return; // ~30 khung/giây như bản gốc
@@ -74,12 +72,11 @@ export default function Reptile() {
       ctx.strokeStyle = stroke;
       state.current.critter.follow(env.mouse.x, env.mouse.y);
     };
-    loop = frameLoop(tick);
+    const loop = frameLoop(tick, { watch: box }); // huỷ hẳn rAF khi screensaver / tab ẩn / khung khuất (lib/loop.js)
 
     return () => {
       loop.stop();
       ro.disconnect();
-      offVisible();
       offTheme();
       canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerdown', move);
@@ -87,7 +84,7 @@ export default function Reptile() {
   }, [nonce]);
 
   return (
-    <div className="bg-inset border border-line rounded-[10px] p-[26px]">
+    <div className={PANEL}>
       <div ref={wrap} className="relative h-[380px] rounded-lg border border-line overflow-hidden text-ink" style={{ background: 'var(--panel)' }}>
         <canvas ref={cvs} className="absolute inset-0 w-full h-full touch-pan-y" />
         <span className="absolute top-2.5 left-3 font-mono text-[12px] text-dim pointer-events-none">

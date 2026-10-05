@@ -15,6 +15,7 @@ import { pathOf } from './lib/paths.js';
 import { storageSet } from './lib/storage.js';
 import { canHover, prefersReducedMotion } from './lib/env.js';
 import { timeOfDay } from './lib/vnTime.js';
+import { pausableInterval } from './lib/timers.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
@@ -115,8 +116,7 @@ export default function App() {
       document.documentElement.dataset.tod = timeOfDay();
     };
     apply();
-    const id = setInterval(apply, 60 * 1000);
-    return () => clearInterval(id);
+    return pausableInterval(apply, 60 * 1000); // ngủ hẳn lúc screensaver / tab ẩn, dậy thì áp lại ngay
   }, []);
 
   // Trong lúc đổi theme, tắt transition riêng của mọi phần tử con để chúng bám đúng biến màu đang mờ dần

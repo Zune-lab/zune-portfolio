@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { readBest, saveBest } from '../../../lib/storage.js';
+import useBest from '../../../lib/useBest.js';
 import { shuffled } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
@@ -14,8 +14,7 @@ export default function MemoryMatch() {
   const [open, setOpen] = useState([]); // vị trí thẻ đang lật tạm (tối đa 2)
   const [done, setDone] = useState([]); // ký hiệu đã ghép xong
   const [moves, setMoves] = useState(0);
-  const [best, setBest] = useState(() => readBest(BEST_KEY));
-  const [newBest, setNewBest] = useState(false);
+  const { best, newBest, record, clearNew } = useBest(BEST_KEY, { lowerIsBetter: true });
   const [round, setRound] = useState(0); // đổi mỗi ván để thẻ được dựng lại, không "trượt" sang vị trí mới lúc đang lật úp
   const timer = useRef(0);
 
@@ -30,7 +29,7 @@ export default function MemoryMatch() {
     setOpen([]);
     setDone([]);
     setMoves(0);
-    setNewBest(false);
+    clearNew();
   };
 
   const flip = (i) => {
@@ -46,11 +45,7 @@ export default function MemoryMatch() {
       const nd = [...done, deck[a].sym];
       setDone(nd);
       setOpen([]);
-      if (nd.length === SYMBOLS.length && (!best || m < best)) {
-        setBest(m);
-        saveBest(BEST_KEY, m);
-        setNewBest(true);
-      }
+      if (nd.length === SYMBOLS.length) record(m);
     } else {
       timer.current = window.setTimeout(() => setOpen([]), 750);
     }

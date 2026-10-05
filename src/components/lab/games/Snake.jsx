@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { readBest, saveBest } from '../../../lib/storage.js';
+import useBest from '../../../lib/useBest.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
+import { cssVar } from '../../../lib/canvas.js';
 import { getDpr } from '../../../lib/env.js';
 import { pick, TAU } from '../../../lib/math.js';
-import { GameFrame, GameOverlay } from './GameShell.jsx';
+import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 
 const N = 18; // lưới N x N
 const CELL = 20;
@@ -44,9 +45,8 @@ const fresh = () => {
 export default function Snake() {
   const [status, setStatus] = useState('idle'); // idle | playing | over
   const [score, setScore] = useState(0);
-  const [best, setBest] = useState(() => readBest(BEST_KEY));
+  const { best, newBest, record, clearNew } = useBest(BEST_KEY);
   const [round, setRound] = useState(0);
-  const [newBest, setNewBest] = useState(false);
 
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
@@ -61,7 +61,7 @@ export default function Snake() {
     if (!ctx) return;
     // đọc màu từ token theme mỗi lần vẽ -> đổi sáng/tối là ăn theo
     const css = getComputedStyle(document.documentElement);
-    const v = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
+    const v = (name, fallback) => cssVar(css, name, fallback);
     const g = game.current;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // toạ độ vẽ vẫn tính theo SIZE x SIZE
@@ -126,7 +126,7 @@ export default function Snake() {
     game.current = fresh();
     scoreRef.current = 0;
     setScore(0);
-    setNewBest(false);
+    clearNew();
     setStatus('playing');
     setRound((r) => r + 1);
     wrapRef.current?.focus({ preventScroll: true });
@@ -166,11 +166,7 @@ export default function Snake() {
 
   // hết ván -> cập nhật kỷ lục
   useEffect(() => {
-    if (status === 'over' && scoreRef.current > best) {
-      setBest(scoreRef.current);
-      saveBest(BEST_KEY, scoreRef.current);
-      setNewBest(true);
-    }
+    if (status === 'over') record(scoreRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the game ends; best is current then
   }, [status]);
 
@@ -213,7 +209,7 @@ export default function Snake() {
         { label: 'score', value: score, color: 'var(--green)' },
         { label: 'best', value: best },
       ]}
-      action={{ onClick: start, label: status === 'playing' ? 'restart' : status === 'over' ? 'play again' : 'start' }}
+      action={gameAction(status, start)}
     >
       <div
         ref={wrapRef}

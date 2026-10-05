@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { role, location, mainStack, learning } from '../../data/profile.js';
-import { isTypingTarget, spotMove } from '../../lib/dom.js';
+import { spotMove } from '../../lib/dom.js';
 import { vnClock } from '../../lib/vnTime.js';
 import { cycleStatus, useStatus } from '../../lib/status.js';
-import { isNapping, onNapChange } from '../../lib/nap.js';
+import { useKonami } from '../../lib/konami.js';
+import { pausableInterval } from '../../lib/timers.js';
 import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../lib/social.js';
 
 // Pin nhỏ nhưng đúng chất Zune: hướng nội, pin xã hội tụt khi bị "say hi", tự sạc lại theo thời gian.
 // Trạng thái pin nằm ở lib/social.js (dùng chung với sâu chữ ở hero và lệnh `battery` trong terminal).
 const CLASSES = [null, 'Bug Summoner', 'CSS Wizard', 'Tea Enjoyer', 'Introvert (lvl 99)']; // null = role thật
-const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 const CELLS = 10;
 
 function Meter({ value, color, rainbow }) {
@@ -37,37 +37,11 @@ export default function SheetCard() {
   const [time, setTime] = useState(vnClock);
   const [cls, setCls] = useState(0);
 
-  // đồng hồ 1 giây/lần: screensaver bật thì dừng hẳn (không render lại thẻ vô ích), dậy thì cập nhật ngay rồi chạy tiếp
-  useEffect(() => {
-    let t = 0;
-    const run = () => {
-      setTime(vnClock());
-      t = window.setInterval(() => setTime(vnClock()), 1000);
-    };
-    const stop = () => {
-      clearInterval(t);
-      t = 0;
-    };
-    if (!isNapping()) t = window.setInterval(() => setTime(vnClock()), 1000);
-    const off = onNapChange(() => (isNapping() ? stop() : !t && run()));
-    return () => {
-      stop();
-      off();
-    };
-  }, []);
+  // đồng hồ 1 giây/lần: screensaver bật hoặc tab ẩn thì dừng hẳn (không render lại thẻ vô ích), dậy thì cập nhật ngay rồi chạy tiếp
+  useEffect(() => pausableInterval(() => setTime(vnClock()), 1000), []);
 
   // easter egg: Konami code -> 100% personality (cũng mở được bằng 6 lần bấm thanh personality hoặc lệnh `konami`)
-  useEffect(() => {
-    let seq = [];
-    const onKey = (e) => {
-      // Chrome autofill bắn keydown không có `key`; đang gõ trong ô nhập (vd feedback) thì không tính vào mã Konami
-      if (typeof e.key !== 'string' || isTypingTarget(e.target)) return;
-      seq = [...seq, e.key.toLowerCase()].slice(-KONAMI.length);
-      if (seq.join() === KONAMI.join()) unlock('konami accepted. personality 100%. who let this happen?');
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  useKonami(() => unlock('konami accepted. personality 100%. who let this happen?'));
 
   const level = levelOf({ drain, maxed }, status.key);
   const empty = isAsleep({ drain, maxed }, status.key);

@@ -12,6 +12,7 @@
 // đích bỏ chạy được chọn một lần và trượt dọc tường thay vì đâm vào, và có bộ canh "kẹt" tự gỡ.
 
 import { clamp, TAU } from './math.js';
+import { grow, inRect } from './geom.js';
 
 const angDiff = (a, b) => {
   let d = (b - a) % TAU;
@@ -25,8 +26,6 @@ const angDiff = (a, b) => {
 // nhìn vào. Ngủ cũng vậy: luôn ngủ ở chỗ nhìn thấy được.
 const PAD = 22; // chừa quanh vật cản (nửa đầu sâu ~13px + chút khoảng thở)
 
-const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
-const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
 const padOf = (r) => grow(r, r.pad ?? PAD); // mỗi vật cản có thể tự đặt độ chừa riêng (nút nhỏ chừa ít hơn thẻ)
 
 // Đẩy một điểm ra khỏi mọi vật cản (nới thêm `pad`) theo cạnh gần nhất. Dùng cho các đốt thân sâu và nhân vật phụ:

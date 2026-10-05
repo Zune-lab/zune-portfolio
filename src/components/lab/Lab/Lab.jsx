@@ -8,6 +8,7 @@ import { spotMove } from '../../../lib/dom.js';
 import { pick } from '../../../lib/math.js';
 import './Lab.css';
 import './LabFx.css';
+import { WRAP } from '../../../config/ui.js';
 
 // kiểu hover của nút/chip/thẻ nằm ở LabFx.css (trạng thái đang chọn của chip đọc từ aria-pressed)
 const chip = 'lab-chip px-3 py-1 rounded-md border font-mono text-[12.5px]';
@@ -131,7 +132,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
 
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="01" title={item ? item.file : 'lab.css'} level={1} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid kind={kind} setKind={setKind} onNavigate={onNavigate} />}
       </div>

@@ -11,9 +11,8 @@
 //  - không bao giờ đi vào sau thẻ zune.sav hay các nút khác (đi vòng qua góc nếu bị chắn)
 
 import { clamp, TAU } from './math.js';
+import { grow, inRect } from './geom.js';
 
-const inRect = (x, y, r) => x > r.l && x < r.r && y > r.t && y < r.b;
-const grow = (r, p) => ({ l: r.l - p, t: r.t - p, r: r.r + p, b: r.b + p });
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = (u) => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
 

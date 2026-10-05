@@ -118,15 +118,29 @@ export default function Alive() {
     };
   }, []);
 
-  // 3) không ai đụng vào trang: bật screensaver
+  // 3) không ai đụng vào trang: bật screensaver.
+  // Không còn interval 1s thức dậy mãi mãi: chỉ hẹn MỘT timeout tới đúng lúc có thể hết NAP_MS, tới nơi mà còn người đụng thì hẹn lại phần còn thiếu.
+  // Tab ẩn hoặc đang nap / wake thì không hẹn gì cả; quay lại tab hoặc dậy hẳn mới hẹn lại.
   useEffect(() => {
     let last = performance.now();
     let state = 'awake';
     let wakeTimer = 0;
+    let idleTimer = 0;
+    const arm = () => {
+      clearTimeout(idleTimer);
+      idleTimer = 0;
+      if (state !== 'awake' || document.hidden) return;
+      idleTimer = window.setTimeout(() => {
+        idleTimer = 0;
+        if (performance.now() - last >= NAP_MS) set('nap');
+        else arm();
+      }, Math.max(50, NAP_MS - (performance.now() - last)));
+    };
     const set = (s) => {
       state = s;
       setNap(s);
-      setNapState(s); // cho trang khác (about.js) biết zune đang ngủ / vừa dậy
+      setNapState(s); // cho mọi nơi khác (CSS, canvas, timer, about.js) biết zune đang ngủ / vừa dậy
+      arm();
     };
     const poke = () => {
       last = performance.now();
@@ -136,19 +150,18 @@ export default function Alive() {
         wakeTimer = window.setTimeout(() => set('awake'), 1700);
       }
     };
-    const iv = window.setInterval(() => {
-      if (state === 'awake' && !document.hidden && performance.now() - last > NAP_MS) set('nap');
-    }, 1000);
     // quay lại tab sau một lúc lâu: tính là vừa có người tới (trước đây `last` còn cũ nên screensaver bật ngay trong vòng 1 giây)
     const onVisible = () => {
       if (!document.hidden) last = performance.now();
+      arm();
     };
     document.addEventListener('visibilitychange', onVisible);
     const evs = ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'];
     evs.forEach((e) => window.addEventListener(e, poke, { passive: true }));
+    arm();
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
-      clearInterval(iv);
+      clearTimeout(idleTimer);
       clearTimeout(wakeTimer);
       evs.forEach((e) => window.removeEventListener(e, poke));
       setNapState('awake');

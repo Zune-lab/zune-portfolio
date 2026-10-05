@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { onThemeChange } from '../../../lib/themeSync.js';
-import { fitCanvas } from '../../../lib/canvas.js';
+import { cssVar, fitCanvas } from '../../../lib/canvas.js';
+import { frameLoop } from '../../../lib/loop.js';
+import { isNapping } from '../../../lib/nap.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
 import { clamp, TAU } from '../../../lib/math.js';
 
@@ -39,14 +41,13 @@ export default function Pulse({ napping, panic }) {
   const text = useRef(null);
   const mood = useRef({ napping, panic });
   mood.current = { napping, panic };
-  const loop = useRef(null); // { start, stop } do effect bên dưới gắn vào, để effect `napping` điều khiển vòng rAF
 
   useEffect(() => {
     const canvas = cvs.current;
     const ctx = canvas.getContext('2d');
     const rm = prefersReducedMotion();
     let W = 0;
-    let raf = 0;
+    let fl = null; // frameLoop (lib/loop.js): huỷ hẳn rAF khi screensaver / tab ẩn
     let last = 0;
     let ph = 0; // pha nhịp tim (số nhịp đã đập)
     let beats = 0;
@@ -63,8 +64,8 @@ export default function Pulse({ napping, panic }) {
 
     const readColors = () => {
       const cs = getComputedStyle(document.documentElement);
-      amber = cs.getPropertyValue('--amber').trim() || amber;
-      dim = cs.getPropertyValue('--text-dim').trim() || dim;
+      amber = cssVar(cs, '--amber', amber);
+      dim = cssVar(cs, '--text-dim', dim);
     };
     readColors();
     // chế độ giảm chuyển động không có vòng rAF: phải tự vẽ lại khi đổi theme, không thì vạch kẹt màu cũ
@@ -196,42 +197,29 @@ export default function Pulse({ napping, panic }) {
       ro.observe(document.body);
     } else {
       const tick = (t) => {
-        raf = requestAnimationFrame(tick);
         const dt = last ? Math.min(50, t - last) : 16.667;
         last = t;
         draw(t, Math.max(1, dt));
       };
-      // screensaver (napping) phủ mờ cả màn hình -> HUỶ hẳn vòng rAF (không chỉ bỏ qua khung), đường ECG đứng yên ở khung cuối,
+      // screensaver (napping) phủ mờ cả màn hình -> HUỶ hẳn vòng rAF (không chỉ bỏ qua khung), đường ECG đứng yên ở khung cuối;
       // dậy thì chạy lại (last = 0 để không bị tính một bước dt khổng lồ)
-      loop.current = {
-        start: () => {
-          if (raf) return;
-          last = 0;
-          raf = requestAnimationFrame(tick);
-        },
-        stop: () => {
-          cancelAnimationFrame(raf);
-          raf = 0;
-          if (text.current) text.current.textContent = 'zzz · napping'; // đứng hình ở khung cuối; chữ đổi theo
+      fl = frameLoop(tick, {
+        onResume: () => (last = 0),
+        onPause: () => {
+          if (!isNapping() || !text.current) return;
+          text.current.textContent = 'zzz · napping'; // đứng hình ở khung cuối; chữ đổi theo
           labelAt = 0;
         },
-      };
-      if (!mood.current.napping) loop.current.start();
+      });
     }
     return () => {
-      loop.current = null;
-      cancelAnimationFrame(raf);
+      fl?.stop();
       offTheme();
       ro?.disconnect();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', drawStatic);
     };
   }, []);
-
-  useEffect(() => {
-    if (napping) loop.current?.stop();
-    else loop.current?.start();
-  }, [napping]);
 
   return (
     <div className="pulse" aria-hidden="true">

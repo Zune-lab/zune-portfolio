@@ -7,6 +7,7 @@ import { has, prefersReducedMotion } from '../../lib/env.js';
 import { observeOnce } from '../../lib/observe.js';
 import { useAsleep } from '../../lib/social.js';
 import './About.css';
+import { WRAP } from '../../config/ui.js';
 
 // các dòng trong object `zune` ở about.js (role / based_in lấy từ data/profile.js); dòng `status` bên dưới lấy trạng thái thật
 const FACTS = [
@@ -165,7 +166,7 @@ export default function About() {
 
   return (
     <section id="about" ref={root} className="py-20 border-t border-line">
-      <div className="wrap max-w-[1040px] mx-auto px-8">
+      <div className={WRAP}>
         <SectionHead num="01" title="about.js" level={1} />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-10">// a few things about me</p>
 

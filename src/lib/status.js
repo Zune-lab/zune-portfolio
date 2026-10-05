@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react';
 import { isOnlineHour } from './vnTime.js';
 import { storageGet, storageSet } from './storage.js';
+import { createEmitter } from './store.js';
+import { pausableInterval } from './timers.js';
 
 // online/offline is inferred from the Vietnam clock (no backend needed);
 // busy/focus can only be picked by hand, a machine can't know those.
@@ -24,24 +26,22 @@ function readOverride() {
 
 // One shared store, so the Hero badge and the terminal can never disagree.
 let override = readOverride();
-const listeners = new Set();
-let timer = null;
+let stopClock = null;
 
-const emit = () => listeners.forEach((l) => l());
 const current = () => (override === 'auto' ? autoStatus() : override);
 export const getStatusKey = current; // đọc nhanh cho code ngoài React (social.js, canvas)
 // snapshot is a string so React can compare it cheaply; it includes `override` so the "· auto" tag also updates
 // when cycling back to auto lands on the same status key
 const snapshot = () => `${override}:${current()}`;
 
-function subscribe(cb) {
-  listeners.add(cb);
-  if (listeners.size === 1) timer = setInterval(emit, 60 * 1000); // re-check the clock; React only re-renders on change
-  return () => {
-    listeners.delete(cb);
-    if (listeners.size === 0) clearInterval(timer);
-  };
-}
+// re-check the clock once a minute (sleeps while the screensaver runs or the tab is hidden); React only re-renders on change
+const { subscribe, emit } = createEmitter({
+  onFirst: () => (stopClock = pausableInterval(() => emit(), 60 * 1000)),
+  onLast: () => {
+    stopClock?.();
+    stopClock = null;
+  },
+});
 
 export function cycleStatus() {
   override = CYCLE[(CYCLE.indexOf(override) + 1) % CYCLE.length];
