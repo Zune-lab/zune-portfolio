@@ -15,6 +15,58 @@ const ICONS = {
       <path className="li-leg li-leg-b" d="M8 17.5L10.5 19.5" />
     </>
   ),
+  // sứa: chuông phập phồng, xúc tu đung đưa
+  jellyfish: (
+    <>
+      <g className="li-bell">
+        <path d="M5.5 11a6.5 6.5 0 0 1 13 0Z" />
+      </g>
+      <path className="li-tent li-tent-a" d="M9 11c-1 2.5 1 4.5 0 7.5" />
+      <path className="li-tent li-tent-b" d="M12 11c1 3-1 5.5 0 9.5" />
+      <path className="li-tent li-tent-a" d="M15 11c-1 2.5 1 4.5 0 7.5" />
+    </>
+  ),
+  // hydra: ba cổ, ba đầu ngoáy theo nhịp khác nhau
+  hydra: (
+    <>
+      <path d="M4 21a8 4.5 0 0 1 16 0Z" />
+      <g className="li-neck li-neck-a">
+        <path d="M8 17c-2.5-3-3-6-1.5-9.5" />
+        <circle cx="6.3" cy="6" r="1.6" />
+      </g>
+      <g className="li-neck li-neck-b">
+        <path d="M12 16.5V8.5" />
+        <circle cx="12" cy="7" r="1.6" />
+      </g>
+      <g className="li-neck li-neck-c">
+        <path d="M16 17c2.5-3 3-6 1.5-9.5" />
+        <circle cx="17.7" cy="6" r="1.6" />
+      </g>
+    </>
+  ),
+  // giọt nhớt: thân lúc lắc, mắt chớp
+  gloop: (
+    <>
+      <path className="li-blob" d="M4.5 13.5C4.5 8.5 8 5 12.5 5S20 8.5 19.5 13c-.4 3.8-2.8 6.5-7 6.5S4.5 18 4.5 13.5Z" />
+      <circle className="li-eye" cx="9.5" cy="12" r="1.2" fill="currentColor" />
+      <circle className="li-eye" cx="14.5" cy="11" r="1.2" fill="currentColor" />
+    </>
+  ),
+  // bướm đêm: hai cánh vỗ quanh thân
+  moths: (
+    <>
+      <g className="li-wing-l">
+        <path d="M12 12C8.5 5 3.5 6.5 4 10.5S9 14 12 12Z" />
+        <path d="M12 13c-3.5 .5-5.5 4.5-3.5 6.5S12 17.5 12 13Z" />
+      </g>
+      <g className="li-wing-r">
+        <path d="M12 12c3.5-7 8.5-5.5 8-1.5S15 14 12 12Z" />
+        <path d="M12 13c3.5 .5 5.5 4.5 3.5 6.5S12 17.5 12 13Z" />
+      </g>
+      <path d="M12 8.5v10" />
+      <path d="M12 8.5l-1.5-2.5M12 8.5l1.5-2.5" />
+    </>
+  ),
   // mặt mèo: nghiêng đầu qua lại, chớp mắt
   cat: (
     <g className="li-cathead">

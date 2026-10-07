@@ -18,3 +18,15 @@ export const shuffled = (arr) => {
   }
   return out;
 };
+
+// số thực ngẫu nhiên trong [a, b)
+export const rand = (a, b) => a + Math.random() * (b - a);
+
+export const lerp = (a, b, t) => a + (b - a) * t;
+
+// hiệu hai góc (radian) quy về [-π, π]: dương = phải quay thêm theo chiều kim đồng hồ để từ b tới a
+export const angDiff = (a, b) => {
+  let d = a - b;
+  d -= TAU * Math.floor(d / TAU + 0.5);
+  return d;
+};
