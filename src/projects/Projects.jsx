@@ -56,6 +56,13 @@ function Star({ className }) {
   );
 }
 
+// mũi tên pixel 4x7 cho nút cuộn kệ (nút trái lật bằng CSS scaleX)
+const ArrowIcon = () => (
+  <svg viewBox="0 0 4 7" aria-hidden="true">
+    <path d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM2 4h1v1H2zM1 5h1v1H1zM0 6h1v1H0z" />
+  </svg>
+);
+
 function Readout({ p }) {
   const rows = [...(p.facts ?? []), ['repo', repoPathOf(p)]];
   // --i = thứ tự dòng, CSS dùng để "gõ" từng dòng nối tiếp nhau mỗi lần mở file
@@ -118,6 +125,7 @@ export default function Projects() {
       return [];
     }
   });
+  const seenSet = useMemo(() => new Set(seen), [seen]);
   const lsRef = useRef(null);
   const filterRef = useRef(null);
   const tabs = useRef({});
@@ -167,16 +175,14 @@ export default function Projects() {
     if (c && el) c.scrollTo({ left: el.offsetLeft - (c.clientWidth - el.offsetWidth) / 2, behavior });
   }, [slug, mode]);
 
-  // project nào đã được mở trong máy thì ghi nhớ: dòng ls đánh dấu để 40 dòng chữ vẫn biết bài nào vừa xem
+  // băng nào người xem CHỦ ĐỘNG mở (bấm / phím / #hash) thì tính là đã chơi. Máy tự nhảy sang băng đầu khi đang gõ lọc
+  // (picked !== slug) thì không tính, nếu không gõ vài chữ là đánh dấu lung tung.
   useEffect(() => {
-    if (!slug) return;
-    setSeen((prev) => {
-      if (prev.includes(slug)) return prev;
-      const next = [...prev, slug];
-      storageSet(SEEN_KEY, JSON.stringify(next));
-      return next;
-    });
-  }, [slug]);
+    if (slug && picked === slug) setSeen((prev) => (prev.includes(slug) ? prev : [...prev, slug]));
+  }, [slug, picked]);
+  useEffect(() => {
+    storageSet(SEEN_KEY, JSON.stringify(seen));
+  }, [seen]);
 
   // dò trạng thái deploy của mọi project ngay khi vào trang (không đợi bấm chọn) để cartridge nào "tắt" thì xám sẵn
   useEffect(() => {
@@ -271,7 +277,7 @@ export default function Projects() {
   }
 
   // "băng đã chơi": tính trên TOÀN bộ project (không phụ thuộc đang lọc gì) để con số không nhảy khi lọc
-  const played = projects.filter((x) => seen.includes(slugOf(x))).length;
+  const played = projects.filter((x) => seenSet.has(slugOf(x))).length;
   const cleared = played === projects.length;
 
   // chỉ dùng cột hình nhỏ khi ít nhất một project trong danh sách có ảnh chụp; chưa có ảnh nào thì giữ danh sách chữ thuần
@@ -292,7 +298,7 @@ export default function Projects() {
       tabIndex: k === slug ? 0 : -1,
       style: { '--c': x.color },
       'data-off': status[k] === 'off' || undefined,
-      'data-seen': (k !== slug && seen.includes(k)) || undefined,
+      'data-seen': (k !== slug && seenSet.has(k)) || undefined,
       onClick: () => pick(k),
       onKeyDown: (e) => move(e, i),
     };
@@ -315,7 +321,7 @@ export default function Projects() {
         <span className="proj-row-f">{x.file}</span>
         <span className="proj-row-d">{x.desc}</span>
         <span className="proj-row-t" aria-hidden="true">
-          {seen.includes(k) && <Star className="proj-row-star" />}
+          {seenSet.has(k) && <Star className="proj-row-star" />}
           {x.tags?.join(' ')}
         </span>
       </button>
@@ -466,7 +472,7 @@ export default function Projects() {
           </p>
         ) : mode === 'ls' ? (
           <>
-            <div className="proj-played" data-clear={cleared || undefined} aria-live="polite">
+            <div className="proj-played" data-clear={cleared || undefined}>
               <Star className="proj-played-star" />
               <span className="proj-played-n">
                 {String(played).padStart(2, '0')}
@@ -476,8 +482,7 @@ export default function Projects() {
               <span
                 className="proj-played-bar"
                 style={{ '--p': played / projects.length }}
-                role="img"
-                aria-label={`${played} of ${projects.length} projects viewed`}
+                aria-hidden="true"
               />
             </div>
             <div ref={lsRef} role="tablist" aria-label="Project list" className="proj-ls" data-thumbs={thumbs || undefined}>
@@ -487,13 +492,13 @@ export default function Projects() {
         ) : (
           <div className="proj-shelf">
             <button type="button" className="proj-nudge l" onClick={() => nudge(-1)} aria-label="Scroll left">
-              <svg viewBox="0 0 4 7" aria-hidden="true"><path d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM2 4h1v1H2zM1 5h1v1H1zM0 6h1v1H0z" /></svg>
+              <ArrowIcon />
             </button>
             <div ref={rail} role="tablist" aria-label="Project cartridges" className="proj-cartridges">
               {list.map(cart)}
             </div>
             <button type="button" className="proj-nudge r" onClick={() => nudge(1)} aria-label="Scroll right">
-              <svg viewBox="0 0 4 7" aria-hidden="true"><path d="M0 0h1v1H0zM1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM2 4h1v1H2zM1 5h1v1H1zM0 6h1v1H0z" /></svg>
+              <ArrowIcon />
             </button>
             <div className="proj-board" aria-hidden="true" />
           </div>

@@ -476,7 +476,7 @@
 .proj-row-t { color: var(--text-dim); opacity: 0.7; }
 @media (max-width: 640px) { .proj-row { grid-template-columns: 2.5ch 1fr; } .proj-row-d, .proj-row-t { display: none; } }
 .proj-empty { margin: 24px 0 0; padding: 20px; border: 1px dashed var(--line); border-radius: 10px; text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); }
-.proj-row:focus-visible, .proj-tags button:focus-visible, .proj-nudge:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+.proj-tags button:focus-visible, .proj-nudge:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 /* ===== đèn LED theo trạng thái deploy + màn hình "mất sóng" kiểu TV đen trắng ===== */
 .proj-led[data-state='off'] { background: #4a4a4a; box-shadow: none; }
@@ -503,7 +503,7 @@
 .proj-reset:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
 .proj-clear:focus-visible, .proj-reset:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 /* dòng nằm sát mép khung cuộn: viền focus phải vẽ vào trong, nếu không bị overflow cắt mất */
-.proj-row:focus-visible { outline-offset: -2px; }
+.proj-row:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }
 
 /* cột hình nhỏ (chỉ bật khi có ảnh chụp): dòng nào chưa có ảnh thì để ô trống mờ, không bịa hình thay */
 .proj-ls[data-thumbs] .proj-row { grid-template-columns: 2.5ch 46px minmax(0, 14ch) minmax(0, 1fr) auto; align-items: center; }
