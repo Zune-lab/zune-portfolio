@@ -244,3 +244,134 @@
   75%    { transform: translate(-10px, 0); }
   100%   { transform: translate(0, 0); }
 }
+
+/* ===== lab quy mô lớn: ô tìm kiếm, "more", dải tab / ô nhảy nhanh ===== */
+
+/* trên cảm ứng không có hover nên nhãn "run ›" phải hiện sẵn, nếu không thẻ chẳng gợi ý gì là bấm được */
+@media (hover: none) {
+  .lab-card-go { opacity: 1; transform: none; }
+}
+
+/* ô tìm kiếm kiểu terminal (dùng ở lưới và trong ô "jump to…") */
+.lab-find {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--inset);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  cursor: text;
+}
+.lab-find:focus-within { border-color: var(--amber-dim); }
+.lab-find input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--amber);
+  font: inherit;
+  caret-color: var(--amber);
+}
+.lab-find input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+.lab-more {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 9px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--amber);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.lab-more:hover { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 8%, transparent); }
+.lab-more:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+.lab-empty {
+  margin: 24px 0 0;
+  padding: 20px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.lab-empty button {
+  padding: 2px 10px;
+  border: 1px solid var(--amber-dim);
+  border-radius: 999px;
+  font: inherit;
+  color: var(--amber);
+  background: transparent;
+}
+.lab-empty button:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+
+/* dải tab ở trang 1 mục: mục đang mở sáng amber, các mục khác bấm 1 phát là sang */
+.lab-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.lab-tab:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.lab-tab[aria-current='page'] {
+  color: var(--text);
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 11%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .lab-tab:hover { color: var(--amber); border-color: var(--amber-dim); }
+}
+
+/* ô "jump to…" khi có nhiều mục: bảng thả xuống có tìm kiếm + danh sách cuộn */
+.lab-jump { position: relative; margin-bottom: 2rem; }
+.lab-jump > .lab-btn { margin: 0; }
+.lab-jump-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(380px, 92vw);
+  padding: 8px;
+  border: 2px solid var(--amber);
+  border-radius: 0 8px 8px 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.lab-jump-list { max-height: min(50vh, 300px); margin-top: 8px; overflow-y: auto; }
+.lab-jump-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  color: var(--text-dim);
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.lab-jump-row:hover,
+.lab-jump-row:focus-visible { color: var(--text); background: color-mix(in srgb, var(--amber) 10%, transparent); outline: none; }
+.lab-jump-row[aria-current='page'] { color: var(--amber); }
+.lab-jump-name { overflow: hidden; font-family: var(--font-mono); font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.lab-jump-name i { margin-left: 1ch; font-style: normal; font-size: 11.5px; opacity: 0.6; }
+.lab-jump-kind { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; }
+.lab-jump-empty { margin: 0; padding: 10px 8px; font-family: var(--font-mono); font-size: 12.5px; color: var(--text-dim); }
