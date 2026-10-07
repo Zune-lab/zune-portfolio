@@ -464,7 +464,7 @@
 .proj-nudge.l { left: -6px; }
 .proj-nudge.r { right: -6px; }
 @media (hover: none) { .proj-nudge { display: none; } }
-.proj-ls { margin-top: 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--inset); font-family: var(--font-mono); font-size: 13px; }
+.proj-ls { position: relative; margin-top: 16px; max-height: min(420px, 55vh); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; border: 1px solid var(--line); border-radius: 10px; background: var(--inset); font-family: var(--font-mono); font-size: 13px; }
 .proj-row { position: relative; display: grid; grid-template-columns: 2.5ch minmax(0, 14ch) minmax(0, 1fr) auto; align-items: baseline; gap: 14px; width: 100%; padding: 10px 16px; border-top: 1px solid var(--line); text-align: left; color: var(--text); background: transparent; }
 .proj-row:first-child { border-top: 0; }
 .proj-row::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--c); transform: scaleY(0); transition: transform 0.3s var(--ease); }
@@ -495,3 +495,37 @@
 }
 @keyframes proj-snow { 0% { background-position: 0 0; } 25% { background-position: -37px 21px; } 50% { background-position: 29px -43px; } 75% { background-position: -18px -9px; } }
 @keyframes proj-roll { to { top: 110%; } }
+
+/* nút xoá nhanh trong ô lọc + nút "clear filters" ở trạng thái rỗng: 1 click là về lại đủ danh sách */
+.proj-clear { flex: none; width: 20px; height: 20px; border-radius: 50%; line-height: 1; font-size: 15px; color: var(--text-dim); background: transparent; transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease); }
+.proj-clear:hover { color: var(--text); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+.proj-reset { padding: 2px 10px; border: 1px solid var(--amber-dim); border-radius: 999px; font: inherit; color: var(--amber); background: transparent; }
+.proj-reset:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+.proj-clear:focus-visible, .proj-reset:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+/* dòng nằm sát mép khung cuộn: viền focus phải vẽ vào trong, nếu không bị overflow cắt mất */
+.proj-row:focus-visible { outline-offset: -2px; }
+
+/* cột hình nhỏ (chỉ bật khi có ảnh chụp): dòng nào chưa có ảnh thì để ô trống mờ, không bịa hình thay */
+.proj-ls[data-thumbs] .proj-row { grid-template-columns: 2.5ch 46px minmax(0, 14ch) minmax(0, 1fr) auto; align-items: center; }
+@media (max-width: 640px) { .proj-ls[data-thumbs] .proj-row { grid-template-columns: 2.5ch 46px 1fr; } }
+.proj-row-thumb { position: relative; width: 46px; height: 30px; overflow: hidden; border: 1px solid var(--line); border-radius: 5px; background: color-mix(in srgb, var(--c) 6%, var(--inset)); }
+.proj-row-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* băng đã chơi: sao pixel ở cột tag + tên file mờ đi như link đã bấm */
+.proj-row[data-seen] .proj-row-f { opacity: 0.6; }
+.proj-row-star { display: inline-block; width: 9px; height: 9px; margin-right: 1ch; vertical-align: -1px; fill: var(--amber); }
+
+/* thanh "băng đã chơi": đếm kiểu game + thanh tiến độ pixel; chơi hết thì đổi chữ và nháy vài nhịp */
+.proj-played { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+.proj-played + .proj-ls { margin-top: 10px; }
+.proj-played-star { flex: none; width: 12px; height: 12px; fill: var(--amber-dim); }
+.proj-played[data-clear] .proj-played-star { fill: var(--amber); }
+.proj-played-n { font-family: var(--font-pixel); font-size: 14px; line-height: 1; color: var(--amber); letter-spacing: 0.04em; }
+.proj-played-n i { font-style: normal; color: var(--text-dim); }
+.proj-played-label { white-space: nowrap; }
+.proj-played[data-clear] .proj-played-label { color: var(--amber); }
+.proj-played-bar { position: relative; flex: 0 1 220px; height: 6px; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--amber) 16%, transparent) 0 4px, transparent 4px 6px); }
+.proj-played-bar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: calc(var(--p) * 100%); background: repeating-linear-gradient(90deg, var(--amber) 0 4px, transparent 4px 6px); transition: width 0.4s steps(8, end); }
+@media (prefers-reduced-motion: no-preference) {
+  .proj-played[data-clear] .proj-played-bar { animation: proj-clear-blink 0.5s steps(1, end) 4; }
+}
+@keyframes proj-clear-blink { 50% { opacity: 0.25; } }

@@ -2,8 +2,10 @@ import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import SectionHead from '../components/ui/SectionHead.jsx';
 import { projects, arts, tags } from './index.js';
 import { WRAP } from '../config/ui.js';
+import { storageKey } from '../config/site.js';
 import { clamp } from '../lib/math.js';
 import { BASE } from '../lib/paths.js';
+import { storageGet, storageSet } from '../lib/storage.js';
 import { canHover, prefersReducedMotion } from '../lib/env.js';
 import './Projects.css';
 
@@ -11,6 +13,10 @@ import './Projects.css';
 //  - phía trên: "máy" gồm màn hình CRT (Art hoặc ảnh chụp) và bảng thông tin (đoạn code mô tả + nút mở repo)
 //  - phía dưới: kệ băng, mỗi project là một cartridge; bấm để nạp vào máy, mũi tên trái/phải để đổi băng
 // Dữ liệu vẫn đọc từ src/projects/<tên>/meta.js như cũ ({ file, desc, color, href, facts?, shot? }).
+
+const MODE_KEY = storageKey('projects-mode'); // nhớ người dùng thích kệ băng hay danh sách
+const SEEN_KEY = storageKey('projects-seen'); // các project đã xem, để dòng ls có dấu "đã xem"
+const LS_DEFAULT_MIN = 12; // nhiều hơn số này (và chưa từng chọn) thì mặc định mở danh sách ls
 
 const slugOf = (p) => p.file.replace(/\.[^.]+$/, '');
 const extOf = (p) => p.file.slice(p.file.lastIndexOf('.'));
@@ -40,6 +46,15 @@ const checkPages = async (p, signal) => {
 };
 // 'made with' -> madeWith, 'a-dumb-gift' -> aDumbGift (dùng làm tên khoá / tên biến trong đoạn code)
 const camel = (s) => s.replace(/[^a-z0-9]+(.)?/gi, (_, c) => (c ? c.toUpperCase() : ''));
+
+// ngôi sao pixel 5x5 (cùng kiểu vẽ pixel với mũi tên ở kệ): dấu "đã chơi băng này" như sao hoàn thành màn trong game
+function Star({ className }) {
+  return (
+    <svg viewBox="0 0 5 5" className={className} aria-hidden="true">
+      <path d="M2 0h1v1H2zM2 1h1v1H2zM0 2h5v1H0zM1 3h3v1H1zM1 4h1v1H1zM3 4h1v1H3z" />
+    </svg>
+  );
+}
 
 function Readout({ p }) {
   const rows = [...(p.facts ?? []), ['repo', repoPathOf(p)]];
@@ -86,7 +101,25 @@ export default function Projects() {
   const [q, setQ] = useState('');
   const [tag, setTag] = useState('');
   const [status, setStatus] = useState({}); // slug -> 'live' | 'off' | 'unknown' (chưa có = đang dò)
-  const [mode, setMode] = useState('shelf'); // 'shelf' (kệ băng) | 'ls' (danh sách gọn)
+  // 'shelf' (kệ băng) | 'ls' (danh sách gọn). Nhớ lựa chọn lần trước; chưa chọn mà có nhiều project thì mặc định ls
+  const [mode, setModeState] = useState(() => {
+    const saved = storageGet(MODE_KEY);
+    return saved === 'shelf' || saved === 'ls' ? saved : projects.length > LS_DEFAULT_MIN ? 'ls' : 'shelf';
+  });
+  const setMode = (m) => {
+    setModeState(m);
+    storageSet(MODE_KEY, m);
+  };
+  const [seen, setSeen] = useState(() => {
+    try {
+      const v = JSON.parse(storageGet(SEEN_KEY) ?? '[]');
+      return Array.isArray(v) ? v : [];
+    } catch {
+      return [];
+    }
+  });
+  const lsRef = useRef(null);
+  const filterRef = useRef(null);
   const tabs = useRef({});
   const rail = useRef(null);
   const consoleRef = useRef(null);
@@ -113,15 +146,37 @@ export default function Projects() {
   useEffect(() => {
     if (!slug) return;
     history.replaceState(history.state, '', `#${slug}`);
-    const c = rail.current;
     const el = tabs.current[slug];
-    if (c && el) {
-      c.scrollTo({
-        left: el.offsetLeft - (c.clientWidth - el.offsetWidth) / 2,
-        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-      });
+    const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+    if (mode === 'ls') {
+      // danh sách dài: chỉ cuộn BÊN TRONG khung ls (không kéo cả trang) và chỉ khi dòng đang chọn bị khuất,
+      // để bấm vào dòng đang thấy thì danh sách đứng yên dưới con trỏ
+      const c = lsRef.current;
+      if (c && el) {
+        const top = el.offsetTop;
+        const bottom = top + el.offsetHeight;
+        const view = c.scrollTop + c.clientHeight;
+        if (bottom < c.scrollTop || top > view) {
+          c.scrollTo({ top: top - (c.clientHeight - el.offsetHeight) / 2, behavior }); // ở xa (vd mở bằng #hash): đưa ra giữa
+        } else if (top < c.scrollTop) c.scrollTo({ top, behavior });
+        else if (bottom > view) c.scrollTo({ top: bottom - c.clientHeight, behavior });
+      }
+      return;
     }
+    const c = rail.current;
+    if (c && el) c.scrollTo({ left: el.offsetLeft - (c.clientWidth - el.offsetWidth) / 2, behavior });
   }, [slug, mode]);
+
+  // project nào đã được mở trong máy thì ghi nhớ: dòng ls đánh dấu để 40 dòng chữ vẫn biết bài nào vừa xem
+  useEffect(() => {
+    if (!slug) return;
+    setSeen((prev) => {
+      if (prev.includes(slug)) return prev;
+      const next = [...prev, slug];
+      storageSet(SEEN_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, [slug]);
 
   // dò trạng thái deploy của mọi project ngay khi vào trang (không đợi bấm chọn) để cartridge nào "tắt" thì xám sẵn
   useEffect(() => {
@@ -143,14 +198,55 @@ export default function Projects() {
   }, []);
 
   const move = (e, i) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Enter') {
+      // Enter = mở repo luôn (1 phím), khỏi phải rê chuột tới nút
+      e.preventDefault();
+      window.open(list[i].href, '_blank', 'noopener,noreferrer');
+      return;
+    }
     const last = list.length - 1;
-    const to =
-      { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: last }[e.key];
+    const to = {
+      ArrowRight: i + 1,
+      ArrowDown: i + 1,
+      ArrowLeft: i - 1,
+      ArrowUp: i - 1,
+      Home: 0,
+      End: last,
+    }[e.key];
     if (to == null) return;
     e.preventDefault();
-    const next = list[clamp(to, 0, last)];
+    // mũi tên đi quá biên thì vòng sang đầu kia, nhưng KHÔNG vòng khi đang giữ phím (tránh quay mòng mòng);
+    // Home/End thì dừng ở biên. Cố ý KHÔNG chiếm PgUp/PgDn: đó là phím cuộn trang, chiếm đi thì click dòng xong không lướt trang được nữa
+    const arrow = e.key.startsWith('Arrow');
+    if (arrow && e.repeat && (to < 0 || to > last)) return;
+    const next = list[arrow ? (to + list.length) % list.length : clamp(to, 0, last)];
     setPicked(slugOf(next));
-    tabs.current[slugOf(next)]?.focus();
+    tabs.current[slugOf(next)]?.focus({ preventScroll: true });
+  };
+  // phím tắt trong cả khối projects: "/" nhảy vào ô lọc (như GitHub/YouTube)
+  const sectionKey = (e) => {
+    if (e.key !== '/' || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    e.preventDefault();
+    filterRef.current?.focus();
+  };
+  // trong ô lọc: ↓/Enter nhảy xuống danh sách, Esc xoá chữ (bấm nữa thì thoát ra danh sách)
+  const filterKey = (e) => {
+    if (e.nativeEvent.isComposing) return; // đang gõ tiếng Việt (Telex/VNI): Enter/Esc thuộc về bộ gõ, không phải của mình
+    const focusPicked = () => tabs.current[slug]?.focus({ preventScroll: true });
+    if (e.key === 'ArrowDown' || (e.key === 'Enter' && list.length)) {
+      e.preventDefault();
+      focusPicked();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      if (q) setQ('');
+      else focusPicked();
+    }
+  };
+  const resetFilters = () => {
+    setQ('');
+    setTag('');
   };
   // bấm băng ở kệ (nằm dưới): nếu màn hình máy đã trôi lên khỏi tầm nhìn thì cuộn lên cho thấy,
   // không bắt người xem tự lướt lên. Máy còn thấy đủ thì không cuộn để khỏi giật trang.
@@ -174,6 +270,13 @@ export default function Projects() {
     );
   }
 
+  // "băng đã chơi": tính trên TOÀN bộ project (không phụ thuộc đang lọc gì) để con số không nhảy khi lọc
+  const played = projects.filter((x) => seen.includes(slugOf(x))).length;
+  const cleared = played === projects.length;
+
+  // chỉ dùng cột hình nhỏ khi ít nhất một project trong danh sách có ảnh chụp; chưa có ảnh nào thì giữ danh sách chữ thuần
+  const thumbs = list.some((x) => x.shot && !brokenShots[slugOf(x)]);
+
   const cart = (x, i) => {
     const k = slugOf(x);
     const common = {
@@ -189,15 +292,32 @@ export default function Projects() {
       tabIndex: k === slug ? 0 : -1,
       style: { '--c': x.color },
       'data-off': status[k] === 'off' || undefined,
+      'data-seen': (k !== slug && seen.includes(k)) || undefined,
       onClick: () => pick(k),
       onKeyDown: (e) => move(e, i),
     };
     return mode === 'ls' ? (
       <button key={k} {...common} className="proj-row">
         <span className="proj-row-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        {thumbs && (
+          <span className="proj-row-thumb" aria-hidden="true">
+            {x.shot && !brokenShots[k] && (
+              <img
+                src={`${BASE}previews/${k}.png`}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={() => setBrokenShots((b) => ({ ...b, [k]: true }))}
+              />
+            )}
+          </span>
+        )}
         <span className="proj-row-f">{x.file}</span>
         <span className="proj-row-d">{x.desc}</span>
-        <span className="proj-row-t" aria-hidden="true">{x.tags?.join(' ')}</span>
+        <span className="proj-row-t" aria-hidden="true">
+          {seen.includes(k) && <Star className="proj-row-star" />}
+          {x.tags?.join(' ')}
+        </span>
       </button>
     ) : (
       <button key={k} {...common} className="proj-cart">
@@ -212,7 +332,7 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="py-20 border-t border-line">
+    <section id="projects" className="py-20 border-t border-line" onKeyDown={sectionKey}>
       <div className={WRAP}>
         <SectionHead num="01" title="projects/" level={1} />
         <p className="-mt-6 mb-8 text-dim text-[14px] max-w-[60ch]">
@@ -293,13 +413,28 @@ export default function Projects() {
             <span aria-hidden="true">$ ls projects/ | grep</span>
             <input
               type="text"
+              ref={filterRef}
               value={q}
               onChange={(e) => setQ(e.target.value)}
+              onKeyDown={filterKey}
               placeholder="…"
               aria-label="Filter projects"
               spellCheck={false}
               autoComplete="off"
             />
+            {q && (
+              <button
+                type="button"
+                className="proj-clear"
+                aria-label="Clear filter"
+                onClick={() => {
+                  setQ('');
+                  filterRef.current?.focus();
+                }}
+              >
+                ×
+              </button>
+            )}
           </label>
           <span className="proj-count" aria-live="polite">
             {String(at + 1).padStart(2, '0')}
@@ -315,7 +450,7 @@ export default function Projects() {
         {tags.length > 0 && (
           <div className="proj-tags" role="group" aria-label="Filter by tag">
             {['', ...tags].map((t) => (
-              <button key={t || 'all'} type="button" aria-pressed={tag === t} onClick={() => setTag(t)}>
+              <button key={t || 'all'} type="button" aria-pressed={tag === t} onClick={() => setTag(tag === t ? '' : t)}>
                 {t ? `--${t}` : '--all'}
               </button>
             ))}
@@ -323,9 +458,32 @@ export default function Projects() {
         )}
 
         {list.length === 0 ? (
-          <p className="proj-empty">grep: no match. try another flag.</p>
+          <p className="proj-empty">
+            grep: no match.{' '}
+            <button type="button" className="proj-reset" onClick={resetFilters}>
+              clear filters
+            </button>
+          </p>
         ) : mode === 'ls' ? (
-          <div role="tablist" aria-label="Project list" className="proj-ls">{list.map(cart)}</div>
+          <>
+            <div className="proj-played" data-clear={cleared || undefined} aria-live="polite">
+              <Star className="proj-played-star" />
+              <span className="proj-played-n">
+                {String(played).padStart(2, '0')}
+                <i>/{String(projects.length).padStart(2, '0')}</i>
+              </span>
+              <span className="proj-played-label">{cleared ? 'all cartridges cleared' : 'cartridges played'}</span>
+              <span
+                className="proj-played-bar"
+                style={{ '--p': played / projects.length }}
+                role="img"
+                aria-label={`${played} of ${projects.length} projects viewed`}
+              />
+            </div>
+            <div ref={lsRef} role="tablist" aria-label="Project list" className="proj-ls" data-thumbs={thumbs || undefined}>
+              {list.map(cart)}
+            </div>
+          </>
         ) : (
           <div className="proj-shelf">
             <button type="button" className="proj-nudge l" onClick={() => nudge(-1)} aria-label="Scroll left">
@@ -341,7 +499,15 @@ export default function Projects() {
           </div>
         )}
         <p className="proj-hint">
-          <kbd>←</kbd> <kbd>→</kbd> to swap cartridges
+          {mode === 'ls' ? (
+            <>
+              <kbd>↑</kbd> <kbd>↓</kbd> browse · <kbd>↵</kbd> open repo · <kbd>/</kbd> filter
+            </>
+          ) : (
+            <>
+              <kbd>←</kbd> <kbd>→</kbd> to swap cartridges
+            </>
+          )}
         </p>
       </div>
     </section>
