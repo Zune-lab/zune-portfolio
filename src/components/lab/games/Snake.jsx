@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import useBest from '../../../lib/useBest.js';
 import { storageKey } from '../../../config/site.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { cssVar } from '../../../lib/canvas.js';
 import { getDpr } from '../../../lib/env.js';
 import { pick, TAU } from '../../../lib/math.js';
 import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
+import useGameRound from './useGameRound.js';
 
 const N = 18; // lưới N x N
 const CELL = 20;
@@ -27,12 +27,12 @@ const KEYS = {
   arrowright: 'right', d: 'right',
 };
 
+// chọn ngẫu nhiên một ô trống (Set để kiểm tra ô bị rắn chiếm trong O(1), không quét thân rắn cho từng ô)
 const placeFood = (snake) => {
+  const taken = new Set(snake.map((s) => s.y * N + s.x));
   const free = [];
-  for (let y = 0; y < N; y++) {
-    for (let x = 0; x < N; x++) {
-      if (!snake.some((s) => s.x === x && s.y === y)) free.push({ x, y });
-    }
+  for (let i = 0; i < N * N; i++) {
+    if (!taken.has(i)) free.push({ x: i % N, y: Math.floor(i / N) });
   }
   return free.length ? pick(free) : null;
 };
@@ -44,10 +44,8 @@ const fresh = () => {
 
 // mini game: rắn săn mồi. Phím mũi tên / WASD, nút bấm hoặc vuốt trên màn hình cảm ứng
 export default function Snake() {
-  const [status, setStatus] = useState('idle'); // idle | playing | over
+  const { status, round, best, newBest, begin, finish } = useGameRound(BEST_KEY);
   const [score, setScore] = useState(0);
-  const { best, newBest, record, clearNew } = useBest(BEST_KEY);
-  const [round, setRound] = useState(0);
 
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
@@ -127,9 +125,7 @@ export default function Snake() {
     game.current = fresh();
     scoreRef.current = 0;
     setScore(0);
-    clearNew();
-    setStatus('playing');
-    setRound((r) => r + 1);
+    begin();
     wrapRef.current?.focus({ preventScroll: true });
   };
 
@@ -143,7 +139,7 @@ export default function Snake() {
       const alive = tick();
       draw();
       if (!alive) {
-        setStatus('over');
+        finish(scoreRef.current);
         return;
       }
       timer = window.setTimeout(step, delay());
@@ -159,17 +155,11 @@ export default function Snake() {
       clearTimeout(timer);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [status, round]);
+  }, [status, round, finish]);
 
   // đổi sáng/tối -> vẽ lại canvas MỖI KHUNG trong lúc biến màu đang chuyển (lib/themeSync.js), dù game idle hay đã over.
   // Trước đây chỉ vẽ 1 lần lúc data-theme vừa đổi, khi biến màu còn giá trị cũ -> canvas kẹt màu cũ.
   useEffect(() => onThemeChange(() => draw()), []);
-
-  // hết ván -> cập nhật kỷ lục
-  useEffect(() => {
-    if (status === 'over') record(scoreRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when the game ends; best is current then
-  }, [status]);
 
   const onKeyDown = (e) => {
     const name = KEYS[e.key.toLowerCase()];
@@ -208,7 +198,7 @@ export default function Snake() {
     <GameFrame
       stats={[
         { label: 'score', value: score, color: 'var(--green)' },
-        { label: 'best', value: best },
+        { label: 'best', value: best || '-' },
       ]}
       action={gameAction(status, start)}
     >
@@ -217,7 +207,7 @@ export default function Snake() {
         tabIndex={0}
         onKeyDown={onKeyDown}
         aria-label="snake game, use arrow keys or WASD"
-        className="relative mx-auto max-w-[360px] outline-hidden focus-visible:ring-1 focus-visible:ring-[color:var(--amber)] rounded-sm-lg"
+        className="relative mx-auto max-w-[360px] outline-hidden focus-visible:ring-1 focus-visible:ring-[color:var(--amber)] rounded-lg"
       >
         <canvas
           ref={canvasRef}

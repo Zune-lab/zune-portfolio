@@ -220,7 +220,6 @@
 
   .lab-card:is(:hover, :focus-visible) .li-worm { stroke-dasharray: 6 3; animation: li-writhe 0.5s linear infinite; }
   .lab-card:is(:hover, :focus-visible) .li-lid { transform-origin: 50% 100%; animation: li-wake 2.4s ease-in-out infinite; }
-  .lab-card:is(:hover, :focus-visible) .li-jaw-up { transform-origin: 50% 100%; animation: li-scream-up 0.5s ease-in-out infinite alternate; }
   .lab-card:is(:hover, :focus-visible) .li-jaw-dn { transform-origin: 50% 0; animation: li-scream-dn 0.5s ease-in-out infinite alternate; }
 
   .lab-card:is(:hover, :focus-visible) .li-wing-l { transform-origin: 100% 50%; animation: li-flap 0.22s ease-in-out infinite alternate; }
@@ -247,7 +246,6 @@
 
 @keyframes li-writhe { to { stroke-dashoffset: -18; } }
 @keyframes li-wake { 0%, 55%, 100% { transform: scaleY(1); } 70%, 85% { transform: scaleY(-1.4) translateY(-1px); } }
-@keyframes li-scream-up { to { transform: translateY(-3px) rotate(-3deg); } }
 @keyframes li-scream-dn { to { transform: translateY(3px) rotate(3deg); } }
 @keyframes li-flap { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
 

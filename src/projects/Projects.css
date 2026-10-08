@@ -260,11 +260,11 @@
 
 /* mỗi lần mở file: các dòng code "gõ" ra lần lượt, cuối cùng là con trỏ nhấp nháy */
 @media (prefers-reduced-motion: no-preference) {
-  .proj-stage-body .proj-code p {
+  .proj-console-body .proj-code p {
     animation: proj-type 0.45s steps(26, end) both;
     animation-delay: calc(var(--i, 0) * 110ms + 180ms);
   }
-  .proj-stage-body .proj-code p:last-child::after {
+  .proj-console-body .proj-code p:last-child::after {
     animation: proj-blink 1.1s steps(1, end) infinite;
   }
 }

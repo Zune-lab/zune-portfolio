@@ -254,6 +254,7 @@ body::before {
   background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--amber), transparent 65%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
 .spot::after {

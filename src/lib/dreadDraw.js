@@ -20,8 +20,9 @@ const qb = (p, a, c, b) => (1 - p) * (1 - p) * a + 2 * p * (1 - p) * c + p * p *
 //   pupil  0..1  đồng tử (0 = chấm nhỏ, 1 = giãn to)
 //   smile  0..1  khóe miệng kéo lên và rạch ngang má (nụ cười rộng hơn khuôn mặt)
 //   aspect tỉ lệ cao/rộng của sọ (1.6 = dài, gầy)
+//   gaze   { x, y } -1..1  đồng tử lệch khỏi tâm mắt (mặc định không có: nhìn thẳng ra màn hình)
 export function drawFace(ctx, o) {
-  const { x, y, S, jaw = 0, eye = 1, pupil = 0.4, smile = 0, tilt = 0, seed = 0, alpha = 1, aspect = 1.6, skin = SKIN, rem = 0, dim = 1 } = o;
+  const { x, y, S, jaw = 0, eye = 1, pupil = 0.4, smile = 0, tilt = 0, seed = 0, alpha = 1, aspect = 1.6, skin = SKIN, rem = 0, dim = 1, gaze = null } = o;
   if (S < 1.2) return;
   const hh = S * aspect;
   const drop = jaw * 1.35 * S;
@@ -87,10 +88,12 @@ export function drawFace(ctx, o) {
         }
         ctx.stroke();
       }
-      // đồng tử: một chấm đen nằm chính giữa, nhìn thẳng ra màn hình
+      // đồng tử: một chấm đen, mặc định nằm chính giữa (nhìn thẳng ra màn hình); có `gaze` thì trượt về hướng đó trong tròng trắng
+      const px = e.cx + (gaze ? gaze.x * r * 0.45 : 0);
+      const py = e.cy + (gaze ? gaze.y * r * eye * 0.45 : 0);
       ctx.fillStyle = '#000';
       ctx.beginPath();
-      ctx.ellipse(e.cx, e.cy, S * (0.045 + 0.075 * pupil) * e.k, Math.min(S * (0.045 + 0.075 * pupil) * e.k, r * eye), 0, 0, TAU);
+      ctx.ellipse(px, py, S * (0.045 + 0.075 * pupil) * e.k, Math.min(S * (0.045 + 0.075 * pupil) * e.k, r * eye), 0, 0, TAU);
       ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,0.7)';
       ctx.lineWidth = lw * 0.8;

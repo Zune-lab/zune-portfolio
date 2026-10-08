@@ -24,6 +24,9 @@ export const rand = (a, b) => a + Math.random() * (b - a);
 
 export const lerp = (a, b, t) => a + (b - a) * t;
 
+// smoothstep: 0..1 -> 0..1, êm ở hai đầu
+export const smoothstep = (x) => x * x * (3 - 2 * x);
+
 // hiệu hai góc (radian) quy về [-π, π]: dương = phải quay thêm theo chiều kim đồng hồ để từ b tới a
 export const angDiff = (a, b) => {
   let d = a - b;

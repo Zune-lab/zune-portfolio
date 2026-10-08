@@ -1,4 +1,4 @@
-import { TAU, clamp, pick, rand, randInt } from '../../../lib/math.js';
+import { TAU, clamp, pick, rand, randInt, smoothstep } from '../../../lib/math.js';
 import { makeDread } from '../../../lib/dreadAudio.js';
 import { drawFace } from '../../../lib/dreadDraw.js';
 
@@ -19,9 +19,8 @@ const ROBE = '#0a0b0e';
 const PALE = '#b9b2a2';
 const EDGE = 'rgba(215,210,195,0.22)';
 
-const ease = (x) => x * x * (3 - 2 * x);
 
-export function makeChoir(_w0, _h0) {
+export function makeChoir() {
   const dread = makeDread();
   const figs = [];
   let seen = 0;
@@ -276,6 +275,7 @@ export function makeChoir(_w0, _h0) {
             state = 'arrive';
             stateT = 0;
             arrivee = f;
+            dread.hush(0.75); // im bặt ngay khoảnh khắc nó chạm màn hình: yên lặng càng đột ngột, cú hét càng đau
             break;
           }
         }
@@ -328,9 +328,9 @@ export function makeChoir(_w0, _h0) {
       panic = state === 'arrive' ? 1 : 0;
       dread.update(
         {
-          drone: state === 'black' ? 0 : 0.15 + 0.85 * Math.pow(maxZ, 1.5),
-          breath: clamp(sil / 6, 0, 1) * 0.8,
-          whine: clamp((maxZ - 0.55) / 0.45, 0, 1),
+          drone: state === 'play' ? 0.15 + 0.85 * Math.pow(maxZ, 1.5) : 0,
+          breath: state === 'play' ? clamp(sil / 6, 0, 1) * 0.8 : 0,
+          whine: state === 'play' ? clamp((maxZ - 0.55) / 0.45, 0, 1) : 0,
           beat: state === 'play' ? clamp((maxZ - 0.45) / 0.55, 0, 1) * (sil > 1.2 ? 1 : 0.3) : 0,
         },
         dt,
@@ -378,10 +378,12 @@ export function makeChoir(_w0, _h0) {
       if (state === 'arrive') {
         if (stateT > 0.7 && !arrivee.struck) {
           arrivee.struck = true;
-          dread.stab(1);
+          flash = 1;
+          dread.jump(1); // tiếng hét to, méo, rè
+          dread.hush(3.8); // rồi im chết cho tới lúc vòng mới bắt đầu (arrive còn ~1.2s + black 2.8s)
         }
         if (stateT > 0.7) {
-          const e = ease(clamp((stateT - 0.7) / 0.35, 0, 1));
+          const e = smoothstep(clamp((stateT - 0.7) / 0.35, 0, 1));
           const S1 = H * 0.29;
           const S0 = heads ? heads.S : 10;
           const x0 = heads ? heads.hx : W / 2;
@@ -406,11 +408,16 @@ export function makeChoir(_w0, _h0) {
         if (stateT > 1.9) {
           state = 'black';
           stateT = 0;
+          dread.ring(2.4); // sau cú hét chỉ còn tiếng ù trong tai
         }
       } else if (state === 'black') {
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, W, H);
         if (stateT > 0.8) {
+          if (!arrivee.said) {
+            arrivee.said = true;
+            dread.whisper(0.3);
+          }
           ctx.font = '14px ui-monospace, monospace';
           ctx.textAlign = 'center';
           ctx.fillStyle = '#ebe4d2';

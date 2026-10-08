@@ -1,4 +1,4 @@
-import { TAU, clamp, rand, randInt, pick } from '../../../lib/math.js';
+import { TAU, clamp, rand, randInt, pick, smoothstep } from '../../../lib/math.js';
 import { makeDread } from '../../../lib/dreadAudio.js';
 import { drawFace, drawHand, BLOOD } from '../../../lib/dreadDraw.js';
 
@@ -15,9 +15,8 @@ import { drawFace, drawHand, BLOOD } from '../../../lib/dreadDraw.js';
 const MAX_KIDS = 14;
 const SKIN_KID = '#a89f90';
 const HAND = { edge: '#14100d', flesh: '#a89f90', nail: '#c9c0b0' };
-const ease = (x) => x * x * (3 - 2 * x);
 
-export function makeMother(_w0, _h0) {
+export function makeMother() {
   const dread = makeDread();
   let state = 'sleep'; // sleep | awake | cover | black
   let stateT = 0;
@@ -37,6 +36,7 @@ export function makeMother(_w0, _h0) {
   let tiltSnap = 0;
   let tiltT = rand(3, 7);
   let remT = 0;
+  const gaze = { x: 0, y: 0 }; // hướng nhìn hiện tại của bà (-1..1), đuổi theo con trỏ
   const kids = [];
   const splats = [];
   const fing = [0, 1].map(() => Array.from({ length: 5 }, () => ({ c: rand(0.15, 0.4), T: rand(1, 5) })));
@@ -409,10 +409,15 @@ export function makeMother(_w0, _h0) {
         ctx.globalAlpha = 1;
       }
 
-      // mặt: mắt nhắm khi ngủ, mắt mở trừng khi tỉnh; không bao giờ rời khỏi bạn
+      // mặt: mắt nhắm khi ngủ, mắt mở trừng khi tỉnh; mắt luôn đảo theo con trỏ của bạn
       const awakeK = state === 'awake' ? clamp(stateT * 4, 0, 1) : 0;
       const eyeSleep = clamp((anger - 0.3) * 0.35, 0, 0.18) + flinch * 0.12;
+      // mắt đảo theo con trỏ: tỉnh thì bám sát, ngủ (mắt hé) thì lờ đờ hơn. Mỗi lần đổi mục tiêu đều trượt, không giật
+      const gk = Math.min(1, dt * (state === 'awake' ? 9 : 3));
+      gaze.x += (clamp((aim.x - cx) / (F * 2.2), -1, 1) - gaze.x) * gk;
+      gaze.y += (clamp((aim.y - cy) / (F * 2.2), -1, 1) - gaze.y) * gk;
       drawFace(ctx, {
+        gaze,
         x: cx,
         y: cy + Math.sin(t * 1.2) * 1.5,
         S: F,
@@ -519,7 +524,7 @@ export function makeMother(_w0, _h0) {
 
       // ---------- bàn tay bịt màn hình, rồi tối đen ----------
       if (state === 'cover') {
-        const e = ease(clamp(stateT / 0.9, 0, 1));
+        const e = smoothstep(clamp(stateT / 0.9, 0, 1));
         const size = H * 1.05;
         const q = Math.floor(e * 14) / 14; // trườn từng nấc
         // hai bàn tay vào từ hai bên, dừng ở giữa với các ngón đan vào nhau
