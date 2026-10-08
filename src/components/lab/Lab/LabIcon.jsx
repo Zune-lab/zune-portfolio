@@ -15,41 +15,30 @@ const ICONS = {
       <path className="li-leg li-leg-b" d="M8 17.5L10.5 19.5" />
     </>
   ),
-  // sứa: chuông phập phồng, xúc tu đung đưa
-  jellyfish: (
+  // ký sinh: con sâu ngoằn ngoèo chui vào mũi tên con trỏ
+  parasite: (
     <>
-      <g className="li-bell">
-        <path d="M5.5 11a6.5 6.5 0 0 1 13 0Z" />
-      </g>
-      <path className="li-tent li-tent-a" d="M9 11c-1 2.5 1 4.5 0 7.5" />
-      <path className="li-tent li-tent-b" d="M12 11c1 3-1 5.5 0 9.5" />
-      <path className="li-tent li-tent-a" d="M15 11c-1 2.5 1 4.5 0 7.5" />
+      <path d="M5 3.5v13l3.5-3.2 2.3 5.2 2-.9-2.3-5.1 4.7-.2Z" />
+      <path className="li-worm" d="M12.5 20.5c1.5-3 3.5 1 5-2s3.5 1 4.5-1.5" />
     </>
   ),
-  // hydra: ba cổ, ba đầu ngoáy theo nhịp khác nhau
-  hydra: (
+  // mẹ: khối tóc dài rủ qua khuôn mặt nhợt nhạt, mắt nhắm
+  mother: (
     <>
-      <path d="M4 21a8 4.5 0 0 1 16 0Z" />
-      <g className="li-neck li-neck-a">
-        <path d="M8 17c-2.5-3-3-6-1.5-9.5" />
-        <circle cx="6.3" cy="6" r="1.6" />
-      </g>
-      <g className="li-neck li-neck-b">
-        <path d="M12 16.5V8.5" />
-        <circle cx="12" cy="7" r="1.6" />
-      </g>
-      <g className="li-neck li-neck-c">
-        <path d="M16 17c2.5-3 3-6 1.5-9.5" />
-        <circle cx="17.7" cy="6" r="1.6" />
-      </g>
+      <path d="M3 21C2.5 11 6.5 4 12 4s9.5 7 9 17" />
+      <ellipse cx="12" cy="12.5" rx="4" ry="5.8" />
+      <path className="li-lid" d="M9.3 11q1 1 2 0M12.7 11q1 1 2 0" />
+      <path d="M10.3 15.6h3.4" />
+      <path d="M12 4v6.2M9.4 5.4l.6 4.6M14.6 5.4l-.6 4.6" />
     </>
   ),
-  // giọt nhớt: thân lúc lắc, mắt chớp
-  gloop: (
+  // đồng ca: người cao gầy, cổ dài, hàm trật xuống, hai tay buông dài
+  choir: (
     <>
-      <path className="li-blob" d="M4.5 13.5C4.5 8.5 8 5 12.5 5S20 8.5 19.5 13c-.4 3.8-2.8 6.5-7 6.5S4.5 18 4.5 13.5Z" />
-      <circle className="li-eye" cx="9.5" cy="12" r="1.2" fill="currentColor" />
-      <circle className="li-eye" cx="14.5" cy="11" r="1.2" fill="currentColor" />
+      <ellipse cx="12" cy="6.2" rx="3" ry="4.2" />
+      <path d="M10.6 5.2h.01M13.4 5.2h.01" />
+      <path className="li-jaw-dn" d="M10.4 8.2c.9 1.3 2.3 1.3 3.2 0" />
+      <path d="M12 10.4v2.2M9.2 13l-1.2 8M14.8 13l1.2 8M9.2 13h5.6M8.2 21h7.6" />
     </>
   ),
   // bướm đêm: hai cánh vỗ quanh thân

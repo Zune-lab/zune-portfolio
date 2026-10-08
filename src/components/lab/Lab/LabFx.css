@@ -215,15 +215,13 @@
   .lab-card:is(:hover, :focus-visible) .li-snake-body { stroke-dasharray: 55 200; animation: li-snake-body 1.6s linear infinite; }
   .lab-card:is(:hover, :focus-visible) .li-snake-head { animation: li-snake-head 1.6s linear infinite; }
 
-  .lab-card:is(:hover, :focus-visible) .li-bell { transform-origin: 50% 100%; animation: li-pulse 1.1s ease-in-out infinite; }
-  .lab-card:is(:hover, :focus-visible) .li-tent { transform-origin: 50% 0; animation: li-swing 1.1s ease-in-out infinite alternate; }
-  .lab-card:is(:hover, :focus-visible) .li-tent-b { animation-direction: alternate-reverse; }
 
-  .lab-card:is(:hover, :focus-visible) .li-neck { transform-origin: 50% 100%; animation: li-sway 1.3s ease-in-out infinite alternate; }
-  .lab-card:is(:hover, :focus-visible) .li-neck-b { animation-duration: 1.7s; animation-direction: alternate-reverse; }
-  .lab-card:is(:hover, :focus-visible) .li-neck-c { animation-duration: 1s; }
 
-  .lab-card:is(:hover, :focus-visible) .li-blob { animation: li-wobble 0.9s ease-in-out infinite alternate; }
+
+  .lab-card:is(:hover, :focus-visible) .li-worm { stroke-dasharray: 6 3; animation: li-writhe 0.5s linear infinite; }
+  .lab-card:is(:hover, :focus-visible) .li-lid { transform-origin: 50% 100%; animation: li-wake 2.4s ease-in-out infinite; }
+  .lab-card:is(:hover, :focus-visible) .li-jaw-up { transform-origin: 50% 100%; animation: li-scream-up 0.5s ease-in-out infinite alternate; }
+  .lab-card:is(:hover, :focus-visible) .li-jaw-dn { transform-origin: 50% 0; animation: li-scream-dn 0.5s ease-in-out infinite alternate; }
 
   .lab-card:is(:hover, :focus-visible) .li-wing-l { transform-origin: 100% 50%; animation: li-flap 0.22s ease-in-out infinite alternate; }
   .lab-card:is(:hover, :focus-visible) .li-wing-r { transform-origin: 0 50%; animation: li-flap 0.22s ease-in-out infinite alternate; }
@@ -247,9 +245,10 @@
 @keyframes li-flip { 0%, 100% { transform: scaleX(1); } 35%, 55% { transform: scaleX(0.04); } 80% { transform: scaleX(1); } }
 @keyframes li-nudge { 0%, 100% { transform: translateX(0) rotate(0); } 45% { transform: translateX(-1.2px) rotate(-5deg); } }
 
-@keyframes li-pulse { 0%, 100% { transform: scale(1, 1); } 35% { transform: scale(0.82, 1.12); } }
-@keyframes li-sway { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
-@keyframes li-wobble { from { transform: scale(1.07, 0.93); } to { transform: scale(0.94, 1.06); } }
+@keyframes li-writhe { to { stroke-dashoffset: -18; } }
+@keyframes li-wake { 0%, 55%, 100% { transform: scaleY(1); } 70%, 85% { transform: scaleY(-1.4) translateY(-1px); } }
+@keyframes li-scream-up { to { transform: translateY(-3px) rotate(-3deg); } }
+@keyframes li-scream-dn { to { transform: translateY(3px) rotate(3deg); } }
 @keyframes li-flap { from { transform: scaleX(1); } to { transform: scaleX(0.3); } }
 
 /* rắn trườn: thân là đoạn nét trượt dọc đường đi (pathLength=100), đầu đi theo cùng các góc ngoặt */
