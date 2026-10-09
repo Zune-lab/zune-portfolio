@@ -27,12 +27,12 @@ export const LAB_ITEMS = [
     Component: lazy(() => import('../components/lab/Reptile/Reptile.jsx')),
   },
   {
-    slug: 'parasite',
-    file: 'parasite.js',
-    name: 'Parasite',
+    slug: 'fat-lady',
+    file: 'FatLady.swf',
+    name: 'Fat Lady',
     kind: 'game',
-    blurb: 'Your cursor is a torch. Light slows and burns the worms, the dark lets them run. Click for a flare. Do not let one get under the skin.',
-    Component: lazy(() => import('../components/lab/Parasite/Parasite.jsx')),
+    blurb: 'A Valentine\'s Day Flash classic. Feed apples to a Victorian lady with the kinematic arm. She chews 18 different ways.',
+    Component: lazy(() => import('../components/lab/FatLady/FatLady.jsx')),
   },
   {
     slug: 'mother',

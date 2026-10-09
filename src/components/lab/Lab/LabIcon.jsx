@@ -15,11 +15,12 @@ const ICONS = {
       <path className="li-leg li-leg-b" d="M8 17.5L10.5 19.5" />
     </>
   ),
-  // ký sinh: con sâu ngoằn ngoèo chui vào mũi tên con trỏ
-  parasite: (
+  // quả táo cho bà quý tộc: thân táo có cuống và lá, lắc nhẹ khi hover
+  'fat-lady': (
     <>
-      <path d="M5 3.5v13l3.5-3.2 2.3 5.2 2-.9-2.3-5.1 4.7-.2Z" />
-      <path className="li-worm" d="M12.5 20.5c1.5-3 3.5 1 5-2s3.5 1 4.5-1.5" />
+      <path className="li-apple" d="M12 7.5C9.5 5.5 4.5 7 4.5 12.2c0 4 2.7 8.3 5.2 8.3 1 0 1.5-.5 2.3-.5s1.3.5 2.3.5c2.5 0 5.2-4.3 5.2-8.3C19.5 7 14.5 5.5 12 7.5Z" />
+      <path d="M12 7.5c0-1.8.6-3.2 1.8-4" />
+      <path d="M13.2 5.2c1.4-1.2 3-1.2 4-.8-.4 1.4-2 2.2-4 .8Z" />
     </>
   ),
   // mẹ: khuôn mặt nhợt nhạt (tô đặc cho nổi ở cỡ nhỏ) giữa hai mảng tóc dài rẽ ngôi rủ xuống sàn; mắt nhắm, miệng hé

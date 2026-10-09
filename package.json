@@ -25,9 +25,12 @@
     "build": "vite build --config system/vite.config.js && node system/scripts/spa-404.mjs",
     "preview": "vite preview --config system/vite.config.js",
     "previews": "node system/scripts/make-previews.mjs",
-    "lint": "eslint --config system/eslint.config.js ."
+    "lint": "eslint --config system/eslint.config.js .",
+    "predev": "node system/scripts/copy-ruffle.mjs",
+    "prebuild": "node system/scripts/copy-ruffle.mjs"
   },
   "dependencies": {
+    "@ruffle-rs/ruffle": "0.7.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

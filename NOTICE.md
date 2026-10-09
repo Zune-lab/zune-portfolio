@@ -38,3 +38,8 @@ You may not present this content as your own.
 - Fonts (JetBrains Mono, Inter, Silkscreen) are loaded from Google Fonts under
   the SIL Open Font License.
 - Built with React, Vite and Tailwind CSS (all MIT-licensed).
+
+- **Fat Lady** (`src/components/lab/FatLady/`, lab item `fat-lady`): "I Love You Like A Fat Lady Loves Apples" is a
+  Flash piece by **Geoffrey Lillemon × Random Studio** (2013), not by the author of this site. It is shown here
+  unmodified via [Ruffle](https://ruffle.rs) (MIT / Apache-2.0). All rights to the original work belong to its
+  creators. Archive: https://theuselessweb.com/sites-we-lost/iloveyoulikeafatladylovesapples/
