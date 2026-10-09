@@ -30,8 +30,8 @@ export const LAB_ITEMS = [
     slug: 'parasite',
     file: 'parasite.js',
     name: 'Parasite',
-    kind: 'toy',
-    blurb: 'Thin things crawl toward your cursor. Once they are under the skin, the cursor starts to grow fingers. Shake it out.',
+    kind: 'game',
+    blurb: 'Your cursor is a torch. Light slows and burns the worms, the dark lets them run. Click for a flare. Do not let one get under the skin.',
     Component: lazy(() => import('../components/lab/Parasite/Parasite.jsx')),
   },
   {

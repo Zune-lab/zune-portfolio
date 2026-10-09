@@ -26,9 +26,13 @@ export function makeDread() {
     get ctx() {
       return ctx;
     },
-    // nút nối cho giọng riêng của từng sinh vật (vd Choir)
+    // nút nối cho giọng riêng của từng sinh vật (vd Choir, Mother)
     get out() {
       return n?.out ?? null;
+    },
+    // bus cho tiếng đập to: đi thẳng ra loa qua limiter, không bị master/compressor nền nén xuống
+    get hit() {
+      return n?.hit ?? null;
     },
     start() {
       if (n || failed) {
@@ -149,6 +153,24 @@ export function makeDread() {
           api.thump(0.2 + 0.3 * p.beat, 0.2);
         }
       }
+    },
+    // xèo xèo ngắn: nhiễu cao, cho thứ gì đó đang cháy (Parasite)
+    sizzle(power = 1, dur = 0.12) {
+      if (!n) return;
+      const t = ctx.currentTime;
+      const src = ctx.createBufferSource();
+      src.buffer = n.noiseBuf;
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 3200;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.18 * power, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      src.connect(hp);
+      hp.connect(g);
+      g.connect(n.out);
+      src.start(t, Math.random() * 0.5, dur + 0.05);
     },
     // tiếng "thịch" của tim
     thump(power = 0.6, delay = 0) {

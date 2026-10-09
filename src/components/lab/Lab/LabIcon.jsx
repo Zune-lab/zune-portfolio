@@ -22,14 +22,18 @@ const ICONS = {
       <path className="li-worm" d="M12.5 20.5c1.5-3 3.5 1 5-2s3.5 1 4.5-1.5" />
     </>
   ),
-  // mẹ: khối tóc dài rủ qua khuôn mặt nhợt nhạt, mắt nhắm
+  // mẹ: khuôn mặt nhợt nhạt (tô đặc cho nổi ở cỡ nhỏ) giữa hai mảng tóc dài rẽ ngôi rủ xuống sàn; mắt nhắm, miệng hé
   mother: (
     <>
-      <path d="M3 21C2.5 11 6.5 4 12 4s9.5 7 9 17" />
-      <ellipse cx="12" cy="12.5" rx="4" ry="5.8" />
-      <path className="li-lid" d="M9.3 11q1 1 2 0M12.7 11q1 1 2 0" />
-      <path d="M10.3 15.6h3.4" />
-      <path d="M12 4v6.2M9.4 5.4l.6 4.6M14.6 5.4l-.6 4.6" />
+      <path className="li-hair" d="M3 21c1.6-2.4 2-5.2 2-8.6C5 6.4 7.8 2.5 12 2.5s7 3.9 7 9.9c0 3.4.4 6.2 2 8.6" />
+      <path
+        className="li-hair"
+        d="M12 3.2C9 4.6 7.6 7.6 7.8 11.2M12 3.2c3 1.4 4.4 4.4 4.2 8M7.6 14.5c-.1 2.4-.6 4.4-1.4 6.3M16.4 14.5c.1 2.4.6 4.4 1.4 6.3"
+      />
+      <ellipse cx="12" cy="11.3" rx="3.7" ry="5" fill="currentColor" stroke="none" />
+      <path className="li-lid" d="M9.8 10.6h1.5M12.7 10.6h1.5" stroke="var(--panel)" strokeWidth="1.2" />
+      <path d="M11.1 14h1.8" stroke="var(--panel)" strokeWidth="1.2" />
+      <path d="M2 21.8h20" />
     </>
   ),
   // đồng ca: người cao gầy, cổ dài, hàm trật xuống, hai tay buông dài

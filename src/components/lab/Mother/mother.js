@@ -1,5 +1,6 @@
 import { TAU, clamp, rand, randInt, pick, smoothstep } from '../../../lib/math.js';
 import { makeDread } from '../../../lib/dreadAudio.js';
+import { makeMotherVoice } from './motherVoice.js';
 import { drawFace, drawHand, BLOOD } from '../../../lib/dreadDraw.js';
 
 // Mother: trong bóng tối, một khối tóc đen khổng lồ đang thở. Dưới tóc là một khuôn mặt nhợt nhạt, mắt nhắm, mắt đảo dưới mí như đang mơ.
@@ -18,6 +19,7 @@ const HAND = { edge: '#14100d', flesh: '#a89f90', nail: '#c9c0b0' };
 
 export function makeMother() {
   const dread = makeDread();
+  const voice = makeMotherVoice(dread); // giọng riêng của bà; dread chỉ giữ AudioContext + giữ cho master luôn mở
   let state = 'sleep'; // sleep | awake | cover | black
   let stateT = 0;
   let anger = 0;
@@ -198,7 +200,7 @@ export function makeMother() {
             anger += 0.24;
             flinch = 1;
             lastKind = 'squash';
-            dread.thump(1);
+            voice.squash();
           } else {
             const dx = (mouse.x - cx) / (W * 0.3);
             const dy = (mouse.y - H * 0.75) / (H * 0.55);
@@ -207,7 +209,7 @@ export function makeMother() {
               flinch = 1;
               for (let i = randInt(1, 2); i > 0; i--) addKid(W, H);
               lastKind = 'poke';
-              dread.thump(0.5);
+              voice.poke();
             }
           }
           if (anger >= 1) {
@@ -216,7 +218,7 @@ export function makeMother() {
             stareT = 1.1;
             wakes += 1;
             anger = 1;
-            dread.stab(0.55);
+            voice.wake();
           }
         }
       }
@@ -243,6 +245,7 @@ export function makeMother() {
         if (stareT >= 2.3) {
           state = 'cover';
           stateT = 0;
+          voice.cover();
           eating = null;
         } else if (stareT <= 0 && stateT > 0.6) {
           state = 'sleep';
@@ -255,7 +258,7 @@ export function makeMother() {
         if (stateT > 1.0) {
           state = 'black';
           stateT = 0;
-          dread.stab(1);
+          voice.slap();
         }
       } else if (state === 'black') {
         if (stateT > 4) {
@@ -325,16 +328,8 @@ export function makeMother() {
       remT = Math.max(0, remT - dt);
 
       // âm thanh
-      const aw = state === 'awake' ? 1 : 0;
-      dread.update(
-        {
-          drone: state === 'black' ? 0 : 0.2 + 0.5 * anger + 0.3 * aw,
-          breath: state === 'black' ? 0 : 0.3 + 0.5 * anger,
-          whine: aw * clamp(stareT / 2.3, 0, 1),
-          beat: aw ? 0.6 + 0.4 * clamp(stareT / 2.3, 0, 1) : anger > 0.5 ? anger - 0.4 : 0,
-        },
-        dt,
-      );
+      dread.update({}, dt); // không dùng ù/thở/rít/tim của bộ chung (đó là âm của Choir), chỉ giữ master mở
+      voice.update({ state, anger, kids: kids.length, stare: clamp(stareT / 2.3, 0, 1) }, dt);
 
       // ================= VẼ =================
       ctx.fillStyle = 'rgba(5, 6, 9, 0.94)';
@@ -502,7 +497,7 @@ export function makeMother() {
             anger = Math.max(0, anger - 0.05);
             eating = null;
             eatCool = rand(1.5, 3);
-            dread.thump(0.7);
+            voice.swallow();
           }
         }
         if (eating) {
