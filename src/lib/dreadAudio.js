@@ -1,6 +1,9 @@
 // Âm thanh nền kinh dị dùng chung (WebAudio, không file): tiếng ù trầm lệch pha, hơi thở, tiếng rít cao, nhịp tim, cú stab.
 // Trình duyệt chỉ cho phát tiếng sau một cú bấm của người dùng, nên gọi start() từ lần bấm đầu tiên; chưa start thì mọi hàm là no-op.
 // Tự im khi vòng vẽ ngừng (tab ẩn / cuộn khỏi khung nhìn): update() không được gọi nữa thì watchdog hạ âm lượng về 0.
+// khoảng cách tối thiểu (giây) giữa hai lần đẩy tham số liên tục sang WebAudio; dùng chung cho giọng riêng của từng sinh vật
+export const PARAM_STEP = 0.05;
+
 export function makeDread() {
   let ctx = null;
   let n = null;
@@ -10,6 +13,8 @@ export function makeDread() {
   let beatPhase = 0;
   let hushUntil = 0; // đến thời điểm này (giờ của AudioContext) mọi lớp âm nền bị ép về 0: im chết
   let watchdog = 0; // chỉ chạy sau start(): chưa bật tiếng thì không có gì để canh
+  let ducked = true; // master đang bị hạ về 0 (lúc mới dựng, hoặc watchdog vừa hạ): update() kế tiếp phải nâng lại
+  let paramAt = 0; // lần cuối đẩy tham số nền sang WebAudio (giờ của AudioContext)
 
   const noise = (c, seconds = 2) => {
     const len = Math.floor(c.sampleRate * seconds);
@@ -124,7 +129,10 @@ export function makeDread() {
         n = { master, out, hit, dist, droneG, breathG, whineG, noiseBuf: noise(ctx, 1) };
         ctx.resume?.();
         watchdog = setInterval(() => {
-          if (n && performance.now() - touched > 350) n.master.gain.setTargetAtTime(0, ctx.currentTime, 0.04);
+          if (n && !ducked && performance.now() - touched > 350) {
+            ducked = true;
+            n.master.gain.setTargetAtTime(0, ctx.currentTime, 0.04);
+          }
         }, 150);
       } catch {
         failed = true;
@@ -138,13 +146,21 @@ export function makeDread() {
       if (!n) return;
       touched = performance.now();
       const t = ctx.currentTime;
-      n.master.gain.setTargetAtTime(0.55, t, 0.05);
+      if (ducked) {
+        ducked = false;
+        n.master.gain.setTargetAtTime(0.55, t, 0.05);
+      }
       const k = t < hushUntil ? 0 : 1; // đang im chết: bỏ hết tiếng nền
-      n.droneG.gain.setTargetAtTime((p.drone ?? 0) * 0.3 * k, t, 0.15);
       breathPhase += dt * (1.1 + (p.breath ?? 0) * 1.8) * Math.PI * 2 * 0.5;
-      const br = (p.breath ?? 0) * 0.55 * (0.5 + 0.5 * Math.sin(breathPhase)) * k;
-      n.breathG.gain.setTargetAtTime(br, t, 0.08);
-      n.whineG.gain.setTargetAtTime((p.whine ?? 0) * 0.012 * k, t, 0.2);
+      // mỗi lệnh setTargetAtTime là một sự kiện nằm trong timeline của AudioParam: gọi 60 lần/giây chỉ làm luồng âm thanh nặng thêm
+      // mà tai không phân biệt được, nên đẩy tham số nền ~20 lần/giây (các hằng số thời gian 0.08-0.2s đã làm mượt giữa hai lần)
+      if (t - paramAt >= PARAM_STEP) {
+        paramAt = t;
+        n.droneG.gain.setTargetAtTime((p.drone ?? 0) * 0.3 * k, t, 0.15);
+        const br = (p.breath ?? 0) * 0.55 * (0.5 + 0.5 * Math.sin(breathPhase)) * k;
+        n.breathG.gain.setTargetAtTime(br, t, 0.08);
+        n.whineG.gain.setTargetAtTime((p.whine ?? 0) * 0.012 * k, t, 0.2);
+      }
       if (k && (p.beat ?? 0) > 0.02) {
         beatPhase += dt * (0.9 + p.beat * 1.7);
         if (beatPhase >= 1) {

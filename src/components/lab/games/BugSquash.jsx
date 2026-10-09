@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storageKey } from '../../../config/site.js';
+import { BUG_SQUASH } from '../../../config/games.js';
 import { randInt } from '../../../lib/math.js';
 import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 import useGameRound from './useGameRound.js';
 
-const CELLS = 9;
-const DURATION = 30; // giây
+const { cells: CELLS, durationS: DURATION } = BUG_SQUASH;
 const BEST_KEY = storageKey('bugsquash-best');
 
 // mini game: bug nhô lên ở ô ngẫu nhiên, bấm trúng để diệt, càng về sau càng nhanh
@@ -23,7 +23,7 @@ export default function BugSquash() {
 
   const spawn = useCallback(() => {
     const elapsed = DURATION - timeRef.current;
-    const life = Math.max(450, 900 - elapsed * 15); // bug sống ngắn dần
+    const life = Math.max(BUG_SQUASH.lifeMinMs, BUG_SQUASH.lifeStartMs - elapsed * BUG_SQUASH.lifeShrinkMsPerS); // bug sống ngắn dần
     let next;
     do {
       next = randInt(0, CELLS - 1);
@@ -84,7 +84,7 @@ export default function BugSquash() {
       activeRef.current = -1;
       setActive(-1);
       clearTimeout(spawnTimer.current);
-      spawnTimer.current = window.setTimeout(spawn, 120); // bug kế tiếp nhô lên gần như ngay
+      spawnTimer.current = window.setTimeout(spawn, BUG_SQUASH.respawnAfterHitMs); // bug kế tiếp nhô lên gần như ngay
     } else {
       setMisses((m) => m + 1);
     }
@@ -137,7 +137,7 @@ export default function BugSquash() {
             {status === 'idle' ? (
               <>
                 <p className="text-ink">squash the bugs before time runs out.</p>
-                <p className="text-dim">30 seconds. they get faster.</p>
+                <p className="text-dim">{DURATION} seconds. they get faster.</p>
               </>
             ) : (
               <>

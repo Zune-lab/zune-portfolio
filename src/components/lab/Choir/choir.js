@@ -1,6 +1,7 @@
 import { TAU, clamp, pick, rand, randInt, smoothstep } from '../../../lib/math.js';
-import { makeDread } from '../../../lib/dreadAudio.js';
+import { makeDread, PARAM_STEP } from '../../../lib/dreadAudio.js';
 import { drawFace } from '../../../lib/dreadDraw.js';
+import { CHOIR } from '../../../config/creatures.js';
 
 // Choir: một dàn đồng ca đứng trong bóng tối, mặt hướng thẳng ra màn hình, mắt không bao giờ rời bạn (đồng tử luôn ở giữa, không chớp).
 // Người cao gầy, tay dài quá gối, cổ dài, đầu nghiêng lệch theo những cú giật (không bao giờ mượt). Chỉ có cái hàm là cử động trơn tru:
@@ -12,17 +13,17 @@ import { drawFace } from '../../../lib/dreadDraw.js';
 // Tư liệu thiết kế: bất đối xứng, giống người nhưng sai một chút, mặt trên đứng yên, cơ thể giật theo nhịp thấp (stop-motion) trong lúc hàm vẫn mượt,
 // bóng tối che bớt, và ánh nhìn thẳng ra camera (phá bức tường thứ tư).
 
-const MAX = 14;
-const CHORD = [0, 7, 12, 15, 19, 24, 27, 31, 36];
-const TILTS = [-0.12, 0, 0.1, 0.28, -0.3, 0.55, -0.6, 1.0, -1.0];
-const ROBE = '#0a0b0e';
-const PALE = '#b9b2a2';
-const EDGE = 'rgba(215,210,195,0.22)';
+const MAX = CHOIR.maxSingers;
+const CHORD = CHOIR.chord;
+const TILTS = CHOIR.tilts;
+const { robe: ROBE, skin: PALE, edge: EDGE, text: TEXT } = CHOIR.colors;
 
 
 export function makeChoir() {
   const dread = makeDread();
   const figs = [];
+  const order = []; // figs xếp xa -> gần để vẽ
+  const byDepth = (a, b) => a.z - b.z;
   let seen = 0;
   let Es = 0; // năng lượng "chỉ huy" 0..1
   let sil = 0; // số giây im lặng liên tục
@@ -38,6 +39,7 @@ export function makeChoir() {
   let prevAy = 0;
   let lastText = '';
   let panic = 0;
+  let voiceAt = 0; // lần cuối đẩy tham số giọng sang WebAudio
 
   const addFig = (z) => {
     figs.push({
@@ -91,6 +93,19 @@ export function makeChoir() {
     osc.start();
     osc2.start();
     f.voice = { osc, osc2, f1, f2, out };
+  };
+  // dừng và ngắt giọng của một người; gọi trước khi bỏ người đó khỏi dàn
+  const killVoice = (f) => {
+    const v = f.voice;
+    if (!v) return;
+    f.voice = null;
+    try {
+      v.osc.stop();
+      v.osc2.stop();
+      v.out.disconnect();
+    } catch {
+      /* AudioContext đã đóng */
+    }
   };
   const semis = (f, unease) => {
     const base = CHORD[f.idx % CHORD.length] + (f.idx >= CHORD.length ? 12 : 0);
@@ -285,6 +300,8 @@ export function makeChoir() {
       const unease = clamp((figs.length - 7) / 7, 0, 1) * 0.6 + maxZ * 0.6;
       const ctxA = dread.on ? dread.ctx : null;
       const now = ctxA ? ctxA.currentTime : 0;
+      const pushVoice = ctxA && now - voiceAt >= PARAM_STEP; // 5 lệnh AudioParam x số người x 60 khung/giây là quá dày
+      if (pushVoice) voiceAt = now;
       whisperT -= dt;
       for (const f of figs) {
         // đầu: đứng thẳng đồng loạt khi chúng đang tiến lên; còn lại nghiêng lệch, đổi bằng cú giật
@@ -308,7 +325,7 @@ export function makeChoir() {
         if (state !== 'play') tg = 0;
         f.open += (tg - f.open) * Math.min(1, (tg > f.open ? 12 : 5) * dt);
 
-        if (ctxA && dread.out) {
+        if (pushVoice && dread.out) {
           if (!f.voice) makeVoice(f);
           const v = f.voice;
           const st = semis(f, unease) + (0.5 - aim.y / H) * 4 * prox + hit * 3;
@@ -355,7 +372,9 @@ export function makeChoir() {
       }
       ctx.save();
       ctx.translate(sx, sy);
-      const order = [...figs].sort((a, b) => a.z - b.z);
+      order.length = 0;
+      for (const f of figs) order.push(f);
+      order.sort(byDepth); // dùng lại mảng cũ, không tạo mảng mới mỗi khung
       let heads = null;
       for (const f of order) {
         const r = drawFig(ctx, f, W, H, t, qt);
@@ -418,9 +437,9 @@ export function makeChoir() {
             arrivee.said = true;
             dread.whisper(0.3);
           }
-          ctx.font = '14px ui-monospace, monospace';
+          ctx.font = CHOIR.font;
           ctx.textAlign = 'center';
-          ctx.fillStyle = '#ebe4d2';
+          ctx.fillStyle = TEXT;
           ctx.globalAlpha = clamp((stateT - 0.8) / 0.5, 0, 1);
           ctx.fillText('you stopped.', W / 2, H / 2);
           ctx.globalAlpha = 1;
@@ -435,6 +454,7 @@ export function makeChoir() {
           sil = 0;
           Es = 0;
           const keep = figs.length < MAX ? figs.length + 1 : figs.length;
+          for (const f of figs) killVoice(f);
           figs.length = 0;
           for (let i = 0; i < keep; i++) addFig(rand(0.03, 0.46));
           lastText = cycles > 1 ? `you stopped. again. (${cycles}x)` : 'you stopped.';

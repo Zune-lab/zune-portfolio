@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import useBest from '../../../lib/useBest.js';
 import { storageKey } from '../../../config/site.js';
+import { MEMORY } from '../../../config/games.js';
 import { shuffled } from '../../../lib/math.js';
 import { GameFrame, GameOverlay } from './GameShell.jsx';
 
-const SYMBOLS = ['{ }', '</>', '[ ]', '=>', '&&', '#!'];
+const SYMBOLS = MEMORY.symbols;
 const BEST_KEY = storageKey('memory-best'); // kỷ lục = số lượt ít nhất
 
 const shuffle = () => shuffled([...SYMBOLS, ...SYMBOLS].map((sym, id) => ({ id, sym })));
@@ -48,7 +49,7 @@ export default function MemoryMatch() {
       setOpen([]);
       if (nd.length === SYMBOLS.length) record(m);
     } else {
-      timer.current = window.setTimeout(() => setOpen([]), 750);
+      timer.current = window.setTimeout(() => setOpen([]), MEMORY.mismatchMs);
     }
   };
 

@@ -62,16 +62,6 @@
   }
 }
 
-/* ẩn thanh cuộn ngang cho hàng nav khi nội dung dài hơn chỗ trống —
-   vẫn cuộn được bằng chuột/trackpad, chỉ là không hiện thanh cuộn cho gọn */
-.nav-scroll {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.nav-scroll::-webkit-scrollbar {
-  display: none;
-}
-
 /* chấm báo còn link ẩn bên phải khi hàng nav bị tràn, cuộn hết thì tự ẩn đi */
 .nav-more-dot {
   position: absolute;
@@ -164,7 +154,6 @@
   background: var(--panel);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  scrollbar-width: thin;
   animation: sub-menu-in 0.48s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .sub-menu-item {

@@ -223,7 +223,7 @@ function LabJump({ item, onNavigate }) {
               autoComplete="off"
             />
           </label>
-          <div className="lab-jump-list lab-scroll">
+          <div className="lab-jump-list scroll-thin">
             {list.map((i) => (
               <Link key={i.slug} slug={i.slug} onNavigate={go} className="lab-jump-row" aria-current={i === item ? 'page' : undefined}>
                 <LabIcon name={i.slug} size={18} />

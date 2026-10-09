@@ -489,7 +489,7 @@ export default function BannerMaker() {
             ))}
           </div>
 
-          <div className="banner-body h-[392px] overflow-y-auto lab-scroll pr-1">
+          <div className="banner-body h-[392px] overflow-y-auto scroll-thin pr-1">
             {tab === 'design' && (
               <div role="tabpanel" id="banner-panel-design" aria-labelledby="banner-tab-design" className="flex flex-col gap-4">
                 {/* danh sách lớp, lớp trên cùng hiện trước; lớp mới thêm sẽ nằm ngay dưới nút + layer */}
@@ -652,7 +652,7 @@ export default function BannerMaker() {
 
             {tab === 'code' && (
               <div role="tabpanel" id="banner-panel-code" aria-labelledby="banner-tab-code" className="relative h-full">
-                <pre className="h-full overflow-auto lab-scroll border border-line rounded-lg px-4 py-3 font-mono text-[12.5px] text-ink" style={{ background: 'var(--panel)' }}>
+                <pre className="h-full overflow-auto scroll-thin border border-line rounded-lg px-4 py-3 font-mono text-[12.5px] text-ink" style={{ background: 'var(--panel)' }}>
                   {code}
                 </pre>
                 <button

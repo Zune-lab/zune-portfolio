@@ -3,6 +3,7 @@ import { makeDread } from '../../../lib/dreadAudio.js';
 import { drawFinger, FLESH, FLESH_D, BLOOD } from '../../../lib/dreadDraw.js';
 import { readBest, saveBest } from '../../../lib/storage.js';
 import { storageKey } from '../../../config/site.js';
+import { PARASITE } from '../../../config/creatures.js';
 
 // Parasite: con trỏ trong khung là con trỏ GIẢ do canvas tự vẽ (con trỏ thật bị ẩn) và cũng là CÂY ĐÈN PIN của bạn.
 //   ngoài vòng sáng  tối đen: giun gần như vô hình, bò nhanh, đứng khựng rồi phóng từng đoạn
@@ -18,7 +19,7 @@ import { storageKey } from '../../../config/site.js';
 // Tư liệu thiết kế: nỗi sợ nằm ở thứ mình không nhìn thấy (đèn pin hẹp, tối đen xung quanh); cơ thể người sai chỗ đáng sợ hơn máu me.
 
 const BEST_KEY = storageKey('parasite-best');
-const SEG = 5;
+const SEG = PARASITE.segPx;
 const V = [
   [0, 0],
   [0, 17],
@@ -30,20 +31,13 @@ const V = [
 ]; // mũi tên con trỏ (toạ độ cục bộ, gốc ở đầu nhọn)
 const CEN = [5.2, 11.4];
 
-// `len` = số đốt, `w` = độ dày, `burn` = giây ánh sáng đầy đủ để đốt chết, `speed` = nhân tốc độ bò
-const KINDS = {
-  worm: { len: 46, w: 1, burn: 1.5, speed: 1, dash: true },
-  thick: { len: 36, w: 1.9, burn: 3.6, speed: 0.62, dash: false },
-  needle: { len: 56, w: 0.7, burn: 0.8, speed: 1.7, dash: true },
-};
-
-const PALE = '#d8d2c4'; // thân giun
-const DARK = '#06070a'; // nền: luôn tối, bất kể theme (đèn pin chỉ có nghĩa trong bóng tối)
-const CURSOR = { panel: '#ecebe6', ink: '#0a0a0c' }; // con trỏ kiểu cổ điển: trắng viền đen
-const LIGHT_R = 80; // bán kính vòng sáng
-const FLARE_T = 0.38; // giây flare kéo dài
-const FLARE_CD = 5; // giây hồi flare
-const FONT = '12px ui-monospace, SFMono-Regular, Menlo, monospace';
+const KINDS = PARASITE.kinds;
+const { worm: PALE, dark: DARK } = PARASITE.colors;
+const CURSOR = { panel: PARASITE.colors.cursorPanel, ink: PARASITE.colors.cursorInk }; // con trỏ kiểu cổ điển: trắng viền đen
+const LIGHT_R = PARASITE.lightRadius;
+const FLARE_T = PARASITE.flareSeconds;
+const FLARE_CD = PARASITE.flareCooldownS;
+const FONT = PARASITE.fonts.hud;
 
 export function makeParasite(w0, h0) {
   const dread = makeDread();
@@ -73,7 +67,7 @@ export function makeParasite(w0, h0) {
     const heading = Math.atan2(H / 2 - y, W / 2 - x) + rand(-0.6, 0.6);
     const nodes = [];
     for (let k = 0; k < n; k++) nodes.push({ x: x - Math.cos(heading) * k * SEG, y: y - Math.sin(heading) * k * SEG });
-    return { kind, nodes, heading, mode: 'creep', modeT: rand(0.4, 1.2), state: 'hunt', vis: n, seed: rand(0, TAU), vx: 0, vy: 0, burrowT: 0, burn: 0, lit: false };
+    return { kind, nodes, heading, mode: 'creep', modeT: rand(0.4, 1.2), state: 'hunt', vis: n, seed: rand(0, TAU), vx: 0, vy: 0, burrowT: 0, burn: 0, lit: false, px: new Float32Array(n), py: new Float32Array(n), ptsT: -1, ptsN: 0 };
   };
 
   // loại giun theo đợt: đợt 2 bắt đầu có giun kim, đợt 3 bắt đầu có giun dày
@@ -194,66 +188,78 @@ export function makeParasite(w0, h0) {
     return false;
   };
 
-  const wormPath = (ctx, pts, from, to) => {
+  // đường cong mượt qua các đốt [from, to) của bộ đệm toạ độ (px, py)
+  const wormPath = (ctx, px, py, from, to) => {
     ctx.beginPath();
-    ctx.moveTo(pts[from].x, pts[from].y);
+    ctx.moveTo(px[from], py[from]);
     for (let i = from + 1; i < to; i++) {
-      const mx = (pts[i].x + pts[i - 1].x) / 2;
-      const my = (pts[i].y + pts[i - 1].y) / 2;
-      ctx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, mx, my);
+      ctx.quadraticCurveTo(px[i - 1], py[i - 1], (px[i] + px[i - 1]) / 2, (py[i] + py[i - 1]) / 2);
     }
-    ctx.lineTo(pts[to - 1].x, pts[to - 1].y);
+    ctx.lineTo(px[to - 1], py[to - 1]);
+  };
+
+  // tính vị trí gợn sóng của từng đốt vào wm.px / wm.py. Mỗi khung giun được vẽ 2 lần (nền mờ + trong vòng sáng)
+  // với đúng cùng toạ độ, nên chỉ tính 1 lần cho mỗi (t, count)
+  const ripple = (wm, t, count) => {
+    if (wm.ptsT === t && wm.ptsN === count) return;
+    wm.ptsT = t;
+    wm.ptsN = count;
+    // thân gợn sóng lan dọc thân; đứng khựng thì gần như không gợn, đang bị đốt thì quằn quại
+    const amp = wm.lit ? 3.4 : wm.mode === 'freeze' && wm.state === 'hunt' ? 0.3 : 1.7;
+    const speed = wm.lit ? 14 : 6;
+    const { nodes, px, py } = wm;
+    for (let i = 0; i < count; i++) {
+      const n = nodes[i];
+      const p = nodes[i > 0 ? i - 1 : 0];
+      const q = nodes[i < count - 1 ? i + 1 : count - 1];
+      const a = Math.atan2(p.y - q.y, p.x - q.x);
+      const o = Math.sin(t * speed - i * 0.45 + wm.seed) * amp * (0.35 + 0.65 * (i < 8 ? i / 8 : 1));
+      px[i] = n.x - Math.sin(a) * o;
+      py[i] = n.y + Math.cos(a) * o;
+    }
   };
 
   // màu thân: nhợt nhạt, ngả cam khi đang cháy
   const wormInk = (burn) => `rgb(${Math.round(216 + 39 * burn)},${Math.round(210 - 95 * burn)},${Math.round(196 - 150 * burn)})`;
 
   const drawWorm = (ctx, wm, t, count) => {
+    if (count < 3) return;
     const K = KINDS[wm.kind];
-    // thân gợn sóng lan dọc thân; đứng khựng thì gần như không gợn, đang bị đốt thì quằn quại
-    const amp = wm.lit ? 3.4 : wm.mode === 'freeze' && wm.state === 'hunt' ? 0.3 : 1.7;
-    const pts = [];
-    for (let i = 0; i < count; i++) {
-      const n = wm.nodes[i];
-      const p = wm.nodes[Math.max(0, i - 1)];
-      const q = wm.nodes[Math.min(count - 1, i + 1)];
-      const a = Math.atan2(p.y - q.y, p.x - q.x);
-      const o = Math.sin(t * (wm.lit ? 14 : 6) - i * 0.45 + wm.seed) * amp * (0.35 + 0.65 * Math.min(1, i / 8));
-      pts.push({ x: n.x - Math.sin(a) * o, y: n.y + Math.cos(a) * o });
-    }
-    if (pts.length < 3) return;
+    ripple(wm, t, count);
+    const { px, py } = wm;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     const a = Math.floor(count / 3);
     const b = Math.floor((count * 2) / 3);
     const ink = wormInk(wm.burn);
+    const alpha = ctx.globalAlpha;
+    // 3 đoạn dày -> mỏng dần về đuôi; mỗi đoạn dựng đường 1 lần, stroke 2 lần (viền đen rồi ruột)
     for (const [u, v, w] of [
       [0, a + 1, 2.6 * K.w],
       [a, b + 1, 2.0 * K.w],
       [b, count, 1.3 * K.w],
     ]) {
       if (v - u < 2) continue;
+      wormPath(ctx, px, py, u, v);
       ctx.strokeStyle = 'rgba(0,0,0,0.75)';
       ctx.lineWidth = w + 1.4;
-      wormPath(ctx, pts, u, v);
       ctx.stroke();
       ctx.strokeStyle = ink;
-      ctx.globalAlpha *= 0.92;
+      ctx.globalAlpha = alpha * 0.92;
       ctx.lineWidth = w;
-      wormPath(ctx, pts, u, v);
       ctx.stroke();
-      ctx.globalAlpha /= 0.92;
+      ctx.globalAlpha = alpha;
     }
     // đầu: lỗ miệng tròn nhỏ có vòng răng li ti
-    const h = pts[0];
+    const hr = Math.max(0.8, K.w * 0.8);
     ctx.fillStyle = '#120707';
     ctx.beginPath();
-    ctx.arc(h.x, h.y, 2.4 * Math.max(0.8, K.w * 0.8), 0, TAU);
+    ctx.arc(px[0], py[0], 2.4 * hr, 0, TAU);
     ctx.fill();
     ctx.strokeStyle = ink;
     ctx.lineWidth = 0.7;
     ctx.beginPath();
-    ctx.arc(h.x, h.y, 3.1 * Math.max(0.8, K.w * 0.8), 0, TAU);
+    ctx.arc(px[0], py[0], 3.1 * hr, 0, TAU);
     ctx.stroke();
   };
 
@@ -854,7 +860,7 @@ export function makeParasite(w0, h0) {
       ctx.fillText(flareCd > 0 ? `flare ${Math.ceil(flareCd)}s` : 'click · flare', W - 12, 10);
       if (bannerT > 0 && play) {
         ctx.textAlign = 'center';
-        ctx.font = `600 18px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        ctx.font = PARASITE.fonts.banner;
         ctx.fillStyle = `rgba(235,230,220,${clamp(bannerT / 0.6, 0, 1) * clamp((2 - bannerT) / 0.3, 0, 1)})`;
         ctx.fillText(`WAVE ${wave}`, W / 2, H * 0.14);
       }
@@ -867,7 +873,7 @@ export function makeParasite(w0, h0) {
         if (lostT > 1.1) {
           const ta = clamp((lostT - 1.1) / 0.6, 0, 1);
           ctx.textAlign = 'center';
-          ctx.font = `600 22px ui-monospace, SFMono-Regular, Menlo, monospace`;
+          ctx.font = PARASITE.fonts.lose;
           ctx.fillStyle = `rgba(214,92,84,${ta})`;
           ctx.fillText('it has your hand.', W / 2, H * 0.36);
           ctx.font = FONT;

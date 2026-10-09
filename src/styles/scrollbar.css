@@ -1,0 +1,113 @@
+/* =====================================================================================
+   THANH CUỘN: MỌI KIỂU THANH CUỘN CỦA TRANG NẰM Ở ĐÂY. Muốn đổi dáng / màu / độ dày, sửa token ngay dưới.
+
+   Cách dùng (thêm class vào phần tử có overflow: auto | scroll):
+     scroll-thin    mỏng, rãnh trong suốt, thumb xám theo theme   (danh sách lab, banner-maker, project list)
+     scroll-amber   như scroll-thin nhưng thumb amber              (terminal, menu con của navbar)
+     scroll-hidden  ẩn thanh cuộn, vẫn cuộn được bằng chuột / chạm (hàng nav, hàng cartridge)
+   Thanh cuộn toàn trang (không cần class) cấu hình ở cuối file.
+
+   Chrome / Edge / Safari dùng ::-webkit-scrollbar (vẽ được dáng bo tròn, không có mũi tên 2 đầu).
+   Firefox và trình duyệt không có ::-webkit-scrollbar dùng scrollbar-width / scrollbar-color trong khối @supports cuối file.
+   KHÔNG đặt scrollbar-width / scrollbar-color ngoài khối @supports: Chrome 121+ thấy chúng là bỏ qua hết ::-webkit-scrollbar
+   và quay về thanh mặc định có mũi tên (chính là lỗi từng làm menu "ls lab/" xấu).
+   ===================================================================================== */
+
+:root {
+  --sb-size: 10px; /* bề dày cả thanh (gồm khoảng trong suốt quanh thumb) */
+  --sb-gap: 2px; /* khoảng trong suốt quanh thumb: thumb nhìn mảnh hơn thanh */
+  --sb-min-thumb: 36px; /* thumb không nhỏ hơn mức này dù nội dung rất dài */
+  --sb-track: transparent;
+  --sb-thumb: color-mix(in srgb, var(--text-dim) 40%, transparent);
+  --sb-thumb-hover: color-mix(in srgb, var(--text-dim) 70%, transparent);
+}
+
+/* ---- scroll-thin / scroll-amber ---- */
+.scroll-amber {
+  --sb-thumb: var(--amber-dim);
+  --sb-thumb-hover: var(--amber);
+}
+
+.scroll-thin::-webkit-scrollbar,
+.scroll-amber::-webkit-scrollbar {
+  width: var(--sb-size);
+  height: var(--sb-size);
+}
+.scroll-thin::-webkit-scrollbar-track,
+.scroll-amber::-webkit-scrollbar-track {
+  background: var(--sb-track);
+}
+.scroll-thin::-webkit-scrollbar-button,
+.scroll-amber::-webkit-scrollbar-button {
+  display: none; /* bỏ mũi tên 2 đầu */
+}
+.scroll-thin::-webkit-scrollbar-corner,
+.scroll-amber::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.scroll-thin::-webkit-scrollbar-thumb,
+.scroll-amber::-webkit-scrollbar-thumb {
+  min-height: var(--sb-min-thumb);
+  min-width: var(--sb-min-thumb);
+  border: var(--sb-gap) solid transparent;
+  border-radius: 999px;
+  background-color: var(--sb-thumb);
+  background-clip: padding-box; /* viền trong suốt chừa khoảng hở quanh thumb */
+}
+.scroll-thin::-webkit-scrollbar-thumb:hover,
+.scroll-thin::-webkit-scrollbar-thumb:active,
+.scroll-amber::-webkit-scrollbar-thumb:hover,
+.scroll-amber::-webkit-scrollbar-thumb:active {
+  background-color: var(--sb-thumb-hover);
+}
+
+/* ---- scroll-hidden ---- */
+.scroll-hidden {
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- thanh cuộn toàn trang: rãnh chấm bi cùng nhịp với lưới nền, thumb amber ---- */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-left: 1px solid var(--line);
+}
+::-webkit-scrollbar-thumb {
+  min-height: 48px;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-color: var(--amber-dim);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--amber);
+}
+::-webkit-scrollbar-corner {
+  background: var(--bg);
+}
+
+/* ---- trình duyệt không có ::-webkit-scrollbar (Firefox...) ---- */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--amber-dim) var(--bg);
+  }
+  .scroll-thin {
+    scrollbar-color: var(--sb-thumb) transparent;
+  }
+  .scroll-amber {
+    scrollbar-color: var(--sb-thumb) transparent;
+  }
+  .scroll-hidden {
+    scrollbar-width: none;
+  }
+}

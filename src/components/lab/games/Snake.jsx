@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { storageKey } from '../../../config/site.js';
+import { SNAKE } from '../../../config/games.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { cssVar } from '../../../lib/canvas.js';
 import { getDpr } from '../../../lib/env.js';
@@ -7,11 +8,19 @@ import { pick, TAU } from '../../../lib/math.js';
 import { gameAction, GameFrame, GameOverlay } from './GameShell.jsx';
 import useGameRound from './useGameRound.js';
 
-const N = 18; // lưới N x N
-const CELL = 20;
+const { grid: N, cell: CELL } = SNAKE;
 const SIZE = N * CELL;
 const BEST_KEY = storageKey('snake-best');
 const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ trên màn retina
+const readColors = () => {
+  const css = getComputedStyle(document.documentElement);
+  return {
+    panel: cssVar(css, '--panel', '#10141b'),
+    line: cssVar(css, '--line', '#1d232c'),
+    amber: cssVar(css, '--amber', '#ffc857'),
+    green: cssVar(css, '--green', '#7ee081'),
+  };
+};
 
 const DIRS = {
   up: { x: 0, y: -1 },
@@ -38,7 +47,8 @@ const placeFood = (snake) => {
 };
 
 const fresh = () => {
-  const snake = [{ x: 5, y: 9 }, { x: 4, y: 9 }, { x: 3, y: 9 }];
+  const { x, y, length } = SNAKE.start;
+  const snake = Array.from({ length }, (_, i) => ({ x: x - i, y }));
   return { snake, dir: 'right', queue: [], food: placeFood(snake) };
 };
 
@@ -53,21 +63,20 @@ export default function Snake() {
   if (game.current === null) game.current = fresh();
   const scoreRef = useRef(0);
   const swipe = useRef(null);
+  const colors = useRef(null);
 
   const draw = () => {
     const canvas = canvasRef.current;
     const ctx = canvas && canvas.getContext('2d');
     if (!ctx) return;
-    // đọc màu từ token theme mỗi lần vẽ -> đổi sáng/tối là ăn theo
-    const css = getComputedStyle(document.documentElement);
-    const v = (name, fallback) => cssVar(css, name, fallback);
+    const c = (colors.current ??= readColors()); // đổi sáng/tối thì onThemeChange đọc lại (bên dưới)
     const g = game.current;
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); // toạ độ vẽ vẫn tính theo SIZE x SIZE
-    ctx.fillStyle = v('--panel', '#10141b');
+    ctx.fillStyle = c.panel;
     ctx.fillRect(0, 0, SIZE, SIZE);
 
-    ctx.fillStyle = v('--line', '#1d232c');
+    ctx.fillStyle = c.line;
     for (let x = 0; x < N; x++) {
       for (let y = 0; y < N; y++) {
         if ((x + y) % 2 === 0) ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
@@ -75,13 +84,13 @@ export default function Snake() {
     }
 
     if (g.food) {
-      ctx.fillStyle = v('--amber', '#ffc857');
+      ctx.fillStyle = c.amber;
       ctx.beginPath();
       ctx.arc(g.food.x * CELL + CELL / 2, g.food.y * CELL + CELL / 2, CELL / 2 - 3, 0, TAU);
       ctx.fill();
     }
 
-    ctx.fillStyle = v('--green', '#7ee081');
+    ctx.fillStyle = c.green;
     g.snake.forEach((s, i) => {
       ctx.globalAlpha = i === 0 ? 1 : 0.8;
       ctx.fillRect(s.x * CELL + 1, s.y * CELL + 1, CELL - 2, CELL - 2);
@@ -92,7 +101,7 @@ export default function Snake() {
   const turn = (name) => {
     const g = game.current;
     const last = g.queue.length ? g.queue[g.queue.length - 1] : g.dir;
-    if (name === last || name === OPPOSITE[last] || g.queue.length >= 2) return;
+    if (name === last || name === OPPOSITE[last] || g.queue.length >= SNAKE.maxQueuedTurns) return;
     g.queue.push(name);
   };
 
@@ -134,7 +143,7 @@ export default function Snake() {
     draw();
     if (status !== 'playing') return;
     let timer;
-    const delay = () => Math.max(60, 140 - scoreRef.current * 3);
+    const delay = () => Math.max(SNAKE.minStepMs, SNAKE.stepMs - scoreRef.current * SNAKE.speedUpMs);
     const step = () => {
       const alive = tick();
       draw();
@@ -144,7 +153,7 @@ export default function Snake() {
       }
       timer = window.setTimeout(step, delay());
     };
-    timer = window.setTimeout(step, 140);
+    timer = window.setTimeout(step, SNAKE.firstStepMs);
     // chuyển tab thì tạm dừng, quay lại chạy tiếp (không để rắn tự chết khi không ai nhìn)
     const onVisibility = () => {
       clearTimeout(timer);
@@ -159,7 +168,14 @@ export default function Snake() {
 
   // đổi sáng/tối -> vẽ lại canvas MỖI KHUNG trong lúc biến màu đang chuyển (lib/themeSync.js), dù game idle hay đã over.
   // Trước đây chỉ vẽ 1 lần lúc data-theme vừa đổi, khi biến màu còn giá trị cũ -> canvas kẹt màu cũ.
-  useEffect(() => onThemeChange(() => draw()), []);
+  useEffect(
+    () =>
+      onThemeChange(() => {
+        colors.current = readColors();
+        draw();
+      }),
+    [],
+  );
 
   const onKeyDown = (e) => {
     const name = KEYS[e.key.toLowerCase()];
@@ -178,7 +194,7 @@ export default function Snake() {
     if (!s || status !== 'playing') return;
     const dx = e.clientX - s.x;
     const dy = e.clientY - s.y;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SNAKE.swipeMinPx) return;
     turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up');
   };
 

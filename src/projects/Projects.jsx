@@ -485,7 +485,7 @@ export default function Projects() {
                 aria-hidden="true"
               />
             </div>
-            <div ref={lsRef} role="tablist" aria-label="Project list" className="proj-ls" data-thumbs={thumbs || undefined}>
+            <div ref={lsRef} role="tablist" aria-label="Project list" className="proj-ls scroll-thin" data-thumbs={thumbs || undefined}>
               {list.map(cart)}
             </div>
           </>
@@ -494,7 +494,7 @@ export default function Projects() {
             <button type="button" className="proj-nudge l" onClick={() => nudge(-1)} aria-label="Scroll left">
               <ArrowIcon />
             </button>
-            <div ref={rail} role="tablist" aria-label="Project cartridges" className="proj-cartridges">
+            <div ref={rail} role="tablist" aria-label="Project cartridges" className="proj-cartridges scroll-hidden">
               {list.map(cart)}
             </div>
             <button type="button" className="proj-nudge r" onClick={() => nudge(1)} aria-label="Scroll right">

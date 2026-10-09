@@ -168,7 +168,7 @@ function SubMenu({ label, links, onSelect }) {
             ref={menuRef}
             role="menu"
             onKeyDown={onMenuKeyDown}
-            className="sub-menu"
+            className="sub-menu scroll-amber"
             style={{ top: pos.top, left: pos.left, width: MENU_W }}
             onPointerEnter={mouseOnly(keepOpen)}
             onPointerLeave={mouseOnly(hideSoon)}
@@ -416,7 +416,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             <div
               ref={mainRowRef}
               style={fadeRight(!inTab && mainHasMore)}
-              className={`nav-scroll flex items-center gap-1.5 w-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
+              className={`scroll-hidden flex items-center gap-1.5 w-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-0 -translate-x-3 pointer-events-none'
                   : 'opacity-100 translate-x-0 delay-150'
@@ -438,7 +438,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
             <div
               ref={subRowRef}
               style={fadeRight(inTab && subHasMore)}
-              className={`nav-scroll flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
+              className={`scroll-hidden flex items-center gap-1.5 absolute left-0 right-4 top-0 h-full overflow-x-auto transition-[opacity,transform] duration-300 ease-in-out ${
                 inTab
                   ? 'opacity-100 translate-x-0 delay-150'
                   : 'opacity-0 translate-x-3 pointer-events-none'

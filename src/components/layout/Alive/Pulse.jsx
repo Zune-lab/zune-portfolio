@@ -80,11 +80,16 @@ export default function Pulse({ napping, panic }) {
     };
     resize();
 
-    // tiến độ cuộn 0..1 (trang quá ngắn thì coi như 0)
-    const scrollProgress = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      return max > 40 ? clamp(window.scrollY / max, 0, 1) : 0;
+    // đoạn có thể cuộn (px). Đo bằng scrollHeight là thao tác ép trình duyệt tính lại bố cục, nên KHÔNG đọc mỗi khung:
+    // đo lại khi trang đổi kích thước (ResizeObserver bên dưới)
+    let maxScroll = 0;
+    const measure = () => {
+      maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     };
+    measure();
+
+    // tiến độ cuộn 0..1 (trang quá ngắn thì coi như 0)
+    const scrollProgress = () => (maxScroll > 40 ? clamp(window.scrollY / maxScroll, 0, 1) : 0);
 
     const draw = (t, dt) => {
       const k = dt / 16.667;
@@ -119,7 +124,7 @@ export default function Pulse({ napping, panic }) {
       ctx.lineWidth = 1.6;
       ctx.beginPath();
       let yHead = BASE;
-      for (let x = 0; x <= headX; x += 2) {
+      for (let x = 0; x <= headX; x += 3) {
         const u = ph - (headX - x) / L; // nhịp sinh ra ở đầu vạch rồi trôi dần về bên trái
         const y = BASE - beat(u - Math.floor(u)) * amp * PEAK;
         if (x === 0) ctx.moveTo(x, y);
@@ -185,16 +190,21 @@ export default function Pulse({ napping, panic }) {
     };
 
     const onResize = () => {
+      measure();
       resize();
       if (rm) drawStatic();
     };
     window.addEventListener('resize', onResize);
-    let ro = null;
+    // trang đổi chiều cao (nội dung lazy-load, đổi route, mở/đóng mục): đo lại đoạn cuộn
+    const ro = new ResizeObserver(() => {
+      measure();
+      if (rm) drawStatic();
+    });
+    ro.observe(document.body);
+    ro.observe(document.documentElement);
     if (rm) {
       drawStatic();
       window.addEventListener('scroll', drawStatic, { passive: true });
-      ro = new ResizeObserver(drawStatic); // trang đổi chiều cao thì vẽ lại
-      ro.observe(document.body);
     } else {
       const tick = (t) => {
         const dt = last ? Math.min(50, t - last) : 16.667;
@@ -215,7 +225,7 @@ export default function Pulse({ napping, panic }) {
     return () => {
       fl?.stop();
       offTheme();
-      ro?.disconnect();
+      ro.disconnect();
       window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', drawStatic);
     };

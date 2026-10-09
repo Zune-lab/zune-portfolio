@@ -218,7 +218,7 @@ export default function Terminal({ onNavigate }) {
       <div
         ref={bodyRef}
         onClick={() => ready && inputRef.current?.focus({ preventScroll: true })}
-        className="terminal-body px-5 py-[22px] font-mono text-[13.5px] h-[260px] overflow-y-auto whitespace-pre-wrap text-ink"
+        className="terminal-body scroll-amber px-5 py-[22px] font-mono text-[13.5px] h-[260px] overflow-y-auto whitespace-pre-wrap text-ink"
       >
         {lines.map((line, i) => (
           <div key={i} className={line.t === 'out' ? 'text-dim mb-2' : ''}>
