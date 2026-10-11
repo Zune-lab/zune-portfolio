@@ -20,3 +20,21 @@ export const storageSet = (key, value) => {
 // kỷ lục của các mini game (số nguyên, mặc định 0)
 export const readBest = (key) => Number(storageGet(key)) || 0;
 export const saveBest = (key, n) => storageSet(key, n);
+
+// sessionStorage an toàn, cùng quy ước với trên: đọc lỗi -> null, ghi lỗi -> bỏ qua.
+// Dùng cho thứ chỉ có nghĩa trong một phiên (cache kết quả gọi API...).
+export const sessionGet = (key) => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+export const sessionSet = (key, value) => {
+  try {
+    sessionStorage.setItem(key, String(value));
+  } catch {
+    /* bỏ qua nếu không ghi được */
+  }
+};

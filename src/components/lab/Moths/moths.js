@@ -1,4 +1,4 @@
-import { TAU, clamp, pick, rand, randInt } from '../../../lib/math.js';
+import { TAU, angDiff, clamp, pick, rand, randInt } from '../../../lib/math.js';
 
 // Moths: con trỏ là ngọn đèn. Bướm đêm bay xoắn quanh đèn (tự lao vào rồi bật ra), cánh sáng lên khi lại gần.
 // Bấm = tắt đèn: cả đàn bay vào đậu ở mép khung, cánh xếp lại. Bấm lần nữa: đèn bật, cả đàn bay lên.
@@ -224,9 +224,7 @@ export function makeMoths(w, h) {
         const sp = Math.hypot(m.vx, m.vy);
         if (sp > 8) {
           const want = Math.atan2(m.vy, m.vx);
-          let dA = want - m.ang;
-          dA -= TAU * Math.floor(dA / TAU + 0.5);
-          m.ang += dA * Math.min(1, 9 * dt);
+          m.ang += angDiff(want, m.ang) * Math.min(1, 9 * dt);
         }
       }
 

@@ -9,7 +9,6 @@ export const SKIN = '#d2cbbb';
 export const FLESH = '#cfae9a';
 export const FLESH_D = '#4b2b25';
 export const BLOOD = '#7d1a1a';
-export const BONE = '#ebe4d2';
 const MOUTH = '#050304';
 
 const qb = (p, a, c, b) => (1 - p) * (1 - p) * a + 2 * p * (1 - p) * c + p * p * b;

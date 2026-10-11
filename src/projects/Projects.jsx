@@ -5,7 +5,7 @@ import { WRAP } from '../config/ui.js';
 import { storageKey } from '../config/site.js';
 import { clamp } from '../lib/math.js';
 import { BASE } from '../lib/paths.js';
-import { storageGet, storageSet } from '../lib/storage.js';
+import { sessionGet, sessionSet, storageGet, storageSet } from '../lib/storage.js';
 import { canHover, prefersReducedMotion } from '../lib/env.js';
 import './Projects.css';
 
@@ -27,21 +27,13 @@ const repoPathOf = (p) => new URL(p.href).pathname.replace(/^\//, '');
 const checkPages = async (p, signal) => {
   const repo = repoPathOf(p);
   const key = `pages:${repo}`;
-  try {
-    const hit = sessionStorage.getItem(key);
-    if (hit) return hit;
-  } catch {
-    /* sessionStorage bị chặn: bỏ qua cache */
-  }
+  const hit = sessionGet(key); // sessionStorage bị chặn thì null: bỏ qua cache
+  if (hit) return hit;
   const r = await fetch(`https://api.github.com/repos/${repo}`, { signal, headers: { Accept: 'application/vnd.github+json' } });
   if (r.status !== 404 && !r.ok) return 'unknown'; // vd hết lượt rate limit: không kết luận, không cache
   // 404 = repo không tồn tại hoặc private -> 'off' (cũng cache để khỏi gọi lại mỗi lần vào trang)
   const v = r.status !== 404 && (await r.json()).has_pages ? 'live' : 'off';
-  try {
-    sessionStorage.setItem(key, v);
-  } catch {
-    /* bỏ qua */
-  }
+  sessionSet(key, v);
   return v;
 };
 // 'made with' -> madeWith, 'a-dumb-gift' -> aDumbGift (dùng làm tên khoá / tên biến trong đoạn code)

@@ -11,7 +11,7 @@
 //  - không bao giờ đi vào sau thẻ zune.sav hay các nút khác (đi vòng qua góc nếu bị chắn)
 
 import { clamp, TAU } from './math.js';
-import { grow, inRect } from './geom.js';
+import { grow, inRect, pushOutOfRect } from './geom.js';
 
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 const ease = (u) => 1 - Math.pow(1 - clamp(u, 0, 1), 3);
@@ -319,15 +319,7 @@ export function createCrewmate({ rand = Math.random } = {}) {
       // bị vật cản nuốt mất (thẻ đổi kích thước...) thì đẩy ra
       if (c.visible && ['idle', 'wander', 'approach', 'meet'].includes(c.state) && blocked(c.x, c.y)) {
         const o = obs.find((r) => inRect(c.x, c.y, grow(r, BODY_PAD)));
-        if (o) {
-          const g = grow(o, BODY_PAD);
-          const pen = [c.x - g.l, g.r - c.x, c.y - g.t, g.b - c.y];
-          const m = pen.indexOf(Math.min(...pen));
-          if (m === 0) c.x = g.l;
-          else if (m === 1) c.x = g.r;
-          else if (m === 2) c.y = g.t;
-          else c.y = g.b;
-        }
+        if (o) pushOutOfRect(c, o, BODY_PAD);
       }
       // "away": nút đang vắng nhân vật (hình trên nút biến mất) từ lúc chui ra tới lúc chui vào
       const away = c.state !== 'hidden' && c.state !== 'enter';

@@ -480,7 +480,7 @@ export default function BannerMaker() {
                 role="tab"
                 id={`banner-tab-${t}`}
                 aria-selected={tab === t}
-                aria-controls={`banner-panel-${t}`}
+                aria-controls={tab === t ? `banner-panel-${t}` : undefined} /* chỉ tab đang mở mới có panel trong DOM */
                 onClick={() => setTab(t)}
                 className={`lab-cell px-3 py-1.5 -mb-px border-b-2 ${tab === t ? 'border-amber text-ink' : 'border-transparent text-dim hover:text-ink'}`}
               >

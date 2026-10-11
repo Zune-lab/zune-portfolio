@@ -12,8 +12,11 @@
 // đích bỏ chạy được chọn một lần và trượt dọc tường thay vì đâm vào, và có bộ canh "kẹt" tự gỡ.
 
 import { clamp, TAU } from './math.js';
-import { grow, inRect } from './geom.js';
+import { grow, inRect, pushOutOfRect } from './geom.js';
 
+// góc quay từ a tới b (radian) về [-π, π]. KHÔNG dùng angDiff của lib/math.js: hàm đó đảo thứ tự tham số và luôn trả -π
+// khi hai góc ngược hẳn nhau, còn ở đây quay đúng 180° thì giữ nguyên dấu (+π / -π) để sâu không đổi chiều quay
+// mỗi khi đảo đầu dọc mép thẻ.
 const angDiff = (a, b) => {
   let d = (b - a) % TAU;
   if (d > Math.PI) d -= TAU;
@@ -31,21 +34,11 @@ const padOf = (r) => grow(r, r.pad ?? PAD); // mỗi vật cản có thể tự 
 // Đẩy một điểm ra khỏi mọi vật cản (nới thêm `pad`) theo cạnh gần nhất. Dùng cho các đốt thân sâu và nhân vật phụ:
 // không phần nào của sâu được nằm sau thẻ/nút (canvas nằm dưới nội dung nên phần nằm sau sẽ bị che mất).
 export function pushOutside(x, y, obstacles, pad = 0) {
-  let px = x;
-  let py = y;
+  const p = { x, y };
   for (let pass = 0; pass < 2; pass++) {
-    for (const o of obstacles) {
-      const r = grow(o, pad);
-      if (!inRect(px, py, r)) continue;
-      const pen = [px - r.l, r.r - px, py - r.t, r.b - py];
-      const m = pen.indexOf(Math.min(...pen));
-      if (m === 0) px = r.l;
-      else if (m === 1) px = r.r;
-      else if (m === 2) py = r.t;
-      else py = r.b;
-    }
+    for (const o of obstacles) pushOutOfRect(p, o, pad);
   }
-  return { x: px, y: py };
+  return p;
 }
 
 const MARGIN = 44; // sâu không bò sát mép hero hơn mức này (khi chọn đích)
@@ -262,13 +255,7 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     s.y = clamp(s.y + Math.sin(s.heading) * s.speed * k, 8, s.h - 8);
     // đầu không được chui vào vật cản (trừ khi đang ở sẵn bên trong: lúc đó cứ để nó bò ra)
     for (const r of s.obs) {
-      if (inRect(px, py, r) || !inRect(s.x, s.y, r)) continue;
-      const pen = [s.x - r.l, r.r - s.x, s.y - r.t, r.b - s.y];
-      const m = pen.indexOf(Math.min(...pen));
-      if (m === 0) s.x = r.l;
-      else if (m === 1) s.x = r.r;
-      else if (m === 2) s.y = r.t;
-      else s.y = r.b;
+      if (!inRect(px, py, r)) pushOutOfRect(s, r);
     }
   };
 

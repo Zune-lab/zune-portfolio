@@ -4,6 +4,15 @@
 // khoảng cách tối thiểu (giây) giữa hai lần đẩy tham số liên tục sang WebAudio; dùng chung cho giọng riêng của từng sinh vật
 export const PARAM_STEP = 0.05;
 
+// một đoạn nhiễu trắng `seconds` giây (AudioBuffer một kênh), dùng chung cho dread và giọng riêng của từng sinh vật
+export function noiseBuffer(c, seconds = 2) {
+  const len = Math.floor(c.sampleRate * seconds);
+  const buf = c.createBuffer(1, len, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
 export function makeDread() {
   let ctx = null;
   let n = null;
@@ -15,14 +24,6 @@ export function makeDread() {
   let watchdog = 0; // chỉ chạy sau start(): chưa bật tiếng thì không có gì để canh
   let ducked = true; // master đang bị hạ về 0 (lúc mới dựng, hoặc watchdog vừa hạ): update() kế tiếp phải nâng lại
   let paramAt = 0; // lần cuối đẩy tham số nền sang WebAudio (giờ của AudioContext)
-
-  const noise = (c, seconds = 2) => {
-    const len = Math.floor(c.sampleRate * seconds);
-    const buf = c.createBuffer(1, len, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    return buf;
-  };
 
   const api = {
     get on() {
@@ -83,7 +84,7 @@ export function makeDread() {
 
         // hơi thở: nhiễu qua bandpass, độ lớn do update() nhấp nhô
         const bsrc = ctx.createBufferSource();
-        bsrc.buffer = noise(ctx);
+        bsrc.buffer = noiseBuffer(ctx);
         bsrc.loop = true;
         const bp = ctx.createBiquadFilter();
         bp.type = 'bandpass';
@@ -126,7 +127,7 @@ export function makeDread() {
         dist.oversample = '2x';
         dist.connect(hit);
 
-        n = { master, out, hit, dist, droneG, breathG, whineG, noiseBuf: noise(ctx, 1) };
+        n = { master, out, hit, dist, droneG, breathG, whineG, noiseBuf: noiseBuffer(ctx, 1) };
         ctx.resume?.();
         watchdog = setInterval(() => {
           if (n && !ducked && performance.now() - touched > 350) {

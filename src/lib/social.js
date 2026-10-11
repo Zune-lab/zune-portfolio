@@ -45,6 +45,8 @@ export const useSocial = () => useSyncExternalStore(subscribe, getSocial);
 // chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
 export const useAsleep = () => useSyncExternalStore(subscribe, () => isAsleep());
 
+// câu trả lời theo mức đã tốn pin: (0,20] -> 0, (20,40] -> 1, ... Pin sạc 1%/giây nên `next` hiếm khi là bội của 20;
+// chia thẳng rồi trừ 1 sẽ ra số lẻ -> REPLIES[số lẻ] = undefined -> ô trả lời trống.
 export function sayHi() {
   if (state.maxed) return set({ reply: 'HI!!! :D (this is not normal)', hiAt: performance.now() });
   const key = getStatusKey();
@@ -53,7 +55,7 @@ export function sayHi() {
   set({
     drain: next,
     hiAt: performance.now(),
-    reply: BASE[key] - next <= 0 ? `${site.id} has left the chat. (recharging...)` : REPLIES[Math.min(next / 20 - 1, 3)],
+    reply: BASE[key] - next <= 0 ? `${site.id} has left the chat. (recharging...)` : REPLIES[Math.min(Math.ceil(next / 20) - 1, REPLIES.length - 1)],
   });
 }
 

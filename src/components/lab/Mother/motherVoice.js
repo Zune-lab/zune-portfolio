@@ -1,4 +1,5 @@
 import { rand } from '../../../lib/math.js';
+import { noiseBuffer } from '../../../lib/dreadAudio.js';
 
 // Âm thanh riêng của Mother (khác hẳn bộ ù/thở/tim của Choir). Dựng trên AudioContext của `dread` (lib/dreadAudio.js):
 //   ngủ      hộp nhạc ru ngủ lạc tông (càng giận càng lệch, rớt nốt, thêm nốt lệch nửa cung), hơi thở ngủ chậm, chân con bò lách tách
@@ -24,10 +25,7 @@ export function makeMotherVoice(dread) {
     if (!dread.on || !dread.ctx) return null;
     if (L) return L;
     const c = dread.ctx;
-    const len = c.sampleRate * 2;
-    const buf = c.createBuffer(1, len, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const buf = noiseBuffer(c);
 
     // hơi thở ngủ: nhiễu lặp qua lowpass, độ lớn + tần số lọc do update() lên xuống theo nhịp hít/thở
     const bsrc = c.createBufferSource();

@@ -6,7 +6,7 @@ class Segment {
   constructor(parent, size, angle, range, stiffness) {
     this.isSegment = true;
     this.parent = parent; //Segment which this one is connected to
-    if (typeof parent.children == "object") {
+    if (typeof parent.children === "object") {
       parent.children.push(this);
     }
     this.children = []; //Segments connected to this segment
@@ -53,9 +53,9 @@ class Segment {
     }
   }
   follow(iter) {
-    let x = this.parent.x;
-    let y = this.parent.y;
-    let dist = Math.max(((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5, 1e-9); // tránh chia 0 -> NaN làm hỏng cả con
+    const x = this.parent.x;
+    const y = this.parent.y;
+    const dist = Math.max(((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5, 1e-9); // tránh chia 0 -> NaN làm hỏng cả con
     this.x = x + this.size * (this.x - x) / dist;
     this.y = y + this.size * (this.y - y) / dist;
     this.absAngle = Math.atan2(this.y - y, this.x - x);
@@ -89,11 +89,11 @@ class LimbSystem {
   }
   moveTo(x, y) {
     this.nodes[0].updateRelative(true, true);
-    let dist = ((x - this.end.x) ** 2 + (y - this.end.y) ** 2) ** 0.5;
+    const dist = ((x - this.end.x) ** 2 + (y - this.end.y) ** 2) ** 0.5;
     let len = Math.max(0, dist - this.speed);
     for (let i = this.nodes.length - 1; i >= 0; i--) {
-      let node = this.nodes[i];
-      let ang = Math.atan2(node.y - y, node.x - x);
+      const node = this.nodes[i];
+      const ang = Math.atan2(node.y - y, node.x - x);
       node.x = x + len * Math.cos(ang);
       node.y = y + len * Math.sin(ang);
       x = node.x;
@@ -101,14 +101,14 @@ class LimbSystem {
       len = node.size;
     }
     for (let i = 0; i < this.nodes.length; i++) {
-      let node = this.nodes[i];
+      const node = this.nodes[i];
       node.absAngle = Math.atan2(
         node.y - node.parent.y,
         node.x - node.parent.x
       );
       node.relAngle = node.absAngle - node.parent.absAngle;
       for (let ii = 0; ii < node.children.length; ii++) {
-        let childNode = node.children[ii];
+        const childNode = node.children[ii];
         if (!this.nodes.includes(childNode)) {
           childNode.updateRelative(true, false);
         }
@@ -140,8 +140,8 @@ class LegSystem extends LimbSystem {
   }
   update() {
     this.moveTo(this.goalX, this.goalY);
-    if (this.step == 0) {
-      let dist =
+    if (this.step === 0) {
+      const dist =
         ((this.end.x - this.goalX) ** 2 + (this.end.y - this.goalY) ** 2) **
         0.5;
       if (dist > 1) {
@@ -157,15 +157,15 @@ class LegSystem extends LimbSystem {
             Math.sin(this.swing + this.hip.absAngle + this.swingOffset) +
           (2 * Math.random() - 1) * this.reach / 2;
       }
-    } else if (this.step == 1) {
-      let theta =
+    } else if (this.step === 1) {
+      const theta =
         Math.atan2(this.end.y - this.hip.y, this.end.x - this.hip.x) -
         this.hip.absAngle;
-      let dist =
+      const dist =
         ((this.end.x - this.hip.x) ** 2 + (this.end.y - this.hip.y) ** 2) **
         0.5;
-      let forwardness2 = dist * Math.cos(theta);
-      let dF = this.forwardness - forwardness2;
+      const forwardness2 = dist * Math.cos(theta);
+      const dF = this.forwardness - forwardness2;
       this.forwardness = forwardness2;
       if (dF * dF < 1) {
         this.step = 0;
@@ -206,14 +206,14 @@ class Creature {
     this.systems = [];
   }
   follow(x, y) {
-    let dist = ((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5;
-    let angle = Math.atan2(y - this.y, x - this.x);
+    const dist = ((this.x - x) ** 2 + (this.y - y) ** 2) ** 0.5;
+    const angle = Math.atan2(y - this.y, x - this.x);
     //Update forward
     let accel = this.fAccel;
     if (this.systems.length > 0) {
       let sum = 0;
       for (let i = 0; i < this.systems.length; i++) {
-        sum += this.systems[i].step == 0;
+        sum += this.systems[i].step === 0;
       }
       accel *= sum / this.systems.length;
     }
@@ -250,7 +250,7 @@ class Creature {
     this.draw(true);
   }
   draw(iter) {
-    let r = 4;
+    const r = 4;
     env.ctx.beginPath();
     env.ctx.arc(
       this.x,
@@ -293,9 +293,9 @@ function addRibbedSegment(spinal, s, tipLen) {
 }
 
 export function setupLizard(size, legs, tail, w, h) {
-  let s = size;
+  const s = size;
   //(x,y,angle,fAccel,fFric,fRes,fThresh,rAccel,rFric,rRes,rThresh)
-  let critter = new Creature(
+  const critter = new Creature(
     w / 2,
     h / 2,
     0,

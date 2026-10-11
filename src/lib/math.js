@@ -22,8 +22,6 @@ export const shuffled = (arr) => {
 // số thực ngẫu nhiên trong [a, b)
 export const rand = (a, b) => a + Math.random() * (b - a);
 
-export const lerp = (a, b, t) => a + (b - a) * t;
-
 // smoothstep: 0..1 -> 0..1, êm ở hai đầu
 export const smoothstep = (x) => x * x * (3 - 2 * x);
 

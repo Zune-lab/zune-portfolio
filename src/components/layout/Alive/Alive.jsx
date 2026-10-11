@@ -105,10 +105,11 @@ export default function Alive() {
         document.title = pick(AWAY_TITLES);
       } else if (saved !== null) {
         document.title = 'oh. hi again.';
-        const back = saved;
-        saved = null;
+        // giữ `saved` tới khi trả tiêu đề xong: nếu bấm ẩn tab lại trong 1.6s (timer bị huỷ), lần ẩn sau vẫn nhớ tiêu đề gốc
+        // thay vì chộp nhầm 'oh. hi again.' rồi kẹt luôn ở đó
         timer = window.setTimeout(() => {
-          document.title = back;
+          document.title = saved;
+          saved = null;
         }, 1600);
       }
     };

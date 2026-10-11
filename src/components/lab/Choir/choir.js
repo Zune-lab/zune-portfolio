@@ -38,7 +38,6 @@ export function makeChoir() {
   let prevAx = null;
   let prevAy = 0;
   let lastText = '';
-  let panic = 0;
   let voiceAt = 0; // lần cuối đẩy tham số giọng sang WebAudio
 
   const addFig = (z) => {
@@ -342,7 +341,6 @@ export function makeChoir() {
         pick(figs).whisper = 1.1;
         dread.whisper(0.8);
       }
-      panic = state === 'arrive' ? 1 : 0;
       dread.update(
         {
           drone: state === 'play' ? 0.15 + 0.85 * Math.pow(maxZ, 1.5) : 0,
@@ -460,7 +458,6 @@ export function makeChoir() {
           lastText = cycles > 1 ? `you stopped. again. (${cycles}x)` : 'you stopped.';
         }
       }
-      void panic;
     },
   };
 }
