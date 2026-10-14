@@ -2,9 +2,10 @@
    THANH CUỘN: MỌI KIỂU THANH CUỘN CỦA TRANG NẰM Ở ĐÂY. Muốn đổi dáng / màu / độ dày, sửa token ngay dưới.
 
    Cách dùng (thêm class vào phần tử có overflow: auto | scroll):
-     scroll-thin    mỏng, rãnh trong suốt, thumb xám theo theme   (danh sách lab, banner-maker, project list)
+     scroll-thin    mỏng, rãnh trong suốt, thumb xám theo theme   (banner-maker, project list)
      scroll-amber   như scroll-thin nhưng thumb amber              (terminal, menu con của navbar)
-     scroll-hidden  ẩn thanh cuộn, vẫn cuộn được bằng chuột / chạm (hàng nav, hàng cartridge)
+     scroll-hidden  ẩn thanh cuộn, vẫn cuộn được bằng chuột / chạm (hàng nav, hàng cartridge, ô "jump to…" của lab:
+                    ô này tự vẽ thanh cuộn riêng, xem JumpScroll trong Lab.jsx và khối .lab-jump-* trong LabFx.css)
    Thanh cuộn toàn trang (không cần class) cấu hình ở cuối file.
 
    Chrome / Edge / Safari dùng ::-webkit-scrollbar (vẽ được dáng bo tròn, không có mũi tên 2 đầu).

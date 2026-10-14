@@ -131,6 +131,85 @@ function LabGrid({ f, setF, onNavigate }) {
   );
 }
 
+// danh sách cuộn của ô "jump to…" với thanh cuộn tự vẽ (thanh gốc bị ẩn): rãnh chấm bi cùng nhịp lưới nền + thumb amber,
+// kéo được, bấm vào rãnh thì nhảy tới. Mép trên/dưới mờ dần khi còn nội dung bị cuộn khuất (CSS đọc data-up / data-down).
+// Cập nhật thẳng vào DOM qua ref chứ không qua state, nên cuộn không gây render lại.
+function JumpScroll({ children, onKeyDown }) {
+  const wrap = useRef(null);
+  const list = useRef(null);
+  const thumb = useRef(null);
+  const drag = useRef(null);
+  const idle = useRef(0);
+
+  const sync = () => {
+    const w = wrap.current;
+    const l = list.current;
+    const t = thumb.current;
+    if (!w || !l || !t) return;
+    const { scrollTop, scrollHeight, clientHeight } = l;
+    const room = scrollHeight - clientHeight;
+    w.dataset.scrollable = room > 1 ? 'true' : 'false';
+    if (room <= 1) return;
+    const th = Math.max(32, (clientHeight * clientHeight) / scrollHeight);
+    t.style.height = `${th}px`;
+    t.style.transform = `translateY(${(clientHeight - th) * (scrollTop / room)}px)`;
+    w.dataset.up = String(scrollTop > 2);
+    w.dataset.down = String(scrollTop < room - 2);
+  };
+
+  useEffect(() => {
+    const l = list.current;
+    const ro = new ResizeObserver(sync);
+    ro.observe(l);
+    return () => {
+      ro.disconnect();
+      clearTimeout(idle.current);
+    };
+  }, []);
+  useEffect(sync); // nội dung đổi (lọc từ khoá) thì tính lại, ResizeObserver không bắt được khi chiều cao khung không đổi
+
+  const onScroll = () => {
+    sync();
+    wrap.current?.classList.add('is-scrolling');
+    clearTimeout(idle.current);
+    idle.current = setTimeout(() => wrap.current?.classList.remove('is-scrolling'), 700);
+  };
+  const thumbDown = (e) => {
+    e.preventDefault();
+    drag.current = { y: e.clientY, top: list.current.scrollTop };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    wrap.current.classList.add('is-dragging');
+  };
+  const thumbMove = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    const l = list.current;
+    const free = l.clientHeight - thumb.current.offsetHeight;
+    if (free > 0) l.scrollTop = d.top + (e.clientY - d.y) * ((l.scrollHeight - l.clientHeight) / free);
+  };
+  const thumbUp = () => {
+    drag.current = null;
+    wrap.current?.classList.remove('is-dragging');
+  };
+  const trackDown = (e) => {
+    if (e.target !== e.currentTarget) return; // chỉ khi bấm trúng rãnh, không phải thumb
+    const l = list.current;
+    const r = e.currentTarget.getBoundingClientRect();
+    l.scrollTo({ top: ((e.clientY - r.top) / r.height) * l.scrollHeight - l.clientHeight / 2, behavior: 'smooth' });
+  };
+
+  return (
+    <div ref={wrap} className="lab-jump-scroll" data-scrollable="false" data-up="false" data-down="false">
+      <div ref={list} className="lab-jump-list scroll-hidden" onScroll={onScroll} onKeyDown={onKeyDown}>
+        {children}
+      </div>
+      <div className="lab-jump-track" aria-hidden="true" onPointerDown={trackDown}>
+        <span ref={thumb} className="lab-jump-thumb" onPointerDown={thumbDown} onPointerMove={thumbMove} onPointerUp={thumbUp} onPointerCancel={thumbUp} />
+      </div>
+    </div>
+  );
+}
+
 // nhảy thẳng sang mục khác ngay trên trang 1 mục, khỏi quay về lưới.
 // Ít mục: dải tab bấm 1 phát. Nhiều mục: ô "jump to…" có tìm kiếm (↓ ↑ chọn, Enter mở mục đầu, Esc đóng).
 function LabJump({ item, onNavigate }) {
@@ -222,20 +301,36 @@ function LabJump({ item, onNavigate }) {
               spellCheck={false}
               autoComplete="off"
             />
+            <span className="lab-find-n" aria-live="polite">
+              {list.length}/{LAB_ITEMS.length}
+            </span>
           </label>
-          <div className="lab-jump-list scroll-thin">
-            {list.map((i) => (
-              <Link key={i.slug} slug={i.slug} onNavigate={go} className="lab-jump-row" aria-current={i === item ? 'page' : undefined}>
-                <LabIcon name={i.slug} size={18} />
+          <JumpScroll>
+            {list.map((i, n) => (
+              <Link
+                key={i.slug}
+                slug={i.slug}
+                onNavigate={go}
+                onPointerMove={spotMove}
+                className="lab-jump-row"
+                style={{ '--i': Math.min(n, 12) }}
+                aria-current={i === item ? 'page' : undefined}
+              >
+                <span className="lab-jump-ico" aria-hidden="true">
+                  <LabIcon name={i.slug} size={18} />
+                </span>
                 <span className="lab-jump-name">
                   {i.name}
                   <i>{i.file}</i>
                 </span>
-                <span className="lab-jump-kind">{i.kind}</span>
+                <span className="lab-jump-kind">
+                  <b>{i.kind}</b>
+                  <em aria-hidden="true">open ↵</em>
+                </span>
               </Link>
             ))}
             {list.length === 0 && <p className="lab-jump-empty">grep: no match</p>}
-          </div>
+          </JumpScroll>
         </div>
       )}
     </div>
