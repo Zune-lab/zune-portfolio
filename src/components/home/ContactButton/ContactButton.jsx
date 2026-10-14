@@ -12,8 +12,8 @@ export default function ContactButton({ href }) {
           scrollToAnchor(href);
         }
       }}
-      className="btn-contact relative overflow-hidden inline-flex items-center justify-center gap-2.5 h-[52px] pl-4 pr-5 rounded-full border-2 border-black font-mono font-bold text-[13px] uppercase tracking-wider text-white"
-      style={{ backgroundColor: 'hsl(49deg 98% 60%)', textShadow: '2px 2px rgb(116,116,116)' }}
+      className="btn-contact relative overflow-hidden inline-flex items-center justify-center gap-2.5 h-[52px] pl-4 pr-5 rounded-full border-2 border-black font-mono font-bold text-[13px] uppercase tracking-wider"
+      style={{ backgroundColor: 'hsl(49deg 98% 60%)' }}
     >
       <svg viewBox="0 0 36 36" width="28" height="28" className="relative z-[2] flex-none">
         <rect width={36} height={36} x={0} y={0} fill="#fdd835" />

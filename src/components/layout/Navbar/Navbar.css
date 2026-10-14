@@ -72,7 +72,7 @@
   height: 6px;
   border-radius: 999px;
   background: var(--amber);
-  box-shadow: 0 0 6px var(--amber);
+  box-shadow: 0 0 6px var(--glow);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.25s ease;
@@ -152,7 +152,7 @@
   border: 2px solid var(--amber);
   border-radius: 0 8px 8px 8px; /* góc trái trên vuông: nối liền với nút */
   background: var(--panel);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px rgb(var(--shade) / calc(0.35 * var(--shade-k)));
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   animation: sub-menu-in 0.48s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -259,7 +259,7 @@
   overscroll-behavior: contain;
   background: var(--panel);
   border-bottom: 2px solid var(--amber);
-  box-shadow: 0 16px 30px -12px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 16px 30px -12px rgb(var(--shade) / calc(0.45 * var(--shade-k)));
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   animation: mobile-menu-in 0.3s var(--ease, ease);
 }
@@ -327,7 +327,7 @@
   height: 8px;
   border-radius: 50%;
   background: var(--amber);
-  box-shadow: 0 0 6px var(--amber);
+  box-shadow: 0 0 6px var(--glow);
 }
 .brand-mark b,
 .brand-close {

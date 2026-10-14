@@ -43,6 +43,8 @@ const { subscribe, emit } = createEmitter({
 
 export const useSocial = () => useSyncExternalStore(subscribe, getSocial);
 // chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
+// mức pin hiện tại (0..100, maxed = 100). Snapshot là SỐ nên component chỉ render lại khi số đổi (tối đa 1 lần/giây lúc đang sạc)
+export const useLevel = () => useSyncExternalStore(subscribe, () => levelOf());
 export const useAsleep = () => useSyncExternalStore(subscribe, () => isAsleep());
 
 // câu trả lời theo mức đã tốn pin: (0,20] -> 0, (20,40] -> 1, ... Pin sạc 1%/giây nên `next` hiếm khi là bội của 20;

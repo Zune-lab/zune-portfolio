@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Pulse from './Pulse.jsx';
+import Battery from './Battery.jsx';
 import { setNapState } from '../../../lib/nap.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
 import { site } from '../../../config/site.js';
@@ -7,7 +7,7 @@ import { pick, randInt, TAU } from '../../../lib/math.js';
 import './Alive.css';
 
 // "Làm cả trang sống động": những chi tiết nhỏ nằm ngoài hero, gom về một chỗ, mỗi cái là một useEffect độc lập.
-//  1) nhịp tim: vạch tiến độ cuộn ở mép trên là máy đo ECG (Pulse.jsx), cuộn nhanh thì tim đập nhanh, xuống đáy thì flatline
+//  1) pin xã hội: vạch tiến độ cuộn ở mép trên kèm pin của zune (Battery.jsx), cùng số với thẻ zune.sav, cuộn xuống thì cạn dần, tới đáy thì rebooting
 //  2) tab mood: chuyển sang tab khác thì tiêu đề tab đổi ("psst. still here."), quay lại thì chào "oh. hi again."
 //  3) screensaver: ~45s không đụng gì thì một khối `zune.dev` nảy khắp màn hình kiểu logo DVD (đổi màu mỗi lần chạm mép,
 //     trúng góc thì "corner!!"); động vào thì biến mất và chào "oh. hi." (giảm chuyển động: chỉ hiện dòng "napping" tĩnh)
@@ -243,7 +243,7 @@ export default function Alive() {
 
   return (
     <>
-      <Pulse napping={nap === 'nap'} panic={meeting} />
+      <Battery napping={nap === 'nap'} panic={meeting} />
       <div className={`nap-dim${nap === 'nap' ? ' is-on' : ''}`} aria-hidden="true" />
 
       {nap === 'nap' &&

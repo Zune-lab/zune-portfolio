@@ -208,7 +208,7 @@ export default function Terminal({ onNavigate }) {
   const at = value[pos] ?? ' ';
 
   return (
-    <div ref={wrapRef} onMouseMove={spotMove} className="spot terminal bg-inset border border-line rounded-[10px] overflow-hidden shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]">
+    <div ref={wrapRef} onMouseMove={spotMove} className="spot terminal bg-inset border border-line rounded-[10px] overflow-hidden shadow-[0_20px_60px_-20px_rgb(var(--shade)/calc(0.6_*_var(--shade-k)))]">
       <div className="terminal-bar bg-panel px-3.5 py-2.5 flex items-center gap-2 border-b border-line">
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FF5F57' }} />
         <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FEBC2E' }} />

@@ -1,46 +1,93 @@
-/* 1) nhịp tim ở mép trên (Pulse.jsx) */
-.pulse {
+/* 1) pin xã hội + tiến độ cuộn ở mép trên (Battery.jsx) */
+.batt {
   position: fixed;
-  /* navbar cao 56px + 1px viền; đường nền của nhịp tim nằm cách mép trên .pulse 13px
-     (BASE trong Pulse.jsx) -> 43.5px để đường nền trùng đúng đường viền dưới navbar */
+  /* navbar cao 56px + 1px viền; đường nền của vạch nằm cách mép trên .batt 13px
+     -> 43.5px để đường nền trùng đúng đường viền dưới navbar */
   inset: 43.5px 0 auto 0;
   height: 18px;
   z-index: 80;
   pointer-events: none;
   transition: top 0.3s ease-in-out; /* trượt cùng nhịp với navbar (duration-300) */
+  --tone: var(--green);
 }
-/* navbar ẩn khi cuộn xuống: nhịp tim lên lại mép trên màn hình */
-:root[data-nav='hidden'] .pulse {
+/* navbar ẩn khi cuộn xuống: vạch lên lại mép trên màn hình */
+:root[data-nav='hidden'] .batt {
   top: 0;
 }
-.pulse-cvs {
-  display: block;
-  width: 100%;
+.batt[data-tone='mid'] { --tone: var(--amber); }
+.batt[data-tone='lo'] { --tone: #ff5f56; }
+/* phần chưa đọc: đường chấm chấm mờ; phần đã đọc: vạch amber đậm dần về phía đầu; đầu vạch: chấm phát sáng */
+.batt-line,
+.batt-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12.25px;
+  height: 1.5px;
 }
-.pulse-label {
+.batt-line {
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--text-dim) 45%, transparent) 0 2px, transparent 2px 9px);
+}
+.batt-fill {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--amber) 12%, transparent), var(--amber));
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  transition: transform 0.12s linear;
+}
+.batt-head {
+  position: absolute;
+  top: 13px;
+  left: clamp(3px, calc(var(--p, 0) * 100%), calc(100% - 3px));
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 8px var(--glow);
+  transition: left 0.12s linear;
+}
+.batt-label {
   position: absolute;
   top: 0;
-  right: 14px;
+  left: 14px; /* bên TRÁI: bên phải là nút đèn pin đổi theme, ở giữa 720-1300px hai thứ từng đè lên nhau */
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   height: 14px;
   color: var(--text-dim);
   font: 500 10px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.pulse-heart {
-  display: inline-block;
-  color: var(--amber);
-  font-size: 11px;
+.batt-cells {
+  display: flex;
+  gap: 2px;
 }
-@media (max-width: 720px) {
-  .pulse-label { display: none; } /* màn hẹp: bên phải là nút đổi theme */
+.batt-cells i {
+  width: 5px;
+  height: 8px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--text) 16%, transparent);
+}
+.batt-cells i.on { background: var(--tone); }
+.batt[data-rainbow] .batt-cells i.on { background: hsl(calc(var(--i) * 36) 85% 62%); }
+.batt-pct { color: var(--tone); font-weight: 700; }
+@media (max-width: 1279px) {
+  .batt-cells { display: none; } /* hẹp hơn: chỉ còn chữ, đỡ đè lên logo / link navbar */
+}
+@media (max-width: 899px) {
+  .batt-label { display: none; } /* màn hẹp: chỉ còn vạch tiến độ */
+}
+@media (prefers-reduced-motion: no-preference) {
+  .batt[data-crit] .batt-pct { animation: batt-blink 1s steps(1) infinite; } /* pin cạn: số nhấp nháy */
 }
 @media (prefers-reduced-motion: reduce) {
-  .pulse-label { display: none; }
-  .pulse { transition: none; }
+  .batt { transition: none; }
+  .batt-fill,
+  .batt-head { transition: none; }
+}
+@keyframes batt-blink {
+  50% { opacity: 0.35; }
 }
 
 /* 3) screensaver kiểu logo DVD khi không ai đụng vào trang */
@@ -111,7 +158,7 @@
   pointer-events: none;
   color: var(--amber);
   font: 700 15px/1 'JetBrains Mono', monospace;
-  text-shadow: 0 0 8px color-mix(in srgb, var(--amber) 50%, transparent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--glow) 50%, transparent);
   will-change: transform, opacity;
 }
 

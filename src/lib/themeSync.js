@@ -1,11 +1,11 @@
 import { isNapping, onNapChange } from './nap.js';
 
 // Đồng bộ màu cho mọi thứ vẽ bằng JS (canvas) với lúc đổi theme.
-// Biến màu ở :root chuyển dần ~0.6s (xem @property trong index.css). Nếu chỉ đọc màu MỘT lần ngay khi
-// data-theme đổi, ta sẽ đọc trúng giá trị CŨ rồi kẹt màu đó (lỗi "trễ màu"). Nên: trong lúc đang chuyển,
-// gọi lại cb MỖI KHUNG HÌNH, và gọi thêm một lần nữa khi đã xong để chốt đúng màu cuối.
+// Biến màu ở :root đổi TỨC THÌ (không còn transition, xem index.css) nên chỉ cần đọc lại màu ngay sau khi data-theme đổi:
+//  - syncThemeNow(): App gọi đồng bộ ngay trong lúc đổi theme, canvas có màu mới TRƯỚC khung hình kế tiếp (không trễ khung nào);
+//  - MutationObserver bên dưới là lưới an toàn (đổi theme/tông giờ từ nơi khác): đọc lại vài khung liên tiếp để chắc chắn.
 // Đang screensaver thì không vẽ gì (không ai thấy): màu đổi trong lúc đó được chốt ngay khi dậy.
-const SETTLE_MS = 900; // 0.6s transition + dư để không bao giờ chốt sớm
+const SETTLE_MS = 150; // vài khung hình là đủ, không còn transition phải chờ
 const listeners = new Set();
 let until = 0;
 let raf = 0;
@@ -21,6 +21,14 @@ const loop = () => {
   listeners.forEach((cb) => cb());
   raf = performance.now() < until ? requestAnimationFrame(loop) : 0;
 };
+// gọi đồng bộ mọi cb ngay lúc này (getComputedStyle trong cb tự ép tính lại style nên đọc được giá trị mới)
+export function syncThemeNow() {
+  if (isNapping()) {
+    owed = true;
+    return;
+  }
+  listeners.forEach((cb) => cb());
+}
 const kick = () => {
   if (isNapping()) {
     owed = true;
@@ -36,7 +44,7 @@ onNapChange(() => {
   }
 });
 
-// cb sẽ được gọi lại mỗi khung hình trong lúc đổi theme (data-theme) hoặc đổi tông giờ (data-tod).
+// cb được gọi lại ngay khi đổi theme (data-theme) hoặc đổi tông giờ (data-tod), và thêm vài khung hình sau đó.
 // Trả về hàm huỷ đăng ký. Không tự gọi cb lần đầu: nơi dùng tự đọc màu lúc khởi tạo.
 export function onThemeChange(cb) {
   listeners.add(cb);

@@ -51,7 +51,7 @@ export default function SheetCard() {
   return (
     <aside onMouseMove={spotMove}
       className={`spot bg-inset border rounded-[10px] overflow-hidden font-mono text-[13px] transition-[border-color,box-shadow] duration-500 ${
-        maxed ? 'border-amber shadow-[0_0_44px_-8px_var(--amber)]' : 'border-line shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)]'
+        maxed ? 'border-amber shadow-[0_0_44px_-8px_var(--glow)]' : 'border-line shadow-[0_20px_60px_-20px_rgb(var(--shade)/calc(0.6_*_var(--shade-k)))]'
       }`}>
       <div className="bg-panel px-4 py-2.5 border-b border-line flex items-center justify-between">
         <span className="text-dim">{maxed ? `${site.id}.sav [MAX]` : `${site.id}.sav`}</span>

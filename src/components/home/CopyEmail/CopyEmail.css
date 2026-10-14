@@ -21,7 +21,7 @@
 .copy-mail:hover,
 .copy-mail:focus-visible {
   border-color: var(--amber);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--amber) 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 28%, transparent);
 }
 .copy-mail:focus-visible {
   outline: 2px solid var(--amber);
@@ -43,10 +43,6 @@
   content: '$';
   margin-right: 8px;
   color: var(--green);
-}
-
-:root[data-theme='light'] .copy-mail {
-  --cm-on: #fffaf0; /* amber is dark brown in light theme, so the fill needs light text */
 }
 
 .copy-mail-ico {

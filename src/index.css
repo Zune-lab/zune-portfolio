@@ -45,7 +45,17 @@
   --text-dim: #8a93a3;
   --amber: #ffc857;
   --amber-dim: #c99a3f;
-  --on-amber: #0a0c10; /* chữ/icon nằm trên nền amber: luôn tối ở cả hai theme */
+  --on-amber: #0a0c10; /* chữ/icon nằm trên nền amber: dark theme amber sáng -> chữ tối; light theme amber đậm -> chữ sáng (xem khối light bên dưới) */
+  /* ánh sáng & bóng: TÁCH khỏi --amber/--text. Ở light theme --amber là nâu đậm (để chữ đọc được) nên dùng nó làm glow
+     sẽ ra vệt nâu bẩn, và --text gần đen sẽ thành vệt xám. Glow phải luôn là màu SÁNG, ấm; bóng phải nhẹ và ấm. */
+  --glow: #ffc857; /* màu phát sáng (box-shadow/text-shadow/spotlight) */
+  --glow-green: #7ee081;
+  --halo: color-mix(in srgb, var(--text) 14%, transparent); /* quầng sáng nền sau card hero */
+  --spot-a: 8%; /* độ đậm vệt đèn pha theo con trỏ (.spot) */
+  --shade: 0 0 0; /* màu bóng đổ (r g b) */
+  --shade-k: 1; /* hệ số nhân độ đậm bóng: dùng như rgb(var(--shade) / calc(0.6 * var(--shade-k))) */
+  --contact-ink: #ffffff; /* chữ nút CONTACT (nền vàng cố định ở cả hai theme) */
+  --contact-shadow: rgb(116 116 116);
   --green: #7ee081;
   --js: #f1c40f;
   --css-lang: #a98ae8;
@@ -69,6 +79,15 @@
   --text-dim: #675f48;
   --amber: #8f5d08;
   --amber-dim: #7a4f07;
+  --on-amber: #fffaf0; /* amber ở light theme là nâu đậm: chữ tối trên nền này gần như không đọc được */
+  --glow: #f2a516; /* sáng + ấm: trên nền kem ra quầng hổ phách thay vì vệt nâu */
+  --glow-green: #3fbf6a;
+  --halo: color-mix(in srgb, var(--glow) 22%, transparent); /* ánh nắng ấm thay cho vệt xám của --text */
+  --spot-a: 20%;
+  --shade: 92 62 14; /* nâu ấm thay cho đen thuần */
+  --shade-k: 0.28; /* nền sáng chỉ cần bóng rất nhẹ */
+  --contact-ink: #1c1b18; /* nền vàng sáng: chữ trắng + bóng xám gần như tàng hình */
+  --contact-shadow: rgb(116 116 116 / 0);
   --green: #26773f;
   --js: #856200;
   --css-lang: #6b4fa0;
@@ -156,7 +175,7 @@ body::before {
   z-index: -2;
   background:
     var(--hero-img, none) right center / cover no-repeat,
-    radial-gradient(55% 75% at 82% 38%, color-mix(in srgb, var(--text) 14%, transparent), transparent 70%);
+    radial-gradient(55% 75% at 82% 38%, var(--halo), transparent 70%);
   filter: grayscale(1);
 }
 .hero-full::after {
@@ -223,7 +242,7 @@ body::before {
   mask-composite: exclude;
 }
 .spot::after {
-  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--amber) 8%, transparent), transparent 70%);
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--glow) var(--spot-a), transparent), transparent 70%);
 }
 .spot:hover::before,
 .spot:hover::after { opacity: 1; }
@@ -235,7 +254,7 @@ body::before {
 }
 @keyframes zune-glow {
   0%, 100% { text-shadow: 0.045em 0.045em 0 var(--amber-dim), 0 0 0 transparent; }
-  50% { text-shadow: 0.045em 0.045em 0 var(--amber-dim), 0 0 28px color-mix(in srgb, var(--amber) 55%, transparent); }
+  50% { text-shadow: 0.045em 0.045em 0 var(--amber-dim), 0 0 28px color-mix(in srgb, var(--glow) 55%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .zune-glow { animation: none; }
@@ -246,32 +265,14 @@ body::before {
 @keyframes sheet-hue { to { filter: hue-rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .sheet-rainbow { animation: none; } }
 
-/* ===== đổi theme sáng/tối mượt, ĐỒNG ĐỀU toàn trang =====
-   Trước đây chỉ nền <body> mờ dần 0.6s, còn mọi thứ vẽ bằng var(--bg)/--text (lớp gradient của hero, card, viền...)
-   thì đổi ngay lập tức -> thấy một vệt sáng/tối hình gradient lệch pha rồi mờ dần. @property đăng ký các biến màu
-   là <color> nên bản thân biến chuyển dần theo transition, mọi chỗ dùng nó cùng mờ đúng một nhịp.
-   Trình duyệt chưa hỗ trợ @property thì đổi theme tức thì (không còn vệt). */
-@property --bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --panel { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --inset { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --line { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --text { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --text-dim { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --amber { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --amber-dim { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --green { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --js { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --css-lang { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --dot-grid { syntax: '<color>'; inherits: true; initial-value: transparent; }
-@property --nav-bg { syntax: '<color>'; inherits: true; initial-value: transparent; }
-:root {
-  transition: --bg 0.6s ease, --panel 0.6s ease, --inset 0.6s ease, --line 0.6s ease, --text 0.6s ease, --text-dim 0.6s ease, --amber 0.6s ease, --amber-dim 0.6s ease, --green 0.6s ease, --js 0.6s ease, --css-lang 0.6s ease, --dot-grid 0.6s ease, --nav-bg 0.6s ease;
-}
-@media (prefers-reduced-motion: reduce) {
-  :root { transition: none; }
-}
+/* ===== đổi theme sáng/tối: ĐỔI TỨC THÌ, đồng bộ toàn trang =====
+   Trước đây các biến màu ở :root được đăng ký @property rồi transition 0.6s để cả trang mờ dần. Đo bằng Chromium thì cách đó là nguồn gốc của lỗi "trễ màu": biến là inherited nên MỖI khung hình trong 0.6s trình duyệt
+   phải tính lại style cho cả cây DOM và vẽ lại toàn bộ (gradient, mask viền conic, backdrop-blur, 2 canvas...). Khung hình
+   thường 17ms vọt lên 100-400ms, máy chậm chỉ còn ~4-5 khung/giây -> nhìn ra từng mảng (khung, nav, canvas) đổi màu so le nhau.
+   Giờ data-theme đổi một lần, mọi thứ (DOM + canvas qua syncThemeNow) cùng đổi trong CÙNG một khung hình: không thể lệch pha. */
 
-/* chỉ áp lúc đang đổi theme (App.jsx gắn/gỡ class này): để các phần tử con bám sát biến màu đang chuyển */
+/* chỉ áp đúng khoảnh khắc đổi theme (App.jsx gắn/gỡ class này): chặn transition riêng của từng phần tử
+   (transition-colors, border-color... 0.2-0.5s) để chúng không chạy trễ so với phần còn lại */
 :root.theme-anim *,
 :root.theme-anim *::before,
 :root.theme-anim *::after {

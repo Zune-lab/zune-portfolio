@@ -307,7 +307,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
   // cuộn xuống -> nav trượt lên ẩn đi cho thấy rõ cả trang; cuộn lên / Tab vào nav / mở menu mobile -> hiện lại
   const [navHidden, showNav] = useHideOnScroll(menuOpen);
 
-  // báo cho thanh nhịp tim (Alive/Pulse) biết navbar đang hiện hay ẩn: hiện thì nhịp tim nằm trên đường viền dưới navbar
+  // báo cho thanh pin/tiến độ cuộn (Alive/Battery) biết navbar đang hiện hay ẩn: hiện thì nó nằm trên đường viền dưới navbar
   useEffect(() => {
     document.documentElement.dataset.nav = navHidden ? 'hidden' : 'shown';
   }, [navHidden]);

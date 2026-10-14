@@ -51,7 +51,7 @@
   .lab-btn:focus-visible {
     color: var(--on-amber);
     border-color: var(--amber);
-    box-shadow: 0 0 18px -4px color-mix(in srgb, var(--amber) 55%, transparent);
+    box-shadow: 0 0 18px -4px color-mix(in srgb, var(--glow) 55%, transparent);
   }
   .lab-btn:hover::before,
   .lab-btn:focus-visible::before {
@@ -170,7 +170,7 @@
 @media (hover: hover) and (pointer: fine) {
   .lab-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--amber) 40%, transparent), 0 2px 0 0 transparent;
+    box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--glow) 40%, transparent), 0 2px 0 0 transparent;
   }
   .lab-card:hover::before { opacity: 1; animation-play-state: running; }
   .lab-card:hover::after { opacity: 1; }
@@ -371,7 +371,7 @@
   border: 2px solid var(--amber);
   border-radius: 0 8px 8px 8px;
   background: var(--panel);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px rgb(var(--shade) / calc(0.35 * var(--shade-k)));
 }
 .lab-jump-list { max-height: min(50vh, 300px); margin-top: 8px; overflow-y: auto; }
 .lab-jump-row {

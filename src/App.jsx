@@ -16,6 +16,7 @@ import { storageKey } from './config/site.js';
 import { canHover, prefersReducedMotion } from './lib/env.js';
 import { timeOfDay } from './lib/siteTime.js';
 import { pausableInterval } from './lib/timers.js';
+import { syncThemeNow } from './lib/themeSync.js';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
@@ -113,25 +114,36 @@ export default function App() {
   // tông nền theo giờ VN: dawn / day / dusk / night (mốc dùng chung với trạng thái online)
   useEffect(() => {
     const apply = () => {
-      document.documentElement.dataset.tod = timeOfDay();
+      const root = document.documentElement;
+      const next = timeOfDay();
+      if (root.dataset.tod === next) return;
+      swapColors(() => {
+        root.dataset.tod = next;
+      });
     };
     apply();
     return pausableInterval(apply, 60 * 1000); // ngủ hẳn lúc screensaver / tab ẩn, dậy thì áp lại ngay
   }, []);
 
-  // Trong lúc đổi theme, tắt transition riêng của mọi phần tử con để chúng bám đúng biến màu đang mờ dần
-  // (nếu không, ô pin/nút có transition-colors sẽ chạy trễ so với khung -> lệch màu giữa chừng).
-  // Ba lỗi "trễ màu" đã sửa ở đây:
-  //  1) data-theme đổi ĐỒNG BỘ cùng lúc gắn class (trước đây chờ useEffect sau khi React render xong, lệch vài chục ms);
-  //  2) chỉ có MỘT timer: bấm đổi theme liên tiếp thì timer cũ bị huỷ (trước đây nó gỡ class giữa lúc lần đổi sau còn đang chạy);
-  //  3) gỡ class sau 900ms (transition 0.6s + dư) rồi mới trả transition riêng cho các phần tử con.
-  const toggleTheme = () => {
+  // Đổi màu cả trang (theme sáng/tối hoặc tông giờ) TỨC THÌ và đồng bộ: mọi phần tử + canvas cùng đổi trong một khung hình.
+  // Trước đây biến màu chuyển dần 0.6s -> mỗi khung phải tính lại style/vẽ lại cả trang, máy yếu còn ~4-5 khung/giây nên các mảng
+  // (khung, link nav, canvas...) đổi màu so le, nhìn như "trễ màu" (số đo: xem index.css).
+  //  - theme-anim chặn transition riêng của từng phần tử (transition-colors, border-color...) đúng khoảnh khắc đổi;
+  //  - syncThemeNow() cho canvas đọc màu mới ngay (không trễ khung nào);
+  //  - chỉ có MỘT timer gỡ class: bấm đổi liên tiếp thì timer cũ bị huỷ, không gỡ nhầm giữa chừng.
+  const swapColors = (change) => {
     const root = document.documentElement;
-    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
     window.clearTimeout(themeTimer.current);
     root.classList.add('theme-anim');
-    root.dataset.theme = next;
-    themeTimer.current = window.setTimeout(() => root.classList.remove('theme-anim'), 900);
+    change();
+    syncThemeNow();
+    themeTimer.current = window.setTimeout(() => root.classList.remove('theme-anim'), 120);
+  };
+  const toggleTheme = () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    swapColors(() => {
+      document.documentElement.dataset.theme = next;
+    });
     setTheme(next);
   };
 

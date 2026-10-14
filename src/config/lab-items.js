@@ -55,7 +55,7 @@ export const LAB_ITEMS = [
     file: 'moths.js',
     name: 'Moths',
     kind: 'toy',
-    blurb: 'Your cursor is a lamp and the moths cannot leave it alone. Click to switch it off and watch them land.',
+    blurb: 'Your cursor is a lamp and the moths cannot leave it alone. Switch it off, blow out the candle, shake the lamp, and watch out for the bat.',
     Component: lazy(() => import('../components/lab/Moths/Moths.jsx')),
   },
   {

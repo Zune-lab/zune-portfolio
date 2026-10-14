@@ -2,7 +2,7 @@
 
 .sig-card {
   border: 1px solid var(--line);
-  box-shadow: 0 30px 70px -40px color-mix(in srgb, var(--amber) 45%, transparent);
+  box-shadow: 0 30px 70px -40px color-mix(in srgb, var(--glow) 45%, transparent);
   cursor: default;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;

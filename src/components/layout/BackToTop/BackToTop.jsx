@@ -21,7 +21,7 @@ export default function BackToTop() {
       type="button"
       onClick={handleClick}
       aria-label="Back to top"
-      className={`back-to-top fixed right-6 bottom-6 z-[60] w-12 h-12 rounded-full flex items-center justify-center cursor-pointer overflow-hidden bg-panel border border-line shadow-[0_4px_20px_-6px_rgba(0,0,0,0.5)] ${
+      className={`back-to-top fixed right-6 bottom-6 z-[60] w-12 h-12 rounded-full flex items-center justify-center cursor-pointer overflow-hidden bg-panel border border-line shadow-[0_4px_20px_-6px_rgb(var(--shade)/calc(0.5_*_var(--shade-k)))] ${
         show ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-3'
       }`}
     >

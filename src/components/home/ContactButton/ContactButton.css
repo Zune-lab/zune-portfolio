@@ -25,3 +25,10 @@
   transform: translateX(0);
   transition-delay: 300ms;
 }
+
+/* màu chữ/bóng lấy từ biến đã đăng ký @property (index.css) nên mờ dần cùng nhịp với cả trang khi đổi theme;
+   viết ở đây (không phải class Tailwind / style inline) để một chỗ duy nhất quyết định */
+.btn-contact {
+  color: var(--contact-ink);
+  text-shadow: 2px 2px var(--contact-shadow);
+}
