@@ -7,6 +7,7 @@ import { frameLoop } from '../../lib/loop.js';
 import { isNapping } from '../../lib/nap.js';
 import { cssVar, fitCanvas } from '../../lib/canvas.js';
 import { prefersReducedMotion } from '../../lib/env.js';
+import useCanHover from '../../lib/useCanHover.js';
 import { TAU } from '../../lib/math.js';
 import { site } from '../../config/site.js';
 
@@ -105,9 +106,11 @@ function drawCrew(ctx, c, t) {
 
 export default function HeroWorm() {
   const cvs = useRef(null);
+  // cảm ứng: không có con trỏ để theo (theo ngón tay trông ngớ ngẩn) nên không chạy sâu, Hero.jsx đặt dải stack vào chỗ chuồng
+  const hover = useCanHover();
 
   useEffect(() => {
-    if (prefersReducedMotion()) return undefined;
+    if (!hover || prefersReducedMotion()) return undefined;
     const canvas = cvs.current;
     const host = canvas.parentElement;
     const ctx = canvas.getContext('2d');
@@ -423,7 +426,8 @@ export default function HeroWorm() {
       document.documentElement.removeEventListener('mouseleave', clearMouse);
       window.removeEventListener('blur', clearMouse);
     };
-  }, []);
+  }, [hover]);
 
+  if (!hover) return null;
   return <canvas ref={cvs} aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
 }

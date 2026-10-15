@@ -531,3 +531,13 @@
   .proj-tags button { padding: 8px 12px; }
   .proj-switch button { padding-block: 9px; }
 }
+
+/* ===== trang chủ, danh sách projects/ (FeaturedProjects) ===== */
+.feat-open { display: block; margin-top: 12px; color: var(--amber); }
+.feat-chev { display: none; }
+/* cảm ứng không có hover: dòng có mũi tên báo "chạm để mở rộng", còn "open →" thành nút rõ ràng */
+@media (hover: none) {
+  .feat-chev { display: inline-block; color: var(--text-dim); transition: transform var(--dur) var(--ease), color var(--dur) var(--ease); }
+  .feat-chev[data-on] { color: var(--amber); transform: rotate(90deg); }
+  .feat-open { display: inline-flex; align-items: center; margin-top: 14px; padding: 10px 16px; border: 1px solid var(--amber); border-radius: 6px; background: color-mix(in srgb, var(--amber) 10%, transparent); }
+}

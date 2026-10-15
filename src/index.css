@@ -205,8 +205,10 @@ body::before {
   display: inline-block;
   transition: transform 0.35s var(--ease);
 }
-.zune-letter:hover {
-  transform: translateY(-0.14em) rotate(-5deg);
+@media (hover: hover) {
+  .zune-letter:hover {
+    transform: translateY(-0.14em) rotate(-5deg);
+  }
 }
 /* chuồng của con sâu ở mobile (Hero.jsx + HeroWorm.jsx): dải tràn mép, hai đường đứt nét; sâu bò trong đây */
 .worm-pen {
@@ -228,6 +230,52 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .worm-pen { display: none; } /* không có sâu thì không cần chuồng */
 }
+
+/* dải stack thay cho chuồng sâu trên màn cảm ứng (StackTicker.jsx): cùng khung với .worm-pen, hai dải chip trôi ngược chiều */
+.stack-ticker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  height: 128px;
+  margin-inline: -2rem;
+  padding-bottom: 14px; /* chừa chỗ cho nhãn nhỏ ở đáy */
+  overflow: hidden;
+  border-block: 1px dashed var(--line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 3%, transparent), transparent);
+}
+.stack-ticker span:not(.chip) {
+  position: absolute;
+  left: 2rem;
+  bottom: 8px;
+  color: var(--text-dim);
+  font: 11px/1 'JetBrains Mono', ui-monospace, monospace;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.stack-row {
+  display: flex;
+  gap: 10px;
+  width: max-content;
+  pointer-events: none; /* chip không nhận chạm: không dính hover, chạm giữ rơi vào .stack-ticker để dừng */
+  animation: stack-slide 40s linear infinite;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.stack-row .chip { white-space: nowrap; }
+.stack-row.is-rev { animation-direction: reverse; animation-duration: 48s; }
+.stack-ticker:active .stack-row { animation-play-state: paused; }
+/* hai bản danh sách nối nhau: trôi đúng một bản (nửa chiều rộng + nửa khoảng cách giữa hai bản) thì lặp lại liền mạch */
+@keyframes stack-slide { to { transform: translateX(calc(-50% - 5px)); } }
+/* từ md trở lên không có chỗ cho dải này (tablet cảm ứng cũng vậy). Phải ẩn ở đây chứ không dựa vào class md:hidden:
+   .stack-ticker không nằm trong @layer nên đè display của Tailwind */
+@media (min-width: 48rem) {
+  .stack-ticker { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stack-ticker { display: none; } /* đứng yên thì chỉ là bản sao của about.js, bỏ luôn */
+}
 .hero-link {
   font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
   letter-spacing: 0.1em;
@@ -236,9 +284,11 @@ body::before {
   border-bottom: 1px solid var(--line);
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.hero-link:hover {
-  color: var(--amber);
-  border-color: var(--amber);
+@media (hover: hover) {
+  .hero-link:hover {
+    color: var(--amber);
+    border-color: var(--amber);
+  }
 }
 
 /* .spot: viền + ánh sáng amber chạy theo chuột (dùng cùng spotMove trong lib/dom.js) */

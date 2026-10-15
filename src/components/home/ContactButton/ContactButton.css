@@ -7,23 +7,27 @@
 .btn-contact[data-away='1'] svg {
   opacity: 0;
 }
-.btn-contact:hover svg {
-  transform: scale(3) translate(50%);
-}
 .btn-contact-main {
   transition: transform var(--dur-slow) var(--ease);
   transition-delay: 300ms;
-}
-.btn-contact:hover .btn-contact-main {
-  transform: translateX(200%);
 }
 .btn-contact-alt {
   transform: translateX(-150%);
   transition: transform var(--dur-slow) var(--ease);
 }
-.btn-contact:hover .btn-contact-alt {
-  transform: translateX(0);
-  transition-delay: 300ms;
+
+/* hover chỉ có ở chuột: cảm ứng chạm xong sẽ kẹt ở trạng thái hover (hình phóng to, chữ đổi thành "now!") */
+@media (hover: hover) {
+  .btn-contact:hover svg {
+    transform: scale(3) translate(50%);
+  }
+  .btn-contact:hover .btn-contact-main {
+    transform: translateX(200%);
+  }
+  .btn-contact:hover .btn-contact-alt {
+    transform: translateX(0);
+    transition-delay: 300ms;
+  }
 }
 
 /* màu chữ/bóng lấy từ biến đã đăng ký @property (index.css) nên mờ dần cùng nhịp với cả trang khi đổi theme;

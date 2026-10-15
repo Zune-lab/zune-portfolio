@@ -4,6 +4,7 @@ import '../lab/Lab/LabFx.css'; // chuyển động của LabIcon
 import './Chips.css';
 import LabIcon from '../lab/Lab/LabIcon.jsx';
 import { TECH_COLORS } from '../../config/tech.js';
+import TechIcon from '../ui/TechIcon.jsx';
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { featured, arts } from '../../projects/index.js';
@@ -12,7 +13,7 @@ import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
 import { site } from '../../config/site.js';
 import PageLink from '../ui/PageLink.jsx';
 import { spotMove } from '../../lib/dom.js';
-import { canHover } from '../../lib/env.js';
+import { canHover, prefersReducedMotion } from '../../lib/env.js';
 import useTimer from '../../lib/useTimer.js';
 import { WRAP } from '../../config/ui.js';
 
@@ -20,6 +21,7 @@ export function FeaturedProjects({ onNavigate }) {
   const list = featured;
   const [i, setI] = useState(0);
   const hoverT = useTimer();
+  const scrollT = useTimer();
   const p = list[i];
   const hoverable = canHover();
   // chờ ~80ms trước khi đổi để lướt chuột ngang qua không làm preview chớp
@@ -63,7 +65,7 @@ export function FeaturedProjects({ onNavigate }) {
 
           <ul className="m-0 p-0 list-none border-b border-line">
             {list.map((q, n) => (
-              <li key={q.file} className="border-t border-line relative">
+              <li key={q.file} className="border-t border-line relative scroll-mt-16">
                 <span
                   aria-hidden="true"
                   className={`absolute left-0 top-0 h-full w-[2px] bg-amber origin-top transition-transform duration-500 ease-out ${
@@ -74,19 +76,25 @@ export function FeaturedProjects({ onNavigate }) {
                   href={q.href}
                   target="_blank"
                   rel="noreferrer"
-                  onMouseEnter={() => pick(n)}
-                  onFocus={() => setI(n)}
+                  onMouseEnter={() => hoverable && pick(n)}
+                  onFocus={(e) => e.currentTarget.matches(':focus-visible') && setI(n)}
                   onClick={(e) => {
-                    if (n !== i && !hoverable) {
-                      e.preventDefault();
-                      setI(n);
-                    }
+                    if (hoverable) return;
+                    // cảm ứng: chạm dòng chỉ để mở rộng/chọn; muốn mở repo thì chạm nút "open →" của dòng đang mở
+                    if (n === i && e.target.closest('[data-open]')) return;
+                    e.preventDefault();
+                    if (n === i) return;
+                    const row = e.currentTarget.closest('li');
+                    setI(n);
+                    // dòng cũ co lại làm dòng vừa chạm bị đẩy đi: đợi hết animation rồi kéo nó về tầm nhìn
+                    scrollT.set(() => row?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' }), 520);
                   }}
                   className={`block py-4 pl-4 font-mono transition-transform duration-500 ease-out ${n === i ? 'translate-x-1' : ''}`}
                 >
                   <span className="flex items-baseline gap-3">
                     <span className="text-[12px] text-dim">{String(n + 1).padStart(2, '0')}</span>
                     <span className={`text-[15px] transition-colors duration-500 ${n === i ? 'text-amber' : 'text-ink'}`}>{q.file}</span>
+                    <span className="feat-chev ml-auto pr-3" data-on={n === i || undefined} aria-hidden="true">›</span>
                   </span>
                   <span
                     className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out ${
@@ -102,7 +110,7 @@ export function FeaturedProjects({ onNavigate }) {
                             <span className="text-ink break-words">{v}</span>
                           </span>
                         ))}
-                        <span className="block mt-3 text-amber">open →</span>
+                        <span data-open className="feat-open">open →</span>
                       </span>
                     </span>
                   </span>
@@ -134,7 +142,7 @@ export function AboutTeaser({ onNavigate }) {
             <ul className="flex flex-wrap gap-2 mt-6 p-0 list-none">
               {stack.map((s) => (
                 <li key={s} className="chip" style={TECH_COLORS[s] ? { '--c': TECH_COLORS[s] } : undefined}>
-                  <span className="chip-dot" aria-hidden="true" />
+                  <TechIcon name={s} />
                   {s}
                 </li>
               ))}

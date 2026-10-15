@@ -4,6 +4,8 @@ import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
 import HeroWorm from './HeroWorm.jsx';
+import StackTicker from './StackTicker.jsx';
+import useCanHover from '../../lib/useCanHover.js';
 import { isPaused, onPauseChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
 import { observeVisible } from '../../lib/observe.js';
@@ -68,6 +70,7 @@ function Typewriter() {
 }
 
 export default function Hero({ onNavigate }) {
+  const hover = useCanHover(); // cảm ứng không có con trỏ để sâu theo: không có sâu, thay bằng dải stack
   return (
     <header className="hero-full">
       <HeroWorm />
@@ -98,10 +101,15 @@ export default function Hero({ onNavigate }) {
               <ContactButton href="#contact" />
             </div>
           </div>
-          {/* mobile: chuồng riêng cho con sâu (HeroWorm nhốt sâu trong đây, xem [data-worm-pen]); từ md trở lên ẩn, sâu bò khắp hero */}
-          <div data-worm-pen className="worm-pen md:hidden" aria-hidden="true">
-            <span>// tap to feed</span>
-          </div>
+          {/* mobile: chỗ trống riêng. Có chuột thì là chuồng cho con sâu (HeroWorm nhốt sâu trong [data-worm-pen]),
+              cảm ứng thì là dải stack tự trôi. Từ md trở lên cả hai đều ẩn, sâu (nếu có chuột) bò khắp hero */}
+          {hover ? (
+            <div data-worm-pen className="worm-pen md:hidden" aria-hidden="true">
+              <span>// click to feed</span>
+            </div>
+          ) : (
+            <StackTicker />
+          )}
           <SheetCard />
         </div>
       </div>

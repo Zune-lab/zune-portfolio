@@ -28,6 +28,18 @@
   box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--c) 55%, transparent);
 }
 .chip:is(:hover, :focus-visible) .chip-dot { transform: scale(1.35); }
+
+/* chip tech: icon brand (config/tech-icons.js) thay cho chấm, cùng màu --c */
+.chip:has(.chip-icon) { padding: 6px 12px 6px 10px; }
+.chip-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--c);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 45%, transparent));
+  transition: transform var(--dur) var(--ease);
+}
+.chip:is(:hover, :focus-visible) .chip-icon { transform: scale(1.15); }
 @media (prefers-reduced-motion: no-preference) {
   .chip:is(:hover, :focus-visible) { transform: translateY(-2px); }
 }
