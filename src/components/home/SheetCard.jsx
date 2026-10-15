@@ -55,7 +55,7 @@ export default function SheetCard() {
       }`}>
       <div className="bg-panel px-4 py-2.5 border-b border-line flex items-center justify-between">
         <span className="text-dim">{maxed ? `${site.id}.sav [MAX]` : `${site.id}.sav`}</span>
-        <button type="button" onClick={cycleStatus} className="font-pixel text-[10px] flex items-center gap-2 cursor-pointer"
+        <button type="button" onClick={cycleStatus} className="touch-hit font-pixel text-[10px] flex items-center gap-2 cursor-pointer"
           style={{ color: status.color }} title="Click to change status (auto → busy → focus → offline). Saved on this device only.">
           <span className="inline-block h-2 w-2 rounded-full" style={{ background: status.color }} />
           {status.key}{status.isAuto && <span className="opacity-60">· auto</span>}
@@ -65,7 +65,7 @@ export default function SheetCard() {
       <div className="p-4 grid gap-2 leading-relaxed">
         <Row k="class">
           <button type="button" onClick={() => setCls((c) => (c + 1) % CLASSES.length)} title="click to change class"
-            className="text-left cursor-pointer hover:text-amber transition-colors">
+            className="touch-hit text-left cursor-pointer hover:text-amber transition-colors">
             {CLASSES[cls] ?? site.role} <span className="text-dim">↻</span>
           </button>
         </Row>

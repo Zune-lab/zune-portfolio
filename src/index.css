@@ -208,6 +208,26 @@ body::before {
 .zune-letter:hover {
   transform: translateY(-0.14em) rotate(-5deg);
 }
+/* chuồng của con sâu ở mobile (Hero.jsx + HeroWorm.jsx): dải tràn mép, hai đường đứt nét; sâu bò trong đây */
+.worm-pen {
+  position: relative;
+  height: 128px;
+  margin-inline: -2rem; /* bù padding px-8 của .wrap để dải tràn hết bề ngang */
+  border-block: 1px dashed var(--line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 3%, transparent), transparent);
+}
+.worm-pen span {
+  position: absolute;
+  left: 2rem;
+  bottom: 8px;
+  color: var(--text-dim);
+  font: 11px/1 'JetBrains Mono', ui-monospace, monospace;
+  opacity: 0.55;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .worm-pen { display: none; } /* không có sâu thì không cần chuồng */
+}
 .hero-link {
   font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
   letter-spacing: 0.1em;
@@ -316,4 +336,12 @@ body::before {
 :root[data-nap] :not(.bouncer, .bouncer *, .nap-bubble, .nap-dim)::before,
 :root[data-nap] :not(.bouncer, .bouncer *, .nap-bubble, .nap-dim)::after {
   animation-play-state: paused !important;
+}
+
+/* màn cảm ứng: nhiều nút/link nhỏ hơn 32px, khó bấm. Không đổi giao diện: nới vùng chạm bằng phần tử ẩn (.touch-hit)
+   hoặc thêm padding cho link/nút chữ. Chuột (pointer: fine) giữ nguyên như cũ. */
+.touch-hit { position: relative; }
+@media (pointer: coarse) {
+  .touch-hit::after { content: ''; position: absolute; inset: -10px -4px; }
+  .hero-link { padding-block: 12px 10px; }
 }

@@ -98,6 +98,10 @@ export default function Hero({ onNavigate }) {
               <ContactButton href="#contact" />
             </div>
           </div>
+          {/* mobile: chuồng riêng cho con sâu (HeroWorm nhốt sâu trong đây, xem [data-worm-pen]); từ md trở lên ẩn, sâu bò khắp hero */}
+          <div data-worm-pen className="worm-pen md:hidden" aria-hidden="true">
+            <span>// tap to feed</span>
+          </div>
           <SheetCard />
         </div>
       </div>

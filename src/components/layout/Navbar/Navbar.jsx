@@ -394,7 +394,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               if (inTab) goHome();
               else window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="brand font-mono text-sm flex items-center gap-2 cursor-pointer"
+            className="brand touch-hit font-mono text-sm flex items-center gap-2 cursor-pointer"
             style={{ '--brand-shrink': BRAND_SHRINK }}
           >
             {/* hover/focus: chấm → "{", chữ lăn sang "cd ~/", "}" trượt vào */}

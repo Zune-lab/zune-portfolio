@@ -37,9 +37,16 @@ const WORD = `${site.handle} `;
 const START_N = 10; // 1 đầu + 9 chữ (có 1 khoảng trống ngay sau đầu)
 const MAX_N = 28;
 const GAP = 28;
+// Mobile: hero không còn chỗ trống cho sâu (thẻ zune.sav + hai nút chiếm gần hết), nên Hero.jsx có một "chuồng" riêng
+// (phần tử [data-worm-pen], chỉ hiện dưới md). Ở đó sâu bị nhốt trong chuồng và nhỏ hơn: thân ngắn, chữ nhỏ, đầu 80%.
+const GAP_M = 18;
+const MAX_N_M = 16;
+const HEAD_K_M = 0.8;
+const PEN_PAD = 18; // đầu sâu cách mép chuồng ít nhất bấy nhiêu px (nửa đầu + biên độ uốn lượn)
 const MONO = '"JetBrains Mono", monospace';
 // chuỗi font của từng đốt thân, tính một lần (trước đây dựng lại chuỗi cho mỗi chữ ở mỗi khung hình)
 const BODY_FONTS = Array.from({ length: MAX_N }, (_, i) => `700 ${Math.max(12, 22 - i * 0.6)}px ${MONO}`);
+const BODY_FONTS_M = Array.from({ length: MAX_N }, (_, i) => `700 ${Math.max(10, 16 - i * 0.45)}px ${MONO}`);
 const FONT_BUBBLE = `600 13px ${MONO}`;
 // bấm vào những thứ này thì KHÔNG tính là "bấm chỗ trống"
 const INTERACTIVE = 'a,button,input,textarea,select,label,aside,h1,p,[role="button"]';
@@ -123,6 +130,12 @@ export default function HeroWorm() {
     const crew = createCrewmate();
     const contactEl = host.querySelector('.btn-contact');
     const obstacleEls = [...host.querySelectorAll('aside, .btn-31, .btn-contact')]; // đứng yên suốt đời hero: chỉ đọc lại toạ độ mỗi khung
+    const penEl = host.querySelector('[data-worm-pen]'); // chuồng của mobile (display:none ở md trở lên -> rect rỗng -> null)
+    const penRect = () => {
+      if (!penEl) return null;
+      const r = penEl.getBoundingClientRect();
+      return r.width > 4 && r.height > 4 ? r : null;
+    };
     let away = false;
     const tracker = createPointerTracker();
 
@@ -143,8 +156,14 @@ export default function HeroWorm() {
       if (brain) brain.resize(w, h);
     };
     resize();
-    brain = createBrain({ w, h, x: w * 0.8, y: h * 0.5 });
-    const nodes = Array.from({ length: START_N }, (_, i) => ({ x: w * 0.8 + i * GAP, y: h * 0.5 }));
+    // mobile: xuất phát ngay giữa chuồng, thân duỗi sang phải; desktop: như cũ
+    const pen0 = penRect();
+    const hr0 = host.getBoundingClientRect();
+    const startX = pen0 ? w * 0.3 : w * 0.8;
+    const startY = pen0 ? (pen0.top + pen0.bottom) / 2 - hr0.top : h * 0.5;
+    const startGap = pen0 ? GAP_M : GAP;
+    brain = createBrain({ w, h, x: startX, y: startY });
+    const nodes = Array.from({ length: START_N }, (_, i) => ({ x: startX + i * startGap, y: startY }));
     const pos = nodes.map((n) => ({ x: n.x, y: n.y })); // vị trí để VẼ (đã cộng sóng uốn lượn), nodes giữ vị trí vật lý
 
     const onMove = (e) => (e.pointerType === 'touch' ? tracker.leave() : tracker.move(e.clientX, e.clientY, performance.now()));
@@ -160,7 +179,7 @@ export default function HeroWorm() {
     const onClick = (e) => {
       if (e.target.closest(INTERACTIVE) || window.getSelection()?.toString()) return; // trúng nút/chữ, hoặc là cú thả sau khi kéo chọn
       const now = performance.now();
-      if (nodes.length >= MAX_N) {
+      if (nodes.length >= (penRect() ? MAX_N_M : MAX_N)) {
         bubble = { text: 'full.', until: now + 1200 };
         return;
       }
@@ -182,6 +201,13 @@ export default function HeroWorm() {
       // --- chuột (chỉ tính khi đang nằm trong hero; toạ độ tính lại mỗi khung -> đúng cả khi trang đang cuộn)
       const hostRect = host.getBoundingClientRect();
       const { pointer, idle } = tracker.read(t, hostRect);
+
+      // --- mobile: nhốt đầu sâu trong chuồng (toạ độ hero); desktop: thả ra cả hero
+      const pr = penRect();
+      const mob = !!pr;
+      const gap = mob ? GAP_M : GAP;
+      const bodyFonts = mob ? BODY_FONTS_M : BODY_FONTS;
+      brain.setBox(pr ? { l: 8, r: w - 8, t: pr.top - hostRect.top + PEN_PAD, b: pr.bottom - hostRect.top - PEN_PAD } : null);
 
       // --- vật cản (toạ độ theo hero): thẻ zune.sav và hai nút đều nằm TRÊN canvas, sâu chui ra sau là bị che mất hình.
       // Nút contact tách riêng (contactRect): với sâu nó vẫn là vật cản, còn crewmate thì sống trong đó.
@@ -264,8 +290,8 @@ export default function HeroWorm() {
         const ex = n.x - p.x;
         const ey = n.y - p.y;
         const dist = Math.hypot(ex, ey) || 1;
-        n.x = p.x + (ex / dist) * GAP;
-        n.y = p.y + (ey / dist) * GAP;
+        n.x = p.x + (ex / dist) * gap;
+        n.y = p.y + (ey / dist) * gap;
         // thân không được nằm sau thẻ/nút: đẩy ra mép gần nhất (thân vắt qua góc thẻ thay vì chui xuống dưới)
         const q = pushOutside(n.x, n.y, obstacles, 4);
         n.x = q.x;
@@ -307,7 +333,7 @@ export default function HeroWorm() {
         ctx.rotate(ang);
         ctx.globalAlpha = 0.9 - (i / len) * 0.55;
         ctx.fillStyle = maxed ? `hsl(${(hue + i * 28) % 360} 85% 62%)` : ink;
-        ctx.font = BODY_FONTS[i];
+        ctx.font = bodyFonts[i];
         ctx.fillText(WORD[WORD.length - 1 - ((i - 1) % WORD.length)], 0, 0); // chữ neo theo đầu: đuôi dài ra thì lặp lại "zune.dev "
         ctx.restore();
       }
@@ -317,7 +343,7 @@ export default function HeroWorm() {
       const headAng = hs.heading + (resting ? Math.sin(t / 900) * 0.14 : 0);
       const nod = asleep ? Math.sin(t / 700) * 1.6 : 0;
       const breathe = asleep ? 1 + Math.sin(t / 1100) * 0.06 : 1 + Math.sin(t / 650) * 0.035;
-      const scale = out.scared ? 1.18 : maxed ? 1.08 + Math.sin(t / 120) * 0.05 : breathe;
+      const scale = (out.scared ? 1.18 : maxed ? 1.08 + Math.sin(t / 120) * 0.05 : breathe) * (mob ? HEAD_K_M : 1);
       ctx.save();
       ctx.translate(head.x, head.y + nod);
       ctx.rotate(headAng);

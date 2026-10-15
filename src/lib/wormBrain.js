@@ -128,9 +128,21 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     via: '', // góc vật cản đang đi vòng (để không nhảy qua lại giữa hai góc)
     lockT: 0, // mốc chuột bắt đầu nằm trong vật cản (0 = đang không nằm trong)
     lockSaid: false,
+    box: null, // vùng đầu sâu được phép ở (toạ độ theo hero). null = cả hero. Mobile dùng nó để nhốt sâu trong "chuồng" riêng
   };
 
-  const inBounds = (x, y) => x >= 8 && x <= s.w - 8 && y >= 8 && y <= s.h - 8;
+  // vùng cho phép của đầu: mặc định cả hero (chừa 8px), hoặc s.box khi có
+  const limits = () => s.box || { l: 8, t: 8, r: s.w - 8, b: s.h - 8 };
+  const inBounds = (x, y) => {
+    const B = limits();
+    return x >= B.l && x <= B.r && y >= B.t && y <= B.b;
+  };
+  // vùng chọn đích đi dạo / chạy trốn: mặc định cách mép hero MARGIN, có box thì cách mép box một chút
+  const area = () => {
+    if (!s.box) return { l: MARGIN, t: MARGIN, r: s.w - MARGIN, b: s.h - MARGIN };
+    const m = 14;
+    return { l: s.box.l + m, t: s.box.t, r: Math.max(s.box.l + m, s.box.r - m), b: Math.max(s.box.t, s.box.b) };
+  };
   const blocked = (x, y) => s.obs.some((r) => inRect(x, y, r));
   const segHits = (ax, ay, bx, by, r0) => {
     const r = grow(r0, -2); // thu nhỏ 2px: đi sát mép (đúng đường biên) không bị tính là xuyên qua
@@ -193,12 +205,13 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
   };
 
   const pickWay = () => {
-    const minD = Math.min(s.w, s.h) * 0.3;
+    const A = area();
+    const minD = Math.min(A.r - A.l, A.b - A.t + 200, s.w, s.h) * 0.3; // chuồng thấp thì chỉ cần chuyến đi đủ dài theo chiều ngang
     let best = null;
     for (let i = 0; i < 8; i++) {
       const c = {
-        x: MARGIN + rand() * Math.max(1, s.w - MARGIN * 2),
-        y: MARGIN + rand() * Math.max(1, s.h - MARGIN * 2),
+        x: A.l + rand() * Math.max(1, A.r - A.l),
+        y: A.t + rand() * Math.max(1, A.b - A.t),
       };
       if (blocked(c.x, c.y)) continue; // không chọn đích nằm sau thẻ
       const d = Math.hypot(c.x - s.x, c.y - s.y);
@@ -214,8 +227,9 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     let best = null;
     for (const off of [0, 0.6, -0.6, 1.2, -1.2, 1.9, -1.9]) {
       const a = base + off;
-      const tx = clamp(s.x + Math.cos(a) * 230, MARGIN, s.w - MARGIN);
-      const ty = clamp(s.y + Math.sin(a) * 230, MARGIN, s.h - MARGIN);
+      const A = area();
+      const tx = clamp(s.x + Math.cos(a) * 230, A.l, A.r);
+      const ty = clamp(s.y + Math.sin(a) * 230, A.t, A.b);
       const gain = Math.hypot(tx - s.x, ty - s.y); // thực sự chạy được bao xa sau khi bị mép chặn
       let score = gain - Math.abs(off) * 40;
       if (blocked(tx, ty)) score -= 1000; // không chạy trốn ra sau thẻ
@@ -251,8 +265,9 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     }
     const px = s.x;
     const py = s.y;
-    s.x = clamp(s.x + Math.cos(s.heading) * s.speed * k, 8, s.w - 8);
-    s.y = clamp(s.y + Math.sin(s.heading) * s.speed * k, 8, s.h - 8);
+    const B = limits();
+    s.x = clamp(s.x + Math.cos(s.heading) * s.speed * k, B.l, B.r);
+    s.y = clamp(s.y + Math.sin(s.heading) * s.speed * k, B.t, B.b);
     // đầu không được chui vào vật cản (trừ khi đang ở sẵn bên trong: lúc đó cứ để nó bò ra)
     for (const r of s.obs) {
       if (!inRect(px, py, r)) pushOutOfRect(s, r);
@@ -275,10 +290,28 @@ export function createBrain({ w, h, x, y, heading = Math.PI, rand = Math.random 
     resize(w2, h2) {
       s.w = w2;
       s.h = h2;
-      s.x = clamp(s.x, 8, Math.max(8, w2 - 8));
-      s.y = clamp(s.y, 8, Math.max(8, h2 - 8));
+      const B = s.box || { l: 8, t: 8, r: Math.max(8, w2 - 8), b: Math.max(8, h2 - 8) };
+      s.x = clamp(s.x, B.l, B.r);
+      s.y = clamp(s.y, B.t, B.b);
       s.way = null;
       s.via = '';
+    },
+    // nhốt đầu sâu trong box {l,t,r,b} (toạ độ hero), hoặc null để thả ra cả hero. Đầu đang nằm ngoài box thì được kéo vào ngay
+    setBox(box) {
+      const had = !!s.box;
+      s.box = box;
+      if (!box) {
+        if (had) s.way = null;
+        return;
+      }
+      const x = clamp(s.x, box.l, box.r);
+      const y = clamp(s.y, box.t, box.b);
+      if (x !== s.x || y !== s.y || !had) {
+        s.x = x;
+        s.y = y;
+        s.way = null;
+        s.via = '';
+      }
     },
     // bị nhân vật khác doạ (vd crewmate): giật nảy ra xa khỏi điểm p
     startle(t, p) {

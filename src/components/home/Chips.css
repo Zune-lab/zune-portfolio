@@ -1,0 +1,46 @@
+/* chip ở trang chủ (about.js + lab.css): nền/viền ngả theo màu --c ngay cả khi chưa hover */
+.chip {
+  --c: var(--amber);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--c) 30%, var(--line));
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--c) 7%, var(--panel));
+  color: var(--text);
+  font: 13px/1 'JetBrains Mono', monospace;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease),
+    box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.chip-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--c) 70%, transparent);
+  transition: transform var(--dur) var(--ease);
+}
+.chip:is(:hover, :focus-visible) {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, var(--panel));
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--c) 55%, transparent);
+}
+.chip:is(:hover, :focus-visible) .chip-dot { transform: scale(1.35); }
+@media (prefers-reduced-motion: no-preference) {
+  .chip:is(:hover, :focus-visible) { transform: translateY(-2px); }
+}
+
+/* chip của lab: icon thay cho chấm, màu theo loại */
+.tag-lab { gap: 9px; padding: 6px 12px 6px 10px; }
+.tag-lab .lab-icon { flex: none; color: var(--c); }
+.tag-lab[data-kind='game'] { --c: var(--green); }
+.tag-lab[data-kind='toy'] { --c: var(--amber); }
+.tag-lab[data-kind='tool'] { --c: var(--css-lang); }
+.tag-lab:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+
+/* màn cảm ứng: chip lab cao ~38px cho dễ chạm (chuột giữ nguyên) */
+@media (pointer: coarse) {
+  .tag-lab { padding-block: 10px; }
+}

@@ -519,13 +519,13 @@ export default function BannerMaker() {
                           <span className="truncate">{PATTERN[l.pattern].name}</span>
                           <span className="text-dim text-[12px] truncate">{colorName(l.color)}</span>
                         </button>
-                        <button type="button" onClick={() => move(i, 1)} disabled={i === layers.length - 1} aria-label="Move layer up" className="px-1.5 text-dim hover:text-ink disabled:opacity-30">
+                        <button type="button" onClick={() => move(i, 1)} disabled={i === layers.length - 1} aria-label="Move layer up" className="touch-hit px-1.5 text-dim hover:text-ink disabled:opacity-30">
                           ↑
                         </button>
-                        <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move layer down" className="px-1.5 text-dim hover:text-ink disabled:opacity-30">
+                        <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move layer down" className="touch-hit px-1.5 text-dim hover:text-ink disabled:opacity-30">
                           ↓
                         </button>
-                        <button type="button" onClick={() => removeLayer(i)} aria-label="Remove layer" className="px-2 text-dim hover:text-amber">
+                        <button type="button" onClick={() => removeLayer(i)} aria-label="Remove layer" className="touch-hit px-2 text-dim hover:text-amber">
                           ✕
                         </button>
                       </div>

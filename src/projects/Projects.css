@@ -525,3 +525,9 @@
   .proj-played[data-clear] .proj-played-bar { animation: proj-clear-blink 0.5s steps(1, end) 4; }
 }
 @keyframes proj-clear-blink { 50% { opacity: 0.25; } }
+
+/* màn cảm ứng: nới nút lọc / chuyển bố cục cho dễ bấm (chuột giữ nguyên) */
+@media (pointer: coarse) {
+  .proj-tags button { padding: 8px 12px; }
+  .proj-switch button { padding-block: 9px; }
+}

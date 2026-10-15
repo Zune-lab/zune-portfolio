@@ -1,5 +1,9 @@
 import { Suspense, useState } from 'react';
 import '../../projects/Projects.css'; // chứa .art-center dùng chung cho mọi Art
+import '../lab/Lab/LabFx.css'; // chuyển động của LabIcon
+import './Chips.css';
+import LabIcon from '../lab/Lab/LabIcon.jsx';
+import { TECH_COLORS } from '../../config/tech.js';
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { featured, arts } from '../../projects/index.js';
@@ -93,9 +97,9 @@ export function FeaturedProjects({ onNavigate }) {
                       <span className="block mt-3 pl-8 text-[13px] leading-relaxed">
                         <span className="block text-dim font-sans">{q.desc}</span>
                         {q.facts?.map(([k, v]) => (
-                          <span key={k} className="grid grid-cols-[84px_1fr] gap-3 mt-1.5">
+                          <span key={k} className="grid grid-cols-[84px_minmax(0,1fr)] gap-3 mt-1.5">
                             <span className="text-dim">{k}</span>
-                            <span className="text-ink">{v}</span>
+                            <span className="text-ink break-words">{v}</span>
                           </span>
                         ))}
                         <span className="block mt-3 text-amber">open →</span>
@@ -129,7 +133,8 @@ export function AboutTeaser({ onNavigate }) {
             </p>
             <ul className="flex flex-wrap gap-2 mt-6 p-0 list-none">
               {stack.map((s) => (
-                <li key={s} className="font-mono text-[12px] px-2.5 py-1 border border-line rounded-sm text-dim">
+                <li key={s} className="chip" style={TECH_COLORS[s] ? { '--c': TECH_COLORS[s] } : undefined}>
+                  <span className="chip-dot" aria-hidden="true" />
                   {s}
                 </li>
               ))}
@@ -144,7 +149,7 @@ export function AboutTeaser({ onNavigate }) {
             <div className="text-dim mb-3">$ git log --oneline -5</div>
             <ol className="m-0 p-0 list-none">
               {gitLog.slice(-5).map((e) => (
-                <li key={e.hash} className="grid grid-cols-[auto_auto] sm:grid-cols-[auto_5rem_1fr] gap-x-3">
+                <li key={e.hash} className="grid grid-cols-[auto_1fr] sm:grid-cols-[auto_5rem_1fr] gap-x-3">
                   <span style={{ color: 'var(--amber)' }}>{e.hash}</span>
                   <span style={{ color: 'var(--green)' }}>{e.date}</span>
                   <span className="col-span-2 sm:col-span-1">{e.msg}</span>
@@ -170,8 +175,10 @@ export function LabTeaser({ onNavigate }) {
               <PageLink
                 view={`lab/${i.slug}`}
                 onNavigate={onNavigate}
-                className="inline-block font-mono text-[13px] px-3 py-1.5 border border-line rounded-sm text-dim hover:text-amber hover:border-amber-dim transition-colors"
+                className="chip tag-lab"
+                data-kind={i.kind}
               >
+                <LabIcon name={i.slug} size={16} />
                 {i.file}
               </PageLink>
             </li>
