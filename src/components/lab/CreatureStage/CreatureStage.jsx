@@ -4,14 +4,14 @@ import { frameLoop } from '../../../lib/loop.js';
 import { cssVar, fitCanvas } from '../../../lib/canvas.js';
 import { PANEL } from '../../../config/ui.js';
 
-// Sân khấu dùng chung cho các sinh vật trong lab (Moths, Parasite, Mother, Choir...).
+// Sân khấu dùng chung cho các sinh vật trong lab (Moths, Reptile, Mother, Choir...).
 // Lo hết phần việc lặp lại: canvas + DPR, màu theo theme, con trỏ, vòng lặp "ngủ thật", nút respawn.
 // Mỗi sinh vật chỉ là một hàm `make(w, h)` trả về { label, step(api) }:
 //   label  chữ nhỏ ở góc khung (vd "move your cursor · 6 legs")
 //   step   gọi mỗi khung hình; vẽ trực tiếp lên api.ctx
 //   caption (tùy chọn) hàm trả chữ nhỏ ở góc khung; được hỏi mỗi khung nên chữ đổi được theo diễn biến (vd "it's inside")
 //   destroy (tùy chọn) dọn dẹp khi respawn / rời trang (vd đóng AudioContext của Choir)
-//   Muốn tự vẽ con trỏ (Parasite): gán ctx.canvas.style.cursor = 'none' trong step; stage tự trả lại khi dọn
+//   Muốn tự vẽ con trỏ: gán ctx.canvas.style.cursor = 'none' trong step; stage tự trả lại khi dọn
 // api = {
 //   ctx, w, h        canvas và kích thước (px CSS). w/h có thể đổi khi resize: luôn đọc lại, đừng cache
 //   t, dt            thời gian chạy (giây) và bước thời gian của khung này (đã chặn ≤ 50ms)
@@ -22,7 +22,8 @@ import { PANEL } from '../../../config/ui.js';
 // }
 const IDLE_S = 2.5;
 
-export default function CreatureStage({ make, height = 380 }) {
+// minFrameMs: giới hạn tốc độ khung (vd 33 = ~30 khung/giây). Khung bị bỏ qua thì KHÔNG xoá canvas, hình cũ giữ nguyên (không nhấp nháy)
+export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
   const wrap = useRef(null);
   const cvs = useRef(null);
   const labelEl = useRef(null);
@@ -40,11 +41,11 @@ export default function CreatureStage({ make, height = 380 }) {
     const readColors = () => {
       const cs = getComputedStyle(box);
       colors.ink = cs.color;
-      colors.amber = cssVar(cs, '--amber', '#ffc857');
-      colors.dim = cssVar(cs, '--text-dim', '#8a93a3');
-      colors.green = cssVar(cs, '--green', '#7ee081');
-      colors.line = cssVar(cs, '--line', '#1d232c');
-      colors.panel = cssVar(cs, '--panel', '#10141b');
+      colors.amber = cssVar(cs, '--amber');
+      colors.dim = cssVar(cs, '--text-dim');
+      colors.green = cssVar(cs, '--green');
+      colors.line = cssVar(cs, '--line');
+      colors.panel = cssVar(cs, '--panel');
     };
     readColors();
     const offTheme = onThemeChange(readColors);
@@ -102,7 +103,10 @@ export default function CreatureStage({ make, height = 380 }) {
     ro.observe(box);
 
     let last = 0;
+    let lastDraw = -Infinity;
     const tick = (ms) => {
+      if (ms - lastDraw < minFrameMs) return;
+      lastDraw = ms;
       api.dt = last ? Math.min(0.05, (ms - last) / 1000) : 1 / 60;
       last = ms;
       api.t += api.dt;
@@ -147,7 +151,7 @@ export default function CreatureStage({ make, height = 380 }) {
       canvas.removeEventListener('pointercancel', up);
       canvas.removeEventListener('pointerleave', leave);
     };
-  }, [nonce, make]);
+  }, [nonce, make, minFrameMs]);
 
   return (
     <div className={PANEL}>

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLevel } from '../../../lib/social.js';
+import { BATTERY_CELLS, toneOf, useLevel } from '../../../lib/social.js';
 import { clamp } from '../../../lib/math.js';
 
 // "Pin xã hội cạn dần khi bạn đọc": vạch tiến độ cuộn ở mép TRÊN, thay cho máy đo nhịp tim (ECG) cũ.
@@ -12,7 +12,6 @@ import { clamp } from '../../../lib/math.js';
 // Thuần DOM/CSS, KHÔNG có vòng rAF: chỉ cập nhật khi cuộn / đổi kích thước / pin đổi (nên đứng yên khi screensaver, và đổi theme
 // không thể lệch pha như canvas). Chữ và ô pin chỉ ghi vào DOM khi giá trị thật sự đổi.
 
-const CELLS = 10;
 const FAST_PX_S = 2800; // cuộn nhanh hơn mức này (px/giây) thì "overstimulated"
 const REVIVE_MS = 1400; // thời gian hiện "recharging…" sau khi cuộn ngược khỏi đáy
 const wordFor = (n) => (n >= 80 ? 'chatty' : n >= 60 ? 'still talking' : n >= 40 ? 'small talk only' : n >= 20 ? 'running low' : 'needs a nap');
@@ -70,8 +69,8 @@ export default function Battery({ napping, panic }) {
       else if (vel > FAST_PX_S) word = 'overstimulated';
       else word = wordFor(n);
 
-      const tone = pan ? 'lo' : n > 50 ? 'hi' : n > 20 ? 'mid' : 'lo'; // cùng ngưỡng màu với thẻ zune.sav
-      const on = Math.round((n / 100) * CELLS);
+      const tone = pan ? 'lo' : toneOf(n); // cùng ngưỡng màu với thẻ zune.sav (lib/social.js)
+      const on = Math.round((n / 100) * BATTERY_CELLS);
       const crit = tone === 'lo' && n <= 10 && !maxed;
       if (shown.tone !== tone) {
         el.dataset.tone = tone;
@@ -160,7 +159,7 @@ export default function Battery({ napping, panic }) {
       <div className="batt-head" />
       <div className="batt-label">
         <span ref={cellsEl} className="batt-cells">
-          {Array.from({ length: CELLS }, (_, i) => (
+          {Array.from({ length: BATTERY_CELLS }, (_, i) => (
             <i key={i} style={{ '--i': i }} />
           ))}
         </span>

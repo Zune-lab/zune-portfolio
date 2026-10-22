@@ -3,6 +3,7 @@ import Battery from './Battery.jsx';
 import { setNapState } from '../../../lib/nap.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
 import { site } from '../../../config/site.js';
+import { viewFromLocation } from '../../../config/pages.js';
 import { pick, randInt, TAU } from '../../../lib/math.js';
 import './Alive.css';
 
@@ -176,7 +177,7 @@ export default function Alive() {
     let live = 0;
     const onClick = (e) => {
       if (e.button !== 0 || e.target.closest(POP_SKIP) || window.getSelection()?.toString()) return;
-      if (/\/lab\/[^/]+/.test(location.pathname) || live > 24) return; // trong game thì đừng làm rối
+      if (viewFromLocation().startsWith('lab/') || live > 24) return; // đang mở một mục lab (game...) thì đừng làm rối
       const n = randInt(5, 7);
       for (let i = 0; i < n; i++) {
         const el = document.createElement('span');

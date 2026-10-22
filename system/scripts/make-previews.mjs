@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { mkdir, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { pagesOrigin } from '../../src/config/site.js';
+import { slugOfFile } from '../../src/projects/slug.js';
 
 const PROJECTS_DIR = new URL('../../src/projects/', import.meta.url);
 
@@ -42,7 +43,6 @@ const SETTLE_MS = 1500; // chờ animation vào trang chạy xong rồi mới ch
 const filter = process.argv[2];
 
 const siteOf = (p) => p.site || `${pagesOrigin}/${p.href.split('/').filter(Boolean).pop()}/`;
-const slugOf = (file) => file.replace(/\.[^.]+$/, '');
 
 await mkdir(fileURLToPath(OUT), { recursive: true });
 const browser = await chromium.launch();
@@ -63,7 +63,7 @@ for (const p of projects) {
       continue;
     }
     await page.waitForTimeout(SETTLE_MS);
-    await page.screenshot({ path: fileURLToPath(new URL(`${slugOf(p.file)}.png`, OUT)), type: 'png' });
+    await page.screenshot({ path: fileURLToPath(new URL(`${slugOfFile(p.file)}.png`, OUT)), type: 'png' });
     console.log(`✓ ${p.file}  <- ${url}`);
     ok++;
   } catch (e) {

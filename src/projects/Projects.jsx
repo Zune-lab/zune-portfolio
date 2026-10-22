@@ -1,12 +1,15 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import SectionHead from '../components/ui/SectionHead.jsx';
 import { projects, arts, tags } from './index.js';
-import { WRAP } from '../config/ui.js';
+import { slugOf } from './slug.js';
+import { SCROLL_MT_SUB, SECTION, WRAP } from '../config/ui.js';
+import { labelOf } from '../config/pages.js';
 import { storageKey } from '../config/site.js';
 import { clamp } from '../lib/math.js';
 import { BASE } from '../lib/paths.js';
 import { sessionGet, sessionSet, storageGet, storageSet } from '../lib/storage.js';
 import { canHover, prefersReducedMotion } from '../lib/env.js';
+import { isSlashShortcut } from '../lib/dom.js';
 import './Projects.css';
 
 // Trang projects = một cái máy chơi game + kệ băng:
@@ -18,7 +21,6 @@ const MODE_KEY = storageKey('projects-mode'); // nhớ người dùng thích k�
 const SEEN_KEY = storageKey('projects-seen'); // các project đã xem, để dòng ls có dấu "đã xem"
 const LS_DEFAULT_MIN = 12; // nhiều hơn số này (và chưa từng chọn) thì mặc định mở danh sách ls
 
-const slugOf = (p) => p.file.replace(/\.[^.]+$/, '');
 const extOf = (p) => p.file.slice(p.file.lastIndexOf('.'));
 const repoPathOf = (p) => new URL(p.href).pathname.replace(/^\//, '');
 // Project có bật GitHub Pages không? Hỏi API công khai (có CORS, trả `has_pages`) chứ không gọi thẳng trang .github.io:
@@ -36,6 +38,13 @@ const checkPages = async (p, signal) => {
   sessionSet(key, v);
   return v;
 };
+// trạng thái deploy của một project -> đèn LED + chữ hiển thị. Chưa dò xong (chưa có trong `status`) thì dùng DEPLOY_CHECKING.
+const DEPLOY = {
+  live: { led: 'on', title: 'live on GitHub Pages', label: 'Deployed' },
+  off: { led: 'off', title: 'not deployed', label: 'Not deployed' },
+  unknown: { led: 'idle', title: 'checking…', label: 'Checking deployment' }, // dò lỗi (mất mạng, hết lượt API): không kết luận
+};
+const DEPLOY_CHECKING = { led: 'check', title: 'checking…', label: 'Checking deployment' };
 // 'made with' -> madeWith, 'a-dumb-gift' -> aDumbGift (dùng làm tên khoá / tên biến trong đoạn code)
 const camel = (s) => s.replace(/[^a-z0-9]+(.)?/gi, (_, c) => (c ? c.toUpperCase() : ''));
 
@@ -94,7 +103,7 @@ function stageLeave(e) {
 }
 
 export default function Projects() {
-  const [picked, setPicked] = useState(() => (typeof location === 'undefined' ? '' : location.hash.slice(1)));
+  const [picked, setPicked] = useState(() => location.hash.slice(1));
   const [shotFor, setShotFor] = useState(null); // slug của project đang xem ảnh chụp thay vì Art
   const [brokenShots, setBrokenShots] = useState({});
   const [q, setQ] = useState('');
@@ -139,6 +148,7 @@ export default function Projects() {
   const at = list.findIndex((x) => slugOf(x) === slug);
   const Art = arts[slug];
   const st = status[slug];
+  const dep = DEPLOY[st] ?? DEPLOY_CHECKING;
   const hasShot = Boolean(p?.shot) && !brokenShots[slug];
   const showShot = hasShot && shotFor === slug;
 
@@ -224,8 +234,7 @@ export default function Projects() {
   };
   // phím tắt trong cả khối projects: "/" nhảy vào ô lọc (như GitHub/YouTube)
   const sectionKey = (e) => {
-    if (e.key !== '/' || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!isSlashShortcut(e)) return;
     e.preventDefault();
     filterRef.current?.focus();
   };
@@ -251,7 +260,8 @@ export default function Projects() {
   const pick = (k) => {
     setPicked(k);
     const el = consoleRef.current;
-    if (el && el.getBoundingClientRect().top < 56) {
+    const navH = document.querySelector('#root > nav')?.offsetHeight ?? 0; // đo thật chiều cao navbar thay vì chép số
+    if (el && el.getBoundingClientRect().top < navH) {
       el.scrollIntoView({ block: 'start', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
     }
   };
@@ -259,9 +269,9 @@ export default function Projects() {
 
   if (!p) {
     return (
-      <section id="projects" className="py-20 border-t border-line">
+      <section id="projects" className={SECTION}>
         <div className={WRAP}>
-          <SectionHead num="01" title="projects/" level={1} />
+          <SectionHead num="01" title={labelOf('projects')} level={1} />
           <p className="proj-empty">{'// nothing here yet'}</p>
         </div>
       </section>
@@ -330,14 +340,14 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="py-20 border-t border-line" onKeyDown={sectionKey}>
+    <section id="projects" className={SECTION} onKeyDown={sectionKey}>
       <div className={WRAP}>
-        <SectionHead num="01" title="projects/" level={1} />
+        <SectionHead num="01" title={labelOf('projects')} level={1} />
         <p className="-mt-6 mb-8 text-dim text-[14px] max-w-[60ch]">
           Small things I built for fun. Grab a cartridge to load it.
         </p>
 
-        <div id="proj-panel" ref={consoleRef} role="tabpanel" aria-labelledby={`proj-tab-${slug}`} className="proj-console scroll-mt-20">
+        <div id="proj-panel" ref={consoleRef} role="tabpanel" aria-labelledby={`proj-tab-${slug}`} className={`proj-console ${SCROLL_MT_SUB}`}>
           <div key={slug} className="proj-console-body">
             <div className="proj-screen">
               <div className="proj-art" data-off={st === 'off' || undefined} style={{ color: p.color }} onPointerMove={stageMove} onPointerLeave={stageLeave}>
@@ -376,10 +386,10 @@ export default function Projects() {
                 <span className="flex items-center gap-2.5 font-mono text-[13px] text-ink min-w-0">
                   <span
                     className="proj-led"
-                    data-state={st === 'live' ? 'on' : st === 'off' ? 'off' : st ? 'idle' : 'check'}
-                    title={st === 'live' ? 'live on GitHub Pages' : st === 'off' ? 'not deployed' : 'checking…'}
+                    data-state={dep.led}
+                    title={dep.title}
                     role="img"
-                    aria-label={st === 'live' ? 'Deployed' : st === 'off' ? 'Not deployed' : 'Checking deployment'}
+                    aria-label={dep.label}
                   />
                   <span className="truncate">{p.file}</span>
                 </span>

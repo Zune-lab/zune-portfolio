@@ -22,6 +22,13 @@ import { syncThemeNow } from './lib/themeSync.js';
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
 const TAB_LOADER_MS = 450;
 
+// <meta theme-color> (thanh trạng thái / thanh địa chỉ trên điện thoại) lấy thẳng từ --bg đang áp dụng, nên theo cả theme sáng/tối
+// LẪN tông giờ (data-tod đổi --bg một chút). Trước đây chép cứng hai mã hex nên lệch màu nền trang vào ban đêm / buổi sáng / chiều tối.
+const syncThemeColor = () => {
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+};
+
 export default function App() {
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
@@ -40,7 +47,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'light' ? '#f6f3ec' : '#0a0c10');
+    syncThemeColor();
     storageSet(storageKey('theme'), theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
   }, [theme]);
 
@@ -137,6 +144,7 @@ export default function App() {
     root.classList.add('theme-anim');
     change();
     syncThemeNow();
+    syncThemeColor();
     themeTimer.current = window.setTimeout(() => root.classList.remove('theme-anim'), 120);
   };
   const toggleTheme = () => {

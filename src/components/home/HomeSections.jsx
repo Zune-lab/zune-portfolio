@@ -8,6 +8,7 @@ import TechIcon from '../ui/TechIcon.jsx';
 import SectionHead from '../ui/SectionHead.jsx';
 import Terminal from './Terminal/Terminal.jsx';
 import { featured, arts } from '../../projects/index.js';
+import { slugOf } from '../../projects/slug.js';
 import { LAB_ITEMS } from '../../config/lab-items.js';
 import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
 import { site } from '../../config/site.js';
@@ -15,7 +16,8 @@ import PageLink from '../ui/PageLink.jsx';
 import { spotMove } from '../../lib/dom.js';
 import { canHover, prefersReducedMotion } from '../../lib/env.js';
 import useTimer from '../../lib/useTimer.js';
-import { WRAP } from '../../config/ui.js';
+import { SECTION_ANCHOR, WRAP } from '../../config/ui.js';
+import { labelOf } from '../../config/pages.js';
 
 export function FeaturedProjects({ onNavigate }) {
   const list = featured;
@@ -30,9 +32,9 @@ export function FeaturedProjects({ onNavigate }) {
   if (!p) return null;
 
   return (
-    <section id="featured" className="py-20 border-t border-line scroll-mt-14">
+    <section id="featured" className={SECTION_ANCHOR}>
       <div className={WRAP}>
-        <SectionHead num="01" title="projects/" />
+        <SectionHead num="01" title={labelOf('projects')} />
         <div className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr] gap-8 md:gap-12 items-start">
           {/* mọi Art đều nằm sẵn, chỉ crossfade; cái không chọn thì tạm dừng animation cho nhẹ máy */}
           <a
@@ -44,7 +46,7 @@ export function FeaturedProjects({ onNavigate }) {
             className="spot relative block h-[300px] rounded-[10px] overflow-hidden bg-panel border border-line"
           >
             {list.map((q, n) => {
-              const Art = arts[q.file.replace(/\.[^.]+$/, '')];
+              const Art = arts[slugOf(q)];
               return (
                 Art && (
                   <div
@@ -65,7 +67,7 @@ export function FeaturedProjects({ onNavigate }) {
 
           <ul className="m-0 p-0 list-none border-b border-line">
             {list.map((q, n) => (
-              <li key={q.file} className="border-t border-line relative scroll-mt-16">
+              <li key={q.file} className="border-t border-line relative scroll-mt-[calc(var(--nav-h)+0.5rem)]">
                 <span
                   aria-hidden="true"
                   className={`absolute left-0 top-0 h-full w-[2px] bg-amber origin-top transition-transform duration-500 ease-out ${
@@ -131,9 +133,9 @@ export function FeaturedProjects({ onNavigate }) {
 
 export function AboutTeaser({ onNavigate }) {
   return (
-    <section id="about-me" className="py-20 border-t border-line scroll-mt-14">
+    <section id="about-me" className={SECTION_ANCHOR}>
       <div className={WRAP}>
-        <SectionHead num="02" title="about.js" />
+        <SectionHead num="02" title={labelOf('about')} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <p className="text-ink text-lg leading-relaxed max-w-[460px]">
@@ -173,9 +175,9 @@ export function AboutTeaser({ onNavigate }) {
 
 export function LabTeaser({ onNavigate }) {
   return (
-    <section id="lab-teaser" className="py-20 border-t border-line scroll-mt-14">
+    <section id="lab-teaser" className={SECTION_ANCHOR}>
       <div className={WRAP}>
-        <SectionHead num="03" title="lab.css" />
+        <SectionHead num="03" title={labelOf('lab')} />
         <p className="text-dim text-base max-w-[480px]">Tiny games and toys I build just to see if they work.</p>
         <ul className="flex flex-wrap gap-2.5 mt-6 p-0 list-none">
           {LAB_ITEMS.map((i) => (
@@ -204,7 +206,7 @@ export function LabTeaser({ onNavigate }) {
 
 export function TerminalSection({ onNavigate }) {
   return (
-    <section id="terminal" className="py-20 border-t border-line scroll-mt-14">
+    <section id="terminal" className={SECTION_ANCHOR}>
       <div className={WRAP}>
         <p className="font-mono text-[12.5px] text-dim mb-5">// type a command, or just click a question below</p>
         <Terminal onNavigate={onNavigate} />

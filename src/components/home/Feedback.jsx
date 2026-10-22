@@ -12,6 +12,12 @@ const GOOD_FACE =
 const BAD_FACE =
   'M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM174.6 384.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4C328.2 358.5 297.2 336 256 336s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm192-32a32 32 0 1 1 0 64 32 32 0 1 1 0-64z';
 
+// hai tâm trạng: nhãn đọc màn hình, thẻ gắn vào tiêu đề mail, icon
+const MOODS = {
+  good: { label: 'I like this page', tag: ' (liked it)', path: GOOD_FACE },
+  bad: { label: 'Not a fan', tag: ' (not a fan)', path: BAD_FACE },
+};
+
 // nút chọn cảm xúc: bật thì nền amber, chữ tối
 function MoodButton({ label, on, onClick, path }) {
   return (
@@ -55,8 +61,7 @@ export default function Feedback() {
     const message = text.trim();
     if (!message) return;
 
-    const moodTag = mood === 'good' ? ' (liked it)' : mood === 'bad' ? ' (not a fan)' : '';
-    const subject = encodeURIComponent(`Feedback from ${site.handle}` + moodTag);
+    const subject = encodeURIComponent(`Feedback from ${site.handle}${MOODS[mood]?.tag ?? ''}`);
     const head = `mailto:${site.email}?subject=${subject}&body=`;
     // link mailto: dài quá ~2000 ký tự sẽ bị một số client cắt im lặng -> cắt trước và báo cho người dùng
     let body = encodeURIComponent(message);
@@ -95,8 +100,9 @@ export default function Feedback() {
           />
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex gap-2">
-              <MoodButton label="I like this page" on={mood === 'good'} onClick={() => setMood(mood === 'good' ? null : 'good')} path={GOOD_FACE} />
-              <MoodButton label="Not a fan" on={mood === 'bad'} onClick={() => setMood(mood === 'bad' ? null : 'bad')} path={BAD_FACE} />
+              {Object.entries(MOODS).map(([key, m]) => (
+                <MoodButton key={key} label={m.label} on={mood === key} onClick={() => setMood(mood === key ? null : key)} path={m.path} />
+              ))}
             </div>
             <Btn31
               type="submit"

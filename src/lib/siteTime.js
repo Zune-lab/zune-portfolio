@@ -2,7 +2,7 @@ import { site } from '../config/site.js';
 
 // Một nguồn duy nhất cho "giờ của chủ site" (site.timezone): nền (data-tod) và trạng thái online/offline
 // cùng dùng chung để không bao giờ lệch mốc nhau. Múi giờ và các mốc giờ khai báo ở config/site.js.
-// Tạo Intl.DateTimeFormat rất tốn (~60µs/lần) mà siteHour() bị gọi mỗi khung hình (HeroWorm -> getStatusKey)
+// Tạo Intl.DateTimeFormat rất tốn (~60µs/lần) mà siteHour() bị gọi mỗi khung hình (canvas -> getStatusKey)
 // và mỗi lần React hỏi snapshot, nên tạo MỘT lần rồi dùng lại (~30 lần nhanh hơn).
 const { timezone, schedule } = site;
 

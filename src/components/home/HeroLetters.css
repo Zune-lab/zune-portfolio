@@ -1,0 +1,77 @@
+/* Sân chữ ở hero (HeroLetters.jsx): các chữ của `zune.dev` rơi xuống, kéo thả / ném được. Không viền, không khung: chỉ là chỗ để chữ nằm. */
+.letters-yard {
+  position: relative;
+  height: 170px;
+  margin-top: 2.5rem;
+  touch-action: pan-y; /* vuốt vào chỗ trống vẫn cuộn trang; riêng từng chữ chặn cuộn để kéo được (xem .letter) */
+  -webkit-user-select: none;
+  user-select: none;
+}
+.letters-hint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font: 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-dim);
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease);
+}
+.letters-yard[data-touched] .letters-hint {
+  opacity: 0;
+}
+
+.letter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 var(--fs, 40px) / 1 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text);
+  /* bóng cứng lệch như tiêu đề hero (.hero-title) */
+  text-shadow: 0.06em 0.06em 0 color-mix(in srgb, var(--amber) 38%, transparent);
+  opacity: 0; /* chưa có vị trí thì ẩn: tránh nháy ở góc trên trái trước khi vật lý chạy */
+  touch-action: none; /* kéo trên chữ là kéo chữ, không cuộn trang */
+  cursor: grab;
+  will-change: transform;
+  transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.letters-yard[data-ready] .letter {
+  opacity: 1;
+}
+.letter[data-hot] {
+  color: var(--amber);
+}
+.letter[data-held] {
+  cursor: grabbing;
+  z-index: 1;
+}
+/* zune hết pin: các chữ mờ đi như đang ngủ */
+.letters-yard[data-asleep] .letter {
+  opacity: 0.45;
+}
+/* mở khoá 100% personality: cầu vồng */
+.letters-yard[data-rainbow] .letter {
+  color: hsl(calc(var(--i) * 45) 90% 62%);
+  animation: letter-hue 2.4s linear infinite;
+}
+@keyframes letter-hue {
+  to { filter: hue-rotate(360deg); }
+}
+
+/* giảm chuyển động: không có vật lý, chữ xếp thành một hàng đứng yên (HeroLetters.jsx đặt data-static) */
+.letters-yard[data-static] {
+  height: auto;
+  display: flex;
+}
+.letters-yard[data-static] .letter {
+  position: static;
+  opacity: 1;
+  cursor: default;
+  touch-action: auto;
+}
+.letters-yard[data-static] .letters-hint {
+  display: none;
+}

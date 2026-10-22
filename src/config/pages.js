@@ -64,6 +64,11 @@ export const PAGES = [
   },
 ];
 
+// nhãn hiển thị của một trang (about.js, projects/, lab.css): tiêu đề mục và nav dùng chung một chuỗi
+export const labelOf = (id) => PAGES.find((p) => p.id === id)?.label ?? id;
+// mục `contact` không phải trang riêng (chỉ là anchor ở trang chủ) nên không nằm trong PAGES
+export const CONTACT = { id: 'contact', href: '#contact', label: 'contact.sh' };
+
 // "view" = 'home' | id trang | '<id>/<con>' (vd 'lab/snake'). topOf lấy phần trang cấp một.
 export const topOf = (view) => view.split('/')[0];
 const pageOf = (id) => PAGES.find((p) => p.id === id);

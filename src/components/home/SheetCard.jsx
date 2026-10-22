@@ -6,18 +6,18 @@ import { gmtLabel, siteClock } from '../../lib/siteTime.js';
 import { cycleStatus, useStatus } from '../../lib/status.js';
 import { useKonami } from '../../lib/konami.js';
 import { pausableInterval } from '../../lib/timers.js';
-import { friendship, isAsleep, levelOf, sayHi, unlock, useSocial } from '../../lib/social.js';
+import { BATTERY_CELLS, friendship, isAsleep, levelOf, sayHi, toneOf, unlockKonami, useSocial } from '../../lib/social.js';
 
 // Pin nhỏ nhưng đúng chất Zune: hướng nội, pin xã hội tụt khi bị "say hi", tự sạc lại theo thời gian.
 // Trạng thái pin nằm ở lib/social.js (dùng chung với sâu chữ ở hero và lệnh `battery` trong terminal).
 const CLASSES = [null, ...site.content.classes]; // null = role thật
-const CELLS = 10;
+const TONE_COLOR = { hi: 'var(--green)', mid: 'var(--amber)', lo: 'var(--danger)' }; // mốc màu: toneOf() ở lib/social.js, cùng mốc với thanh Battery
 
 function Meter({ value, color, rainbow }) {
-  const on = Math.round((value / 100) * CELLS);
+  const on = Math.round((value / 100) * BATTERY_CELLS);
   return (
     <div className={`flex gap-[3px] ${rainbow ? 'sheet-rainbow' : ''}`} role="img" aria-label={`${value}%`}>
-      {Array.from({ length: CELLS }, (_, i) => (
+      {Array.from({ length: BATTERY_CELLS }, (_, i) => (
         <span key={i} className="h-3 flex-1 rounded-[2px] transition-colors duration-300"
           style={{ background: i < on ? (rainbow ? `hsl(${i * 36} 85% 62%)` : color) : 'var(--line)' }} />
       ))}
@@ -42,11 +42,11 @@ export default function SheetCard() {
   useEffect(() => pausableInterval(() => setTime(siteClock()), 1000), []);
 
   // easter egg: Konami code -> 100% personality (cũng mở được bằng 6 lần bấm thanh personality hoặc lệnh `konami`)
-  useKonami(() => unlock('konami accepted. personality 100%. who let this happen?'));
+  useKonami(unlockKonami);
 
   const level = levelOf({ drain, maxed }, status.key);
   const empty = isAsleep({ drain, maxed }, status.key);
-  const color = level > 50 ? 'var(--green)' : level > 20 ? 'var(--amber)' : '#ff5f56';
+  const color = TONE_COLOR[toneOf(level)];
 
   return (
     <aside onMouseMove={spotMove}

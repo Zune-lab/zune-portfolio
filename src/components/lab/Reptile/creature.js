@@ -1,6 +1,7 @@
+import { randInt } from '../../../lib/math.js';
 // Bò sát bám theo con trỏ — port từ script.js gốc: bỏ biến toàn cục / DOM, để React lo canvas.
 // Component gán env.ctx và env.mouse; setupLizard trả về con vật, gọi critter.follow(x, y) mỗi khung hình.
-export const env = { ctx: null, mouse: { x: 0, y: 0 } };
+const env = { ctx: null, mouse: { x: 0, y: 0 } };
 
 class Segment {
   constructor(parent, size, angle, range, stiffness) {
@@ -292,7 +293,7 @@ function addRibbedSegment(spinal, s, tipLen) {
   return seg;
 }
 
-export function setupLizard(size, legs, tail, w, h) {
+function setupLizard(size, legs, tail, w, h) {
   const s = size;
   //(x,y,angle,fAccel,fFric,fRes,fThresh,rAccel,rFric,rRes,rThresh)
   const critter = new Creature(
@@ -348,4 +349,24 @@ export function setupLizard(size, legs, tail, w, h) {
     spinal = addRibbedSegment(spinal, s, (s * 3 * (tail - i)) / tail);
   }
   return critter;
+}
+
+// Sinh một con mới cho CreatureStage: số chân, độ dài đuôi ngẫu nhiên (giống bản gốc, thu nhỏ cho vừa khung).
+// Bấm "respawn" thì stage gọi lại hàm này.
+export function makeReptile(w, h) {
+  const legs = randInt(1, 12);
+  const critter = setupLizard(4.5 / Math.sqrt(legs), legs, randInt(4, 4 + legs * 8), w, h);
+  return {
+    label: `move your cursor, it follows · ${legs} legs`,
+    step({ ctx, mouse }) {
+      env.ctx = ctx;
+      env.mouse.x = mouse.x;
+      env.mouse.y = mouse.y;
+      // stage đặt nét mặc định 1.2 / round; con này vẽ bằng nét mảnh mặc định của canvas như bản gốc
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'butt';
+      ctx.lineJoin = 'miter';
+      critter.follow(mouse.x, mouse.y);
+    },
+  };
 }

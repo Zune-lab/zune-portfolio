@@ -14,6 +14,12 @@
 .social-btn-bg {
   transition: transform var(--dur) var(--ease);
 }
+.social-icon {
+  --glass: rgba(156, 156, 156, 0.466); /* viền ô icon + nền kính khi hover */
+}
+.social-btn-icon {
+  border-color: var(--glass);
+}
 .social-icon:hover .social-btn {
   transform: translateY(-4px);
 }
@@ -22,7 +28,7 @@
   transform-origin: bottom;
 }
 .social-icon:hover .social-btn-icon {
-  background-color: rgba(156, 156, 156, 0.466);
+  background-color: var(--glass);
   backdrop-filter: blur(4px);
 }
 .social-icon:hover .social-label {

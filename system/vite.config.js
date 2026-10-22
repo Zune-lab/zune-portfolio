@@ -17,7 +17,11 @@ const copyrightBanner = () => ({
 
 // điền {{token}} trong index.html từ src/config/site.js (title, meta, og, khoá theme...): sửa thông tin ở một chỗ, cả dev lẫn build.
 // Token lạ (gõ sai tên) thì báo lỗi ngay thay vì để nguyên chuỗi {{...}} lọt lên trang.
+// phông chữ tải từ Google Fonts (index.html dùng hai lần: link chính và <noscript>). Khớp --font-* trong src/index.css
+const FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&family=Silkscreen:wght@400;700&display=swap';
 const TOKENS = {
+  fontsUrl: FONTS_URL,
   name: site.name,
   handle: site.handle,
   year: site.year,

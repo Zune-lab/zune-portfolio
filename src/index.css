@@ -60,7 +60,12 @@
   --js: #f1c40f;
   --css-lang: #a98ae8;
   --dot-grid: rgba(255, 255, 255, 0.035);
-  --nav-bg: rgba(10, 12, 16, 0.85);
+  --danger: #ff5f56; /* đỏ cảnh báo: pin cạn, commit `fix:`, nút đỏ của cửa sổ */
+  --dot-yellow: #ffbd2e; /* ba chấm tròn kiểu cửa sổ macOS (terminal, about.js): đỏ = --danger */
+  --dot-green: #27c93f;
+  /* nền navbar = --bg mờ 85%: suy ra từ --bg nên theme sáng/tối và các tông giờ (data-tod) tự theo, không khai báo lại từng nơi */
+  --nav-bg: color-mix(in srgb, var(--bg) 85%, transparent);
+  --nav-h: 3.5rem; /* chiều cao navbar (h-14): hero, neo cuộn (scroll-mt) và thanh pin đều tính từ đây */
   color-scheme: dark; /* ô nhập, thanh cuộn gốc... đổi theo theme thay vì luôn sáng */
 
   /* ngôn ngữ chuyển động chung cho cả trang: 1 easing, 3 mốc thời gian */
@@ -92,22 +97,21 @@
   --js: #856200;
   --css-lang: #6b4fa0;
   --dot-grid: rgba(0, 0, 0, 0.05);
-  --nav-bg: rgba(246, 243, 236, 0.85);
   color-scheme: light;
 }
 
 /* tông nền đổi nhẹ theo giờ VN (App.jsx gắn data-tod) */
 :root[data-tod='dawn']:not([data-theme='light']) {
-  --bg: #0b0e13; --panel: #11161e; --inset: #0d1117; --line: #1e2631; --nav-bg: rgba(11, 14, 19, 0.85);
+  --bg: #0b0e13; --panel: #11161e; --inset: #0d1117; --line: #1e2631;
 }
 :root[data-tod='dusk']:not([data-theme='light']) {
-  --bg: #0e0b0a; --panel: #161210; --inset: #110d0b; --line: #261e19; --nav-bg: rgba(14, 11, 10, 0.85);
+  --bg: #0e0b0a; --panel: #161210; --inset: #110d0b; --line: #261e19;
 }
 :root[data-tod='night']:not([data-theme='light']) {
-  --bg: #080b12; --panel: #0d121b; --inset: #0a0e15; --line: #1a2230; --nav-bg: rgba(8, 11, 18, 0.85);
+  --bg: #080b12; --panel: #0d121b; --inset: #0a0e15; --line: #1a2230;
 }
 :root[data-theme='light'][data-tod='dusk'] {
-  --bg: #f3ebe0; --inset: #ece2d3; --nav-bg: rgba(243, 235, 224, 0.85);
+  --bg: #f3ebe0; --inset: #ece2d3;
 }
 
 html {
@@ -161,7 +165,7 @@ body::before {
    Muốn thêm ảnh: bỏ file vào public/ rồi đặt --hero-img: url('/hero.jpg') (ảnh sẽ tự chuyển đen trắng). */
 .hero-full {
   position: relative;
-  min-height: calc(100svh - 56px);
+  min-height: calc(100svh - var(--nav-h));
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -194,7 +198,7 @@ body::before {
   letter-spacing: -0.03em;
   font-size: clamp(32px, 6.6vw, 76px);
   /* tiêu đề đang tự gõ/xoá liên tục nên không chọn chữ được; trước đây kéo chuột vào đây là bắt đầu chọn/kéo-thả chữ
-     và con sâu ở hero mất dấu chuột (xem HeroWorm.jsx) */
+     và sân chữ ở hero (HeroLetters.jsx) mất dấu chuột */
   -webkit-user-select: none;
   user-select: none;
   /* bóng cứng lệch kiểu game retro (hợp với đèn pin Minecraft / font pixel), làm chữ dày và nổi hơn */
@@ -209,72 +213,6 @@ body::before {
   .zune-letter:hover {
     transform: translateY(-0.14em) rotate(-5deg);
   }
-}
-/* chuồng của con sâu ở mobile (Hero.jsx + HeroWorm.jsx): dải tràn mép, hai đường đứt nét; sâu bò trong đây */
-.worm-pen {
-  position: relative;
-  height: 128px;
-  margin-inline: -2rem; /* bù padding px-8 của .wrap để dải tràn hết bề ngang */
-  border-block: 1px dashed var(--line);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 3%, transparent), transparent);
-}
-.worm-pen span {
-  position: absolute;
-  left: 2rem;
-  bottom: 8px;
-  color: var(--text-dim);
-  font: 11px/1 'JetBrains Mono', ui-monospace, monospace;
-  opacity: 0.55;
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .worm-pen { display: none; } /* không có sâu thì không cần chuồng */
-}
-
-/* dải stack thay cho chuồng sâu trên màn cảm ứng (StackTicker.jsx): cùng khung với .worm-pen, hai dải chip trôi ngược chiều */
-.stack-ticker {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  height: 128px;
-  margin-inline: -2rem;
-  padding-bottom: 14px; /* chừa chỗ cho nhãn nhỏ ở đáy */
-  overflow: hidden;
-  border-block: 1px dashed var(--line);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--amber) 3%, transparent), transparent);
-}
-.stack-ticker span:not(.chip) {
-  position: absolute;
-  left: 2rem;
-  bottom: 8px;
-  color: var(--text-dim);
-  font: 11px/1 'JetBrains Mono', ui-monospace, monospace;
-  opacity: 0.55;
-  pointer-events: none;
-}
-.stack-row {
-  display: flex;
-  gap: 10px;
-  width: max-content;
-  pointer-events: none; /* chip không nhận chạm: không dính hover, chạm giữ rơi vào .stack-ticker để dừng */
-  animation: stack-slide 40s linear infinite;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-.stack-row .chip { white-space: nowrap; }
-.stack-row.is-rev { animation-direction: reverse; animation-duration: 48s; }
-.stack-ticker:active .stack-row { animation-play-state: paused; }
-/* hai bản danh sách nối nhau: trôi đúng một bản (nửa chiều rộng + nửa khoảng cách giữa hai bản) thì lặp lại liền mạch */
-@keyframes stack-slide { to { transform: translateX(calc(-50% - 5px)); } }
-/* từ md trở lên không có chỗ cho dải này (tablet cảm ứng cũng vậy). Phải ẩn ở đây chứ không dựa vào class md:hidden:
-   .stack-ticker không nằm trong @layer nên đè display của Tailwind */
-@media (min-width: 48rem) {
-  .stack-ticker { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .stack-ticker { display: none; } /* đứng yên thì chỉ là bản sao của about.js, bỏ luôn */
 }
 .hero-link {
   font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;

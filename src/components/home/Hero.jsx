@@ -3,13 +3,13 @@ import Btn31 from '../ui/Btn31/Btn31.jsx';
 import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
-import HeroWorm from './HeroWorm.jsx';
-import StackTicker from './StackTicker.jsx';
-import useCanHover from '../../lib/useCanHover.js';
+import HeroLetters from './HeroLetters.jsx';
 import { isPaused, onPauseChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
 import { observeVisible } from '../../lib/observe.js';
 import { site } from '../../config/site.js';
+import { WRAP } from '../../config/ui.js';
+import { CONTACT } from '../../config/pages.js';
 
 // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
 // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
@@ -70,11 +70,9 @@ function Typewriter() {
 }
 
 export default function Hero({ onNavigate }) {
-  const hover = useCanHover(); // cảm ứng không có con trỏ để sâu theo: không có sâu, thay bằng dải stack
   return (
     <header className="hero-full">
-      <HeroWorm />
-      <div className="wrap relative z-[1] max-w-[1040px] w-full mx-auto px-8 pt-10 pb-24">
+      <div className={`${WRAP} relative z-[1] w-full pt-10 pb-24`}>
         <h1 className="hero-title" aria-label={`Hi, I'm ${site.name}. ${PHRASES[0]}`}>
           <span aria-hidden="true">
             Hi, I'm{' '}
@@ -98,23 +96,15 @@ export default function Hero({ onNavigate }) {
             <p className="font-mono text-[13px] text-dim mt-4">{site.content.heroNote}</p>
             <div className="flex gap-3.5 mt-8 flex-wrap items-center">
               <Btn31 onClick={() => scrollToAnchor('#featured')}>view projects</Btn31>
-              <ContactButton href="#contact" />
+              <ContactButton href={CONTACT.href} />
             </div>
           </div>
-          {/* mobile: chỗ trống riêng. Có chuột thì là chuồng cho con sâu (HeroWorm nhốt sâu trong [data-worm-pen]),
-              cảm ứng thì là dải stack tự trôi. Từ md trở lên cả hai đều ẩn, sâu (nếu có chuột) bò khắp hero */}
-          {hover ? (
-            <div data-worm-pen className="worm-pen md:hidden" aria-hidden="true">
-              <span>// click to feed</span>
-            </div>
-          ) : (
-            <StackTicker />
-          )}
           <SheetCard />
         </div>
+        <HeroLetters />
       </div>
 
-      <div className="absolute z-[1] inset-x-0 bottom-0 wrap max-w-[1040px] mx-auto w-full px-8 pb-8 flex items-end justify-between">
+      <div className={`absolute z-[1] inset-x-0 bottom-0 ${WRAP} w-full pb-8 flex items-end justify-between`}>
         <a href="#terminal" className="hero-link"
           onClick={(e) => { e.preventDefault(); scrollToAnchor('#terminal'); }}>
           Scroll to continue ↓

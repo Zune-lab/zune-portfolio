@@ -15,10 +15,10 @@ const DPR = getDpr(); // canvas theo mật độ điểm ảnh, không thì mờ
 const readColors = () => {
   const css = getComputedStyle(document.documentElement);
   return {
-    panel: cssVar(css, '--panel', '#10141b'),
-    line: cssVar(css, '--line', '#1d232c'),
-    amber: cssVar(css, '--amber', '#ffc857'),
-    green: cssVar(css, '--green', '#7ee081'),
+    panel: cssVar(css, '--panel'),
+    line: cssVar(css, '--line'),
+    amber: cssVar(css, '--amber'),
+    green: cssVar(css, '--green'),
   };
 };
 

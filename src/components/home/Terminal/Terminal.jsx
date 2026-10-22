@@ -7,7 +7,7 @@ import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/en
 import { observeOnce } from '../../../lib/observe.js';
 import { useStatus } from '../../../lib/status.js';
 import { siteDateTime } from '../../../lib/siteTime.js';
-import { getSocial, levelOf, unlock } from '../../../lib/social.js';
+import { BATTERY_CELLS, getSocial, levelOf, unlockKonami } from '../../../lib/social.js';
 import './Terminal.css';
 
 // mỗi đoạn text chỉ khai báo 1 lần, INTRO / FILES / lệnh dùng chung
@@ -68,9 +68,9 @@ function exec(raw, { onNavigate, clear }) {
       // cùng một pin với thẻ sav và con sâu ở hero
       const s = getSocial();
       const lv = levelOf(s);
-      const on = Math.round(lv / 10);
+      const on = Math.round((lv / 100) * BATTERY_CELLS);
       return [
-        `social battery: ${lv}% [${'#'.repeat(on)}${'.'.repeat(10 - on)}]`,
+        `social battery: ${lv}% [${'#'.repeat(on)}${'.'.repeat(BATTERY_CELLS - on)}]`,
         s.maxed
           ? 'personality overflow. please stand back.'
           : lv <= 0
@@ -81,7 +81,7 @@ function exec(raw, { onNavigate, clear }) {
       ];
     }
     case 'konami':
-      unlock('konami accepted. personality 100%. who let this happen?');
+      unlockKonami();
       return ['up up down down left right left right b a', `personality: 100%. scroll up and look at ${id}.sav`];
     case 'clear':
       clear();
@@ -210,9 +210,9 @@ export default function Terminal({ onNavigate }) {
   return (
     <div ref={wrapRef} onMouseMove={spotMove} className="spot terminal bg-inset border border-line rounded-[10px] overflow-hidden shadow-[0_20px_60px_-20px_rgb(var(--shade)/calc(0.6_*_var(--shade-k)))]">
       <div className="terminal-bar bg-panel px-3.5 py-2.5 flex items-center gap-2 border-b border-line">
-        <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FF5F57' }} />
-        <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#FEBC2E' }} />
-        <span className="w-[11px] h-[11px] rounded-full" style={{ background: '#28C840' }} />
+        {['--danger', '--dot-yellow', '--dot-green'].map((v) => (
+          <span key={v} className="w-[11px] h-[11px] rounded-full" style={{ background: `var(${v})` }} />
+        ))}
         <span className="ml-2 font-mono text-xs text-dim">{id}@{site.host}: ~</span>
       </div>
       <div

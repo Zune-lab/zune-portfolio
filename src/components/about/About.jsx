@@ -8,7 +8,8 @@ import { has, prefersReducedMotion } from '../../lib/env.js';
 import { observeOnce } from '../../lib/observe.js';
 import { useAsleep } from '../../lib/social.js';
 import './About.css';
-import { WRAP } from '../../config/ui.js';
+import { SCROLL_MT_SUB, SECTION, WRAP } from '../../config/ui.js';
+import { labelOf } from '../../config/pages.js';
 
 // các dòng trong object `<id>` ở about.js (lấy từ config/site.js và data/profile.js); dòng `status` bên dưới lấy trạng thái thật
 const FACTS = [
@@ -23,7 +24,7 @@ const FACTS = [
 
 // màu theo loại commit trong log.sh (tiền tố "feat:", "fix:"... của msg)
 const TYPES = {
-  init: 'var(--text)', feat: 'var(--green)', fix: '#ff5f56', chore: 'var(--text-dim)',
+  init: 'var(--text)', feat: 'var(--green)', fix: 'var(--danger)', chore: 'var(--text-dim)',
   refactor: 'var(--css-lang)', revert: 'var(--amber)', wip: 'var(--amber)',
 };
 const parseMsg = (msg) => {
@@ -161,13 +162,13 @@ export default function About() {
   ];
 
   return (
-    <section id="about" ref={root} className="py-20 border-t border-line">
+    <section id="about" ref={root} className={SECTION}>
       <div className={WRAP}>
-        <SectionHead num="01" title="about.js" level={1} />
+        <SectionHead num="01" title={labelOf('about')} level={1} />
         <p className="font-mono text-[12.5px] text-dim -mt-6 mb-10">// a few things about me</p>
 
         {/* intro: editor + readme + số liệu */}
-        <div id="about-intro" className="mb-14 scroll-mt-20 grid gap-5 lg:grid-cols-[1.35fr_1fr] items-start">
+        <div id="about-intro" className={`mb-14 ${SCROLL_MT_SUB} grid gap-5 lg:grid-cols-[1.35fr_1fr] items-start`}>
           <CodeWindow />
 
           <div className="flex flex-col gap-5 min-w-0">
@@ -191,7 +192,7 @@ export default function About() {
         </div>
 
         {/* hành trình: git graph */}
-        <div id="about-journey" className="mb-14 scroll-mt-20">
+        <div id="about-journey" className={`mb-14 ${SCROLL_MT_SUB}`}>
           <Label>// log.sh</Label>
           <Win title="log.sh" lang="bash">
             <div className="ab-term">
@@ -223,7 +224,7 @@ export default function About() {
         </div>
 
         {/* kỹ năng */}
-        <div id="about-skills" className="scroll-mt-20">
+        <div id="about-skills" className={SCROLL_MT_SUB}>
           <Label>// skills.js</Label>
           <Win title="skills.js" lang="JavaScript">
             <div className="ab-skills">

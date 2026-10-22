@@ -22,6 +22,7 @@ export const site = {
   country: 'VN',
   host: 'hcmc', // tên máy ở prompt terminal: zune@hcmc
   email: 'nguyenhaivuong06@gmail.com',
+  phone: '84909840611', // số có mã nước, không dấu +: dùng cho link Zalo / WhatsApp (data/socials.js)
 
   // --- giờ giấc: trạng thái online/offline và tông nền (data-tod) đều suy ra từ đây, không cần backend
   timezone: 'Asia/Ho_Chi_Minh', // tên IANA

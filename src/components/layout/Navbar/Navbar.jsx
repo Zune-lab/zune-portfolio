@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ThemeToggleTorch from '../ThemeToggleTorch/ThemeToggleTorch.jsx';
 import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
-import { PAGES, pageOfView, topOf } from '../../../config/pages.js';
+import { CONTACT, PAGES, pageOfView, topOf } from '../../../config/pages.js';
 import { pathOf } from '../../../lib/paths.js';
 import { isPlainClick, scrollToAnchor } from '../../../lib/dom.js';
-import { hasFinePointer } from '../../../lib/env.js';
+import { MQ_MD, hasFinePointer } from '../../../lib/env.js';
 import useHideOnScroll from '../../../lib/useHideOnScroll.js';
 import './Navbar.css';
 import { site } from '../../../config/site.js';
+import { WRAP } from '../../../config/ui.js';
 
 // chữ lăn từ handle sang "cd ~/" (5 ký tự): dấu } phải trượt ngược đúng số ký tự handle dài hơn "cd ~/" (xem .brand-close ở Navbar.css)
 const BRAND_SHRINK = Math.max(0, site.handle.length - 'cd ~/'.length);
@@ -17,7 +18,7 @@ const BRAND_SHRINK = Math.max(0, site.handle.length - 'cd ~/'.length);
 // src/config/pages.js); không có "tab" thì chỉ là link cuộn trong trang chính.
 const mainLinks = [
   ...PAGES.map((p) => ({ href: `#${p.id}`, label: p.label, tab: p.id })),
-  { href: '#contact', label: 'contact.sh' },
+  { href: CONTACT.href, label: CONTACT.label },
 ];
 
 // href THẬT của link: trang riêng -> /zune-portfolio/<id>; anchor -> trang chính + #anchor.
@@ -330,7 +331,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
       setMenuOpen(false);
       burgerRef.current?.focus();
     };
-    const wide = window.matchMedia('(min-width: 768px)'); // xoay ngang / kéo rộng cửa sổ: nav ngang hiện lại, menu thừa
+    const wide = window.matchMedia(MQ_MD); // xoay ngang / kéo rộng cửa sổ: nav ngang hiện lại, menu thừa
     const onWide = (e) => e.matches && setMenuOpen(false);
     document.addEventListener('pointerdown', onDown);
     document.addEventListener('keydown', onKey);
@@ -384,7 +385,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
         style={{ background: 'var(--nav-bg)' }}
         onFocus={showNav}
       >
-        <div className="wrap max-w-[1040px] mx-auto px-8 flex items-center gap-6 h-14">
+        <div className={`${WRAP} flex items-center gap-6 h-[var(--nav-h)]`}>
           <a
             href={pathOf('home')}
             aria-label={`${site.handle} — back to home`}
@@ -540,7 +541,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
           nguyên, không đụng. */}
       <div
         aria-hidden="true"
-        className={`edge-back-zone group hidden xl:flex items-center fixed left-0 top-14 bottom-0 w-16 z-40 ${
+        className={`edge-back-zone group hidden xl:flex items-center fixed left-0 top-[var(--nav-h)] bottom-0 w-16 z-40 ${
           inTab ? '' : 'pointer-events-none'
         }`}
       >

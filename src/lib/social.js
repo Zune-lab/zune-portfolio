@@ -4,13 +4,17 @@ import { createEmitter } from './store.js';
 import { site } from '../config/site.js';
 import { pausableInterval } from './timers.js';
 
-// "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sâu chữ ở hero và terminal (lệnh battery / konami).
-// Là store ngoài React để canvas (HeroWorm) đọc được mỗi khung hình mà không phải re-render.
+// "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sân chữ ở hero (HeroLetters) và terminal (lệnh battery / konami).
+// Là store ngoài React để HeroLetters nghe được mà không phải re-render cả hero.
 const BASE = { online: 80, busy: 40, focus: 20, offline: 10 };
 const REPLIES = ['hi.', 'oh. hello again.', 'ok, that was a lot of talking', 'running low on words...'];
 const MAX_MS = 9000;
 
-// hiAt / maxAt: mốc performance.now() của lần "say hi" / mở khoá gần nhất, để sâu chữ biết có sự kiện mới
+// Cách hiển thị pin dùng chung (thẻ zune.sav, thanh Battery ở mép trên, lệnh `battery`): mốc màu và số ô nằm MỘT chỗ để không lệch nhau
+export const BATTERY_CELLS = 10;
+export const toneOf = (level) => (level > 50 ? 'hi' : level > 20 ? 'mid' : 'lo'); // 'hi' xanh | 'mid' amber | 'lo' đỏ
+
+// hiAt / maxAt: mốc performance.now() của lần "say hi" / mở khoá gần nhất, để sân chữ ở hero biết có sự kiện mới
 let state = { drain: 0, months: 0, maxed: false, reply: '', hiAt: 0, maxAt: 0 };
 let stopCharge = null;
 let maxTimer = 0;
@@ -41,10 +45,12 @@ const { subscribe, emit } = createEmitter({
   },
 });
 
+// cho code ngoài React (HeroLetters): gọi cb mỗi khi pin đổi. Trả về hàm huỷ.
+export const onSocialChange = subscribe;
 export const useSocial = () => useSyncExternalStore(subscribe, getSocial);
-// chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
 // mức pin hiện tại (0..100, maxed = 100). Snapshot là SỐ nên component chỉ render lại khi số đổi (tối đa 1 lần/giây lúc đang sạc)
 export const useLevel = () => useSyncExternalStore(subscribe, () => levelOf());
+// chỉ cần biết zune có đang ngủ không: snapshot là boolean nên component chỉ render lại khi nó đổi (useSocial thì render mỗi giây lúc pin đang sạc)
 export const useAsleep = () => useSyncExternalStore(subscribe, () => isAsleep());
 
 // câu trả lời theo mức đã tốn pin: (0,20] -> 0, (20,40] -> 1, ... Pin sạc 1%/giây nên `next` hiếm khi là bội của 20;
@@ -62,11 +68,14 @@ export function sayHi() {
 }
 
 // easter egg: 100% personality (Konami code, bấm 6 lần vào thanh personality, hoặc lệnh `konami` trong terminal)
-export function unlock(msg) {
+function unlock(msg) {
   clearTimeout(maxTimer);
   set({ maxed: true, months: 0, reply: msg, maxAt: performance.now() });
   maxTimer = setTimeout(() => set({ maxed: false, reply: 'ok. that is enough personality for today.' }), MAX_MS);
 }
+
+// Konami (gõ phím hoặc lệnh `konami` trong terminal): cùng một câu cho mọi nơi gọi
+export const unlockKonami = () => unlock('konami accepted. personality 100%. who let this happen?');
 
 export function friendship() {
   if (state.maxed) return;

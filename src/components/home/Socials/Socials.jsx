@@ -11,11 +11,8 @@ function SocialButton({ name, href, brand, viewBox, path, zalo }) {
       className="social-icon relative flex flex-col items-center gap-2.5 w-[76px]"
     >
       <span className="social-btn relative flex items-center justify-center w-[52px] h-[52px] rounded-[10px] transition-transform duration-300">
-        <span
-          className="social-btn-icon relative z-10 flex items-center justify-center w-full h-full rounded-[11px] border text-white"
-          style={{ borderColor: 'rgba(156,156,156,0.466)' }}
-        >
-          <svg viewBox={viewBox} className="w-[22px] h-[22px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <span className="social-btn-icon relative z-10 flex items-center justify-center w-full h-full rounded-[11px] border text-white">
+          <svg viewBox={viewBox} className="w-[22px] h-[22px]" fill="currentColor">
             {zalo ? (
               <>
                 <path

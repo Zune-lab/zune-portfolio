@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { isTypingTarget } from './dom.js';
 
 // Mã Konami: một danh sách và một bộ so khớp dùng chung cho thẻ zune.sav và sân khấu Ghost.
-export const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
 
 // Bộ so khớp có nhớ: gọi với từng keydown, trả true đúng lúc gõ xong chuỗi (rồi tự xoá bộ nhớ).
 // Bỏ qua keydown không có `key` (Chrome autofill) và phím gõ trong ô nhập.

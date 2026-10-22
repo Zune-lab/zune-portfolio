@@ -171,24 +171,6 @@ export function makeDread() {
         }
       }
     },
-    // xèo xèo ngắn: nhiễu cao, cho thứ gì đó đang cháy (Parasite)
-    sizzle(power = 1, dur = 0.12) {
-      if (!n) return;
-      const t = ctx.currentTime;
-      const src = ctx.createBufferSource();
-      src.buffer = n.noiseBuf;
-      const hp = ctx.createBiquadFilter();
-      hp.type = 'highpass';
-      hp.frequency.value = 3200;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.18 * power, t + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      src.connect(hp);
-      hp.connect(g);
-      g.connect(n.out);
-      src.start(t, Math.random() * 0.5, dur + 0.05);
-    },
     // tiếng "thịch" của tim
     thump(power = 0.6, delay = 0) {
       if (!n) return;
@@ -205,38 +187,6 @@ export function makeDread() {
       g.connect(n.out);
       o.start(t);
       o.stop(t + 0.3);
-    },
-    // cú dọa: nhiễu gắt + thịch sâu + một tiếng rít trượt lên (đã chặn biên độ bằng compressor)
-    stab(power = 1) {
-      if (!n) return;
-      const t = ctx.currentTime;
-      const src = ctx.createBufferSource();
-      src.buffer = n.noiseBuf;
-      const hp = ctx.createBiquadFilter();
-      hp.type = 'highpass';
-      hp.frequency.value = 900;
-      const g = ctx.createGain();
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.5 * power, t + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
-      src.connect(hp);
-      hp.connect(g);
-      g.connect(n.out);
-      src.start(t);
-      src.stop(t + 0.8);
-      const o = ctx.createOscillator();
-      const og = ctx.createGain();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(420, t);
-      o.frequency.exponentialRampToValueAtTime(1500, t + 0.45);
-      og.gain.setValueAtTime(0, t);
-      og.gain.linearRampToValueAtTime(0.18 * power, t + 0.02);
-      og.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-      o.connect(og);
-      og.connect(n.out);
-      o.start(t);
-      o.stop(t + 0.65);
-      api.thump(1.2 * power);
     },
     // cắt phăng mọi tiếng nền ngay lập tức và giữ im trong `seconds` giây (im bặt trước cú dọa, im chết sau cú dọa).
     // Tiếng dọa (jump, ring) và các tiếng đơn lẻ (thump, whisper) vẫn phát bình thường.

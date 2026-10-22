@@ -28,9 +28,9 @@
   background: var(--line);
   transition: background var(--dur) var(--ease);
 }
-.ab-win:hover .ab-dots i:nth-child(1) { background: #ff5f56; }
-.ab-win:hover .ab-dots i:nth-child(2) { background: #ffbd2e; }
-.ab-win:hover .ab-dots i:nth-child(3) { background: #27c93f; }
+.ab-win:hover .ab-dots i:nth-child(1) { background: var(--danger); }
+.ab-win:hover .ab-dots i:nth-child(2) { background: var(--dot-yellow); }
+.ab-win:hover .ab-dots i:nth-child(3) { background: var(--dot-green); }
 
 /* code có số dòng */
 .ab-code {

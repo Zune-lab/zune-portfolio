@@ -1,9 +1,9 @@
 /* 1) pin xã hội + tiến độ cuộn ở mép trên (Battery.jsx) */
 .batt {
   position: fixed;
-  /* navbar cao 56px + 1px viền; đường nền của vạch nằm cách mép trên .batt 13px
-     -> 43.5px để đường nền trùng đúng đường viền dưới navbar */
-  inset: 43.5px 0 auto 0;
+  /* đường nền của vạch nằm cách mép trên .batt 13px (+ 0.5px căn giữa nét) và navbar cao --nav-h:
+     đặt .batt cách mép trên (--nav-h - 12.5px) thì đường nền trùng đúng đường viền dưới navbar */
+  inset: calc(var(--nav-h) - 12.5px) 0 auto 0;
   height: 18px;
   z-index: 80;
   pointer-events: none;
@@ -15,7 +15,7 @@
   top: 0;
 }
 .batt[data-tone='mid'] { --tone: var(--amber); }
-.batt[data-tone='lo'] { --tone: #ff5f56; }
+.batt[data-tone='lo'] { --tone: var(--danger); }
 /* phần chưa đọc: đường chấm chấm mờ; phần đã đọc: vạch amber đậm dần về phía đầu; đầu vạch: chấm phát sáng */
 .batt-line,
 .batt-fill {

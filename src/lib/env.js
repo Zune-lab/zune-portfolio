@@ -4,6 +4,9 @@
 // người dùng bật "giảm chuyển động": mọi animation trang trí phải tắt hoặc đứng yên
 export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// breakpoint `md` của Tailwind (48rem): JS cần cùng mốc với các class md: trong JSX nên khai báo một chỗ
+export const MQ_MD = '(min-width: 48rem)';
+
 // thiết bị có hover thật (chuột/trackpad); cảm ứng thì false
 export const canHover = () => window.matchMedia('(hover: hover)').matches;
 

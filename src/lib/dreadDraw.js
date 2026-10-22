@@ -1,13 +1,13 @@
-// Nét vẽ dùng chung cho các sinh vật kinh dị trong lab (Parasite, Mother, Choir): khuôn mặt "gần giống người nhưng lệch",
+// Nét vẽ dùng chung cho các sinh vật kinh dị trong lab (Mother, Choir): khuôn mặt "gần giống người nhưng lệch",
 // ngón tay có đốt và móng, bàn tay. Mọi thứ vẽ bằng canvas 2D, không ảnh.
 //
 // Nguyên tắc (rút từ tư liệu về uncanny valley): giống người nhưng sai một chút, KHÔNG đối xứng, mắt trên mặt hầu như đứng yên
 // (mắt luôn nhìn thẳng ra màn hình, không chớp), cử động hàm to hơn mức cơ thể cho phép, và không để lộ hết trong ánh sáng.
 import { TAU } from './math.js';
 
-export const SKIN = '#d2cbbb';
-export const FLESH = '#cfae9a';
-export const FLESH_D = '#4b2b25';
+const SKIN = '#d2cbbb';
+const FLESH = '#cfae9a';
+const FLESH_D = '#4b2b25';
 export const BLOOD = '#7d1a1a';
 const MOUTH = '#050304';
 
@@ -192,7 +192,7 @@ export function drawFace(ctx, o) {
 }
 
 // Ngón tay 3 đốt có nếp gấp ở khớp và móng. `curl` là độ cong mỗi khớp (radian); `w` là độ dày.
-export function drawFinger(ctx, x, y, ang, len, curl, w, o = {}) {
+function drawFinger(ctx, x, y, ang, len, curl, w, o = {}) {
   const flesh = o.flesh ?? FLESH;
   const edge = o.edge ?? FLESH_D;
   const segs = [1, 0.82, 0.62];

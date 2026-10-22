@@ -4,11 +4,12 @@ import SectionHead from '../../ui/SectionHead.jsx';
 import LabIcon from './LabIcon.jsx';
 import { LAB_ITEMS, LAB_KINDS, labItemOf } from '../../../config/lab-items.js';
 import PageLink from '../../ui/PageLink.jsx';
-import { spotMove } from '../../../lib/dom.js';
+import { isSlashShortcut, spotMove } from '../../../lib/dom.js';
 import { pick } from '../../../lib/math.js';
 import './Lab.css';
 import './LabFx.css';
 import { WRAP } from '../../../config/ui.js';
+import { labelOf } from '../../../config/pages.js';
 
 // Lab có thể lên tới hàng trăm mục, nên giao diện tự đổi theo số lượng (không cần sửa code khi thêm mục):
 const DENSE_MIN = 12; // nhiều hơn số này: thẻ gọn lại, 4 cột, hiện ô tìm kiếm
@@ -41,8 +42,7 @@ function LabGrid({ f, setF, onNavigate }) {
   };
   // "/" nhảy vào ô tìm kiếm (như GitHub/YouTube), trừ khi đang gõ ở ô khác
   const onKeyDown = (e) => {
-    if (e.key !== '/' || e.altKey || e.ctrlKey || e.metaKey || !dense) return;
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (!dense || !isSlashShortcut(e)) return;
     e.preventDefault();
     filterRef.current?.focus();
   };
@@ -398,7 +398,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
       <div className={WRAP}>
-        <SectionHead num="01" title={item ? item.file : 'lab.css'} level={1} />
+        <SectionHead num="01" title={item ? item.file : labelOf('lab')} level={1} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid f={f} setF={setF} onNavigate={onNavigate} />}
       </div>
     </section>

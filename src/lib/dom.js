@@ -6,6 +6,9 @@ export const isPlainClick = (e) => e.button === 0 && !(e.metaKey || e.ctrlKey ||
 export const isTypingTarget = (t) =>
   !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
 
+// phím tắt "/" nhảy vào ô lọc (như GitHub/YouTube): chỉ khi không đang gõ ở ô khác và không giữ phím bổ trợ
+export const isSlashShortcut = (e) => e.key === '/' && !(e.altKey || e.ctrlKey || e.metaKey) && !isTypingTarget(e.target);
+
 // cuộn tới 1 mục theo selector (vd '#contact') mà không thêm #anchor vào URL
 export const scrollToAnchor = (href) => document.querySelector(href)?.scrollIntoView({ block: 'start' });
 

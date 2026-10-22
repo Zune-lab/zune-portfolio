@@ -2,7 +2,7 @@
 // Hình học (toạ độ mũi tên con trỏ, đường cong thân người...) vẫn nằm trong mã vì sửa số đó là sửa hình, không phải cân chỉnh.
 
 // font đơn cách dùng chung cho chữ trên canvas
-export const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+const MONO = 'ui-monospace, SFMono-Regular, Menlo, monospace';
 
 export const CHOIR = {
   maxSingers: 14,
