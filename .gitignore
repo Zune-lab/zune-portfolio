@@ -4,4 +4,3 @@ dist/
 .DS_Store
 Zune-lab/
 *.patch
-public/ruffle/

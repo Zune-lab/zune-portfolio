@@ -27,14 +27,6 @@ export const LAB_ITEMS = [
     Component: lazy(() => import('../components/lab/Reptile/Reptile.jsx')),
   },
   {
-    slug: 'fat-lady',
-    file: 'FatLady.swf',
-    name: 'Fat Lady',
-    kind: 'game',
-    blurb: 'A Valentine\'s Day Flash classic. Feed apples to a Victorian lady with the kinematic arm. She chews 18 different ways.',
-    Component: lazy(() => import('../components/lab/FatLady/FatLady.jsx')),
-  },
-  {
     slug: 'mother',
     file: 'mother.js',
     name: 'Mother',

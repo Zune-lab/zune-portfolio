@@ -70,6 +70,7 @@ function Typewriter() {
 }
 
 export default function Hero({ onNavigate }) {
+  const [toys, setToys] = useState(null); // chỗ đặt gợi ý + nút của sân chữ (HeroLetters), ở khoảng trống bên trái
   return (
     <header className="hero-full">
       <div className={`${WRAP} relative z-[1] w-full pt-10 pb-24`}>
@@ -94,26 +95,31 @@ export default function Hero({ onNavigate }) {
               {site.content.heroIntro}
             </p>
             <p className="font-mono text-[13px] text-dim mt-4">{site.content.heroNote}</p>
-            <div className="flex gap-3.5 mt-8 flex-wrap items-center">
+            {/* data-solid-kids / data-solid: chữ của sân chơi (HeroLetters) đáp lên các phần tử này */}
+            <div className="flex gap-3.5 mt-8 flex-wrap items-center" data-solid-kids>
               <Btn31 onClick={() => scrollToAnchor('#featured')}>view projects</Btn31>
               <ContactButton href={CONTACT.href} />
             </div>
+            <div ref={setToys} className="mt-10" />
           </div>
-          <SheetCard />
+          <div data-solid>
+            <SheetCard />
+          </div>
         </div>
-        <HeroLetters />
       </div>
 
       <div className={`absolute z-[1] inset-x-0 bottom-0 ${WRAP} w-full pb-8 flex items-end justify-between`}>
-        <a href="#terminal" className="hero-link"
+        <a href="#terminal" data-solid className="hero-link"
           onClick={(e) => { e.preventDefault(); scrollToAnchor('#terminal'); }}>
           Scroll to continue ↓
         </a>
-        <a href="#projects" className="hero-link"
+        <a href="#projects" data-solid className="hero-link"
           onClick={(e) => { e.preventDefault(); onNavigate?.('projects'); }}>
           Projects ↗
         </a>
       </div>
+
+      <HeroLetters slot={toys} />
     </header>
   );
 }

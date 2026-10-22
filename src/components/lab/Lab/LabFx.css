@@ -218,7 +218,6 @@
 
 
 
-  :is(.lab-card, .lab-jump-row, .tag-lab):is(:hover, :focus-visible) .li-apple { transform-origin: 50% 80%; animation: li-sway 1.2s ease-in-out infinite alternate; }
   :is(.lab-card, .lab-jump-row, .tag-lab):is(:hover, :focus-visible) .li-lid { transform-origin: 50% 100%; animation: li-wake 2.4s ease-in-out infinite; }
   :is(.lab-card, .lab-jump-row, .tag-lab):is(:hover, :focus-visible) .li-hair { transform-origin: 50% 0; animation: li-sway 2.6s ease-in-out infinite alternate; }
   :is(.lab-card, .lab-jump-row, .tag-lab):is(:hover, :focus-visible) .li-jaw-dn { transform-origin: 50% 0; animation: li-scream-dn 0.5s ease-in-out infinite alternate; }

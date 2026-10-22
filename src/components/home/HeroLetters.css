@@ -1,24 +1,12 @@
-/* Sân chữ ở hero (HeroLetters.jsx): các chữ của `zune.dev` rơi xuống, kéo thả / ném được. Không viền, không khung: chỉ là chỗ để chữ nằm. */
+/* Sân chơi ở hero (HeroLetters.jsx): lớp phủ kín hero, các chữ của `zune.dev` rơi xuống và đáp lên nút / thẻ thật của trang.
+   Lớp phủ không nhận chuột (pointer-events: none) nên mọi thứ bên dưới vẫn bấm được; chỉ từng chữ nhận chuột / chạm. */
 .letters-yard {
-  position: relative;
-  height: 170px;
-  margin-top: 2.5rem;
-  touch-action: pan-y; /* vuốt vào chỗ trống vẫn cuộn trang; riêng từng chữ chặn cuộn để kéo được (xem .letter) */
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
   -webkit-user-select: none;
   user-select: none;
-}
-.letters-hint {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font: 12px/1 'JetBrains Mono', ui-monospace, monospace;
-  color: var(--text-dim);
-  opacity: 0.7;
-  pointer-events: none;
-  transition: opacity var(--dur-slow) var(--ease);
-}
-.letters-yard[data-touched] .letters-hint {
-  opacity: 0;
 }
 
 .letter {
@@ -32,13 +20,14 @@
   color: var(--text);
   /* bóng cứng lệch như tiêu đề hero (.hero-title) */
   text-shadow: 0.06em 0.06em 0 color-mix(in srgb, var(--amber) 38%, transparent);
-  opacity: 0; /* chưa có vị trí thì ẩn: tránh nháy ở góc trên trái trước khi vật lý chạy */
+  opacity: 0; /* chưa có thân vật lý thì ẩn: tránh nháy ở góc trên trái (JS đặt data-live khi chữ đã có vị trí) */
+  pointer-events: auto;
   touch-action: none; /* kéo trên chữ là kéo chữ, không cuộn trang */
   cursor: grab;
   will-change: transform;
   transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.letters-yard[data-ready] .letter {
+.letter[data-live] {
   opacity: 1;
 }
 .letter[data-hot] {
@@ -48,8 +37,16 @@
   cursor: grabbing;
   z-index: 1;
 }
+/* ký tự thả thêm: nhỏ hơn chữ chính, hiện ra bằng cách mờ dần vào (backwards: xong rồi thì không giữ opacity,
+   để lúc bị dọn đi style opacity:0 trong JS còn có tác dụng) */
+.letter-extra {
+  animation: letter-in var(--dur) var(--ease) backwards;
+}
+@keyframes letter-in {
+  from { opacity: 0; }
+}
 /* zune hết pin: các chữ mờ đi như đang ngủ */
-.letters-yard[data-asleep] .letter {
+.letters-yard[data-asleep] .letter[data-live] {
   opacity: 0.45;
 }
 /* mở khoá 100% personality: cầu vồng */
@@ -61,17 +58,52 @@
   to { filter: hue-rotate(360deg); }
 }
 
-/* giảm chuyển động: không có vật lý, chữ xếp thành một hàng đứng yên (HeroLetters.jsx đặt data-static) */
-.letters-yard[data-static] {
-  height: auto;
-  display: flex;
+/* gợi ý + ba nút nhỏ kiểu terminal, nằm ở khoảng trống bên trái dưới hai nút chính. Chỉ hiện khi vật lý đã sẵn sàng */
+.letters-ctrl {
+  max-width: 440px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease);
 }
-.letters-yard[data-static] .letter {
-  position: static;
+.letters-ctrl[data-ready] {
   opacity: 1;
-  cursor: default;
-  touch-action: auto;
+  pointer-events: auto;
 }
-.letters-yard[data-static] .letters-hint {
-  display: none;
+.letters-hint {
+  margin: 0 0 10px;
+  font: 12px/1.5 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-dim);
+  opacity: 0.8;
+  transition: opacity var(--dur-slow) var(--ease);
+}
+.letters-ctrl[data-touched] .letters-hint {
+  opacity: 0.35;
+}
+.letters-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.letters-btns button {
+  font: 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 11px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.letters-btns button:is(:hover, :focus-visible):not(:disabled) {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+.letters-btns button[aria-pressed='true'] {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+.letters-btns button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

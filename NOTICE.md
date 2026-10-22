@@ -40,8 +40,3 @@ You may not present this content as your own.
 - Built with React, Vite and Tailwind CSS (all MIT-licensed).
 - Tech chip icons (`src/config/tech-icons.js`) are paths from [Simple Icons](https://simpleicons.org) (CC0 1.0).
   The logos themselves remain trademarks of their respective owners.
-
-- **Fat Lady** (`src/components/lab/FatLady/`, lab item `fat-lady`): "I Love You Like A Fat Lady Loves Apples" is a
-  Flash piece by **Geoffrey Lillemon × Random Studio** (2013), not by the author of this site. It is shown here
-  unmodified via [Ruffle](https://ruffle.rs) (MIT / Apache-2.0). All rights to the original work belong to its
-  creators. Archive: https://theuselessweb.com/sites-we-lost/iloveyoulikeafatladylovesapples/
