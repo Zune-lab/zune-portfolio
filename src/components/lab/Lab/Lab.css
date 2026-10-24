@@ -44,7 +44,9 @@
   -webkit-backface-visibility: hidden;
 }
 .lab-flip-back { transform: rotateY(180deg); }
-.lab-flip:hover:not(.is-up) .lab-flip-face:first-child { border-color: var(--amber); }
+@media (hover: hover) and (pointer: fine) {
+  .lab-flip:hover:not(.is-up) .lab-flip-face:first-child { border-color: var(--amber); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .lab-flip-inner { transition: none; }

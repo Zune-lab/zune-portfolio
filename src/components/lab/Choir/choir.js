@@ -234,6 +234,7 @@ export function makeChoir() {
     destroy() {
       dread.destroy();
     },
+    unlock: () => dread.start(), // bật âm thanh ngay trong cử chỉ chạm (iOS không cho bật từ vòng vẽ)
     step(api) {
       const { ctx, w: W, h: H, t, dt, aim, mouse, idle } = api;
       const qt = Math.floor(t * 9) / 9;

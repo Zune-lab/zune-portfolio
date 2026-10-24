@@ -169,6 +169,7 @@ export function makeMother() {
     destroy() {
       dread.destroy();
     },
+    unlock: () => dread.start(), // bật âm thanh ngay trong cử chỉ chạm (iOS không cho bật từ vòng vẽ)
     step(api) {
       ctx = api.ctx;
       const { w: W, h: H, t, dt, aim, mouse, idle } = api;

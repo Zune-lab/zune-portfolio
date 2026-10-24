@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { frameLoop } from '../../../lib/loop.js';
 import { fitCanvas } from '../../../lib/canvas.js';
 import { isTypingTarget } from '../../../lib/dom.js';
-import { prefersReducedMotion } from '../../../lib/env.js';
+import { isCoarsePointer, prefersReducedMotion, touchText } from '../../../lib/env.js';
 import { clamp, pick, TAU } from '../../../lib/math.js';
 import { createKonamiMatcher } from '../../../lib/konami.js';
 import { pausableInterval } from '../../../lib/timers.js';
@@ -20,12 +20,12 @@ const STARS = [
 // chữ ẩn: chỉ hiện ra khi rê "đèn pin" (con trỏ chuột) qua. Mỗi dòng là gợi ý cho 1 easter egg
 const SECRETS = [
   { l: '30%', t: '8%', s: 'flip moon↔sun 5× fast: eclipse' },
-  { l: '4%', t: '18%', s: 'psst… ↑↑↓↓←→←→BA' },
+  { l: '4%', t: '18%', s: 'psst… ↑↑↓↓←→←→BA', touch: 'psst… a secret code, keyboard only' },
   { l: '60%', t: '20%', s: 'double-click me: i can teleport' },
-  { l: '70%', t: '34%', s: 'sudo — go on, type it' },
+  { l: '70%', t: '34%', s: 'sudo — go on, type it', touch: 'sudo… keyboard only' },
   { l: '3%', t: '40%', s: 'hire me?' },
   { l: '82%', t: '47%', s: 'git blame ghost' },
-  { l: '6%', t: '52%', s: 'type b-o-o. just try' },
+  { l: '6%', t: '52%', s: 'type b-o-o. just try', touch: 'press and hold me. just try' },
   { l: '70%', t: '60%', s: '50 boos → 🏆 · 100 → 🏆' },
   { l: '27%', t: '66%', s: 'click the grave. all 7.' },
   { l: '44%', t: '74%', s: 'poke me 6× in 3s. i dare you' },
@@ -100,6 +100,9 @@ export default function Ghost() {
   const moveRaf = useRef(0); // gộp pointermove: tối đa 1 lần đo layout / khung hình
   const lastMove = useRef({ x: 0, y: 0 });
   const clicks = useRef([]);
+  const tap = useRef({ t: 0, x: 0, y: 0, done: -1e9 }); // chạm đúp trên cảm ứng (iOS không phải lúc nào cũng bắn dblclick)
+  const hold = useRef(0); // giữ ngón ~0.65s = "boo" (thay cho gõ b-o-o trên bàn phím)
+  const coarse = isCoarsePointer();
   const sunClicks = useRef([]);
   const api = useRef({});
   const ghostLoop = useRef(null); // frameLoop của vòng chính, để effect đồng bộ cờ gọi sync() khi ma ngủ / dậy
@@ -368,6 +371,8 @@ export default function Ghost() {
     };
   }, [reduced]);
 
+  useEffect(() => () => clearTimeout(hold.current), []); // rời trang giữa lúc đang giữ ngón: huỷ hẹn giờ "boo"
+
   // ---- easter egg bàn phím: Konami, "boo", "sudo" (chỉ khi sân khấu đang nằm trong màn hình) ----
   useEffect(() => {
     const matchKonami = createKonamiMatcher();
@@ -450,7 +455,49 @@ export default function Ghost() {
     st.current.inside = false;
   };
 
+  // bấm đúp: ma biến mất rồi hiện ở chỗ khác
+  const teleport = () => {
+    if (!awake) return;
+    const el = stage.current;
+    const c = ghostCenter();
+    addBurst(c.x, c.y, true);
+    actT.clear();
+    setAct('phase');
+    later(() => {
+      const s = st.current;
+      const m = Math.max(40, el.clientWidth / 2 - 90);
+      s.x = (Math.random() * 2 - 1) * m;
+      s.y = (Math.random() * 2 - 1) * 30;
+      s.vx = 0;
+      s.vy = 0;
+      addBurst(el.clientWidth / 2 + s.x, el.clientHeight * 0.44 + s.y, true);
+    }, 300);
+    later(() => {
+      setAct('');
+      say('boo. over here.', 1400);
+    }, 480);
+  };
+
+  // chuột: sự kiện dblclick. Cảm ứng đã tự bắt chạm đúp ở onPointerDown nên bỏ dblclick tổng hợp đến sau đó (tránh dịch chuyển hai lần)
+  const onDoubleClick = () => {
+    if (performance.now() - tap.current.done < 800) return;
+    teleport();
+  };
+
+  const cancelHold = () => clearTimeout(hold.current);
   const onPointerDown = (e) => {
+    if (e.pointerType === 'touch') {
+      const now = performance.now();
+      const prev = tap.current;
+      clearTimeout(hold.current);
+      if (now - prev.t < 320 && Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 40) {
+        tap.current = { t: 0, x: 0, y: 0, done: now };
+        teleport();
+      } else {
+        tap.current = { t: now, x: e.clientX, y: e.clientY, done: prev.done };
+      }
+      hold.current = window.setTimeout(() => api.current.scare(), 650);
+    }
     if (!awake) return; // ban ngày ma đang ngủ
     const r = stage.current.getBoundingClientRect();
     addBurst(e.clientX - r.left, e.clientY - r.top);
@@ -475,29 +522,6 @@ export default function Ghost() {
     } else {
       say(pick(MSGS), 1400);
     }
-  };
-
-  // bấm đúp: ma biến mất rồi hiện ở chỗ khác
-  const onDoubleClick = () => {
-    if (!awake) return;
-    const el = stage.current;
-    const c = ghostCenter();
-    addBurst(c.x, c.y, true);
-    actT.clear();
-    setAct('phase');
-    later(() => {
-      const s = st.current;
-      const m = Math.max(40, el.clientWidth / 2 - 90);
-      s.x = (Math.random() * 2 - 1) * m;
-      s.y = (Math.random() * 2 - 1) * 30;
-      s.vx = 0;
-      s.vy = 0;
-      addBurst(el.clientWidth / 2 + s.x, el.clientHeight * 0.44 + s.y, true);
-    }, 300);
-    later(() => {
-      setAct('');
-      say('boo. over here.', 1400);
-    }, 480);
   };
 
   const toggleDay = () => {
@@ -541,7 +565,12 @@ export default function Ghost() {
       ref={stage}
       className={cls}
       onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
+      onPointerLeave={() => {
+        cancelHold();
+        onPointerLeave();
+      }}
+      onPointerUp={cancelHold}
+      onPointerCancel={cancelHold}
       onPointerDown={onPointerDown}
       onDoubleClick={onDoubleClick}
     >
@@ -569,7 +598,7 @@ export default function Ghost() {
       <div className="ghost-secrets" aria-hidden="true">
         {SECRETS.map((s) => (
           <span key={s.s} className="ghost-secret" style={{ left: s.l, top: s.t }}>
-            {s.s}
+            {coarse && s.touch ? s.touch : touchText(s.s, coarse)}
           </span>
         ))}
       </div>
@@ -653,8 +682,8 @@ export default function Ghost() {
         {eclipse
           ? '// total eclipse · the ghost is wide awake'
           : day
-            ? '// shh, the ghost is asleep · click the sun'
-            : '// poke it · click the moon · look closer'}
+            ? touchText('// shh, the ghost is asleep · click the sun', coarse)
+            : touchText('// poke it · click the moon · look closer', coarse)}
       </span>
       <span className="ghost-count">boos: {boos}</span>
     </div>

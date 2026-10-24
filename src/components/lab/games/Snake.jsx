@@ -186,17 +186,20 @@ export default function Snake() {
 
   const onPointerDown = (e) => {
     swipe.current = { x: e.clientX, y: e.clientY };
-    e.currentTarget.setPointerCapture?.(e.pointerId); // nhả tay ngoài canvas vẫn nhận pointerup
+    e.currentTarget.setPointerCapture?.(e.pointerId); // ngón trượt ra ngoài canvas vẫn nhận sự kiện
   };
-  const onPointerUp = (e) => {
+  // rẽ ngay khi ngón đã đi đủ xa (không chờ nhả tay, đỡ trễ một nhịp), rồi lấy điểm đó làm gốc mới
+  // để một nét vuốt dài có thể rẽ liên tiếp (vd phải rồi xuống)
+  const onPointerMove = (e) => {
     const s = swipe.current;
-    swipe.current = null;
     if (!s || status !== 'playing') return;
     const dx = e.clientX - s.x;
     const dy = e.clientY - s.y;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < SNAKE.swipeMinPx) return;
     turn(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up');
+    swipe.current = { x: e.clientX, y: e.clientY };
   };
+  const endSwipe = () => (swipe.current = null);
 
   const pad = (name, label, cls) => (
     <button
@@ -230,8 +233,9 @@ export default function Snake() {
           width={SIZE * DPR}
           height={SIZE * DPR}
           onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => (swipe.current = null)}
+          onPointerMove={onPointerMove}
+          onPointerUp={endSwipe}
+          onPointerCancel={endSwipe}
           className="block w-full h-auto rounded-lg border border-line"
           style={{ touchAction: 'none' }}
         />

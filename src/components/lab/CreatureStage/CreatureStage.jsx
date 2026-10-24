@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { onThemeChange } from '../../../lib/themeSync.js';
 import { frameLoop } from '../../../lib/loop.js';
 import { cssVar, fitCanvas } from '../../../lib/canvas.js';
+import { isCoarsePointer, touchText } from '../../../lib/env.js';
 import { PANEL } from '../../../config/ui.js';
 
 // Sân khấu dùng chung cho các sinh vật trong lab (Moths, Reptile, Mother, Choir...).
@@ -10,6 +11,8 @@ import { PANEL } from '../../../config/ui.js';
 //   label  chữ nhỏ ở góc khung (vd "move your cursor · 6 legs")
 //   step   gọi mỗi khung hình; vẽ trực tiếp lên api.ctx
 //   caption (tùy chọn) hàm trả chữ nhỏ ở góc khung; được hỏi mỗi khung nên chữ đổi được theo diễn biến (vd "it's inside")
+//   unlock (tùy chọn) gọi NGAY trong sự kiện chạm/bấm của người dùng (pointerdown/up, touchend, click); dùng để bật âm thanh,
+//     vì iOS Safari chỉ cho AudioContext chạy khi được bật ngay trong sự kiện, không phải trong vòng vẽ
 //   destroy (tùy chọn) dọn dẹp khi respawn / rời trang (vd đóng AudioContext của Choir)
 //   Muốn tự vẽ con trỏ: gán ctx.canvas.style.cursor = 'none' trong step; stage tự trả lại khi dọn
 // api = {
@@ -29,6 +32,7 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
   const labelEl = useRef(null);
   const [label, setLabel] = useState('');
   const [nonce, setNonce] = useState(0);
+  const [play, setPlay] = useState(true); // cảm ứng: true = kéo ngón để chơi với con vật, false = kéo để cuộn trang
 
   useEffect(() => {
     const canvas = cvs.current;
@@ -70,9 +74,11 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
     api.mouse.x = api.w * 0.75;
     api.mouse.y = api.h * 0.4;
 
+    const coarse = isCoarsePointer();
     const creature = make(api.w, api.h);
-    setLabel(creature.label);
-    if (labelEl.current) labelEl.current.textContent = creature.label; // respawn: xoá chữ caption cũ ngay, không chờ React
+    const firstLabel = touchText(creature.label, coarse);
+    setLabel(firstLabel);
+    if (labelEl.current) labelEl.current.textContent = firstLabel; // respawn: xoá chữ caption cũ ngay, không chờ React
 
     const move = (e) => {
       const r = canvas.getBoundingClientRect();
@@ -81,13 +87,16 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
       api.mouse.inside = true;
       api.idle = 0;
     };
+    const unlock = () => creature.unlock?.();
     const down = (e) => {
       move(e);
       api.mouse.down = true;
       api.mouse.clicks++;
+      unlock();
     };
     const up = () => {
       api.mouse.down = false;
+      unlock();
     };
     const leave = () => {
       api.mouse.down = false;
@@ -98,6 +107,9 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
     canvas.addEventListener('pointerup', up);
     canvas.addEventListener('pointercancel', up);
     canvas.addEventListener('pointerleave', leave);
+    // iOS Safari chỉ tính touchend / click là cử chỉ mở khoá âm thanh (pointerdown thì không)
+    canvas.addEventListener('touchend', unlock, { passive: true });
+    canvas.addEventListener('click', unlock);
 
     const ro = new ResizeObserver(resize);
     ro.observe(box);
@@ -129,14 +141,14 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
       creature.step(api);
       ctx.globalAlpha = 1;
       if (creature.caption && labelEl.current) {
-        const text = creature.caption();
+        const text = touchText(creature.caption(), coarse);
         if (text !== lastCaption) {
           lastCaption = text;
           labelEl.current.textContent = text;
         }
       }
     };
-    let lastCaption = creature.label;
+    let lastCaption = firstLabel;
     const loop = frameLoop(tick, { watch: box, onResume: () => (last = 0) });
 
     return () => {
@@ -150,6 +162,8 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
       canvas.removeEventListener('pointerup', up);
       canvas.removeEventListener('pointercancel', up);
       canvas.removeEventListener('pointerleave', leave);
+      canvas.removeEventListener('touchend', unlock);
+      canvas.removeEventListener('click', unlock);
     };
   }, [nonce, make, minFrameMs]);
 
@@ -160,7 +174,11 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
         className="relative rounded-lg border border-line overflow-hidden text-ink"
         style={{ height, background: 'var(--panel)' }}
       >
-        <canvas ref={cvs} className="absolute inset-0 w-full h-full touch-pan-y" />
+        <canvas
+          ref={cvs}
+          className="absolute inset-0 w-full h-full"
+          style={{ touchAction: play ? 'none' : 'pan-y' }} // none: kéo ngón là chơi (không bị trang cuộn cướp); pan-y: kéo dọc để cuộn
+        />
         <span ref={labelEl} className="absolute top-2.5 left-3 right-3 font-mono text-[12px] text-dim pointer-events-none">{label}</span>
       </div>
       <div className="flex gap-2.5 mt-4">
@@ -170,6 +188,16 @@ export default function CreatureStage({ make, height = 380, minFrameMs = 0 }) {
           className="lab-cell px-3.5 py-1.5 rounded-md border border-line hover:border-amber text-ink font-mono text-[13px]"
         >
           respawn
+        </button>
+        {/* chỉ hiện trên màn cảm ứng: canvas chiếm gần nửa màn hình nên cần cách để cuộn trang khi ngón đang đặt trên đó */}
+        <button
+          type="button"
+          aria-pressed={play}
+          onClick={() => setPlay((p) => !p)}
+          className="lab-cell hidden pointer-coarse:inline-flex items-center px-3.5 py-1.5 rounded-md border border-line text-ink font-mono text-[13px]"
+          style={play ? { borderColor: 'var(--amber)' } : undefined}
+        >
+          {play ? 'drag: play' : 'drag: scroll'}
         </button>
       </div>
     </div>

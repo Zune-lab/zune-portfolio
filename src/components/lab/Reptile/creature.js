@@ -355,7 +355,13 @@ function setupLizard(size, legs, tail, w, h) {
 // Bấm "respawn" thì stage gọi lại hàm này.
 export function makeReptile(w, h) {
   const legs = randInt(1, 12);
-  const critter = setupLizard(4.5 / Math.sqrt(legs), legs, randInt(4, 4 + legs * 8), w, h);
+  const size = 4.5 / Math.sqrt(legs);
+  const tail = randInt(4, 4 + legs * 8);
+  // chiều dài thân ước chừng (cổ 6 đoạn, mỗi chân thêm 6 đoạn sống lưng, rồi đuôi). Khung hẹp (điện thoại) mà con dài
+  // thì cuộn xoắn thành một đống: thu nhỏ vừa đủ để dài tối đa ~55% đường chéo khung. Màn rộng thì giữ nguyên cỡ gốc (fit = 1)
+  const length = size * (6 + 24 * (legs - 1) + tail);
+  const fit = Math.max(0.5, Math.min(1, (Math.hypot(w, h) * 0.55) / length));
+  const critter = setupLizard(size * fit, legs, tail, w, h);
   return {
     label: `move your cursor, it follows · ${legs} legs`,
     step({ ctx, mouse }) {

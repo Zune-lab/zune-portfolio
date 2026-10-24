@@ -9,6 +9,7 @@ import { pick } from '../../../lib/math.js';
 import './Lab.css';
 import './LabFx.css';
 import { WRAP } from '../../../config/ui.js';
+import { touchText } from '../../../lib/env.js';
 import { labelOf } from '../../../config/pages.js';
 
 // Lab có thể lên tới hàng trăm mục, nên giao diện tự đổi theo số lượng (không cần sửa code khi thêm mục):
@@ -108,7 +109,7 @@ function LabGrid({ f, setF, onNavigate }) {
             </div>
             <div className="font-mono font-bold text-[14px] text-ink group-hover:text-amber">{i.name}</div>
             <div className="font-mono text-[12px] text-dim mb-2">{i.file}</div>
-            <p className={`text-[13px] text-dim leading-snug pr-10 ${dense ? 'line-clamp-2' : ''}`}>{i.blurb}</p>
+            <p className={`text-[13px] text-dim leading-snug pr-10 ${dense ? 'line-clamp-2' : ''}`}>{touchText(i.blurb)}</p>
             <span className="lab-card-go" aria-hidden="true">run ›</span>
           </Link>
         ))}
@@ -370,7 +371,7 @@ function LabItem({ item, onNavigate }) {
       <LabJump item={item} onNavigate={onNavigate} />
 
       <h2 className="font-mono text-[12.5px] uppercase tracking-[0.08em] text-dim mb-4">// {item.file}</h2>
-      <p className="text-[13.5px] text-dim mb-5">{item.blurb}</p>
+      <p className="text-[13.5px] text-dim mb-5">{touchText(item.blurb)}</p>
 
       <ErrorBoundary inline>
       <Suspense fallback={<div className="font-mono text-[13px] text-dim py-10">loading {item.file}…</div>}>
@@ -397,7 +398,7 @@ export default function Lab({ view = 'lab', onNavigate }) {
 
   return (
     <section id="lab" className="pt-10 pb-20 border-t border-line">
-      <div className={WRAP}>
+      <div className={`${WRAP} max-sm:px-4`}>
         <SectionHead num="01" title={item ? item.file : labelOf('lab')} level={1} />
         {item ? <LabItem key={item.slug} item={item} onNavigate={onNavigate} /> : <LabGrid f={f} setF={setF} onNavigate={onNavigate} />}
       </div>

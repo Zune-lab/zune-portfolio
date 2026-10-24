@@ -13,6 +13,18 @@ export const canHover = () => window.matchMedia('(hover: hover)').matches;
 // hover thật VÀ con trỏ chính xác (chuột), loại trừ bút/máy tính bảng có hover yếu
 export const hasFinePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+// màn cảm ứng là con trỏ chính (điện thoại, máy tính bảng); laptop có chuột thì false
+export const isCoarsePointer = () => window.matchMedia('(pointer: coarse)').matches;
+
+// đổi chữ hướng dẫn viết cho chuột sang chữ hợp với cảm ứng: "move your cursor" -> "drag your finger", "click" -> "tap"
+export const touchText = (text, coarse = isCoarsePointer()) =>
+  coarse
+    ? String(text)
+        .replace(/move (your|the) cursor/gi, 'drag your finger')
+        .replace(/\bcursor\b/gi, 'finger')
+        .replace(/\bclick(ed|ing)?\b/gi, (_, s) => (s ? `tap${s === 'ed' ? 'ped' : 'ping'}` : 'tap'))
+    : text;
+
 // canvas theo mật độ điểm ảnh, tối đa 2x (cao hơn chỉ tốn GPU mà mắt không thấy khác)
 export const getDpr = () => Math.min(window.devicePixelRatio || 1, 2);
 
