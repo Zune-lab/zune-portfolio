@@ -131,7 +131,7 @@
   background: var(--inset);
   transition: background var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease);
 }
-.ab-tl li:hover .ab-dot { background: var(--c); box-shadow: 0 0 12px var(--c); }
+.ab-tl li:hover .ab-dot { background: var(--c); box-shadow: 0 0 12px color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)); }
 .ab-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
 .ab-hash { color: var(--amber); }
 .ab-date { color: var(--green); }
@@ -151,7 +151,7 @@
   .is-now .ab-dot { animation: ab-pulse 1.8s ease-out infinite; }
 }
 @keyframes ab-pulse {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 55%, transparent); }
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)) 55%, transparent); }
   100% { box-shadow: 0 0 0 10px transparent; }
 }
 

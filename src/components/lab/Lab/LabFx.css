@@ -382,7 +382,7 @@
   border: 2px solid var(--amber);
   border-radius: 0 8px 8px 8px;
   background: var(--panel);
-  box-shadow: 0 10px 30px rgb(var(--shade) / calc(0.35 * var(--shade-k))), 0 0 26px -10px color-mix(in srgb, var(--amber) 55%, transparent);
+  box-shadow: 0 10px 30px rgb(var(--shade) / calc(0.35 * var(--shade-k))), 0 0 26px -10px color-mix(in srgb, var(--glow) 55%, transparent);
   transform-origin: 0 0;
   animation: lab-jump-in 0.24s var(--ease) both;
 }
@@ -450,11 +450,11 @@
 .lab-jump-scroll.is-dragging .lab-jump-thumb {
   width: 8px;
   background: var(--amber);
-  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--amber) 70%, transparent);
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--glow) 70%, transparent);
 }
 .lab-jump-thumb:hover::after,
 .lab-jump-scroll.is-dragging .lab-jump-thumb::after { opacity: 0.5; }
-.lab-jump-scroll.is-scrolling .lab-jump-thumb { background: var(--amber); box-shadow: 0 0 10px -3px color-mix(in srgb, var(--amber) 70%, transparent); }
+.lab-jump-scroll.is-scrolling .lab-jump-thumb { background: var(--amber); box-shadow: 0 0 10px -3px color-mix(in srgb, var(--glow) 70%, transparent); }
 .lab-jump-scroll.is-dragging .lab-jump-thumb { cursor: grabbing; }
 
 /* ---------- dòng trong danh sách ---------- */

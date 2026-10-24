@@ -106,7 +106,7 @@
   color: var(--amber);
   font: 800 20px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.02em;
-  box-shadow: 0 0 28px color-mix(in srgb, currentColor 35%, transparent); /* phát sáng như logo DVD trên TV */
+  box-shadow: 0 0 28px color-mix(in srgb, var(--glow) 35%, transparent); /* phát sáng như logo DVD trên TV */
   pointer-events: none;
   will-change: transform;
 }

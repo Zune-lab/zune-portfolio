@@ -50,6 +50,7 @@
      sẽ ra vệt nâu bẩn, và --text gần đen sẽ thành vệt xám. Glow phải luôn là màu SÁNG, ấm; bóng phải nhẹ và ấm. */
   --glow: #ffc857; /* màu phát sáng (box-shadow/text-shadow/spotlight) */
   --glow-green: #7ee081;
+  --glow-mix: 100%; /* phần màu riêng của phần tử (--c...) trong quầng sáng: dark theme dùng nguyên màu, light theme pha thêm --glow (xem ghi chú bên dưới) */
   --halo: color-mix(in srgb, var(--text) 14%, transparent); /* quầng sáng nền sau card hero */
   --spot-a: 8%; /* độ đậm vệt đèn pha theo con trỏ (.spot) */
   --shade: 0 0 0; /* màu bóng đổ (r g b) */
@@ -87,6 +88,9 @@
   --on-amber: #fffaf0; /* amber ở light theme là nâu đậm: chữ tối trên nền này gần như không đọc được */
   --glow: #f2a516; /* sáng + ấm: trên nền kem ra quầng hổ phách thay vì vệt nâu */
   --glow-green: #3fbf6a;
+  /* light theme: màu chữ (--green, --js, --amber...) là màu ĐẬM để đọc được trên nền kem. Dùng nguyên chúng làm quầng sáng sẽ ra vệt nâu/xám tối,
+     nên chỉ lấy 40% màu riêng, 60% còn lại là --glow ấm. Dùng: color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)) */
+  --glow-mix: 40%;
   --halo: color-mix(in srgb, var(--glow) 22%, transparent); /* ánh nắng ấm thay cho vệt xám của --text */
   --spot-a: 20%;
   --shade: 92 62 14; /* nâu ấm thay cho đen thuần */
@@ -222,11 +226,80 @@ body::before {
   border-bottom: 1px solid var(--line);
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-@media (hover: hover) {
-  .hero-link:hover {
-    color: var(--amber);
-    border-color: var(--amber);
+/* Chuột (hover + pointer fine): đường kẻ amber quét từ trái sang, mũi tên nhích theo hướng của nó.
+   Màn cảm ứng không có hover nên giữ nguyên như cũ (chữ + gạch chân tĩnh). */
+@media (hover: hover) and (pointer: fine) {
+  .hero-link {
+    position: relative;
+    display: inline-block;
   }
+  .hero-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease);
+  }
+  /* dấu nhắc lệnh ">" trượt ra ở bên trái, như đang đứng trước một dòng lệnh */
+  .hero-link::before {
+    content: '>';
+    position: absolute;
+    left: -1.3em;
+    top: 0;
+    color: var(--amber);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.3s var(--ease), transform 0.45s var(--ease);
+  }
+  .hero-link:hover::before,
+  .hero-link:focus-visible::before {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .hero-link:hover,
+  .hero-link:focus-visible {
+    color: var(--amber);
+  }
+  .hero-link:hover::after,
+  .hero-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+.hl-arrow {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.2em;
+  margin-left: 0.2em;
+  vertical-align: -0.22em;
+  overflow: visible;
+}
+.hl-arrow-shaft,
+.hl-arrow-head {
+  transition: transform 0.45s var(--ease);
+}
+.hl-arrow-shaft { transform-box: fill-box; transform-origin: left center; }
+@media (hover: hover) and (pointer: fine) {
+  /* thân mũi tên dài ra, đầu mũi tên trượt theo: giống con trỏ lệnh "chạy tới" */
+  .hero-link:hover .hl-arrow-shaft,
+  .hero-link:focus-visible .hl-arrow-shaft { transform: scaleX(1.28); }
+  .hero-link:hover .hl-arrow-head,
+  .hero-link:focus-visible .hl-arrow-head { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-link::before,
+  .hero-link::after,
+  .hl-arrow-shaft,
+  .hl-arrow-head { transition: none; }
+  .hero-link:hover .hl-arrow-shaft,
+  .hero-link:focus-visible .hl-arrow-shaft,
+  .hero-link:hover .hl-arrow-head,
+  .hero-link:focus-visible .hl-arrow-head { transform: none; }
 }
 
 /* .spot: viền + ánh sáng amber chạy theo chuột (dùng cùng spotMove trong lib/dom.js) */

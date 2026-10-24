@@ -10,6 +10,8 @@ import { observeVisible } from '../../lib/observe.js';
 import { site } from '../../config/site.js';
 import { WRAP } from '../../config/ui.js';
 import { CONTACT } from '../../config/pages.js';
+import HlArrow from '../ui/HlArrow.jsx';
+import Scramble from '../ui/Scramble.jsx';
 
 // Dòng thứ 2 tự gõ - xoá - gõ lại các câu về Zune. Lần đầu hiện đủ câu đầu (không bị trống lúc tải trang),
 // ~3 giây sau mới bắt đầu xoay vòng. Bật "giảm chuyển động" thì đứng yên ở câu đầu.
@@ -111,11 +113,11 @@ export default function Hero({ onNavigate }) {
       <div className={`absolute z-[1] inset-x-0 bottom-0 ${WRAP} w-full pb-8 flex items-end justify-between`}>
         <a href="#terminal" data-solid className="hero-link"
           onClick={(e) => { e.preventDefault(); scrollToAnchor('#terminal'); }}>
-          Scroll to continue ↓
+          <Scramble>Scroll to continue</Scramble> <HlArrow dir="down" />
         </a>
         <a href="#projects" data-solid className="hero-link"
           onClick={(e) => { e.preventDefault(); onNavigate?.('projects'); }}>
-          Projects ↗
+          <Scramble>Projects</Scramble> <HlArrow dir="ne" />
         </a>
       </div>
 

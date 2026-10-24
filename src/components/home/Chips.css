@@ -19,13 +19,13 @@
   flex: none;
   border-radius: 50%;
   background: var(--c);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--c) 70%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)) 70%, transparent);
   transition: transform var(--dur) var(--ease);
 }
 .chip:is(:hover, :focus-visible) {
   border-color: var(--c);
   background: color-mix(in srgb, var(--c) 14%, var(--panel));
-  box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--c) 55%, transparent);
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)) 55%, transparent);
 }
 .chip:is(:hover, :focus-visible) .chip-dot { transform: scale(1.35); }
 
@@ -36,7 +36,7 @@
   height: 16px;
   flex: none;
   color: var(--c);
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c) 45%, transparent));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)) 45%, transparent));
   transition: transform var(--dur) var(--ease);
 }
 .chip:is(:hover, :focus-visible) .chip-icon { transform: scale(1.15); }

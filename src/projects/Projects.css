@@ -477,7 +477,7 @@
 /* ===== đèn LED theo trạng thái deploy + màn hình "mất sóng" kiểu TV đen trắng ===== */
 .proj-led[data-state='off'] { background: #4a4a4a; box-shadow: none; }
 .proj-led[data-state='idle'] { background: var(--amber); box-shadow: 0 0 8px var(--glow); }
-.proj-led[data-state='check'] { background: var(--amber); box-shadow: 0 0 8px var(--amber); animation: proj-blink 1s steps(1, end) infinite; }
+.proj-led[data-state='check'] { background: var(--amber); box-shadow: 0 0 8px var(--glow); animation: proj-blink 1s steps(1, end) infinite; }
 .proj-art[data-off] { filter: grayscale(1) contrast(1.12) brightness(0.85); }
 .proj-cart[data-off], .proj-row[data-off] { filter: grayscale(1); }
 .proj-static { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; opacity: 0.3; mix-blend-mode: screen;

@@ -18,6 +18,8 @@ import { canHover, prefersReducedMotion } from '../../lib/env.js';
 import useTimer from '../../lib/useTimer.js';
 import { SECTION_ANCHOR, WRAP } from '../../config/ui.js';
 import { labelOf } from '../../config/pages.js';
+import HlArrow from '../ui/HlArrow.jsx';
+import Scramble from '../ui/Scramble.jsx';
 
 export function FeaturedProjects({ onNavigate }) {
   const list = featured;
@@ -123,7 +125,7 @@ export function FeaturedProjects({ onNavigate }) {
         </div>
         <div className="mt-10">
           <PageLink view="projects" onNavigate={onNavigate}>
-            All projects →
+            <Scramble>All projects</Scramble> <HlArrow />
           </PageLink>
         </div>
       </div>
@@ -151,7 +153,7 @@ export function AboutTeaser({ onNavigate }) {
             </ul>
             <div className="mt-8">
               <PageLink view="about" onNavigate={onNavigate}>
-                More about me →
+                <Scramble>More about me</Scramble> <HlArrow />
               </PageLink>
             </div>
           </div>
@@ -196,7 +198,7 @@ export function LabTeaser({ onNavigate }) {
         </ul>
         <div className="mt-8">
           <PageLink view="lab" onNavigate={onNavigate}>
-            Open the lab →
+            <Scramble>Open the lab</Scramble> <HlArrow />
           </PageLink>
         </div>
       </div>
