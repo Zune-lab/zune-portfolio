@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import ErrorBoundary from './components/layout/ErrorBoundary.jsx';
 import './index.css';
+import './styles/skins.css'; // SAU index.css: cùng độ ưu tiên thì skin thắng theme sáng/tối mặc định
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

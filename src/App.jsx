@@ -16,23 +16,22 @@ import { storageKey } from './config/site.js';
 import { canHover, prefersReducedMotion } from './lib/env.js';
 import { timeOfDay } from './lib/siteTime.js';
 import { pausableInterval } from './lib/timers.js';
-import { syncThemeNow } from './lib/themeSync.js';
+import { syncThemeColor, syncThemeNow } from './lib/themeSync.js';
+import { forcedTheme, refreshAuto, rememberTheme, skinToast, subscribeSkin } from './lib/skin.js';
+import { skinById } from './config/skins.js';
+import SkinFx from './components/layout/Skin/SkinFx.jsx';
+import SkinPalette from './components/layout/Skin/SkinPalette.jsx';
+import SkinToast from './components/layout/Skin/SkinToast.jsx';
 
 // bao lâu thì hiện Loader khi chuyển tab (chỉ để người dùng kịp thấy hiệu
 // ứng — bản thân việc đổi view là tức thì, không có gì thật sự cần tải)
 const TAB_LOADER_MS = 450;
 
-// <meta theme-color> (thanh trạng thái / thanh địa chỉ trên điện thoại) lấy thẳng từ --bg đang áp dụng, nên theo cả theme sáng/tối
-// LẪN tông giờ (data-tod đổi --bg một chút). Trước đây chép cứng hai mã hex nên lệch màu nền trang vào ban đêm / buổi sáng / chiều tối.
-const syncThemeColor = () => {
-  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-  if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
-};
-
 export default function App() {
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
   );
+  const [paletteOpen, setPaletteOpen] = useState(false); // bảng chọn skin (Ctrl+K / nút ở navbar)
   const [view, setView] = useState(viewFromLocation); // 'home' | id trong PAGES (src/config/pages.js) | '<id>/<con>' vd 'lab/snake'
   const [pendingScroll, setPendingScroll] = useState(null); // string selector | number Y | null
   const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +47,30 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     syncThemeColor();
-    storageSet(storageKey('theme'), theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
+    // theme bị skin ÉP (vd skin chỉ có chế độ tối) thì không phải lựa chọn của người dùng: không ghi đè, để lúc quay lại skin có cả hai vẫn đúng ý
+    if (!forcedTheme()) {
+      rememberTheme(theme);
+      storageSet(storageKey('theme'), theme); // storage bị chặn: vẫn đổi theme được, chỉ không nhớ lại lần sau
+    }
   }, [theme]);
+
+  // skin đổi (chọn, xem thử, 'auto' theo giờ) có thể ép theo data-theme: kéo state `theme` (công tắc đèn pin) theo cho khớp
+  useEffect(
+    () =>
+      subscribeSkin(() => setTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')),
+    []
+  );
+
+  // Ctrl/Cmd + K mở / đóng bảng chọn skin
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'k') return;
+      e.preventDefault(); // chiếm phím tắt "tìm kiếm" của trình duyệt trong trang này
+      setPaletteOpen((o) => !o);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // sau khi view đổi sang 'home', cuộn tới đích đang chờ: 1 selector cụ thể
   // (vd '#contact' khi nhảy thẳng từ tab khác) hoặc vị trí cũ đã lưu lại.
@@ -127,6 +148,7 @@ export default function App() {
       swapColors(() => {
         root.dataset.tod = next;
       });
+      refreshAuto(); // skin 'auto' đổi theo buổi trong ngày
     };
     apply();
     return pausableInterval(apply, 60 * 1000); // ngủ hẳn lúc screensaver / tab ẩn, dậy thì áp lại ngay
@@ -148,6 +170,12 @@ export default function App() {
     themeTimer.current = window.setTimeout(() => root.classList.remove('theme-anim'), 120);
   };
   const toggleTheme = () => {
+    const locked = forcedTheme();
+    if (locked) {
+      // skin chỉ có một chế độ: công tắc không đổi được, nói rõ lý do thay vì im lặng
+      skinToast({ text: `${skinById(document.documentElement.dataset.skin)?.label} is ${locked}-only. open skins (Ctrl+K) for one with both.` });
+      return;
+    }
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     swapColors(() => {
       document.documentElement.dataset.theme = next;
@@ -215,6 +243,7 @@ export default function App() {
 
   return (
     <>
+      <SkinFx />
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       <Loader show={isLoading} />
@@ -227,7 +256,13 @@ export default function App() {
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-3 focus:py-2 focus:rounded-md focus:bg-panel focus:text-ink focus:border focus:border-amber font-mono text-[13px]">
         skip to content
       </a>
-      <Navbar theme={theme} onToggleTheme={toggleTheme} view={view} onNavigate={handleNavigate} />
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onOpenSkins={() => setPaletteOpen(true)}
+        view={view}
+        onNavigate={handleNavigate}
+      />
 
       <main id="main" ref={mainRef} tabIndex={-1} className="outline-hidden">
       <ErrorBoundary key={view} inline>
@@ -252,6 +287,8 @@ export default function App() {
       <Footer />
       <BackToTop />
       <Alive />
+      <SkinPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <SkinToast />
     </>
   );
 }

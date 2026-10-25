@@ -3,6 +3,7 @@ import { getStatusKey } from './status.js';
 import { createEmitter } from './store.js';
 import { site } from '../config/site.js';
 import { pausableInterval } from './timers.js';
+import { unlockAllSkins } from './skin.js';
 
 // "Pin xã hội" của Zune dùng chung cho: thẻ zune.sav, sân chữ ở hero (HeroLetters) và terminal (lệnh battery / konami).
 // Là store ngoài React để HeroLetters nghe được mà không phải re-render cả hero.
@@ -75,7 +76,10 @@ function unlock(msg) {
 }
 
 // Konami (gõ phím hoặc lệnh `konami` trong terminal): cùng một câu cho mọi nơi gọi
-export const unlockKonami = () => unlock('konami accepted. personality 100%. who let this happen?');
+export const unlockKonami = () => {
+  unlock('konami accepted. personality 100%. who let this happen?');
+  unlockAllSkins(); // phần thưởng thêm: mở hết skin ẩn (xem src/config/skins.js)
+};
 
 export function friendship() {
   if (state.maxed) return;

@@ -4,7 +4,7 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--rk, 1));
   background: var(--inset);
 }
 .ab-bar,
@@ -14,7 +14,7 @@
   gap: 12px;
   background: var(--panel);
   color: var(--text-dim);
-  font: 500 12px/1 'JetBrains Mono', monospace;
+  font: 500 12px/1 var(--f-mono);
 }
 .ab-bar { padding: 10px 14px; border-bottom: 1px solid var(--line); }
 .ab-foot { gap: 18px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 11px; }
@@ -38,7 +38,7 @@
   margin: 0;
   padding: 18px 0;
   color: var(--text);
-  font: 13.5px/1.85 'JetBrains Mono', monospace;
+  font: 13.5px/1.85 var(--f-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -85,14 +85,14 @@
 .ab-card,
 .ab-stat {
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: calc(10px * var(--rk, 1));
   background: var(--panel);
 }
 .ab-card { padding: 18px 20px; }
 .ab-k {
   margin-bottom: 12px;
   color: var(--text-dim);
-  font: 500 12px/1 'JetBrains Mono', monospace;
+  font: 500 12px/1 var(--f-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -102,11 +102,11 @@
   transition: border-color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
 }
 .ab-stat:hover { border-color: var(--amber); transform: translateY(-3px); }
-.ab-stat b { display: block; color: var(--amber); font: 700 28px/1 'JetBrains Mono', monospace; }
-.ab-stat span { display: block; margin-top: 8px; color: var(--text-dim); font: 11.5px/1.35 'JetBrains Mono', monospace; }
+.ab-stat b { display: block; color: var(--amber); font: 700 28px/1 var(--f-mono); }
+.ab-stat span { display: block; margin-top: 8px; color: var(--text-dim); font: 11.5px/1.35 var(--f-mono); }
 
 /* log.sh: git graph */
-.ab-term { padding: 20px 22px 22px; color: var(--text); font: 13px/1.7 'JetBrains Mono', monospace; }
+.ab-term { padding: 20px 22px 22px; color: var(--text); font: 13px/1.7 var(--f-mono); }
 .ab-tl { margin: 0; padding: 0; list-style: none; }
 .ab-tl li { position: relative; padding: 0 0 18px 30px; }
 .ab-tl li:last-child { padding-bottom: 0; }
@@ -139,7 +139,7 @@
 .ab-head {
   padding: 1px 6px;
   border: 1px solid color-mix(in srgb, var(--c, var(--amber)) 55%, transparent);
-  border-radius: 4px;
+  border-radius: calc(4px * var(--rk, 1));
   color: var(--c, var(--amber));
   font-size: 10.5px;
   letter-spacing: 0.05em;
@@ -163,16 +163,16 @@
   gap: 8px;
   padding: 7px 12px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: calc(6px * var(--rk, 1));
   background: var(--panel);
-  font: 13px/1 'JetBrains Mono', monospace;
+  font: 13px/1 var(--f-mono);
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
 }
 .ab-chip:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
 .ab-chip em {
   padding: 2px 5px;
   border: 1px solid color-mix(in srgb, var(--green) 45%, transparent);
-  border-radius: 4px;
+  border-radius: calc(4px * var(--rk, 1));
   color: var(--green);
   font-size: 10px;
   font-style: normal;

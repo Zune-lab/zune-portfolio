@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { readBest, saveBest } from './storage.js';
+import { checkSkinUnlocks } from './skin.js';
 
 // Kỷ lục của mini game (lưu localStorage): dùng chung cho Snake, BugSquash, MemoryMatch.
 //   const { best, newBest, record, clearNew } = useBest(KEY, { lowerIsBetter })
@@ -15,6 +16,7 @@ export default function useBest(key, { lowerIsBetter = false } = {}) {
       if (!beats) return;
       setBest(n);
       saveBest(key, n);
+      checkSkinUnlocks(); // kỷ lục mới có thể vừa đủ điều kiện mở một skin ẩn
       setNewBest(true);
     },
     [best, key, lowerIsBetter]

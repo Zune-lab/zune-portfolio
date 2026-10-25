@@ -6,10 +6,10 @@
   gap: 8px;
   padding: 7px 12px;
   border: 1px solid color-mix(in srgb, var(--c) 30%, var(--line));
-  border-radius: 6px;
+  border-radius: calc(6px * var(--rk, 1));
   background: color-mix(in srgb, var(--c) 7%, var(--panel));
   color: var(--text);
-  font: 13px/1 'JetBrains Mono', monospace;
+  font: 13px/1 var(--f-mono);
   transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease),
     box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
 }

@@ -16,7 +16,7 @@
   --color-amber-dim: var(--amber-dim);
   --color-green: var(--green);
 
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: var(--f-mono); /* font chính đi qua biến --f-mono để SKIN đổi được (src/styles/skins.css) */
   --font-sans: Inter, 'Segoe UI', sans-serif;
   --font-pixel: Silkscreen, 'JetBrains Mono', monospace;
 }
@@ -37,6 +37,7 @@
 }
 
 :root {
+  --f-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; /* font chính của trang; skin ghi đè biến này */
   --bg: #0a0c10;
   --panel: #10141b;
   --inset: #0c0f14;
@@ -104,17 +105,17 @@
   color-scheme: light;
 }
 
-/* tông nền đổi nhẹ theo giờ VN (App.jsx gắn data-tod) */
-:root[data-tod='dawn']:not([data-theme='light']) {
+/* tông nền đổi nhẹ theo giờ VN (App.jsx gắn data-tod). CHỈ áp cho skin mặc định `zune`: skin khác có bảng màu riêng, không bị pha thêm */
+:root[data-skin='zune'][data-tod='dawn']:not([data-theme='light']) {
   --bg: #0b0e13; --panel: #11161e; --inset: #0d1117; --line: #1e2631;
 }
-:root[data-tod='dusk']:not([data-theme='light']) {
+:root[data-skin='zune'][data-tod='dusk']:not([data-theme='light']) {
   --bg: #0e0b0a; --panel: #161210; --inset: #110d0b; --line: #261e19;
 }
-:root[data-tod='night']:not([data-theme='light']) {
+:root[data-skin='zune'][data-tod='night']:not([data-theme='light']) {
   --bg: #080b12; --panel: #0d121b; --inset: #0a0e15; --line: #1a2230;
 }
-:root[data-theme='light'][data-tod='dusk'] {
+:root[data-skin='zune'][data-theme='light'][data-tod='dusk'] {
   --bg: #f3ebe0; --inset: #ece2d3;
 }
 
@@ -196,7 +197,7 @@ body::before {
     linear-gradient(0deg, var(--bg) 0%, transparent 28%);
 }
 .hero-title {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--f-mono);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.03em;
@@ -219,7 +220,7 @@ body::before {
   }
 }
 .hero-link {
-  font: 500 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  font: 500 12px/1 var(--f-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding-bottom: 8px;

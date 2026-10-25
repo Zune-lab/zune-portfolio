@@ -216,6 +216,7 @@ export default function Alive() {
     const mo = new MutationObserver((recs) => {
       for (const r of recs) {
         if (r.oldValue === document.documentElement.dataset.theme) continue; // cùng giá trị (React ghi lại) không tính
+        if (document.documentElement.hasAttribute('data-skin-swap')) continue; // theme bị ĐỔI THEO SKIN (xem thử, chọn skin chỉ có 1 chế độ), không phải bấm công tắc
         const now = performance.now();
         times.push(now);
         while (times.length && now - times[0] > 4000) times.shift();

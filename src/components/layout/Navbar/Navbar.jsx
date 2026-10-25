@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ThemeToggleTorch from '../ThemeToggleTorch/ThemeToggleTorch.jsx';
+import SkinButton from '../Skin/SkinButton.jsx';
 import ScrollArrow from '../ScrollArrow/ScrollArrow.jsx';
 import { CONTACT, PAGES, pageOfView, topOf } from '../../../config/pages.js';
 import { pathOf } from '../../../lib/paths.js';
@@ -288,7 +289,7 @@ function useViewHistory(view, onNavigate) {
   return { goBack, goHome };
 }
 
-export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
+export default function Navbar({ theme, onToggleTheme, onOpenSkins, view, onNavigate }) {
   const inTab = view !== 'home';
   const top = topOf(view); // 'lab/snake' -> 'lab'
   const upHref = pathOf(top !== view ? top : 'home'); // href thật của "cd .."
@@ -529,6 +530,7 @@ export default function Navbar({ theme, onToggleTheme, view, onNavigate }) {
               </div>
             )}
 
+            <SkinButton onClick={onOpenSkins} />
             <ThemeToggleTorch theme={theme} onToggle={onToggleTheme} />
           </div>
         </div>

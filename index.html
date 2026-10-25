@@ -4,7 +4,7 @@
   Code: MIT License, keep the copyright notice. Personal content: all rights reserved.
   Original: {{repoUrl}}
 -->
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-skin="{{defaultSkin}}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,13 +40,28 @@
       />
     </noscript>
     <script>
-      // Apply saved theme before paint, so there's no flash on load.
+      // Apply saved skin + theme before paint, so there's no flash on load.
+      // Skin chỉ có 1 chế độ sáng/tối thì ÉP theme theo nó (cùng quy tắc với src/lib/skin.js); 'auto' dùng skin đã áp dụng lần trước.
       (function () {
-        var saved = null;
+        var saved = null,
+          skin = null,
+          eff = null;
         try {
           saved = localStorage.getItem('{{themeKey}}');
-        } catch (e) {} // storage bị chặn: dùng mặc định dark
-        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+          skin = localStorage.getItem('{{skinKey}}');
+          eff = localStorage.getItem('{{skinEffKey}}');
+        } catch (e) {} // storage bị chặn: dùng mặc định (skin gốc, dark)
+        var ids = '{{skinIds}}'.split(',');
+        var locks = '{{skinLocks}}'.split(',');
+        if (skin === 'auto') skin = eff;
+        if (ids.indexOf(skin) < 0) skin = '{{defaultSkin}}';
+        var theme = saved === 'light' ? 'light' : 'dark';
+        for (var i = 0; i < locks.length; i++) {
+          var p = locks[i].split(':');
+          if (p[0] === skin) theme = p[1];
+        }
+        document.documentElement.dataset.skin = skin;
+        document.documentElement.dataset.theme = theme;
       })();
     </script>
   </head>

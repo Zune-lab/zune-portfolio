@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--rk, 1));
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }

@@ -16,7 +16,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 700 var(--fs, 40px) / 1 'JetBrains Mono', ui-monospace, monospace;
+  font: 700 var(--fs, 40px) / 1 var(--f-mono);
   color: var(--text);
   /* bóng cứng lệch như tiêu đề hero (.hero-title) */
   text-shadow: 0.06em 0.06em 0 color-mix(in srgb, var(--amber) 38%, transparent);
@@ -71,7 +71,7 @@
 }
 .letters-hint {
   margin: 0 0 10px;
-  font: 12px/1.5 'JetBrains Mono', ui-monospace, monospace;
+  font: 12px/1.5 var(--f-mono);
   color: var(--text-dim);
   opacity: 0.8;
   transition: opacity var(--dur-slow) var(--ease);
@@ -85,11 +85,11 @@
   gap: 6px;
 }
 .letters-btns button {
-  font: 12px/1 'JetBrains Mono', ui-monospace, monospace;
+  font: 12px/1 var(--f-mono);
   color: var(--text-dim);
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: calc(6px * var(--rk, 1));
   padding: 7px 11px;
   cursor: pointer;
   touch-action: manipulation;

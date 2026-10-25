@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { PAGES } from '../../../config/pages.js';
 import { stack } from '../../../data/profile.js';
 import { site } from '../../../config/site.js';
+import { SKINS, SKIN_AUTO, isSkinId, lockedMode, skinById } from '../../../config/skins.js';
+import { chooseSkin, getChoice, getSkin, isUnlocked } from '../../../lib/skin.js';
 import { spotMove } from '../../../lib/dom.js';
 import { has, motionSleep as sleep, prefersReducedMotion } from '../../../lib/env.js';
 import { observeOnce } from '../../../lib/observe.js';
@@ -34,8 +36,47 @@ const QUICK = [
   ['what do you use?', 'cat stack.txt'],
   ['show projects', 'cd projects'],
   ['can I hire you?', `sudo ${HIRE}`],
+  ['surprise me', 'theme random'],
 ];
 const TABS = PAGES.map((p) => p.id); // các trang riêng, khai báo ở src/config/pages.js
+
+// `theme`: đổi skin của cả trang (cùng bảng chọn Ctrl+K). theme | theme list | theme set <tên> | theme <tên> | theme random | theme auto
+const pad = (s, n) => s + ' '.repeat(Math.max(1, n - s.length));
+const modeNote = (s) => (s.modes.length > 1 ? 'dark+light' : `${s.modes[0]} only`);
+function themeCmd(arg) {
+  const [first = '', ...rest] = arg.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!first) {
+    const now = getChoice() === SKIN_AUTO ? `auto (${getSkin()})` : getSkin();
+    return [`skin: ${now}`, 'theme list | theme set <name> | theme random | theme auto   (or press Ctrl+K)'];
+  }
+  if (first === 'list' || first === 'ls') {
+    const cur = getChoice();
+    const rows = [`${cur === SKIN_AUTO ? '*' : ' '} ${pad('auto', 13)}follows the time of day`];
+    for (const s of SKINS) {
+      const locked = s.unlock && !isUnlocked(s.id);
+      rows.push(`${cur === s.id ? '*' : ' '} ${pad(s.id, 13)}${locked ? `[locked] ${s.unlock.hint}` : modeNote(s)}`);
+    }
+    return [rows.join('\n')];
+  }
+  if (first === 'random') {
+    const pool = SKINS.filter((s) => isUnlocked(s.id) && s.id !== getSkin());
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    chooseSkin(s.id);
+    return [`-> ${s.id}`];
+  }
+  const target = (first === 'set' || first === 'use' ? rest : [first, ...rest]).join('-');
+  if (!target) return ['theme: set what? try theme list'];
+  if (target === SKIN_AUTO) {
+    chooseSkin(SKIN_AUTO);
+    return ['-> auto (changes with the time of day)'];
+  }
+  if (!isSkinId(target)) return [`theme: ${target}: no such skin - try theme list`];
+  const s = skinById(target);
+  if (!isUnlocked(target)) return [`theme: ${target} is locked - ${s.unlock.hint}`];
+  chooseSkin(target);
+  const lock = lockedMode(target);
+  return [`-> ${target}${lock ? ` (${lock} only: the torch switch is locked)` : ''}`];
+}
 
 function exec(raw, { onNavigate, clear }) {
   const [cmd = '', ...args] = raw.trim().split(/\s+/);
@@ -45,7 +86,7 @@ function exec(raw, { onNavigate, clear }) {
     case '':
       return [];
     case 'help':
-      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | clear`, `try: sudo ${HIRE}`];
+      return [`help | ls | cat <file> | cd <${TABS.join('|')}> | whoami | date | battery | theme | clear`, `try: sudo ${HIRE}, or theme list`];
     case 'whoami':
       return [WHOAMI];
     case 'ls':
@@ -60,6 +101,9 @@ function exec(raw, { onNavigate, clear }) {
       return [`cd: ${arg || '?'}: No such file or directory`];
     case 'date':
       return [siteDateTime()];
+    case 'theme':
+    case 'skin':
+      return themeCmd(arg);
     case 'sudo':
       return arg === HIRE
         ? ['[sudo] password for you: ********', 'permission granted - message me in the contact section!']

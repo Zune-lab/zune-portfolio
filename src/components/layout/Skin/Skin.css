@@ -1,0 +1,182 @@
+/* Nút skin ở navbar, bảng chọn (Ctrl+K) và thông báo. Chỉ dùng biến của trang nên tự đổi theo mọi skin. */
+
+/* ---- nút ở navbar: lưới 2x2 màu của skin đang dùng */
+.skin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: calc(8px * var(--rk, 1));
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.skin-btn:hover,
+.skin-btn:focus-visible {
+  background: color-mix(in srgb, var(--amber) 14%, transparent);
+}
+.skin-btn-chip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 20px;
+  height: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: calc(5px * var(--rk, 1));
+  transition: transform 0.35s var(--ease);
+}
+.skin-btn-chip i { display: block; }
+@media (hover: hover) {
+  .skin-btn:hover .skin-btn-chip { transform: rotate(90deg) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skin-btn-chip { transition: none; }
+  .skin-btn:hover .skin-btn-chip { transform: none; }
+}
+
+/* ---- bảng chọn */
+.skin-pal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 11vh 12px 12px;
+  background: rgb(var(--shade) / calc(0.38 * var(--shade-k)));
+  animation: skin-fade var(--dur-fast) var(--ease);
+}
+.skin-pal {
+  width: min(560px, 100%);
+  max-height: min(560px, 78vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: calc(12px * var(--rk, 1));
+  box-shadow: 0 30px 80px -20px rgb(var(--shade) / calc(0.7 * var(--shade-k)));
+  font-family: var(--f-mono);
+  animation: skin-pop var(--dur) var(--ease);
+}
+.skin-pal-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.skin-pal-prompt { color: var(--green); font-size: 13px; white-space: nowrap; }
+.skin-pal-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  caret-color: var(--amber);
+}
+.skin-pal-input::placeholder { color: var(--text-dim); }
+.skin-pal-kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: calc(4px * var(--rk, 1));
+  color: var(--text-dim);
+  font: 11px/1.2 var(--f-mono);
+}
+.skin-pal-list {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+}
+.skin-pal-group {
+  padding: 10px 10px 4px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.skin-pal-empty { padding: 22px 10px; color: var(--text-dim); font-size: 13px; text-align: center; }
+
+.skin-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: calc(8px * var(--rk, 1));
+  cursor: pointer;
+}
+.skin-row.is-active { background: color-mix(in srgb, var(--amber) 16%, transparent); }
+.skin-row.is-locked { cursor: not-allowed; opacity: 0.6; }
+.skin-row-chip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  flex: none;
+  width: 56px;
+  height: 22px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: calc(5px * var(--rk, 1));
+}
+.skin-row-chip i { display: block; }
+.skin-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.skin-row-name { font-size: 13.5px; color: var(--text); }
+.skin-row.is-active .skin-row-name { color: var(--amber); }
+.skin-row-note {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.skin-row-tag { flex: none; font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+.skin-pal-foot {
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 11px;
+}
+@media (hover: none) {
+  .skin-pal-foot { display: none; } /* gợi ý phím tắt vô nghĩa trên cảm ứng */
+}
+
+/* ---- thông báo ở đáy màn hình */
+.skin-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 24px);
+  padding: 10px 12px 10px 16px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--amber);
+  border-radius: calc(10px * var(--rk, 1));
+  box-shadow: 0 16px 40px -12px rgb(var(--shade) / calc(0.7 * var(--shade-k)));
+  font: 13px/1.4 var(--f-mono);
+  animation: skin-toast-in var(--dur-slow) var(--ease);
+}
+.skin-toast-act {
+  padding: 4px 10px;
+  background: var(--amber);
+  color: var(--on-amber);
+  border-radius: calc(6px * var(--rk, 1));
+  font: 600 12px/1.4 var(--f-mono);
+}
+.skin-toast-x { color: var(--text-dim); font-size: 18px; line-height: 1; padding: 0 4px; }
+.skin-toast-x:hover { color: var(--text); }
+
+@keyframes skin-fade { from { opacity: 0; } }
+@keyframes skin-pop { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }
+@keyframes skin-toast-in { from { opacity: 0; transform: translate(-50%, 12px); } }
+@media (prefers-reduced-motion: reduce) {
+  .skin-pal-backdrop, .skin-pal, .skin-toast { animation: none; }
+}

@@ -25,7 +25,8 @@
     "build": "vite build --config system/vite.config.js && node system/scripts/spa-404.mjs",
     "preview": "vite preview --config system/vite.config.js",
     "previews": "node system/scripts/make-previews.mjs",
-    "lint": "eslint --config system/eslint.config.js ."
+    "lint": "eslint --config system/eslint.config.js .",
+    "check:skins": "node system/scripts/check-skins.mjs"
   },
   "dependencies": {
     "matter-js": "^0.20.0",

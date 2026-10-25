@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { site, base, siteUrl, githubUrl, repoUrl, title, storageKey } from '../src/config/site.js';
+import { DEFAULT_SKIN, skinIdsToken, skinLocksToken } from '../src/config/skins.js';
 
 // thêm dòng bản quyền vào đầu mỗi file JS sau khi build (chạy sau bước minify nên không bị xoá)
 const BANNER = `/*! ${site.repo} © ${site.year} ${site.name} (${repoUrl()}) - MIT License */\n`;
@@ -19,7 +20,7 @@ const copyrightBanner = () => ({
 // Token lạ (gõ sai tên) thì báo lỗi ngay thay vì để nguyên chuỗi {{...}} lọt lên trang.
 // phông chữ tải từ Google Fonts (index.html dùng hai lần: link chính và <noscript>). Khớp --font-* trong src/index.css
 const FONTS_URL =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&family=Silkscreen:wght@400;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&family=Silkscreen:wght@400;700&family=VT323&family=Share+Tech+Mono&family=Special+Elite&display=swap';
 const TOKENS = {
   fontsUrl: FONTS_URL,
   name: site.name,
@@ -32,6 +33,12 @@ const TOKENS = {
   githubUrl,
   repoUrl: repoUrl(),
   themeKey: storageKey('theme'),
+  // skin (src/config/skins.js): index.html áp skin đã lưu trước khi vẽ
+  skinKey: storageKey('skin'),
+  skinEffKey: storageKey('skin-eff'),
+  defaultSkin: DEFAULT_SKIN,
+  skinIds: skinIdsToken(),
+  skinLocks: skinLocksToken(),
 };
 const escapeHtml = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const siteHtml = () => ({

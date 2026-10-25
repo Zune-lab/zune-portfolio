@@ -209,7 +209,7 @@
 .burger {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: calc(8px * var(--rk, 1));
   color: var(--text);
   cursor: pointer;
   transition: color var(--dur-fast, 0.2s) var(--ease, ease);

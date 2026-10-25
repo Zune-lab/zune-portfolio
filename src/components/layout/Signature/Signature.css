@@ -81,7 +81,7 @@
 
 /* "uong": outline mảnh như logo2 gốc */
 .sig-rest {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--f-mono);
   font-weight: 700;
   font-size: 54px;
   fill: transparent;
