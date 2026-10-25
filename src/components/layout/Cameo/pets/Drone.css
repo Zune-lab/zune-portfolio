@@ -1,0 +1,16 @@
+/* Drone.jsx, skin cyberpunk: cyberpunk: drone */
+.drone { position: absolute; left: 0; top: 0; will-change: transform; }
+.drone-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 7px var(--glow)); }
+.drone-bubble { bottom: calc(100% + 4px); right: 0; width: max-content; max-width: 230px; border-color: var(--glow); background: rgb(16 8 31 / 0.94); color: var(--text); white-space: normal; text-align: center; }
+@keyframes drone-eye { 50% { opacity: 0.35; } }
+@keyframes drone-rotor { 50% { opacity: 0.35; } }
+@keyframes drone-glitch {
+  0% { transform: translate(-3px, 1px) skewX(10deg); filter: hue-rotate(90deg) drop-shadow(3px 0 0 #ff2a6d); }
+  35% { transform: translate(4px, -1px) skewX(-8deg); filter: hue-rotate(-60deg) drop-shadow(-3px 0 0 #05d9e8); }
+  70% { transform: translate(-2px, 0); filter: drop-shadow(0 0 7px var(--glow)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .drone-eye { animation: drone-eye 1.8s ease-in-out infinite; }
+  .drone-rotors { animation: drone-rotor 0.18s steps(1) infinite; }
+  .drone-body.is-glitch { animation: drone-glitch 0.5s steps(2); }
+}

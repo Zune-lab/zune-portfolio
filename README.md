@@ -24,7 +24,7 @@ This is where everything about me lives in one place: who I am, what I've been t
 | Tech | Why |
 |---|---|
 | **React 19 + Vite** | Splits the page into small components so changing one thing doesn't break another; Vite makes dev and build very fast. |
-| **Tailwind CSS + CSS variables** | Fast to style; theme colors, time-of-day colors and skins live in CSS variables (`src/index.css`, `src/styles/skins.css`), so changing a theme doesn't touch any component. |
+| **Tailwind CSS + CSS variables** | Fast to style; theme colors, time-of-day colors and skins live in CSS variables (`src/index.css`, `src/styles/skins/`), so changing a theme doesn't touch any component. |
 | **Plain CSS for complex animation** | The 3D flashlight, preloader, wipe effects and so on are hard to express cleanly with utility classes, so they get their own CSS next to each component. |
 | **No backend** | Time-based status, `mailto:` feedback and everything else runs in the browser: simple, free, and no visitor data is stored. |
 | **GitHub Pages + GitHub Actions** | Free hosting; every push to `main` builds and deploys automatically. |
@@ -42,7 +42,7 @@ On top of dark / light, the whole site can switch **skin**: palette, font, corne
 
 A skin that only has one mode (say dracula, dark only) locks the torch switch and remembers your light/dark choice for when you leave it.
 
-How it works: `<html data-skin="..." data-theme="...">`. A skin is one block of CSS variables in `src/styles/skins.css` plus an entry in `src/config/skins.js`; the rest (`src/lib/skin.js`, the picker in `src/components/layout/Skin/`) is generic. `npm run check:skins` verifies text/background contrast for every skin and mode.
+How it works: `<html data-skin="..." data-theme="...">`. A skin is one file in `src/styles/skins/<id>.css` (palette, effects, link hover) plus an entry in `src/config/skins.js`; the rest (`src/lib/skin.js`, the picker in `src/components/layout/Skin/`) is generic. `npm run check:skins` verifies text/background contrast for every skin and mode.
 
 ## About me
 

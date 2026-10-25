@@ -1,0 +1,36 @@
+/* =====================================================================================================================
+   SKIN monokai  (editor)  ·  monokai
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- monokai (tối) */
+:root[data-skin='monokai'] {
+  --rk: 0.5;
+  --bg: #272822; --panel: #2f302a; --inset: #1e1f1a; --line: #45463b;
+  --text: #f8f8f2; --text-dim: #b5b093;
+  --amber: #ff6a9c; --amber-dim: #e04a84; --on-amber: #1e1f1a; --glow: #f92672; --glow-green: #a6e22e;
+  --green: #a6e22e; --js: #e6db74; --css-lang: #ae81ff; --danger: #ff6a5a;
+  --dot-grid: rgba(248, 248, 242, 0.04);
+}
+
+/* ---- monokai: vệt màu cú pháp trên cùng, ánh chéo hồng-xanh, bóng cứng hai màu */
+html[data-skin='monokai'] .skin-fx-top {
+  --ed-stripe: linear-gradient(90deg, #f92672, #fd971f, #e6db74, #a6e22e, #66d9ef, #ae81ff) 0 0 / 100% 3px no-repeat;
+}
+
+html[data-skin='monokai'] .skin-fx-back {
+  background:
+    linear-gradient(115deg, rgb(249 38 114 / 0.09), transparent 38%),
+    linear-gradient(295deg, rgb(166 226 46 / 0.08), transparent 38%),
+    radial-gradient(ellipse 40% 30% at 85% 85%, rgb(102 217 239 / 0.06), transparent 70%);
+}
+
+html[data-skin='monokai'] :is(.terminal, .spot) { box-shadow: 4px 4px 0 rgb(249 38 114 / 0.4), 8px 8px 0 rgb(166 226 46 / 0.22); }
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): gạch chân cầu vồng đúng 6 màu cú pháp của Monokai, dấu => hiện ra, link trượt nhẹ sang phải */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='monokai'] .hero-link { transition: translate 0.3s var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
+  :root[data-skin='monokai'] .hero-link::before { content: '=>'; left: -2em; font-weight: 700; }
+  :root[data-skin='monokai'] .hero-link::after { height: 3px; bottom: -2px; background: linear-gradient(90deg, #f92672, #fd971f, #e6db74, #a6e22e, #66d9ef, #ae81ff); }
+  :root[data-skin='monokai'] .hero-link:is(:hover, :focus-visible) { translate: 4px 0; color: #a6e22e; }
+}

@@ -1,0 +1,81 @@
+/* =====================================================================================================================
+   SKIN: bộ giao diện của cả trang, đặt bằng <html data-skin="..."> (src/config/skins.js, src/lib/skin.js).
+   Thư mục này được nạp SAU index.css (xem main.jsx qua skins/index.css) nên cùng độ ưu tiên thì khối ở đây thắng khối theme sáng/tối mặc định.
+
+   BỐ CỤC THƯ MỤC (mỗi skin một file, mở file đó là thấy đủ mọi thứ của skin):
+     index.css            thứ tự nạp
+     _base.css            thứ dùng chung: hệ số bo góc, hai lớp hiệu ứng (.skin-fx-top / -back), View Transitions
+     _editor-chrome.css   khung editor dùng chung cho 7 theme trình soạn code (thanh trạng thái, số dòng, minimap)
+     _crt-shared.css      scanline + nhấp nháy dùng chung cho crt / crt-amber (matrix xài lại một phần)
+     <id>.css             MỘT skin: 1) bảng màu  2) nền + hiệu ứng riêng  3) hiệu ứng hover của link .hero-link
+
+   Mỗi skin chỉ ghi đè các biến màu (cùng bộ biến với :root ở index.css), cộng thêm vài biến hình dạng:
+     --f-mono   font chữ chính (mọi nơi dùng font-mono / var(--f-mono))
+     --rk       hệ số bo góc (1 = như cũ, 0 = vuông vức); mọi border-radius px trong trang nhân với biến này
+   Skin có cả sáng lẫn tối: khối chính là bản tối, khối thêm [data-theme='light'] là bản sáng (PHẢI khai báo đủ các biến mà bản tối đã đặt).
+   Skin chỉ có một chế độ thì data-theme bị ép theo nó (lib/skin.js) nên chỉ cần một khối.
+   Không dùng data-tod (tông giờ) cho skin: chỉ skin mặc định `zune` đổi nền nhẹ theo giờ.
+   ===================================================================================================================== */
+
+:root {
+  --rk: 1;
+}
+
+/* các class bo góc của Tailwind nhân theo --rk (class bo tròn hẳn `rounded-full` giữ nguyên: chấm, nút tròn) */
+.rounded-xs { border-radius: calc(0.125rem * var(--rk)); }
+
+.rounded-sm { border-radius: calc(0.25rem * var(--rk)); }
+
+.rounded-md { border-radius: calc(0.375rem * var(--rk)); }
+
+.rounded-lg { border-radius: calc(0.5rem * var(--rk)); }
+
+.rounded-\[2px\] { border-radius: calc(2px * var(--rk)); }
+
+.rounded-\[3px\] { border-radius: calc(3px * var(--rk)); }
+
+.rounded-\[10px\] { border-radius: calc(10px * var(--rk)); }
+
+.rounded-\[11px\] { border-radius: calc(11px * var(--rk)); }
+
+/* lớp hiệu ứng toàn trang (SkinFx.jsx): mặc định ẩn, từng skin tự bật bên dưới.
+   -top: phủ LÊN nội dung (scanline...), không chặn chuột. -back: nằm DƯỚI nội dung (mặt trời, lưới sàn...) */
+.skin-fx-top,
+.skin-fx-back {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.skin-fx-top { z-index: 80; }
+
+.skin-fx-back { z-index: -1; overflow: hidden; }
+
+.skin-fx-rain {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* đổi skin: View Transitions (lib/skin.js) vẽ skin mới loang ra như vòng tròn từ chỗ bấm. Tự tắt cross-fade mặc định để chỉ còn vòng tròn */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) { z-index: 1; }
+
+::view-transition-new(root) { z-index: 2; }
+
+/* skin có cảnh nền riêng (skyline, mặt trời + lưới sàn): bỏ lớp mờ dần về màu nền ở đáy hero, nếu không nó che mất cảnh */
+:root[data-skin='cyberpunk'] .hero-full::after,
+:root[data-skin='vaporwave'] .hero-full::after,
+:root[data-skin='retro-os'] .hero-full::after {
+  background: none;
+}

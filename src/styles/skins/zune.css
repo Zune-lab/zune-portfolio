@@ -1,0 +1,7 @@
+/* =====================================================================================================================
+   SKIN zune  (original)  ·  zune
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* skin gốc: không ghi đè gì. Màu ở :root trong src/index.css; hover link là mặc định ở .hero-link (index.css):
+   dấu nhắc ">" trượt ra bên trái + gạch chân amber quét từ trái sang. */

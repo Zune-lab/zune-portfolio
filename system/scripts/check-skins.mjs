@@ -1,10 +1,15 @@
 // Kiểm tra độ tương phản (WCAG) của MỌI skin ở mọi chế độ: node system/scripts/check-skins.mjs
-// Đọc bảng màu thẳng từ src/styles/skins.css và danh sách chế độ từ src/config/skins.js, nên thêm skin mới là tự được kiểm tra.
+// Đọc bảng màu thẳng từ src/styles/skins/<id>.css và danh sách chế độ từ src/config/skins.js, nên thêm skin mới là tự được kiểm tra.
 // Thoát với mã 1 nếu có cặp màu nào dưới ngưỡng (dùng được trong CI).
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { SKINS } from '../../src/config/skins.js';
 
-const css = readFileSync(new URL('../../src/styles/skins.css', import.meta.url), 'utf8');
+const skinsDir = new URL('../../src/styles/skins/', import.meta.url);
+// mỗi skin một file trong src/styles/skins/ (bảng màu nằm trong <id>.css); gộp hết lại để quét
+const css = readdirSync(skinsDir)
+  .filter((f) => f.endsWith('.css') && f !== 'index.css')
+  .map((f) => readFileSync(new URL(f, skinsDir), 'utf8'))
+  .join('\n');
 
 // các khối bảng màu: `:root[data-skin='x'] { ... }` (bản tối / bản duy nhất) và `:root[data-skin='x'][data-theme='light'] { ... }`
 const blocks = {};
@@ -49,7 +54,7 @@ for (const skin of SKINS) {
   for (const mode of skin.modes) {
     const vars = mode === 'light' && skin.modes.length > 1 ? blocks[`${skin.id}:light`] : blocks[skin.id];
     if (!vars) {
-      console.log(`✗ ${skin.id} (${mode}): no palette block found in skins.css`);
+      console.log(`✗ ${skin.id} (${mode}): no palette block found in src/styles/skins/`);
       bad++;
       continue;
     }

@@ -1,0 +1,103 @@
+/* =====================================================================================================================
+   SKIN cyberpunk  (special)  ·  cyberpunk
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- cyberpunk: tím đen + hồng neon + cyan, quầng sáng và lệch màu ở chữ lớn */
+:root[data-skin='cyberpunk'] {
+  --bg: #0a0612; --panel: #130b22; --inset: #0d0719; --line: #35205f;
+  --text: #eae6ff; --text-dim: #a99ad6;
+  --amber: #ff2bd6; --amber-dim: #d41fb0; --on-amber: #0a0612; --glow: #ff2bd6; --glow-green: #00f0ff;
+  --green: #00f0ff; --js: #fcee0a; --css-lang: #b967ff; --danger: #ff3860;
+  --dot-grid: rgba(255, 43, 214, 0.05);
+  --spot-a: 14%;
+  --contact-ink: #0a0612;
+  --rk: 0.4;
+}
+
+:root[data-skin='cyberpunk'] .hero-title { text-shadow: 0.04em 0 0 #00f0ff, -0.04em 0 0 #ff2bd6; }
+
+:root[data-skin='cyberpunk'] :is(h1, h2, h3) { text-shadow: 0 0 14px color-mix(in srgb, var(--glow) 55%, transparent); }
+
+:root[data-skin='cyberpunk'] .nav-link:hover { text-shadow: 1px 0 #ff2bd6, -1px 0 #00f0ff; }
+
+/* khung kiểu HUD: bốn góc có "dấu ngoặc" neon; ngoài ra là viền + quầng sáng */
+:root[data-skin='cyberpunk'] :is(.terminal, .spot) {
+  background-image:
+    linear-gradient(var(--amber), var(--amber)), linear-gradient(var(--amber), var(--amber)),
+    linear-gradient(var(--green), var(--green)), linear-gradient(var(--green), var(--green)),
+    linear-gradient(var(--amber), var(--amber)), linear-gradient(var(--amber), var(--amber)),
+    linear-gradient(var(--green), var(--green)), linear-gradient(var(--green), var(--green));
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-size: 16px 2px, 2px 16px, 16px 2px, 2px 16px, 16px 2px, 2px 16px, 16px 2px, 2px 16px;
+  background-repeat: no-repeat;
+}
+
+:root[data-skin='cyberpunk'] .terminal {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--glow) 45%, transparent),
+    0 0 28px -6px color-mix(in srgb, var(--glow) 60%, transparent);
+}
+
+/* thành phố đêm phía sau nội dung + hai quầng neon hồng / cyan ở đáy */
+:root[data-skin='cyberpunk'] .skin-fx-back {
+  display: block;
+  background:
+    radial-gradient(ellipse 55% 38% at 12% 100%, rgb(255 43 214 / 0.26), transparent 70%),
+    radial-gradient(ellipse 55% 38% at 88% 100%, rgb(0 240 255 / 0.2), transparent 70%),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 300'><rect x='0' y='149' width='68' height='151' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='68' y='161' width='89' height='139' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='157' y='155' width='68' height='145' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='225' y='196' width='77' height='104' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='302' y='155' width='51' height='145' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='353' y='140' width='70' height='160' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='423' y='197' width='79' height='103' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='502' y='163' width='46' height='137' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='548' y='202' width='59' height='98' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='607' y='152' width='45' height='148' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='652' y='139' width='84' height='161' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='736' y='144' width='42' height='156' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='778' y='163' width='65' height='137' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='843' y='126' width='81' height='174' fill='%23301a6e' stroke='%23432a8c' stroke-width='1'/><rect x='-10' y='160' width='75' height='140' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='7' y='169' width='4' height='6' fill='%2300f0ff'/><rect x='18' y='169' width='4' height='6' fill='%23ff2bd6'/><rect x='7' y='183' width='4' height='6' fill='%23ff2bd6'/><rect x='-4' y='211' width='4' height='6' fill='%23fcee0a'/><rect x='7' y='211' width='4' height='6' fill='%23ff2bd6'/><rect x='18' y='225' width='4' height='6' fill='%23ff2bd6'/><rect x='40' y='225' width='4' height='6' fill='%2300f0ff'/><rect x='7' y='239' width='4' height='6' fill='%23ff2bd6'/><rect x='40' y='239' width='4' height='6' fill='%23fcee0a'/><rect x='51' y='239' width='4' height='6' fill='%2300f0ff'/><rect x='7' y='253' width='4' height='6' fill='%23ff2bd6'/><rect x='29' y='253' width='4' height='6' fill='%2300f0ff'/><rect x='51' y='253' width='4' height='6' fill='%23ff2bd6'/><rect x='-4' y='267' width='4' height='6' fill='%23ff2bd6'/><rect x='7' y='267' width='4' height='6' fill='%23ff2bd6'/><rect x='-4' y='281' width='4' height='6' fill='%23ff2bd6'/><rect x='29' y='281' width='4' height='6' fill='%2300f0ff'/><rect x='69' y='190' width='42' height='110' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='75' y='199' width='4' height='6' fill='%23fcee0a'/><rect x='86' y='199' width='4' height='6' fill='%23ff2bd6'/><rect x='86' y='213' width='4' height='6' fill='%2300f0ff'/><rect x='97' y='213' width='4' height='6' fill='%23ff2bd6'/><rect x='75' y='227' width='4' height='6' fill='%23fcee0a'/><rect x='86' y='255' width='4' height='6' fill='%23ff2bd6'/><rect x='75' y='269' width='4' height='6' fill='%23ff2bd6'/><rect x='97' y='269' width='4' height='6' fill='%23ff2bd6'/><rect x='75' y='283' width='4' height='6' fill='%2300f0ff'/><rect x='114' y='174' width='39' height='126' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='133' y='148' width='2' height='26' fill='%237a3fd6'/><rect x='131' y='144' width='6' height='6' fill='%23ff2bd6'/><rect x='131' y='225' width='4' height='6' fill='%2300f0ff'/><rect x='131' y='253' width='4' height='6' fill='%2300f0ff'/><rect x='142' y='253' width='4' height='6' fill='%2300f0ff'/><rect x='131' y='267' width='4' height='6' fill='%23ff2bd6'/><rect x='142' y='281' width='4' height='6' fill='%23ff2bd6'/><rect x='156' y='67' width='57' height='233' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='162' y='76' width='4' height='6' fill='%2300f0ff'/><rect x='162' y='90' width='4' height='6' fill='%23ff2bd6'/><rect x='173' y='104' width='4' height='6' fill='%23ff2bd6'/><rect x='195' y='104' width='4' height='6' fill='%23ff2bd6'/><rect x='195' y='146' width='4' height='6' fill='%2300f0ff'/><rect x='184' y='174' width='4' height='6' fill='%23ff2bd6'/><rect x='195' y='174' width='4' height='6' fill='%23ff2bd6'/><rect x='206' y='174' width='4' height='6' fill='%2300f0ff'/><rect x='162' y='188' width='4' height='6' fill='%2300f0ff'/><rect x='162' y='202' width='4' height='6' fill='%23fcee0a'/><rect x='173' y='202' width='4' height='6' fill='%23ff2bd6'/><rect x='184' y='202' width='4' height='6' fill='%23ff2bd6'/><rect x='195' y='230' width='4' height='6' fill='%23ff2bd6'/><rect x='184' y='244' width='4' height='6' fill='%2300f0ff'/><rect x='162' y='258' width='4' height='6' fill='%2300f0ff'/><rect x='195' y='258' width='4' height='6' fill='%2300f0ff'/><rect x='215' y='190' width='74' height='110' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='221' y='213' width='4' height='6' fill='%23fcee0a'/><rect x='232' y='213' width='4' height='6' fill='%23ff2bd6'/><rect x='265' y='213' width='4' height='6' fill='%2300f0ff'/><rect x='265' y='227' width='4' height='6' fill='%2300f0ff'/><rect x='254' y='241' width='4' height='6' fill='%23ff2bd6'/><rect x='232' y='269' width='4' height='6' fill='%2300f0ff'/><rect x='243' y='269' width='4' height='6' fill='%2300f0ff'/><rect x='254' y='269' width='4' height='6' fill='%2300f0ff'/><rect x='276' y='283' width='4' height='6' fill='%2300f0ff'/><rect x='290' y='101' width='51' height='199' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='329' y='124' width='4' height='6' fill='%2300f0ff'/><rect x='296' y='152' width='4' height='6' fill='%2300f0ff'/><rect x='318' y='152' width='4' height='6' fill='%23ff2bd6'/><rect x='307' y='166' width='4' height='6' fill='%23ff2bd6'/><rect x='329' y='208' width='4' height='6' fill='%23ff2bd6'/><rect x='318' y='236' width='4' height='6' fill='%23ff2bd6'/><rect x='318' y='250' width='4' height='6' fill='%23ff2bd6'/><rect x='329' y='250' width='4' height='6' fill='%2300f0ff'/><rect x='307' y='264' width='4' height='6' fill='%2300f0ff'/><rect x='296' y='292' width='4' height='6' fill='%23ff2bd6'/><rect x='344' y='137' width='53' height='163' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='350' y='146' width='4' height='6' fill='%2300f0ff'/><rect x='361' y='160' width='4' height='6' fill='%2300f0ff'/><rect x='350' y='174' width='4' height='6' fill='%2300f0ff'/><rect x='361' y='174' width='4' height='6' fill='%23ff2bd6'/><rect x='372' y='174' width='4' height='6' fill='%23fcee0a'/><rect x='372' y='188' width='4' height='6' fill='%23ff2bd6'/><rect x='383' y='188' width='4' height='6' fill='%23ff2bd6'/><rect x='350' y='216' width='4' height='6' fill='%2300f0ff'/><rect x='372' y='230' width='4' height='6' fill='%23ff2bd6'/><rect x='372' y='244' width='4' height='6' fill='%23fcee0a'/><rect x='383' y='258' width='4' height='6' fill='%23ff2bd6'/><rect x='361' y='272' width='4' height='6' fill='%23ff2bd6'/><rect x='372' y='272' width='4' height='6' fill='%2300f0ff'/><rect x='350' y='286' width='4' height='6' fill='%2300f0ff'/><rect x='383' y='286' width='4' height='6' fill='%2300f0ff'/><rect x='397' y='55' width='48' height='245' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='425' y='64' width='4' height='6' fill='%23ff2bd6'/><rect x='414' y='92' width='4' height='6' fill='%23ff2bd6'/><rect x='414' y='106' width='4' height='6' fill='%2300f0ff'/><rect x='425' y='106' width='4' height='6' fill='%23ff2bd6'/><rect x='414' y='120' width='4' height='6' fill='%2300f0ff'/><rect x='425' y='120' width='4' height='6' fill='%2300f0ff'/><rect x='436' y='120' width='4' height='6' fill='%2300f0ff'/><rect x='414' y='148' width='4' height='6' fill='%2300f0ff'/><rect x='436' y='148' width='4' height='6' fill='%2300f0ff'/><rect x='403' y='176' width='4' height='6' fill='%2300f0ff'/><rect x='425' y='176' width='4' height='6' fill='%2300f0ff'/><rect x='403' y='190' width='4' height='6' fill='%23ff2bd6'/><rect x='403' y='246' width='4' height='6' fill='%23fcee0a'/><rect x='425' y='246' width='4' height='6' fill='%23fcee0a'/><rect x='414' y='260' width='4' height='6' fill='%23fcee0a'/><rect x='448' y='195' width='72' height='105' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='484' y='169' width='2' height='26' fill='%237a3fd6'/><rect x='482' y='165' width='6' height='6' fill='%23ff2bd6'/><rect x='454' y='204' width='4' height='6' fill='%23ff2bd6'/><rect x='487' y='204' width='4' height='6' fill='%23ff2bd6'/><rect x='509' y='204' width='4' height='6' fill='%23fcee0a'/><rect x='487' y='232' width='4' height='6' fill='%23ff2bd6'/><rect x='454' y='288' width='4' height='6' fill='%23ff2bd6'/><rect x='509' y='288' width='4' height='6' fill='%23fcee0a'/><rect x='525' y='188' width='61' height='112' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='564' y='197' width='4' height='6' fill='%2300f0ff'/><rect x='542' y='211' width='4' height='6' fill='%2300f0ff'/><rect x='564' y='225' width='4' height='6' fill='%23ff2bd6'/><rect x='531' y='239' width='4' height='6' fill='%2300f0ff'/><rect x='553' y='239' width='4' height='6' fill='%23fcee0a'/><rect x='575' y='267' width='4' height='6' fill='%2300f0ff'/><rect x='590' y='49' width='72' height='251' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='626' y='23' width='2' height='26' fill='%237a3fd6'/><rect x='624' y='19' width='6' height='6' fill='%23ff2bd6'/><rect x='607' y='58' width='4' height='6' fill='%23ff2bd6'/><rect x='640' y='58' width='4' height='6' fill='%2300f0ff'/><rect x='596' y='72' width='4' height='6' fill='%23fcee0a'/><rect x='629' y='72' width='4' height='6' fill='%23ff2bd6'/><rect x='607' y='86' width='4' height='6' fill='%23ff2bd6'/><rect x='651' y='86' width='4' height='6' fill='%23fcee0a'/><rect x='607' y='100' width='4' height='6' fill='%2300f0ff'/><rect x='640' y='114' width='4' height='6' fill='%23ff2bd6'/><rect x='607' y='142' width='4' height='6' fill='%23fcee0a'/><rect x='618' y='142' width='4' height='6' fill='%2300f0ff'/><rect x='618' y='156' width='4' height='6' fill='%23fcee0a'/><rect x='629' y='156' width='4' height='6' fill='%23ff2bd6'/><rect x='640' y='156' width='4' height='6' fill='%23fcee0a'/><rect x='629' y='170' width='4' height='6' fill='%23fcee0a'/><rect x='651' y='170' width='4' height='6' fill='%2300f0ff'/><rect x='651' y='212' width='4' height='6' fill='%23ff2bd6'/><rect x='618' y='226' width='4' height='6' fill='%23ff2bd6'/><rect x='640' y='226' width='4' height='6' fill='%2300f0ff'/><rect x='607' y='240' width='4' height='6' fill='%23ff2bd6'/><rect x='618' y='240' width='4' height='6' fill='%23ff2bd6'/><rect x='607' y='254' width='4' height='6' fill='%23ff2bd6'/><rect x='596' y='268' width='4' height='6' fill='%23fcee0a'/><rect x='607' y='268' width='4' height='6' fill='%23ff2bd6'/><rect x='618' y='268' width='4' height='6' fill='%2300f0ff'/><rect x='640' y='268' width='4' height='6' fill='%23ff2bd6'/><rect x='640' y='282' width='4' height='6' fill='%2300f0ff'/><rect x='667' y='42' width='40' height='258' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='695' y='107' width='4' height='6' fill='%23ff2bd6'/><rect x='695' y='121' width='4' height='6' fill='%23ff2bd6'/><rect x='684' y='163' width='4' height='6' fill='%23ff2bd6'/><rect x='684' y='177' width='4' height='6' fill='%2300f0ff'/><rect x='673' y='191' width='4' height='6' fill='%2300f0ff'/><rect x='684' y='191' width='4' height='6' fill='%23fcee0a'/><rect x='695' y='191' width='4' height='6' fill='%23ff2bd6'/><rect x='695' y='275' width='4' height='6' fill='%23ff2bd6'/><rect x='684' y='289' width='4' height='6' fill='%23ff2bd6'/><rect x='710' y='68' width='69' height='232' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='727' y='77' width='4' height='6' fill='%23ff2bd6'/><rect x='771' y='91' width='4' height='6' fill='%23ff2bd6'/><rect x='716' y='105' width='4' height='6' fill='%23ff2bd6'/><rect x='749' y='105' width='4' height='6' fill='%23ff2bd6'/><rect x='760' y='105' width='4' height='6' fill='%23ff2bd6'/><rect x='716' y='119' width='4' height='6' fill='%23fcee0a'/><rect x='771' y='119' width='4' height='6' fill='%23ff2bd6'/><rect x='738' y='133' width='4' height='6' fill='%23ff2bd6'/><rect x='771' y='133' width='4' height='6' fill='%2300f0ff'/><rect x='716' y='147' width='4' height='6' fill='%23ff2bd6'/><rect x='760' y='161' width='4' height='6' fill='%2300f0ff'/><rect x='716' y='175' width='4' height='6' fill='%2300f0ff'/><rect x='760' y='175' width='4' height='6' fill='%2300f0ff'/><rect x='771' y='175' width='4' height='6' fill='%2300f0ff'/><rect x='749' y='189' width='4' height='6' fill='%2300f0ff'/><rect x='738' y='203' width='4' height='6' fill='%2300f0ff'/><rect x='738' y='217' width='4' height='6' fill='%23ff2bd6'/><rect x='749' y='217' width='4' height='6' fill='%2300f0ff'/><rect x='760' y='231' width='4' height='6' fill='%23ff2bd6'/><rect x='716' y='245' width='4' height='6' fill='%23ff2bd6'/><rect x='727' y='245' width='4' height='6' fill='%2300f0ff'/><rect x='738' y='245' width='4' height='6' fill='%2300f0ff'/><rect x='760' y='245' width='4' height='6' fill='%23ff2bd6'/><rect x='771' y='245' width='4' height='6' fill='%2300f0ff'/><rect x='771' y='259' width='4' height='6' fill='%23ff2bd6'/><rect x='771' y='273' width='4' height='6' fill='%2300f0ff'/><rect x='781' y='152' width='57' height='148' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='809' y='126' width='2' height='26' fill='%237a3fd6'/><rect x='807' y='122' width='6' height='6' fill='%23ff2bd6'/><rect x='798' y='161' width='4' height='6' fill='%2300f0ff'/><rect x='809' y='161' width='4' height='6' fill='%23fcee0a'/><rect x='798' y='175' width='4' height='6' fill='%23ff2bd6'/><rect x='798' y='189' width='4' height='6' fill='%23ff2bd6'/><rect x='798' y='203' width='4' height='6' fill='%2300f0ff'/><rect x='820' y='203' width='4' height='6' fill='%2300f0ff'/><rect x='831' y='203' width='4' height='6' fill='%2300f0ff'/><rect x='798' y='231' width='4' height='6' fill='%23ff2bd6'/><rect x='809' y='231' width='4' height='6' fill='%23ff2bd6'/><rect x='798' y='259' width='4' height='6' fill='%2300f0ff'/><rect x='809' y='273' width='4' height='6' fill='%23ff2bd6'/><rect x='831' y='287' width='4' height='6' fill='%2300f0ff'/><rect x='842' y='196' width='73' height='104' fill='%23170a36' stroke='%237a3fd6' stroke-width='1.5'/><rect x='878' y='170' width='2' height='26' fill='%237a3fd6'/><rect x='876' y='166' width='6' height='6' fill='%23ff2bd6'/><rect x='859' y='205' width='4' height='6' fill='%23ff2bd6'/><rect x='892' y='205' width='4' height='6' fill='%23ff2bd6'/><rect x='903' y='205' width='4' height='6' fill='%23ff2bd6'/><rect x='881' y='219' width='4' height='6' fill='%23ff2bd6'/><rect x='848' y='233' width='4' height='6' fill='%23fcee0a'/><rect x='859' y='275' width='4' height='6' fill='%23ff2bd6'/><rect x='870' y='289' width='4' height='6' fill='%2300f0ff'/></svg>") repeat-x left bottom / auto 40vh;
+}
+
+/* tia quét neon chạy từ trên xuống */
+:root[data-skin='cyberpunk'] .skin-fx-top { display: block; }
+
+:root[data-skin='cyberpunk'] .skin-fx-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f0ff 30%, #ff2bd6 70%, transparent);
+  box-shadow: 0 0 16px 2px rgb(0 240 255 / 0.5);
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-skin='cyberpunk'] .skin-fx-top::before { animation: cp-sweep 9s linear infinite; }
+  /* tiêu đề giật lỗi vài khoảnh khắc mỗi 7 giây, "Zune" chớp neon như bóng hỏng */
+  :root[data-skin='cyberpunk'] .hero-title { animation: cp-glitch 7s steps(1, end) infinite; }
+  :root[data-skin='cyberpunk'] .zune-glow { animation: cp-flicker 5s steps(1, end) infinite; }
+}
+
+@keyframes cp-sweep { from { transform: translateY(-4vh); } to { transform: translateY(104vh); } }
+
+@keyframes cp-glitch {
+  0%, 91%, 100% { transform: none; text-shadow: 0.04em 0 0 #00f0ff, -0.04em 0 0 #ff2bd6; }
+  92% { transform: translate(-0.02em, 0) skewX(-7deg); text-shadow: 0.1em 0 0 #00f0ff, -0.1em 0 0 #ff2bd6; }
+  94% { transform: translate(0.03em, 0) skewX(6deg); text-shadow: -0.08em 0 0 #00f0ff, 0.08em 0 0 #ff2bd6; }
+  96% { transform: translate(0, 0.012em); text-shadow: 0.05em 0.02em 0 #00f0ff, -0.05em -0.02em 0 #ff2bd6; }
+}
+
+@keyframes cp-flicker {
+  0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; }
+  19%, 21% { opacity: 0.35; }
+  63% { opacity: 0.6; }
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): glitch: chữ tách hai màu cyan/hồng rung giật một nhịp, dấu // hiện ra, gạch chân neon hồng→cyan */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='cyberpunk'] .hero-link::before { content: '//'; left: -1.8em; font-weight: 700; }
+  :root[data-skin='cyberpunk'] .hero-link::after { height: 2px; background: linear-gradient(90deg, #ff2a6d, #05d9e8); box-shadow: 0 0 10px #ff2a6d, 0 0 20px rgb(5 217 232 / 0.6); }
+  :root[data-skin='cyberpunk'] .hero-link:is(:hover, :focus-visible) { text-shadow: -2px 0 #05d9e8, 2px 0 #ff2a6d; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :root[data-skin='cyberpunk'] .hero-link:is(:hover, :focus-visible) { animation: cp-link-glitch 0.4s steps(2) 1; }
+}
+@keyframes cp-link-glitch {
+  0% { translate: 0 0; }
+  25% { translate: -3px 1px; }
+  50% { translate: 3px -1px; }
+  75% { translate: -1px 0; }
+  100% { translate: 0 0; }
+}

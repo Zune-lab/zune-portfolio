@@ -1,0 +1,81 @@
+/* =====================================================================================================================
+   SKIN gameboy  (special)  ·  game boy
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* mưa chữ chỉ có ở skin matrix (SkinFx.jsx vẽ canvas), các skin khác không render canvas này */
+/* ---- game boy: 4 sắc xanh, font pixel, viền dày, bóng cứng, góc vuông */
+:root[data-skin='gameboy'] {
+  --bg: #9bbc0f; --panel: #8bac0f; --inset: #8bac0f; --line: #306230;
+  --text: #0f380f; --text-dim: #143d14;
+  --amber: #0f380f; --amber-dim: #306230; --on-amber: #9bbc0f; --glow: #306230; --glow-green: #306230;
+  --green: #0f380f; --js: #1c471c; --css-lang: #1c471c; --danger: #7a1f1f;
+  --dot-grid: rgba(15, 56, 15, 0.1);
+  --shade: 15 56 15; --shade-k: 0.45;
+  --halo: color-mix(in srgb, #8bac0f 60%, transparent);
+  --contact-ink: #0f380f; --contact-shadow: rgb(15 56 15 / 0);
+  --f-mono: 'Silkscreen', 'JetBrains Mono', ui-monospace, monospace;
+  --rk: 0;
+}
+
+:root[data-skin='gameboy'] .border { border-width: 2px; }
+
+:root[data-skin='gameboy'] :is(.terminal, .spot) { box-shadow: 4px 4px 0 var(--line); }
+
+/* ---- game boy: màn hình LCD nằm trong khung đen tím bo góc (viền dày ở đáy có đèn pin đỏ + dòng chữ), lưới điểm ảnh phủ lên cả màn */
+:root[data-skin='gameboy'] body { padding-bottom: 30px; }
+
+:root[data-skin='gameboy'] .back-to-top { bottom: 48px; }
+
+:root[data-skin='gameboy'] .skin-fx-top {
+  display: block;
+  border: solid #4b4c60;
+  border-width: 9px 9px 30px;
+  border-radius: 26px;
+  background:
+    linear-gradient(to right, rgb(15 56 15 / 0.11) 1px, transparent 1px) 0 0 / 3px 3px,
+    linear-gradient(to bottom, rgb(15 56 15 / 0.11) 1px, transparent 1px) 0 0 / 3px 3px;
+  box-shadow: inset 0 0 110px rgb(15 56 15 / 0.28), 0 0 0 40px #4b4c60;
+}
+
+:root[data-skin='gameboy'] .skin-fx-top::before {
+  content: '● BATTERY';
+  position: absolute;
+  left: 14px;
+  bottom: -25px;
+  color: #ff5a6e;
+  font: 9px/1 var(--f-mono);
+  letter-spacing: 0.12em;
+}
+
+:root[data-skin='gameboy'] .skin-fx-top::after {
+  content: 'DOT MATRIX WITH STEREO SOUND';
+  position: absolute;
+  right: 14px;
+  bottom: -25px;
+  color: #aeb0c8;
+  font: 9px/1 var(--f-mono);
+  letter-spacing: 0.14em;
+}
+
+@media (max-width: 560px) {
+  :root[data-skin='gameboy'] .skin-fx-top::after { display: none; }
+}
+
+/* nút: bóng cứng, nhấn xuống thì dịch vào như phím bấm thật */
+:root[data-skin='gameboy'] .btn-31 { box-shadow: 3px 3px 0 var(--line); }
+
+:root[data-skin='gameboy'] .btn-31:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--line); }
+
+:root[data-skin='gameboy'] ::selection { background: #0f380f; color: #9bbc0f; }
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): tam giác pixel ▶ nhấp nháy theo nhịp, gạch chân đứt khúc từng ô vuông chạy theo bước */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='gameboy'] .hero-link::before { content: ''; left: -1.2em; top: 0.05em; width: 0.6em; height: 0.8em; background: var(--amber); clip-path: polygon(0 0, 100% 50%, 0 100%); transform: none; }
+  :root[data-skin='gameboy'] .hero-link::after { height: 4px; bottom: -3px; background: repeating-linear-gradient(90deg, var(--amber) 0 4px, transparent 4px 7px); transition: transform 0.45s steps(8); }
+  :root[data-skin='gameboy'] .hero-link:is(:hover, :focus-visible) { color: var(--amber); }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :root[data-skin='gameboy'] .hero-link:is(:hover, :focus-visible)::before { animation: gb-blink 0.5s steps(1) infinite; }
+}
+@keyframes gb-blink { 50% { opacity: 0; } }

@@ -1,0 +1,26 @@
+/* thứ tự nạp: phần dùng chung trước, rồi từng skin (cùng nhóm với bảng ở src/config/skins.js) */
+@import './_base.css';
+@import './_crt-shared.css';
+@import './_editor-chrome.css';
+
+/* original */
+@import './zune.css';
+/* editor */
+@import './dracula.css';
+@import './monokai.css';
+@import './nord.css';
+@import './gruvbox.css';
+@import './solarized.css';
+@import './catppuccin.css';
+@import './tokyo-night.css';
+/* special */
+@import './crt.css';
+@import './crt-amber.css';
+@import './gameboy.css';
+@import './cyberpunk.css';
+@import './blueprint.css';
+@import './paper.css';
+@import './retro-os.css';
+/* secret */
+@import './matrix.css';
+@import './vaporwave.css';

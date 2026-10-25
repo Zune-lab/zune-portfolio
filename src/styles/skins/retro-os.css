@@ -1,0 +1,223 @@
+/* =====================================================================================================================
+   SKIN retro-os  (special)  ·  retro os
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- retro os: màn hình nền xanh teal, cửa sổ xám nổi 3D có thanh tiêu đề + nút thu/phóng/đóng, icon desktop, taskbar có nút Start,
+   nút tác vụ và đồng hồ thật, thanh cuộn kiểu 95 */
+:root[data-skin='retro-os'] {
+  --bg: #00a0a0; --panel: #c0c0c0; --inset: #ffffff; --line: #808080;
+  --text: #000000; --text-dim: #1c1c1c;
+  --amber: #000080; --amber-dim: #0000a8; --on-amber: #ffffff; --glow: #1084d0; --glow-green: #00a000;
+  --green: #006400; --js: #6b5000; --css-lang: #5a2d82; --danger: #c00000;
+  --dot-grid: rgba(0, 0, 0, 0);
+  --nav-bg: linear-gradient(90deg, #000080, #1084d0);
+  --shade: 0 0 0; --shade-k: 0.5;
+  --contact-ink: #000000; --contact-shadow: rgb(0 0 0 / 0);
+  --f-mono: Tahoma, 'MS Sans Serif', Verdana, 'Segoe UI', sans-serif;
+  --rk: 0;
+  --sb-size: 16px; --sb-gap: 0px;
+}
+
+:root[data-skin='retro-os'] ::selection { background: #000080; color: #ffffff; }
+
+/* viền nổi: sáng ở trên-trái, tối ở dưới-phải (cửa sổ, thẻ, terminal); ô nhập thì lõm */
+:root[data-skin='retro-os'] :is(.terminal, .spot, .bg-panel.border) {
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+:root[data-skin='retro-os'] .bg-inset.border { border: 2px solid; border-color: #404040 #ffffff #ffffff #404040; }
+
+/* thanh tiêu đề cửa sổ: thẻ zune.sav ở hero, terminal ở các trang khác; có ba nút thu nhỏ / phóng to / đóng ở góc phải */
+:root[data-skin='retro-os'] :is(.terminal-bar, .spot > .bg-panel.border-b:first-child) {
+  position: relative;
+  padding-right: 74px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  border-bottom: 0;
+  font-weight: 700;
+}
+
+:root[data-skin='retro-os'] :is(.terminal-bar, .spot > .bg-panel.border-b:first-child) * { color: #ffffff; }
+
+/* nút "online · auto" tự đặt màu xanh lá bằng style riêng nên phải ép trắng; xanh lá đậm trên nền navy không đọc được */
+:root[data-skin='retro-os'] .spot > .bg-panel.border-b:first-child button { color: #ffffff !important; }
+
+:root[data-skin='retro-os'] .spot > .bg-panel.border-b:first-child .opacity-60 { opacity: 0.9; }
+
+:root[data-skin='retro-os'] :is(.terminal-bar, .spot > .bg-panel.border-b:first-child)::after {
+  content: '';
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 50px;
+  height: 14px;
+  transform: translateY(-50%);
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='14' shape-rendering='crispEdges'><rect x='0' y='0' width='16' height='14' fill='%23000'/><rect x='0' y='0' width='15' height='13' fill='%23fff'/><rect x='1' y='1' width='14' height='12' fill='%23808080'/><rect x='1' y='1' width='13' height='11' fill='%23c0c0c0'/><rect x='16' y='0' width='16' height='14' fill='%23000'/><rect x='16' y='0' width='15' height='13' fill='%23fff'/><rect x='17' y='1' width='14' height='12' fill='%23808080'/><rect x='17' y='1' width='13' height='11' fill='%23c0c0c0'/><rect x='34' y='0' width='16' height='14' fill='%23000'/><rect x='34' y='0' width='15' height='13' fill='%23fff'/><rect x='35' y='1' width='14' height='12' fill='%23808080'/><rect x='35' y='1' width='13' height='11' fill='%23c0c0c0'/><rect x='4' y='9' width='6' height='2' fill='%23000'/><rect x='19' y='3' width='9' height='8' fill='none' stroke='%23000'/><rect x='19' y='3' width='9' height='2' fill='%23000'/><path d='M39 3l7 7M46 3l-7 7' stroke='%23000' stroke-width='1.8' shape-rendering='auto'/></svg>") 0 0 / 50px 14px no-repeat;
+}
+
+:root[data-skin='retro-os'] .terminal-body { font-family: 'Courier New', ui-monospace, monospace; }
+
+/* nút bấm: nổi 3D, nhấn xuống thì lõm (bỏ hiệu ứng quét chéo của btn-31) */
+:root[data-skin='retro-os'] .btn-31 {
+  background: #c0c0c0;
+  color: #000000;
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+:root[data-skin='retro-os'] .btn-31::before { display: none; }
+
+:root[data-skin='retro-os'] .btn-31:is(:hover, :active) .text { color: #000000; transform: none; }
+
+:root[data-skin='retro-os'] .btn-31:hover { background: #d4d4d4; }
+
+:root[data-skin='retro-os'] .btn-31:active { border-color: #404040 #ffffff #ffffff #404040; padding-top: 16px; padding-left: 26px; }
+
+/* thanh navbar là thanh tiêu đề navy: logo chữ trắng; các link nằm trong ô xám nổi nên giữ chữ đen */
+:root[data-skin='retro-os'] nav .brand { color: #ffffff; --amber: #ffffff; } /* "{ cd ~/ }" và chấm logo dùng --amber (navy) nên chìm trên thanh tiêu đề navy: ép trắng trong phạm vi logo */
+
+:root[data-skin='retro-os'] nav .nav-link { background: #c0c0c0; border: 2px solid; border-color: #ffffff #404040 #404040 #ffffff; color: #000000; }
+
+:root[data-skin='retro-os'] nav .nav-link:hover { color: #000080; }
+
+:root[data-skin='retro-os'] nav .nav-link:active { border-color: #404040 #ffffff #ffffff #404040; }
+
+:root[data-skin='retro-os'] nav .skin-btn { background: #c0c0c0; border: 2px solid; border-color: #ffffff #404040 #404040 #ffffff; border-radius: 0; color: #000000; }
+
+:root[data-skin='retro-os'] nav .skin-btn:hover { color: #000080; }
+
+/* pin xã hội ở góc trái nằm trên thanh navy: chữ trắng cho đọc được */
+:root[data-skin='retro-os'] .batt-label,
+:root[data-skin='retro-os'] .batt-label * { color: #ffffff; text-shadow: 1px 1px 0 #000000; }
+
+/* thanh cuộn kiểu 95: rãnh caro, thumb nổi 3D, hai nút mũi tên */
+:root[data-skin='retro-os']::-webkit-scrollbar,
+:root[data-skin='retro-os'] ::-webkit-scrollbar { width: 16px; height: 16px; }
+
+:root[data-skin='retro-os']::-webkit-scrollbar-track,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-track {
+  background: conic-gradient(#ffffff 25%, #c0c0c0 0 50%, #ffffff 0 75%, #c0c0c0 0) 0 0 / 2px 2px;
+  border: 0;
+}
+
+:root[data-skin='retro-os']::-webkit-scrollbar-thumb,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-thumb {
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  border-radius: 0;
+  background-color: #c0c0c0;
+  background-clip: border-box;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+:root[data-skin='retro-os']::-webkit-scrollbar-corner,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-corner { background: #c0c0c0; }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button { display: block; width: 16px; height: 16px; background-color: #c0c0c0; }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:vertical:start:decrement { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'><rect width='16' height='16' fill='%23000'/><rect width='15' height='15' fill='%23fff'/><rect x='1' y='1' width='14' height='14' fill='%23808080'/><rect x='1' y='1' width='13' height='13' fill='%23c0c0c0'/><path d='M4 10l4-4 4 4z' fill='%23000'/></svg>"); }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:vertical:end:increment { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'><rect width='16' height='16' fill='%23000'/><rect width='15' height='15' fill='%23fff'/><rect x='1' y='1' width='14' height='14' fill='%23808080'/><rect x='1' y='1' width='13' height='13' fill='%23c0c0c0'/><path d='M4 6l4 4 4-4z' fill='%23000'/></svg>"); }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:horizontal:start:decrement { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'><rect width='16' height='16' fill='%23000'/><rect width='15' height='15' fill='%23fff'/><rect x='1' y='1' width='14' height='14' fill='%23808080'/><rect x='1' y='1' width='13' height='13' fill='%23c0c0c0'/><path d='M10 4l-4 4 4 4z' fill='%23000'/></svg>"); }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:horizontal:end:increment { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' shape-rendering='crispEdges'><rect width='16' height='16' fill='%23000'/><rect width='15' height='15' fill='%23fff'/><rect x='1' y='1' width='14' height='14' fill='%23808080'/><rect x='1' y='1' width='13' height='13' fill='%23c0c0c0'/><path d='M6 4l4 4-4 4z' fill='%23000'/></svg>"); }
+
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:vertical:start:increment,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:vertical:end:decrement,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:horizontal:start:increment,
+:root[data-skin='retro-os'] ::-webkit-scrollbar-button:horizontal:end:decrement { display: none; }
+
+/* ---- retro os: icon desktop bên trái (chỉ màn rộng, để không đè nội dung) + taskbar ở đáy: Start, nút tác vụ, đồng hồ (RetroTray ở SkinFx.jsx) */
+:root[data-skin='retro-os'] .skin-fx-back {
+  display: block;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='228'><g transform='translate(0 0)'><g transform='translate(24 4)'><rect x='3' y='2' width='26' height='19' fill='%23c0c0c0' stroke='%23000'/><rect x='6' y='5' width='20' height='13' fill='%231084d0' stroke='%23404040'/><path d='M7 6h8' stroke='%239fe8ff'/><rect x='11' y='21' width='10' height='3' fill='%23c0c0c0' stroke='%23000'/><rect x='5' y='24' width='22' height='5' fill='%23c0c0c0' stroke='%23000'/><rect x='22' y='26' width='3' height='1' fill='%230f0'/></g><text x='40' y='62' text-anchor='middle' font-family='Tahoma,Verdana,sans-serif' font-size='11' fill='%23fff'>My Computer</text></g><g transform='translate(0 76)'><g transform='translate(24 4)'><rect x='13' y='3' width='6' height='3' fill='%23c0c0c0' stroke='%23000'/><rect x='5' y='6' width='22' height='4' fill='%23c0c0c0' stroke='%23000'/><path d='M8 10h16l-2 19H10z' fill='%23dfdfdf' stroke='%23000'/><path d='M13 13v13M16 13v13M19 13v13' stroke='%23808080'/><path d='M16 17l3 4h-6z' fill='%2300a000'/></g><text x='40' y='62' text-anchor='middle' font-family='Tahoma,Verdana,sans-serif' font-size='11' fill='%23fff'>Recycle Bin</text></g><g transform='translate(0 152)'><g transform='translate(24 4)'><path d='M2 8h11l3 3h14v17H2z' fill='%23ffe033' stroke='%23000'/><path d='M3 12h26' stroke='%23fff6a0'/><path d='M2 8h11l2 3H2z' fill='%23e0b800' stroke='%23000'/></g><text x='40' y='62' text-anchor='middle' font-family='Tahoma,Verdana,sans-serif' font-size='11' fill='%23fff'>Projects</text></g></svg>") 18px 84px / 80px 228px no-repeat;
+}
+
+@media (max-width: 1239px) {
+  :root[data-skin='retro-os'] .skin-fx-back { display: none; }
+}
+
+:root[data-skin='retro-os'] body { padding-bottom: 34px; }
+
+:root[data-skin='retro-os'] .back-to-top { bottom: 52px; }
+
+:root[data-skin='retro-os'] .skin-fx-top { display: block; }
+
+:root[data-skin='retro-os'] .skin-fx-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  box-shadow: 0 -1px 0 #dfdfdf;
+}
+
+:root[data-skin='retro-os'] .skin-fx-top::after {
+  content: 'Start';
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 32px;
+  color: #000000;
+  font: 700 13px/1 var(--f-mono);
+  background:
+    linear-gradient(#e03c31, #e03c31) 9px 5px / 6px 6px no-repeat,
+    linear-gradient(#4fa83d, #4fa83d) 16px 5px / 6px 6px no-repeat,
+    linear-gradient(#1c6bd4, #1c6bd4) 9px 12px / 6px 6px no-repeat,
+    linear-gradient(#f2c500, #f2c500) 16px 12px / 6px 6px no-repeat,
+    #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  box-shadow: 1px 1px 0 #000000;
+}
+
+:root[data-skin='retro-os'] .rt-task,
+:root[data-skin='retro-os'] .rt-clock {
+  position: absolute;
+  bottom: 4px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  color: #000000;
+  font: 12px/1 var(--f-mono);
+}
+
+:root[data-skin='retro-os'] .rt-task {
+  left: 92px;
+  width: 170px;
+  padding: 0 8px 0 28px;
+  font-weight: 700;
+  border: 2px solid;
+  border-color: #404040 #ffffff #ffffff #404040;
+  background:
+    linear-gradient(#1084d0, #1084d0) 8px 5px / 14px 10px no-repeat,
+    conic-gradient(#ffffff 25%, #c0c0c0 0 50%, #ffffff 0 75%, #c0c0c0 0) 0 0 / 2px 2px;
+}
+
+:root[data-skin='retro-os'] .rt-clock {
+  right: 4px;
+  padding: 0 12px;
+  border: 1px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+@media (max-width: 560px) {
+  :root[data-skin='retro-os'] .rt-task { display: none; }
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): siêu liên kết Win95: ô xám nổi 3D lõm xuống, viền chấm chấm bao quanh, chữ xanh navy gạch chân; không xê dịch bố cục */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='retro-os'] .hero-link::before, :root[data-skin='retro-os'] .hero-link::after { display: none; }
+  :root[data-skin='retro-os'] .hero-link:is(:hover, :focus-visible) { color: #000080; text-decoration: underline; background: #c0c0c0; margin-inline: -6px; padding-inline: 6px; border-bottom-color: transparent; outline: 1px dotted #000000; outline-offset: -4px; box-shadow: inset -1px -1px #404040, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf; }
+  :root[data-skin='retro-os'] .hero-link:active { box-shadow: inset 1px 1px #404040, inset -1px -1px #ffffff, inset 2px 2px #808080, inset -2px -2px #dfdfdf; }
+}

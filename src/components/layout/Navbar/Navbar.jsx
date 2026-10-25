@@ -499,6 +499,7 @@ export default function Navbar({ theme, onToggleTheme, onOpenSkins, view, onNavi
             {/* menu thả xuống cho màn hình nhỏ: cùng danh sách link với nav ngang (home: nav chính; trong trang: cd .. + mục con + nhảy sang trang khác) */}
             {menuOpen && (
               <div id="mobile-menu" ref={panelRef} className="mobile-menu md:hidden">
+                <SkinButton variant="row" onClick={inMenu(onOpenSkins)} />
                 {inTab ? (
                   <>
                     <a href={upHref} onClick={inMenu(clickBack)} className="mobile-menu-link">
@@ -530,7 +531,11 @@ export default function Navbar({ theme, onToggleTheme, onOpenSkins, view, onNavi
               </div>
             )}
 
-            <SkinButton onClick={onOpenSkins} />
+            {/* desktop: nút skin dạng pill (có tên + phím tắt), tách khỏi cây đèn pin bằng một vạch; mobile: nút này nằm đầu menu hamburger */}
+            <span className="hidden md:inline-flex items-center gap-3">
+              <SkinButton onClick={onOpenSkins} />
+              <span className="h-5 border-l border-line" aria-hidden="true" />
+            </span>
             <ThemeToggleTorch theme={theme} onToggle={onToggleTheme} />
           </div>
         </div>

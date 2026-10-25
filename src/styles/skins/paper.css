@@ -1,0 +1,66 @@
+/* =====================================================================================================================
+   SKIN paper  (special)  ·  paper
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- paper: vở kẻ ngang, lề đỏ, chữ máy đánh chữ, bút đỏ */
+:root[data-skin='paper'] {
+  --bg: #f5f0e1; --panel: #fffdf6; --inset: #fbf7ea; --line: #d8cdb0;
+  --text: #1f2430; --text-dim: #655e50;
+  --amber: #b3261e; --amber-dim: #8f1d17; --on-amber: #fffdf6; --glow: #ee6a5e; --glow-green: #6fbf73;
+  --green: #2d7a3a; --js: #7d5f00; --css-lang: #5a48a0; --danger: #b3261e;
+  --dot-grid: rgba(0, 0, 0, 0);
+  --shade-k: 0.35;
+  --f-mono: 'Special Elite', 'Courier New', ui-monospace, monospace;
+  --rk: 0.6;
+}
+
+:root[data-skin='paper'] body::before {
+  background-image:
+    linear-gradient(to bottom, transparent 27px, rgb(80 120 200 / 0.22) 28px),
+    linear-gradient(90deg, transparent 58px, rgb(210 70 70 / 0.4) 58px, rgb(210 70 70 / 0.4) 60px, transparent 60px),
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .25 0 0 0 .1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 100% 28px, 100% 100%, 180px 180px;
+  background-repeat: repeat, no-repeat, repeat;
+}
+
+@media (max-width: 640px) {
+  :root[data-skin='paper'] body::before {
+    background-image: linear-gradient(to bottom, transparent 27px, rgb(80 120 200 / 0.22) 28px), url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .25 0 0 0 .1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 100% 28px, 180px 180px;
+    background-repeat: repeat, repeat;
+  }
+}
+
+:root[data-skin='paper'] :is(.terminal, .spot) { box-shadow: 3px 4px 0 rgb(var(--shade) / 0.2); }
+
+/* ---- paper: băng dính dán thẻ, vạch bút dạ ở tiêu đề mục, bôi chọn bằng bút highlight */
+:root[data-skin='paper'] ::selection { background: #ffe066; color: var(--text); }
+
+:root[data-skin='paper'] .sh-type { background: linear-gradient(transparent 58%, rgb(255 224 102 / 0.65) 58% 90%, transparent 90%); }
+
+:root[data-skin='paper'] .spot:not(.terminal)::before { display: none; }
+
+:root[data-skin='paper'] .spot:not(.terminal)::after {
+  inset: auto;
+  top: -10px;
+  left: 50%;
+  width: 86px;
+  height: 22px;
+  opacity: 1;
+  border-radius: 0;
+  transform: translateX(-50%) rotate(-2deg);
+  background: rgb(238 214 120 / 0.74);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.16);
+  clip-path: polygon(0 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%);
+  transition: none;
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): bút dạ highlight: vệt vàng hơi nghiêng, mép bo không đều như tô tay, quét từ trái sang; dấu ✎ hiện ra */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='paper'] .hero-link { isolation: isolate; }
+  :root[data-skin='paper'] .hero-link::before { content: '\270E'; left: -1.4em; }
+  :root[data-skin='paper'] .hero-link::after { left: -7px; right: -7px; top: 38%; bottom: -3px; height: auto; background: rgb(255 222 70 / 0.7); border-radius: 3px 11px 4px 10px / 9px 4px 10px 3px; z-index: -1; transform: scaleX(0) rotate(-1.4deg); transform-origin: left; }
+  :root[data-skin='paper'] .hero-link:is(:hover, :focus-visible)::after { transform: scaleX(1) rotate(-1.4deg); transform-origin: left; }
+  :root[data-skin='paper'] .hero-link:is(:hover, :focus-visible) { color: var(--text); }
+}

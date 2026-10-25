@@ -1,0 +1,22 @@
+/* =====================================================================================================================
+   SKIN matrix  (secret)  ·  matrix
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+:root[data-skin='matrix'] {
+  --bg: #000000; --panel: #021006; --inset: #000a02; --line: #0b3d17;
+  --text: #00ff41; --text-dim: #00b32d;
+  --amber: #ccffd8; --amber-dim: #66ff8a; --on-amber: #000000; --glow: #00ff41; --glow-green: #00ff41;
+  --green: #00ff41; --js: #b6ff00; --css-lang: #00ffa6; --danger: #ff3b30;
+  --dot-grid: rgba(0, 255, 65, 0.05);
+  --contact-ink: #000000;
+  --f-mono: 'VT323', ui-monospace, 'Courier New', monospace;
+  --rk: 0.2;
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): chuỗi nhị phân 1 0 1 1... được gõ ra dưới chân link từng ký tự, chữ phát sáng xanh lá */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='matrix'] .hero-link::after { content: '1 0 1 1 0 1 0 0 1 1 0 1 0 1 1 0 0 1 0 1 1 0 1 0'; left: 0; right: auto; top: auto; bottom: -15px; width: 0; height: auto; overflow: hidden; background: none; color: var(--amber); font-size: 9px; line-height: 1; letter-spacing: 0.15em; text-shadow: 0 0 6px var(--amber); white-space: nowrap; transform: none; transition: width 0.7s steps(24); }
+  :root[data-skin='matrix'] .hero-link:is(:hover, :focus-visible)::after { width: 100%; transform: none; }
+  :root[data-skin='matrix'] .hero-link:is(:hover, :focus-visible) { text-shadow: 0 0 10px var(--amber); }
+}

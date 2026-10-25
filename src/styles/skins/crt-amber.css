@@ -1,0 +1,27 @@
+/* =====================================================================================================================
+   SKIN crt-amber  (special)  ·  crt amber
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+:root[data-skin='crt-amber'] {
+  --bg: #0c0700; --panel: #140d02; --inset: #080500; --line: #4a3000;
+  --text: #ffb000; --text-dim: #cf8a00;
+  --amber: #ffe0a0; --amber-dim: #ffcc66; --on-amber: #0c0700; --glow: #ffb000; --glow-green: #ffb000;
+  --green: #ffc933; --js: #ffe066; --css-lang: #ffa64d; --danger: #ff6b3d;
+  --dot-grid: rgba(255, 176, 0, 0.05);
+  --contact-ink: #0c0700;
+  --f-mono: 'VT323', ui-monospace, 'Courier New', monospace;
+  --rk: 0.4;
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): con trỏ gạch dưới _ nhấp nháy ngay sau chữ, chữ phát sáng quầng hổ phách (khác crt xanh: không đảo màu) */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='crt-amber'] .hero-link::before { display: none; }
+  :root[data-skin='crt-amber'] .hero-link::after { content: '_'; left: auto; right: -1.2em; top: 0; bottom: auto; height: auto; width: auto; background: none; color: var(--amber); font-weight: 700; opacity: 0; transform: none; transition: none; }
+  :root[data-skin='crt-amber'] .hero-link:is(:hover, :focus-visible)::after { opacity: 1; transform: none; }
+  :root[data-skin='crt-amber'] .hero-link:is(:hover, :focus-visible) { text-shadow: 0 0 6px var(--amber), 0 0 18px var(--amber); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-skin='crt-amber'] .hero-link:is(:hover, :focus-visible)::after { animation: ca-caret 0.9s steps(1) infinite; }
+}
+@keyframes ca-caret { 50% { opacity: 0; } }

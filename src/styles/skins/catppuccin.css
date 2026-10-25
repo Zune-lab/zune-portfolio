@@ -1,0 +1,52 @@
+/* =====================================================================================================================
+   SKIN catppuccin  (editor)  ·  catppuccin
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- catppuccin (mocha / latte) */
+:root[data-skin='catppuccin'] {
+  --rk: 1.7;
+  --f-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bg: #1e1e2e; --panel: #262637; --inset: #181825; --line: #363850;
+  --text: #cdd6f4; --text-dim: #a6adc8;
+  --amber: #cba6f7; --amber-dim: #a98bd6; --on-amber: #1e1e2e; --glow: #cba6f7; --glow-green: #a6e3a1;
+  --green: #a6e3a1; --js: #f9e2af; --css-lang: #f5c2e7; --danger: #f38ba8;
+  --dot-grid: rgba(205, 214, 244, 0.04);
+}
+
+:root[data-skin='catppuccin'][data-theme='light'] {
+  --bg: #eff1f5; --panel: #ffffff; --inset: #e6e9ef; --line: #ccd0da;
+  --text: #4c4f69; --text-dim: #5c5f77;
+  --amber: #8839ef; --amber-dim: #6f2cc6; --on-amber: #ffffff; --glow: #a066f5; --glow-green: #5fc04b;
+  --green: #2b7a1c; --js: #9a5a07; --css-lang: #b0399a; --danger: #d20f39;
+  --dot-grid: rgba(76, 79, 105, 0.06);
+}
+
+/* ---- catppuccin: bóng màu pastel mờ, lấp lánh nhỏ, bo góc tròn mềm */
+html[data-skin='catppuccin'] .skin-fx-back {
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g fill='%23f5e0dc'><path d='M30 34L31.68 38.32 36 40 31.68 41.68 30 46 28.32 41.68 24 40 28.32 38.32Z'/><path d='M170 86L171.12 88.88 174 90 171.12 91.12 170 94 168.88 91.12 166 90 168.88 88.88Z'/><path d='M100 195L101.4 198.6 105 200 101.4 201.4 100 205 98.6 201.4 95 200 98.6 198.6Z'/><path d='M230 217L230.84 219.16 233 220 230.84 220.84 230 223 229.16 220.84 227 220 229.16 219.16Z'/><path d='M60 137L60.84 139.16 63 140 60.84 140.84 60 143 59.16 140.84 57 140 59.16 139.16Z'/></g></svg>") 0 0 / 260px 260px,
+    radial-gradient(circle 340px at 8% 12%, rgb(203 166 247 / 0.17), transparent),
+    radial-gradient(circle 300px at 92% 30%, rgb(245 194 231 / 0.14), transparent),
+    radial-gradient(circle 320px at 20% 95%, rgb(137 220 235 / 0.13), transparent),
+    radial-gradient(circle 280px at 88% 92%, rgb(250 179 135 / 0.13), transparent);
+}
+
+html[data-skin='catppuccin'][data-theme='light'] .skin-fx-back {
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><g fill='%23dd7878'><path d='M30 34L31.68 38.32 36 40 31.68 41.68 30 46 28.32 41.68 24 40 28.32 38.32Z'/><path d='M170 86L171.12 88.88 174 90 171.12 91.12 170 94 168.88 91.12 166 90 168.88 88.88Z'/><path d='M100 195L101.4 198.6 105 200 101.4 201.4 100 205 98.6 201.4 95 200 98.6 198.6Z'/><path d='M230 217L230.84 219.16 233 220 230.84 220.84 230 223 229.16 220.84 227 220 229.16 219.16Z'/><path d='M60 137L60.84 139.16 63 140 60.84 140.84 60 143 59.16 140.84 57 140 59.16 139.16Z'/></g></svg>") 0 0 / 260px 260px,
+    radial-gradient(circle 340px at 8% 12%, rgb(136 57 239 / 0.1), transparent),
+    radial-gradient(circle 300px at 92% 30%, rgb(234 118 203 / 0.12), transparent),
+    radial-gradient(circle 320px at 20% 95%, rgb(4 165 229 / 0.1), transparent),
+    radial-gradient(circle 280px at 88% 92%, rgb(254 100 11 / 0.1), transparent);
+}
+
+html[data-skin='catppuccin'] :is(.terminal, .spot) { box-shadow: 0 14px 40px -16px color-mix(in srgb, var(--amber) 55%, transparent); }
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): viên thuốc pastel phình ra sau chữ (mềm, tròn, hợp bo góc lớn của theme) */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='catppuccin'] .hero-link { isolation: isolate; }
+  :root[data-skin='catppuccin'] .hero-link::before { display: none; }
+  :root[data-skin='catppuccin'] .hero-link::after { left: -12px; right: -12px; top: -7px; bottom: -5px; height: auto; border-radius: 999px; background: color-mix(in srgb, var(--amber) 22%, transparent); z-index: -1; opacity: 0; transform: scale(0.7); transform-origin: center; transition: opacity 0.25s var(--ease), transform 0.4s var(--ease); }
+  :root[data-skin='catppuccin'] .hero-link:is(:hover, :focus-visible)::after { opacity: 1; transform: scale(1); transform-origin: center; }
+}

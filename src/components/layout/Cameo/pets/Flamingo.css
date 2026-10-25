@@ -1,0 +1,20 @@
+/* Flamingo.jsx, skin vaporwave: vaporwave: hồng hạc */
+.flamingo { position: absolute; right: 104px; bottom: 12px; }
+.flamingo-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 12px rgb(255 79 179 / 0.55)); }
+.flamingo-neck { transform-origin: 38px 70px; }
+.flamingo-leg { transform-origin: 70px 92px; }
+.flamingo-eye { transform-box: fill-box; transform-origin: center; }
+.flamingo-bubble { bottom: calc(100% - 6px); right: 10px; border-color: var(--amber); background: rgb(16 8 31 / 0.94); color: var(--amber); }
+@keyframes fl-sway { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
+@keyframes fl-blink { 0%, 96%, 100% { transform: scaleY(1); } 97%, 99% { transform: scaleY(0.1); } }
+@keyframes fl-pose { 25% { transform: rotate(-7deg) scale(1.08); } 55% { transform: rotate(6deg) scale(1.08); } }
+@keyframes fl-kick { 50% { transform: rotate(-24deg); } }
+@media (prefers-reduced-motion: no-preference) {
+  .flamingo-neck { animation: fl-sway 4.5s ease-in-out infinite alternate; }
+  .flamingo-eye { animation: fl-blink 5s steps(1) infinite; }
+  .flamingo-body.is-pose svg { animation: fl-pose 1.6s ease-in-out; }
+  .flamingo-body.is-pose .flamingo-leg { animation: fl-kick 0.8s ease-in-out 2; }
+}
+@media (max-width: 560px) {
+  .flamingo { right: 76px; transform: scale(0.8); transform-origin: right bottom; }
+}

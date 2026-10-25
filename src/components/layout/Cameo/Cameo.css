@@ -1,0 +1,29 @@
+/* Lớp nhân vật khách mời theo skin. Cả lớp không bắt chuột; chỉ nhân vật / nút bên trong mới nhận chạm.
+   --floor là độ cao "mặt sàn" của skin (chừa chỗ cho khung game boy, taskbar retro-os). Animation CSS vô hạn đã
+   được tạm dừng chung khi screensaver chạy (cờ data-nap, xem index.css). */
+.cameo-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  --floor: 16px;
+}
+.cameo-layer button { pointer-events: auto; }
+
+/* bóng thoại dùng chung (mỗi nhân vật tự đổi màu bên dưới) */
+.cameo-bubble {
+  position: absolute;
+  padding: 6px 10px;
+  border: 2px solid currentColor;
+  background: var(--panel);
+  color: var(--text);
+  font: 500 12px/1.3 var(--f-mono);
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cameo-bubble { animation: cameo-pop 0.18s ease-out; }
+}
+@keyframes cameo-pop {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+}

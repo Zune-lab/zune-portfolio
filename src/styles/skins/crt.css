@@ -1,0 +1,25 @@
+/* =====================================================================================================================
+   SKIN crt  (special)  ·  crt green
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- crt (phosphor xanh) / crt-amber (phosphor cam) / matrix: màn hình đèn chân không, chữ phát sáng, scanline */
+:root[data-skin='crt'] {
+  --bg: #030b05; --panel: #06140a; --inset: #020804; --line: #11401f;
+  --text: #4dff88; --text-dim: #2bbd5e;
+  --amber: #c8ffd9; --amber-dim: #8de8ad; --on-amber: #020804; --glow: #33ff66; --glow-green: #33ff66;
+  --green: #4dff88; --js: #e8ff6a; --css-lang: #6af0d0; --danger: #ff6b5a;
+  --dot-grid: rgba(77, 255, 136, 0.05);
+  --contact-ink: #020804;
+  --f-mono: 'VT323', ui-monospace, 'Courier New', monospace;
+  --rk: 0.4;
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): đảo màu như bôi đen dòng trong terminal: khối phosphor sáng chớp lên sau chữ, chữ đổi sang màu đen */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='crt'] .hero-link { isolation: isolate; }
+  :root[data-skin='crt'] .hero-link::before { display: none; }
+  :root[data-skin='crt'] .hero-link::after { left: -6px; right: -6px; top: -4px; bottom: -3px; height: auto; background: var(--amber); box-shadow: 0 0 14px var(--amber); z-index: -1; opacity: 0; transform: none; transition: none; }
+  :root[data-skin='crt'] .hero-link:is(:hover, :focus-visible)::after { opacity: 1; transform: none; }
+  :root[data-skin='crt'] .hero-link:is(:hover, :focus-visible) { color: var(--on-amber); text-shadow: none; }
+}

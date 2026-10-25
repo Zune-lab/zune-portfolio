@@ -1,36 +1,66 @@
 /* Nút skin ở navbar, bảng chọn (Ctrl+K) và thông báo. Chỉ dùng biến của trang nên tự đổi theo mọi skin. */
 
-/* ---- nút ở navbar: lưới 2x2 màu của skin đang dùng */
+/* ---- nút skin: chip 4 màu của skin đang dùng + tên (pill ở navbar desktop, dòng đầu menu mobile) */
 .skin-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: calc(8px * var(--rk, 1));
-  transition: background-color var(--dur-fast) var(--ease);
+  gap: 9px;
+  height: 32px;
+  padding: 0 8px 0 7px;
+  border: 1px solid var(--line);
+  border-radius: calc(999px * var(--rk, 1));
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  color: var(--text-dim);
+  font: 12px/1 var(--f-mono);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
 }
 .skin-btn:hover,
 .skin-btn:focus-visible {
-  background: color-mix(in srgb, var(--amber) 14%, transparent);
+  border-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
 }
 .skin-btn-chip {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 20px;
-  height: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  flex: none;
+  width: 28px;
+  height: 14px;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: calc(5px * var(--rk, 1));
-  transition: transform 0.35s var(--ease);
+  border-radius: calc(4px * var(--rk, 1));
 }
-.skin-btn-chip i { display: block; }
+.skin-btn-chip i { display: block; transition: transform 0.3s var(--ease); }
 @media (hover: hover) {
-  .skin-btn:hover .skin-btn-chip { transform: rotate(90deg) scale(1.08); }
+  .skin-btn:hover .skin-btn-chip i:nth-child(odd) { transform: translateY(-2px); }
+  .skin-btn:hover .skin-btn-chip i:nth-child(even) { transform: translateY(2px); }
 }
+.skin-btn-name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
+.skin-btn-kbd {
+  padding: 3px 5px;
+  border: 1px solid var(--line);
+  border-radius: calc(4px * var(--rk, 1));
+  color: var(--text-dim);
+  font: 10px/1 var(--f-mono);
+}
+/* dòng trong menu hamburger (mobile): rộng hết hàng, cao vừa ngón tay */
+.skin-btn--row {
+  width: calc(100% - 24px);
+  height: 44px;
+  margin: 10px 12px 6px;
+  padding: 0 12px;
+  border-radius: calc(8px * var(--rk, 1));
+  color: var(--text);
+  font-size: 13px;
+}
+.skin-btn--row .skin-btn-chip { width: 36px; height: 16px; }
+.skin-btn--row .skin-btn-name { flex: 1; max-width: none; text-align: left; }
+.skin-btn-go { color: var(--amber); font-size: 11px; }
 @media (prefers-reduced-motion: reduce) {
-  .skin-btn-chip { transition: none; }
-  .skin-btn:hover .skin-btn-chip { transform: none; }
+  .skin-btn, .skin-btn-chip i { transition: none; }
+  .skin-btn:hover .skin-btn-chip i { transform: none; }
 }
 
 /* ---- bảng chọn */

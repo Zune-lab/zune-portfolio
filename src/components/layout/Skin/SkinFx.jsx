@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { skinById } from '../../../config/skins.js';
 import useSkin from '../../../lib/useSkin.js';
 import { isPaused } from '../../../lib/nap.js';
 import { prefersReducedMotion } from '../../../lib/env.js';
 import { onThemeChange } from '../../../lib/themeSync.js';
 
-// Lớp hiệu ứng của skin: hai lớp CSS (src/styles/skins.css: scanline CRT, mặt trời vaporwave...) + canvas mưa chữ cho skin matrix.
+// Lớp hiệu ứng của skin: hai lớp CSS (src/styles/skins/: scanline CRT, mặt trời vaporwave...) + canvas mưa chữ cho skin matrix.
 // Mọi lớp đều không bắt chuột và ẩn với trình đọc màn hình.
 const GLYPHS = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉ0123456789{}<>/=;:+*';
 const SIZE = 16; // px mỗi ô chữ
@@ -79,12 +80,34 @@ function MatrixRain() {
   return <canvas ref={ref} className="skin-fx-rain" aria-hidden="true" />;
 }
 
+// khay hệ thống của skin retro-os: nút tác vụ + đồng hồ thật nằm trên thanh taskbar (thanh và nút Start vẽ bằng CSS)
+function RetroTray() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 20000);
+    return () => clearInterval(id);
+  }, []);
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  return (
+    <>
+      <span className="rt-task">zune.dev</span>
+      <span className="rt-clock">
+        {hh}:{mm}
+      </span>
+    </>
+  );
+}
+
 export default function SkinFx() {
   const { skin } = useSkin();
+  const name = (skinById(skin)?.label ?? skin).toUpperCase();
   return (
     <>
       <div className="skin-fx-back" aria-hidden="true" />
-      <div className="skin-fx-top" aria-hidden="true" />
+      <div className="skin-fx-top" aria-hidden="true" data-name={name}>
+        {skin === 'retro-os' && <RetroTray />}
+      </div>
       {skin === 'matrix' && <MatrixRain />}
     </>
   );

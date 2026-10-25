@@ -20,6 +20,7 @@ import { syncThemeColor, syncThemeNow } from './lib/themeSync.js';
 import { forcedTheme, refreshAuto, rememberTheme, skinToast, subscribeSkin } from './lib/skin.js';
 import { skinById } from './config/skins.js';
 import SkinFx from './components/layout/Skin/SkinFx.jsx';
+import Cameo from './components/layout/Cameo/Cameo.jsx';
 import SkinPalette from './components/layout/Skin/SkinPalette.jsx';
 import SkinToast from './components/layout/Skin/SkinToast.jsx';
 
@@ -244,6 +245,7 @@ export default function App() {
   return (
     <>
       <SkinFx />
+      <Cameo view={view} onNavigate={handleNavigate} />
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       <Loader show={isLoading} />

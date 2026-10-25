@@ -1,0 +1,98 @@
+/* =====================================================================================================================
+   SKIN vaporwave  (secret)  ·  vaporwave
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- vaporwave (ẩn): hoàng hôn tím–hồng, mặt trời sọc và lưới sàn phối cảnh phía sau nội dung */
+:root[data-skin='vaporwave'] {
+  --bg: #1b0b36; --panel: #2a1252; --inset: #150829; --line: #5a2f9a;
+  --text: #ffe6ff; --text-dim: #cdaaf2;
+  --amber: #ff71ce; --amber-dim: #e04fb2; --on-amber: #1b0b36; --glow: #ff71ce; --glow-green: #05ffa1;
+  --green: #05ffa1; --js: #fffb96; --css-lang: #b967ff; --danger: #ff5c8a;
+  --dot-grid: rgba(255, 113, 206, 0.06);
+  --contact-ink: #1b0b36;
+  --rk: 0.8;
+}
+
+:root[data-skin='vaporwave'] .skin-fx-back {
+  display: block;
+  background:
+    radial-gradient(1.5px 1.5px at 8% 12%, #fff, transparent), radial-gradient(1px 1px at 18% 28%, #ffe6ff, transparent),
+    radial-gradient(1.5px 1.5px at 27% 8%, #fff, transparent), radial-gradient(1px 1px at 39% 22%, #05ffa1, transparent),
+    radial-gradient(1.5px 1.5px at 52% 10%, #fff, transparent), radial-gradient(1px 1px at 63% 30%, #ffe6ff, transparent),
+    radial-gradient(1.5px 1.5px at 74% 14%, #fff, transparent), radial-gradient(1px 1px at 86% 26%, #ff71ce, transparent),
+    radial-gradient(1.5px 1.5px at 94% 9%, #fff, transparent), radial-gradient(1px 1px at 46% 36%, #fff, transparent),
+    linear-gradient(to bottom, transparent 35%, rgb(255 113 206 / 0.14) 100%);
+}
+
+:root[data-skin='vaporwave'] .skin-fx-back::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 14vh;
+  width: min(46vw, 420px);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ffe46b, #ff71ce 55%, #b967ff);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 46%, transparent 46% 51%, #000 51% 59%, transparent 59% 64%, #000 64% 71%, transparent 71% 75%, #000 75% 81%, transparent 81% 84%, #000 84% 100%);
+  mask-image: linear-gradient(to bottom, #000 0 46%, transparent 46% 51%, #000 51% 59%, transparent 59% 64%, #000 64% 71%, transparent 71% 75%, #000 75% 81%, transparent 81% 84%, #000 84% 100%);
+  opacity: 0.5;
+}
+
+:root[data-skin='vaporwave'] .skin-fx-back::after {
+  content: '';
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  height: 46vh;
+  background-image:
+    linear-gradient(rgb(255 113 206 / 0.85) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgb(255 113 206 / 0.85) 1.5px, transparent 1.5px);
+  background-size: 64px 40px;
+  transform: perspective(380px) rotateX(62deg);
+  transform-origin: bottom;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 90%);
+  mask-image: linear-gradient(to top, #000, transparent 90%);
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-skin='vaporwave'] .skin-fx-back::after { animation: vw-grid 1.6s linear infinite; } /* lưới sàn trôi về phía người xem */
+  :root[data-skin='vaporwave'] .skin-fx-back::before { animation: vw-sun 9s ease-in-out infinite alternate; }
+}
+
+@keyframes vw-grid { to { background-position: 0 40px, 0 0; } }
+
+@keyframes vw-sun { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(-10px); } }
+
+:root[data-skin='vaporwave'] .hero-title { text-shadow: 0.045em 0.045em 0 #05ffa1, -0.025em -0.025em 0 rgb(255 113 206 / 0.6); }
+
+/* dòng chữ dọc ở mép phải, đúng kiểu poster vaporwave */
+:root[data-skin='vaporwave'] .skin-fx-top {
+  display: block;
+}
+
+:root[data-skin='vaporwave'] .skin-fx-top::after {
+  content: 'ヴェイパーウェイヴ  A E S T H E T I C';
+  position: absolute;
+  right: 14px;
+  top: 96px;
+  writing-mode: vertical-rl;
+  color: var(--amber);
+  font: 12px/1 var(--f-mono);
+  letter-spacing: 0.42em;
+  opacity: 0.4;
+}
+
+@media (max-width: 900px) {
+  :root[data-skin='vaporwave'] .skin-fx-top::after { display: none; }
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): lệch màu kiểu VHS: chữ hồng tách bóng xanh ngọc / cyan, gạch chân gradient hồng→cyan có quầng sáng, dấu ☆ */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='vaporwave'] .hero-link::before { content: '\2606'; left: -1.3em; }
+  :root[data-skin='vaporwave'] .hero-link::after { height: 2px; background: linear-gradient(90deg, #ff71ce, #01cdfe); box-shadow: 0 0 12px #ff71ce; }
+  :root[data-skin='vaporwave'] .hero-link:is(:hover, :focus-visible) { color: #ff71ce; text-shadow: -1px 0 #05ffa1, 1px 0 #01cdfe, 0 0 14px rgb(255 113 206 / 0.7); border-bottom-color: #01cdfe; }
+}

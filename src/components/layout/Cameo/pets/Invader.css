@@ -1,0 +1,23 @@
+/* Invader.jsx, skin crt: crt: quái vật arcade */
+.invader-patrol { position: absolute; bottom: 60px; left: 70%; color: var(--amber); }
+.invader-hit { position: relative; display: block; margin: -6px; padding: 6px; border: 0; background: none; color: inherit; cursor: crosshair; filter: drop-shadow(0 0 5px currentColor); }
+.invader-f { display: block; }
+.invader-f2 { position: absolute; inset: 6px; opacity: 0; }
+.invader-boom { position: absolute; left: 0; top: 0; width: 33px; height: 24px; }
+.invader-boom i { position: absolute; left: 14px; top: 10px; width: 5px; height: 5px; background: currentColor; box-shadow: 0 0 6px currentColor; opacity: 0; animation: invader-bit 0.9s ease-out forwards; }
+.invader-beam { position: absolute; left: 15px; top: 24px; width: 3px; height: 60px; background: currentColor; box-shadow: 0 0 10px currentColor; animation: invader-zap 0.35s ease-out forwards; }
+.invader-bubble { bottom: calc(100% + 10px); left: 50%; translate: -50% 0; border-color: currentColor; background: #000; color: currentColor; font-family: var(--font-pixel); font-size: 10px; }
+.invader-score { position: absolute; left: 18px; bottom: 14px; color: var(--amber); font: 700 9px/1 var(--font-pixel); letter-spacing: 0.18em; text-shadow: 0 0 8px currentColor; }
+@keyframes invader-a { 50% { opacity: 0; } }
+@keyframes invader-b { 50% { opacity: 1; } }
+@keyframes invader-march { from { left: 3%; } to { left: calc(97% - 40px); } }
+@keyframes invader-bit {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(2px); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(34px); }
+}
+@keyframes invader-zap { 0% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .invader-patrol { animation: invader-march 48s steps(72) infinite alternate; }
+  .invader-f1 { animation: invader-a 1s steps(1) infinite; }
+  .invader-f2 { animation: invader-b 1s steps(1) infinite; }
+}

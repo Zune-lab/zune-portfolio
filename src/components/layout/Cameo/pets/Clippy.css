@@ -1,0 +1,50 @@
+/* Clippy.jsx, skin retro-os: retro-os: Clippy */
+.cameo-retro-os { --floor: 44px; }
+.clippy { position: absolute; right: 92px; bottom: var(--floor); width: 62px; }
+.clippy-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.28)); transform-origin: 50% 100%; }
+.clippy-pupil { transform: translate(var(--px, 0), var(--py, 0)); }
+.clippy-bubble {
+  position: absolute;
+  right: -8px;
+  bottom: calc(100% + 12px);
+  width: 224px;
+  padding: 9px 11px 10px;
+  border: 1px solid #000;
+  background: #ffffe1;
+  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.35);
+  color: #000;
+  font: 12px/1.4 var(--f-mono);
+  pointer-events: auto;
+}
+.clippy-bubble::before,
+.clippy-bubble::after { content: ''; position: absolute; right: 34px; border: solid transparent; }
+.clippy-bubble::before { bottom: -13px; border-width: 12px 7px 0; border-top-color: #000; margin-right: -1px; }
+.clippy-bubble::after { bottom: -11px; border-width: 11px 6px 0; border-top-color: #ffffe1; }
+.clippy-bubble p { margin: 0; }
+.clippy-actions { display: flex; flex-direction: column; align-items: stretch; gap: 5px; margin-top: 9px; }
+.clippy-actions button {
+  padding: 4px 8px;
+  border: 2px solid;
+  border-color: #fff #404040 #404040 #fff;
+  background: #c0c0c0;
+  color: #000;
+  font: 12px/1.2 var(--f-mono);
+  text-align: left;
+  cursor: pointer;
+}
+.clippy-actions button:active { border-color: #404040 #fff #fff #404040; }
+@media (prefers-reduced-motion: no-preference) {
+  .clippy-body { animation: clippy-bob 2.6s ease-in-out infinite; }
+  .clippy-body.is-wiggle { animation: clippy-wiggle 0.8s ease-in-out; }
+}
+@keyframes clippy-bob { 50% { transform: translateY(-4px); } }
+@keyframes clippy-wiggle {
+  15% { transform: rotate(-9deg); }
+  35% { transform: rotate(8deg) translateY(-6px); }
+  55% { transform: rotate(-6deg); }
+  75% { transform: rotate(4deg); }
+}
+@media (max-width: 560px) {
+  .clippy { right: 78px; transform: scale(0.82); transform-origin: right bottom; }
+  .clippy-bubble { width: 190px; }
+}

@@ -16,7 +16,7 @@
   --color-amber-dim: var(--amber-dim);
   --color-green: var(--green);
 
-  --font-mono: var(--f-mono); /* font chính đi qua biến --f-mono để SKIN đổi được (src/styles/skins.css) */
+  --font-mono: var(--f-mono); /* font chính đi qua biến --f-mono để SKIN đổi được (src/styles/skins/) */
   --font-sans: Inter, 'Segoe UI', sans-serif;
   --font-pixel: Silkscreen, 'JetBrains Mono', monospace;
 }

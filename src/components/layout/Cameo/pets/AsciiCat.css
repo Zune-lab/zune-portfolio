@@ -1,0 +1,18 @@
+/* AsciiCat.jsx, skin crt-amber: crt-amber: mèo ASCII */
+.acat { position: absolute; bottom: 8px; left: 8%; color: var(--amber); }
+.acat-hit { position: relative; display: block; padding: 4px; border: 0; background: none; color: inherit; cursor: pointer; }
+.acat pre { margin: 0; color: inherit; font: 14px/1.05 var(--f-mono); text-shadow: 0 0 6px currentColor; white-space: pre; }
+.acat-f2 { position: absolute; left: 4px; top: 4px; opacity: 0; }
+.acat-bubble { bottom: calc(100% + 2px); left: 50%; translate: -50% 0; border-color: currentColor; background: var(--bg); color: currentColor; }
+@keyframes acat-walk { from { left: 2%; } to { left: calc(98% - 100px); } }
+@keyframes acat-turn { 0%, 49.999% { transform: none; } 50%, 100% { transform: scaleX(-1); } }
+@keyframes acat-a { 50% { opacity: 0; } }
+@keyframes acat-b { 50% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .acat { animation: acat-walk 80s linear infinite alternate; }
+  .acat-flip { animation: acat-turn 160s steps(1) infinite; }
+  .acat-f1 { animation: acat-a 0.7s steps(1) infinite; }
+  .acat-f2 { animation: acat-b 0.7s steps(1) infinite; }
+  .acat.is-sit,
+  .acat.is-sit .acat-flip { animation-play-state: paused; }
+}

@@ -1,0 +1,48 @@
+/* =====================================================================================================================
+   SKIN dracula  (editor)  ·  dracula
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- dracula (tối) */
+:root[data-skin='dracula'] {
+  --rk: 1.2;
+  --f-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bg: #282a36; --panel: #2f3242; --inset: #21222c; --line: #44475a;
+  --text: #f8f8f2; --text-dim: #a9b2d6;
+  --amber: #bd93f9; --amber-dim: #a47fe0; --on-amber: #21222c; --glow: #bd93f9; --glow-green: #50fa7b;
+  --green: #50fa7b; --js: #f1fa8c; --css-lang: #ff79c6; --danger: #ff5555;
+  --dot-grid: rgba(248, 248, 242, 0.04);
+}
+
+/* ---- dracula: đêm có trăng, dơi bay và ánh tím hồng */
+html[data-skin='dracula'] .skin-fx-back {
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><path fill='%23bd93f9' d='M32 8C30 8 29 10 29 12 24 7 14 6 2 10 8 12 10 16 10 22 14 18 18 18 22 22 24 18 27 18 29 22L32 28 35 22C37 18 40 18 42 22 46 18 50 18 54 22 54 16 56 12 62 10 50 6 40 7 35 12 35 10 34 8 32 8Z'/></svg>") 74% 17% / 58px no-repeat,
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><path fill='%23ff79c6' d='M32 8C30 8 29 10 29 12 24 7 14 6 2 10 8 12 10 16 10 22 14 18 18 18 22 22 24 18 27 18 29 22L32 28 35 22C37 18 40 18 42 22 46 18 50 18 54 22 54 16 56 12 62 10 50 6 40 7 35 12 35 10 34 8 32 8Z'/></svg>") 88% 33% / 34px no-repeat,
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><path fill='%23bd93f9' d='M32 8C30 8 29 10 29 12 24 7 14 6 2 10 8 12 10 16 10 22 14 18 18 18 22 22 24 18 27 18 29 22L32 28 35 22C37 18 40 18 42 22 46 18 50 18 54 22 54 16 56 12 62 10 50 6 40 7 35 12 35 10 34 8 32 8Z'/></svg>") 63% 8% / 26px no-repeat,
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 32'><path fill='%238be9fd' d='M32 8C30 8 29 10 29 12 24 7 14 6 2 10 8 12 10 16 10 22 14 18 18 18 22 22 24 18 27 18 29 22L32 28 35 22C37 18 40 18 42 22 46 18 50 18 54 22 54 16 56 12 62 10 50 6 40 7 35 12 35 10 34 8 32 8Z'/></svg>") 93% 10% / 22px no-repeat,
+    radial-gradient(circle at 84% 14%, rgb(248 248 242 / 0.13) 0 54px, transparent 56px),
+    radial-gradient(ellipse 60% 45% at 8% 0%, rgb(189 147 249 / 0.2), transparent 70%),
+    radial-gradient(ellipse 55% 40% at 100% 100%, rgb(255 121 198 / 0.16), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 55% 100%, rgb(80 250 123 / 0.05), transparent 70%);
+}
+
+/* màn hẹp: bỏ trăng và dơi (đè lên chữ hero), chỉ giữ ánh tím hồng */
+@media (max-width: 760px) {
+  html[data-skin='dracula'] .skin-fx-back {
+    background:
+      radial-gradient(ellipse 60% 45% at 8% 0%, rgb(189 147 249 / 0.2), transparent 70%),
+      radial-gradient(ellipse 55% 40% at 100% 100%, rgb(255 121 198 / 0.16), transparent 70%);
+  }
+}
+
+html[data-skin='dracula'] :is(.terminal, .spot) {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 40%, transparent), 0 18px 50px -16px rgb(189 147 249 / 0.5);
+}
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): lấp lánh tím-hồng: dấu ✦ hiện ra, chữ toả sáng neon, gạch chân gradient tím→hồng có quầng sáng */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='dracula'] .hero-link::before { content: '\2726'; }
+  :root[data-skin='dracula'] .hero-link::after { height: 2px; bottom: -2px; background: linear-gradient(90deg, #bd93f9, #ff79c6); box-shadow: 0 0 10px rgb(255 121 198 / 0.85); }
+  :root[data-skin='dracula'] .hero-link:is(:hover, :focus-visible) { color: #ff79c6; text-shadow: 0 0 14px rgb(189 147 249 / 0.9); }
+}

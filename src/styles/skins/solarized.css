@@ -1,0 +1,44 @@
+/* =====================================================================================================================
+   SKIN solarized  (editor)  ·  solarized
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- solarized */
+:root[data-skin='solarized'] {
+  --rk: 0.8;
+  --f-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bg: #002b36; --panel: #073642; --inset: #00212b; --line: #1b5564;
+  --text: #93a1a1; --text-dim: #8aa5a8;
+  --amber: #35b5ab; --amber-dim: #2aa198; --on-amber: #002b36; --glow: #2aa198; --glow-green: #859900;
+  --green: #96ad00; --js: #c99a00; --css-lang: #8a90dc; --danger: #ef4a47;
+  --dot-grid: rgba(147, 161, 161, 0.05);
+}
+
+:root[data-skin='solarized'][data-theme='light'] {
+  --bg: #fdf6e3; --panel: #fffbf0; --inset: #eee8d5; --line: #ddd6c1;
+  --text: #4a6068; --text-dim: #52666d;
+  --amber: #1a7872; --amber-dim: #145f5a; --on-amber: #fdf6e3; --glow: #2aa198; --glow-green: #859900;
+  --green: #667700; --js: #8a6500; --css-lang: #4c50a8; --danger: #c4231f;
+  --dot-grid: rgba(74, 96, 104, 0.07);
+}
+
+/* ---- solarized: dải 8 màu đặc trưng ở mép trái, ánh xanh ngọc */
+html[data-skin='solarized'] .skin-fx-top {
+  --ed-stripe: linear-gradient(to bottom, #b58900 0 12.5%, #cb4b16 12.5% 25%, #dc322f 25% 37.5%, #d33682 37.5% 50%, #6c71c4 50% 62.5%, #268bd2 62.5% 75%, #2aa198 75% 87.5%, #859900 87.5% 100%) 0 0 / 5px 100% no-repeat;
+}
+
+html[data-skin='solarized'] .skin-fx-back {
+  background:
+    radial-gradient(ellipse 55% 40% at 0% 100%, rgb(42 161 152 / 0.14), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 100% 0%, rgb(38 139 210 / 0.1), transparent 70%);
+}
+
+html[data-skin='solarized'] :is(.terminal, .spot) { border-left: 3px solid var(--amber); }
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): ngoặc vuông [ ] khép lại hai bên chữ, như đang chọn một dòng trong tài liệu */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='solarized'] .hero-link::before { content: '['; left: -1em; font-weight: 700; transform: translateX(8px); }
+  :root[data-skin='solarized'] .hero-link::after { content: ']'; left: auto; right: -1em; top: 0; bottom: auto; height: auto; background: none; color: var(--amber); font-weight: 700; opacity: 0; transform: translateX(-8px); transform-origin: center; transition: opacity 0.3s var(--ease), transform 0.45s var(--ease); }
+  :root[data-skin='solarized'] .hero-link:is(:hover, :focus-visible)::before { transform: translateX(0); }
+  :root[data-skin='solarized'] .hero-link:is(:hover, :focus-visible)::after { opacity: 1; transform: translateX(0); }
+}

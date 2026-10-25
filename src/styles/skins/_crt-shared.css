@@ -1,0 +1,65 @@
+/* Dùng chung cho crt / crt-amber: scanline, vệt quét, bật nguồn (matrix chỉ xài lại phần chữ phát sáng). */
+
+/* chữ phát sáng như phosphor: text-shadow được kế thừa nên đặt ở body là đủ, phần tử nào có text-shadow riêng thì giữ nguyên */
+:is([data-skin='crt'], [data-skin='crt-amber'], [data-skin='matrix']) body {
+  text-shadow: 0 0 6px color-mix(in srgb, var(--glow) 45%, transparent);
+}
+
+/* VT323 nhỏ hơn các font mono khác ở cùng cỡ chữ: bù lại để các cỡ px cứng trong trang vẫn đọc được. Áp lên MỌI phần tử vì
+   shorthand `font:` (nhiều class trong trang dùng) đặt lại font-size-adjust về none, kế thừa từ body là chưa đủ. */
+:is([data-skin='crt'], [data-skin='crt-amber'], [data-skin='matrix']) * {
+  font-size-adjust: 0.58;
+}
+
+:is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top {
+  display: block;
+  /* kính cong: tối dần ra mép + bo góc + đổ bóng vào trong, như đang nhìn qua màn hình lồi; scanline phủ lên */
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at center, transparent 50%, rgb(0 0 0 / 0.6) 100%),
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.24) 0, rgb(0 0 0 / 0.24) 1px, transparent 1px, transparent 3px);
+  box-shadow: inset 0 0 90px 14px rgb(0 0 0 / 0.55), inset 0 0 0 3px rgb(0 0 0 / 0.7);
+}
+
+/* vệt sáng quét chậm từ trên xuống (tần số quét làm tươi) */
+:is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -22vh;
+  height: 20vh;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--glow) 8%, transparent) 50%, transparent);
+}
+
+/* bật nguồn: một vạch sáng loé giữa màn rồi bung ra toàn màn mỗi khi chọn skin */
+:is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--glow) 55%, #ffffff);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top { animation: crt-flicker 6s steps(1, end) infinite; }
+  :is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top::before { animation: crt-roll 7s linear infinite; }
+  :is([data-skin='crt'], [data-skin='crt-amber']) .skin-fx-top::after { animation: crt-on 0.9s 0.15s ease-out both; }
+}
+
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  46% { opacity: 0.93; }
+  48% { opacity: 1; }
+  91% { opacity: 0.9; }
+  93% { opacity: 1; }
+}
+
+@keyframes crt-roll { to { transform: translateY(150vh); } }
+
+@keyframes crt-on {
+  0% { opacity: 1; clip-path: inset(49.7% 0 49.7% 0); }
+  35% { opacity: 1; clip-path: inset(49.7% 0 49.7% 0); }
+  70% { opacity: 0.85; clip-path: inset(0 0 0 0); }
+  100% { opacity: 0; clip-path: inset(0 0 0 0); }
+}

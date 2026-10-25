@@ -2,9 +2,9 @@
 //   <html data-skin="dracula" data-theme="dark">
 // Thêm một skin mới = 3 bước:
 //   1. thêm một mục vào SKINS bên dưới (id, nhãn, các chế độ hỗ trợ, màu mẫu cho bảng chọn);
-//   2. viết khối `:root[data-skin='<id>'] { ... }` trong src/styles/skins.css (ghi đè các biến màu; skin có cả sáng lẫn tối thì
+//   2. viết khối `:root[data-skin='<id>'] { ... }` trong src/styles/skins/<id>.css (file mới, ghi đè các biến màu; skin có cả sáng lẫn tối thì
 //      thêm khối `[data-theme='light']`);
-//   3. (tuỳ chọn) hiệu ứng riêng: cũng viết trong src/styles/skins.css.
+//   3. (tuỳ chọn) hiệu ứng riêng: cũng viết trong src/styles/skins/<id>.css (mục 2 và 3 của file đó).
 // Chạy `node system/scripts/check-skins.mjs` để kiểm tra độ tương phản chữ/nền của mọi skin.
 //
 // File này là dữ liệu thuần (không import React, không import.meta.env) vì ba nơi cùng đọc nó:

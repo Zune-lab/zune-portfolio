@@ -1,0 +1,48 @@
+/* =====================================================================================================================
+   SKIN gruvbox  (editor)  ·  gruvbox
+   1) bảng màu   2) nền + hiệu ứng riêng   3) hiệu ứng hover của link .hero-link ("All projects", "More about me"...)
+   ===================================================================================================================== */
+
+/* ---- gruvbox */
+:root[data-skin='gruvbox'] {
+  --rk: 0.35;
+  --f-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bg: #282828; --panel: #32302f; --inset: #1d2021; --line: #45403d;
+  --text: #ebdbb2; --text-dim: #a89984;
+  --amber: #fe8019; --amber-dim: #d6690f; --on-amber: #1d2021; --glow: #fe8019; --glow-green: #b8bb26;
+  --green: #b8bb26; --js: #fabd2f; --css-lang: #d3869b; --danger: #fb4934;
+  --dot-grid: rgba(235, 219, 178, 0.04);
+}
+
+:root[data-skin='gruvbox'][data-theme='light'] {
+  --bg: #fbf1c7; --panel: #fdf6d8; --inset: #f2e5bc; --line: #d5c4a1;
+  --text: #3c3836; --text-dim: #665c54;
+  --amber: #af3a03; --amber-dim: #8f3002; --on-amber: #fbf1c7; --glow: #d65d0e; --glow-green: #98971a;
+  --green: #79740e; --js: #8f5f0a; --css-lang: #8f3f71; --danger: #9d0006;
+  --dot-grid: rgba(60, 56, 54, 0.06);
+}
+
+/* ---- gruvbox: hạt giấy ấm + viền tối góc màn hình, bóng cứng, viền dày */
+html[data-skin='gruvbox'] .skin-fx-back {
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.92 0 0 0 0 0.84 0 0 0 0 0.62 0 0 0 0.07 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>") 0 0 / 160px 160px,
+    radial-gradient(ellipse at 50% 40%, transparent 50%, rgb(0 0 0 / 0.3)),
+    radial-gradient(ellipse 50% 35% at 100% 0%, rgb(254 128 25 / 0.1), transparent 70%);
+}
+
+html[data-skin='gruvbox'][data-theme='light'] .skin-fx-back {
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0 0.1 0 0 0 0.09 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>") 0 0 / 160px 160px,
+    radial-gradient(ellipse at 50% 40%, transparent 55%, rgb(120 80 20 / 0.14)),
+    radial-gradient(ellipse 50% 35% at 100% 0%, rgb(214 93 14 / 0.1), transparent 70%);
+}
+
+html[data-skin='gruvbox'] :is(.terminal, .spot) { border-width: 2px; box-shadow: 4px 4px 0 var(--line); }
+
+/* ---- 3) link hover (.hero-link: "All projects", "More about me"...): tô nền kiểu bút dạ: khối màu cam quét từ trái sang, chữ đổi sang màu tối, có bóng cứng lệch */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-skin='gruvbox'] .hero-link { isolation: isolate; }
+  :root[data-skin='gruvbox'] .hero-link::before { display: none; }
+  :root[data-skin='gruvbox'] .hero-link::after { left: -8px; right: -8px; top: -5px; bottom: -3px; height: auto; background: var(--amber); box-shadow: 3px 3px 0 var(--line); z-index: -1; transform-origin: left; }
+  :root[data-skin='gruvbox'] .hero-link:is(:hover, :focus-visible) { color: var(--on-amber); }
+}
