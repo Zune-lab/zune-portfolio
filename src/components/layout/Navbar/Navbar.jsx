@@ -531,9 +531,9 @@ export default function Navbar({ theme, onToggleTheme, onOpenSkins, view, onNavi
               </div>
             )}
 
-            {/* desktop: nút skin dạng pill (có tên + phím tắt), tách khỏi cây đèn pin bằng một vạch; mobile: nút này nằm đầu menu hamburger */}
+            {/* desktop: nút skin dạng ô vuông nhỏ (tên + phím tắt hiện khi rê chuột), tách khỏi cây đèn pin bằng một vạch; mobile: nút này nằm đầu menu hamburger */}
             <span className="hidden md:inline-flex items-center gap-3">
-              <SkinButton onClick={onOpenSkins} />
+              <SkinButton variant="icon" onClick={onOpenSkins} />
               <span className="h-5 border-l border-line" aria-hidden="true" />
             </span>
             <ThemeToggleTorch theme={theme} onToggle={onToggleTheme} />

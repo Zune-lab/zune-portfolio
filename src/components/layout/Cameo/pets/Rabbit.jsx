@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { pausableInterval } from '../../../../lib/timers.js';
 import { Pixels } from '../shared/Pixels.jsx';
 import useBubble from '../shared/useBubble.js';
+import useScrollFx from '../shared/useScrollFx.js';
 import './Rabbit.css';
 
 // Thỉnh thoảng một chú thỏ trắng chạy ngang qua đáy màn hình (skin matrix). Bấm vào thì nó khựng lại, nói một câu rồi chạy tiếp.
+// Cuộn trang thì nó phấn khích: nhảy cao và nhịp nhảy dồn dập hơn.
+
 const ROWS = [
   '......XX.XX.....',
   '......XX.XX.....',
@@ -27,6 +30,8 @@ export default function Rabbit() {
   const [run, setRun] = useState(0); // 0 = đang nghỉ; số lẻ/chẵn = hướng chạy của lượt này
   const [held, setHeld] = useState(false);
   const n = useRef(0);
+  const [excited, setExcited] = useState(false);
+  useScrollFx(({ scrolling }) => setExcited(scrolling));
   const { text, say } = useBubble(2600);
 
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function Rabbit() {
   return running ? (
     <div
       key={run}
-      className={`rabbit-run rabbit-${dir} ${held ? 'is-held' : ''}`}
+      className={`rabbit-run rabbit-${dir} ${held ? 'is-held' : ''} ${excited ? 'is-excited' : ''}`}
       onAnimationEnd={(e) => e.target === e.currentTarget && setRun((r) => r + 1)}>
       <button type="button" className="rabbit-hit" onClick={pause} aria-label="the white rabbit. Click it">
         <Pixels rows={ROWS} colors={COLORS} px={3} className="rabbit-sprite" />

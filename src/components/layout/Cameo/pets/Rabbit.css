@@ -7,12 +7,13 @@
 .rabbit-run.is-held .rabbit-sprite { animation-play-state: paused; }
 @keyframes rabbit-ltr { from { left: -60px; } to { left: calc(100% + 10px); } }
 @keyframes rabbit-rtl { from { left: calc(100% + 10px); } to { left: -60px; } }
-@keyframes rabbit-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+@keyframes rabbit-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(var(--hop, -16px)); } }
 @keyframes rabbit-still { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .rabbit-ltr { animation: rabbit-ltr 13s linear forwards; }
   .rabbit-rtl { animation: rabbit-rtl 13s linear forwards; }
   .rabbit-sprite { animation: rabbit-hop 0.55s ease-out infinite; }
+  .rabbit-run.is-excited .rabbit-sprite { --hop: -34px; animation-duration: 0.36s; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rabbit-run { animation: rabbit-still 6s both; }

@@ -37,6 +37,30 @@
   .skin-btn:hover .skin-btn-chip i:nth-child(odd) { transform: translateY(-2px); }
   .skin-btn:hover .skin-btn-chip i:nth-child(even) { transform: translateY(2px); }
 }
+.skin-btn--icon { position: relative; justify-content: center; width: 32px; padding: 0; }
+.skin-btn--icon .skin-btn-chip { grid-template: repeat(2, 1fr) / repeat(2, 1fr); width: 16px; height: 16px; border-radius: calc(3px * var(--rk, 1)); }
+.skin-btn-tip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: calc(6px * var(--rk, 1));
+  background: var(--panel);
+  color: var(--text);
+  font: 12px/1 var(--f-mono);
+  white-space: nowrap;
+  opacity: 0;
+  translate: 0 -4px;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease), translate var(--dur-fast) var(--ease);
+}
+.skin-btn--icon:hover .skin-btn-tip,
+.skin-btn--icon:focus-visible .skin-btn-tip { opacity: 1; translate: 0 0; }
 .skin-btn-name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
 .skin-btn-kbd {
   padding: 3px 5px;

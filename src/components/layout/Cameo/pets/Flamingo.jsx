@@ -28,7 +28,7 @@ export default function Flamingo() {
           say(LINES[n % LINES.length]);
           setN((v) => v + 1);
         }}>
-        <svg viewBox="0 0 100 150" width="82" height="123" aria-hidden="true">
+        <svg viewBox="0 0 100 150" width="54" height="81" aria-hidden="true">
           <defs>
             <linearGradient id="fl-pink" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="#ff9ad5" />

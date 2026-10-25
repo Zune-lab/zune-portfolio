@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { hasFinePointer, prefersReducedMotion } from '../../../../lib/env.js';
 import { frameLoop } from '../../../../lib/loop.js';
 import useBubble from '../shared/useBubble.js';
+import useScrollFx from '../shared/useScrollFx.js';
 import './Drone.css';
 
 // Drone neon bay theo con trỏ (skin cyberpunk): lò xo mềm, nghiêng theo hướng bay; khi bạn đứng yên thì thả về góc màn hình.
+// Cuộn trang thì nó bị cuốn theo: trôi lên khi cuộn xuống, chúi xuống khi cuộn lên, rồi từ từ ổn định lại.
 // Bấm vào thì nó giật nhiễu và phán một câu. Máy cảm ứng: đậu yên ở góc, vẫn bấm được.
 const QUOTES = [
   'ICE detected. ignoring it, as is tradition.',
@@ -19,12 +21,16 @@ export default function Drone() {
   const [glitch, setGlitch] = useState(false);
   const [n, setN] = useState(0);
   const { text, say } = useBubble(3200);
+  const wind = useRef(0); // vận tốc cuộn gần nhất (px/s), vòng lặp bay đọc từ đây
+  useScrollFx(({ vel }) => {
+    wind.current = vel;
+  });
 
   useEffect(() => {
     const el = root.current;
     if (!el) return undefined;
     const follow = hasFinePointer() && !prefersReducedMotion();
-    const idle = () => ({ x: window.innerWidth - 150, y: window.innerHeight - 170 });
+    const idle = () => ({ x: window.innerWidth - 200, y: window.innerHeight - 90 });
     const pos = idle();
     let tx = pos.x;
     let ty = pos.y;
@@ -32,10 +38,11 @@ export default function Drone() {
     let vy = 0;
     let lastMove = 0;
     let last = 0;
+    let drift = 0; // độ lệch dọc do gió, làm mượt
     const move = (e) => {
       lastMove = performance.now();
-      tx = e.clientX + 46;
-      ty = e.clientY - 58;
+      tx = e.clientX + 58;
+      ty = e.clientY + 30;
     };
     if (follow) window.addEventListener('pointermove', move, { passive: true });
     const draw = (t) => {
@@ -46,9 +53,10 @@ export default function Drone() {
         tx = home.x + Math.sin(t / 900) * 8;
         ty = home.y + Math.cos(t / 700) * 6;
       }
-      // lò xo giảm chấn
+      drift += (Math.max(-150, Math.min(150, -wind.current * 0.1)) - drift) * Math.min(1, dt * 6);
+      // lò xo giảm chấn (đích dọc cộng thêm độ lệch do gió, không ghi đè ty)
       vx += (tx - pos.x) * 24 * dt;
-      vy += (ty - pos.y) * 24 * dt;
+      vy += (ty + drift - pos.y) * 24 * dt;
       vx *= 0.86;
       vy *= 0.86;
       pos.x += vx * dt * 6;
@@ -75,7 +83,7 @@ export default function Drone() {
           say(QUOTES[n % QUOTES.length]);
           setN((v) => v + 1);
         }}>
-        <svg viewBox="0 0 80 52" width="80" height="52" aria-hidden="true">
+        <svg viewBox="0 0 80 52" width="52" height="34" aria-hidden="true">
           <g className="drone-rotors" stroke="var(--glow)" strokeWidth="2" strokeLinecap="round">
             <path d="M4 10h24M52 10h24" />
           </g>

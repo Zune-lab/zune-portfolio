@@ -1,17 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useBubble from '../shared/useBubble.js';
+import useScrollFx from '../shared/useScrollFx.js';
 import './Compass.css';
 
 // Compa vẽ kỹ thuật biết đi (skin blueprint): hai chân thay nhau bước dưới đáy màn hình. Bấm vào thì nó dừng lại đo và vẽ một vòng tròn.
+// Cuộn trang thì nó cũng dừng lại "đo trang": cắm chân, vẽ vòng và đọc ra bạn đã cuộn được bao nhiêu phần trăm.
 const READINGS = ['Ø 12.0 mm', 'r = 42 ± 0.1', '∠ 37.5°', 'tolerance: vibes', 'scale 1:1 (trust me)'];
 
 export default function Compass() {
   const [measuring, setMeasuring] = useState(false);
   const [n, setN] = useState(0);
   const { text, say } = useBubble(2600);
+  const byScroll = useRef(false);
+  const lastPct = useRef(-1);
+  useScrollFx(({ progress, scrolling }) => {
+    if (scrolling) {
+      byScroll.current = true;
+      setMeasuring(true);
+      const pct = Math.round(progress * 100);
+      if (pct !== lastPct.current) {
+        lastPct.current = pct;
+        say(`page: ${pct}%`, 1100);
+      }
+    } else if (byScroll.current) {
+      byScroll.current = false;
+      lastPct.current = -1;
+      setMeasuring(false);
+    }
+  });
 
   useEffect(() => {
-    if (!measuring) return undefined;
+    if (!measuring || byScroll.current) return undefined; // đo do cuộn thì tự thôi khi dừng cuộn, không hẹn giờ
     const id = setTimeout(() => setMeasuring(false), 2600);
     return () => clearTimeout(id);
   }, [measuring]);

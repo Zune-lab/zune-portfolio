@@ -1,25 +1,39 @@
 /* Clippy.jsx, skin retro-os: retro-os: Clippy */
 .cameo-retro-os { --floor: 44px; }
-.clippy { position: absolute; right: 92px; bottom: var(--floor); width: 62px; }
-.clippy-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.28)); transform-origin: 50% 100%; }
+.clippy {
+  position: absolute;
+  right: 180px;
+  bottom: var(--floor);
+  width: 40px;
+  --s: 1;
+  transform: translateY(calc(var(--ride, 0px) * -1)) rotate(var(--lean, 0deg)) scale(var(--s));
+  transform-origin: 50% 100%;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+.clippy-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(1.5px 2px 0 rgb(0 0 0 / 0.22)); transform-origin: 50% 100%; }
 .clippy-pupil { transform: translate(var(--px, 0), var(--py, 0)); }
 .clippy-bubble {
   position: absolute;
   right: -8px;
-  bottom: calc(100% + 12px);
-  width: 224px;
-  padding: 9px 11px 10px;
+  bottom: calc(100% + 10px);
+  width: 200px;
+  padding: 8px 10px 9px;
   border: 1px solid #000;
+  border-radius: 7px;
   background: #ffffe1;
-  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.35);
+  box-shadow: 2px 2px 0 rgb(0 0 0 / 0.3);
   color: #000;
-  font: 12px/1.4 var(--f-mono);
+  font: 11.5px/1.4 Tahoma, 'MS Sans Serif', Verdana, var(--f-mono);
   pointer-events: auto;
 }
 .clippy-bubble::before,
-.clippy-bubble::after { content: ''; position: absolute; right: 34px; border: solid transparent; }
-.clippy-bubble::before { bottom: -13px; border-width: 12px 7px 0; border-top-color: #000; margin-right: -1px; }
-.clippy-bubble::after { bottom: -11px; border-width: 11px 6px 0; border-top-color: #ffffe1; }
+.clippy-bubble::after { content: ''; position: absolute; right: 28px; border: solid transparent; }
+.clippy-bubble::before { bottom: -12px; border-width: 11px 6px 0; border-top-color: #000; margin-right: -1px; }
+.clippy-bubble::after { bottom: -10px; border-width: 10px 5px 0; border-top-color: #ffffe1; }
+/* ở nửa trên màn hình: bóng thoại mọc xuống dưới đầu Clippy, đuôi chỉ lên */
+.clippy.is-top .clippy-bubble { bottom: auto; top: calc(100% + 12px); }
+.clippy.is-top .clippy-bubble::before { bottom: auto; top: -12px; border-width: 0 6px 11px; border-top-color: transparent; border-bottom-color: #000; }
+.clippy.is-top .clippy-bubble::after { bottom: auto; top: -10px; border-width: 0 5px 10px; border-top-color: transparent; border-bottom-color: #ffffe1; }
 .clippy-bubble p { margin: 0; }
 .clippy-actions { display: flex; flex-direction: column; align-items: stretch; gap: 5px; margin-top: 9px; }
 .clippy-actions button {
@@ -28,11 +42,12 @@
   border-color: #fff #404040 #404040 #fff;
   background: #c0c0c0;
   color: #000;
-  font: 12px/1.2 var(--f-mono);
+  font: 11.5px/1.2 Tahoma, 'MS Sans Serif', Verdana, var(--f-mono);
   text-align: left;
   cursor: pointer;
 }
 .clippy-actions button:active { border-color: #404040 #fff #fff #404040; }
+@media (prefers-reduced-motion: reduce) { .clippy { transition: none; } }
 @media (prefers-reduced-motion: no-preference) {
   .clippy-body { animation: clippy-bob 2.6s ease-in-out infinite; }
   .clippy-body.is-wiggle { animation: clippy-wiggle 0.8s ease-in-out; }
@@ -45,6 +60,6 @@
   75% { transform: rotate(4deg); }
 }
 @media (max-width: 560px) {
-  .clippy { right: 78px; transform: scale(0.82); transform-origin: right bottom; }
-  .clippy-bubble { width: 190px; }
+  .clippy { right: 78px; --s: 0.85; transform-origin: right bottom; }
+  .clippy-bubble { width: 176px; }
 }

@@ -5,6 +5,8 @@ import { storageGet, storageSet } from '../../../../lib/storage.js';
 import { pausableInterval } from '../../../../lib/timers.js';
 import { PixelRects } from '../shared/Pixels.jsx';
 import useBubble from '../shared/useBubble.js';
+import useScrollFx from '../shared/useScrollFx.js';
+import useTimer from '../../../../lib/useTimer.js';
 import './Tamagotchi.css';
 
 // Zunagotchi: thú cưng nuôi trong quả trứng cầm tay (skin gameboy). Cho ăn, chơi, dọn phân; chăm đủ thì lớn lên.
@@ -100,7 +102,7 @@ export default function Tamagotchi() {
   const [st, setSt] = useState(load);
   const [open, setOpen] = useState(() => {
     const saved = storageGet(KEY_OPEN);
-    return saved === null ? window.matchMedia('(min-width: 720px)').matches : saved === '1';
+    return saved === '1'; // lần đầu vào: chỉ hiện quả trứng nhỏ, bấm vào mới mở ra cho đỡ che nội dung
   });
   const [act, setAct] = useState(null); // hành động đang diễn: { kind, n, len, done }
   const [bob, setBob] = useState(0);
@@ -109,6 +111,21 @@ export default function Tamagotchi() {
   const [asleep, setAsleep] = useState(false);
   const touched = useRef(0); // lần cuối có người đụng tới (ms); ghi lúc mount, không gọi Date.now() khi render
   const { text, say } = useBubble();
+  // cuộn trang quá nhanh thì chóng mặt: mặt quả trứng thành @_@, đang mở thì kêu lên (nghỉ 6 giây giữa hai lần)
+  const [dizzy, setDizzy] = useState(false);
+  const dizzyTimer = useTimer();
+  const dizzyCool = useRef(0);
+  const openRef = useRef(open);
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useScrollFx(({ vel }) => {
+    if (Math.abs(vel) < 2400 || performance.now() < dizzyCool.current) return;
+    dizzyCool.current = performance.now() + 6000;
+    setDizzy(true);
+    if (openRef.current) say(['whoa... too fast', 'the room is spinning', 'stop scrolling... @_@'][Math.floor(Math.random() * 3)], 2200);
+    dizzyTimer.set(() => setDizzy(false), 2200);
+  });
   const stRef = useRef(st);
   const stage = stageOf(st.xp);
 
@@ -242,13 +259,13 @@ export default function Tamagotchi() {
     <div className={`tama ${open ? '' : 'tama-shut'}`} data-stage={STAGES[stage].name}>
       {!open && (
         <button type="button" className="tama-egg" onClick={toggleOpen} aria-label="open Zunagotchi, the virtual pet" title="Zunagotchi">
-          <span aria-hidden="true">{sad ? '·︵·' : '·‿·'}</span>
+          <span aria-hidden="true">{dizzy ? '@_@' : sad ? '·︵·' : '·‿·'}</span>
         </button>
       )}
       {open && (
         <div className="tama-shell">
-          <button type="button" className="tama-min" onClick={toggleOpen} aria-label="hide Zunagotchi" title="hide">
-            –
+          <button type="button" className="tama-min" onClick={toggleOpen} aria-label="hide Zunagotchi" title="hide (back to egg)">
+            ×
           </button>
           <div className="tama-brand">zunagotchi</div>
           <button type="button" className="tama-lcd" onClick={pat} aria-label={`pet the ${STAGES[stage].name}`}>

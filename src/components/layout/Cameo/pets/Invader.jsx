@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pixels } from '../shared/Pixels.jsx';
 import useBubble from '../shared/useBubble.js';
+import useScrollFx from '../shared/useScrollFx.js';
 import './Invader.css';
 
 // Quái vật arcade đi tuần dưới đáy màn hình (skin crt). Bấm vào là "bắn": tia laser từ đáy màn, nổ thành điểm ảnh, lát sau nó hồi sinh.
@@ -9,10 +10,19 @@ const B = ['..X.....X..', 'X..X...X..X', 'X.XXXXXXX.X', 'XXX.XXX.XXX', 'XXXXXXXX
 const COLORS = { X: 'currentColor' };
 const QUIPS = ['ouch', 'direct hit', 'insert coin', 'GAME OVER?', 'i will be back'];
 
+// Cuộn trang thì nó hành quân nhanh theo tốc độ cuộn (tối đa x5), dừng cuộn thì về nhịp cũ.
 export default function Invader() {
+  const patrol = useRef(null);
   const [dead, setDead] = useState(false);
   const [kills, setKills] = useState(0);
   const { text, say } = useBubble(1600);
+
+  useScrollFx(({ vel, scrolling }) => {
+    const rate = scrolling ? Math.min(5, 1 + Math.abs(vel) / 450) : 1;
+    patrol.current?.getAnimations({ subtree: true }).forEach((a) => {
+      a.playbackRate = rate;
+    });
+  });
 
   useEffect(() => {
     if (!dead) return undefined;
@@ -29,7 +39,7 @@ export default function Invader() {
 
   return (
     <>
-      <div className="invader-patrol">
+      <div className="invader-patrol" ref={patrol}>
         {!dead && (
           <button type="button" className="invader-hit" onClick={shoot} aria-label="shoot the space invader" title="shoot!">
             <span className="invader-f invader-f1"><Pixels rows={A} colors={COLORS} px={3} /></span>

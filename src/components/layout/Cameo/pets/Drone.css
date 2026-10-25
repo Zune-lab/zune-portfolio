@@ -1,5 +1,6 @@
 /* Drone.jsx, skin cyberpunk: cyberpunk: drone */
-.drone { position: absolute; left: 0; top: 0; will-change: transform; }
+.drone { position: absolute; left: 0; top: 0; will-change: transform; opacity: 0.85; }
+.drone:hover { opacity: 1; }
 .drone-body { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 7px var(--glow)); }
 .drone-bubble { bottom: calc(100% + 4px); right: 0; width: max-content; max-width: 230px; border-color: var(--glow); background: rgb(16 8 31 / 0.94); color: var(--text); white-space: normal; text-align: center; }
 @keyframes drone-eye { 50% { opacity: 0.35; } }
