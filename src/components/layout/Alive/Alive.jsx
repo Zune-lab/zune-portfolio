@@ -5,6 +5,7 @@ import { prefersReducedMotion } from '../../../lib/env.js';
 import { site } from '../../../config/site.js';
 import { viewFromLocation } from '../../../config/pages.js';
 import { pick, randInt, TAU } from '../../../lib/math.js';
+import { emitReaction } from '../../../lib/reactions.js';
 import './Alive.css';
 
 // "Làm cả trang sống động": những chi tiết nhỏ nằm ngoài hero, gom về một chỗ, mỗi cái là một useEffect độc lập.
@@ -224,6 +225,7 @@ export default function Alive() {
           cool = now + 12000;
           times.length = 0;
           setMeeting(true);
+          emitReaction('meeting');
           clearTimeout(hide);
           hide = window.setTimeout(() => setMeeting(false), 3000);
         }

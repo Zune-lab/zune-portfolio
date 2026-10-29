@@ -5,12 +5,15 @@ import { storageGet, storageSet } from '../../../../lib/storage.js';
 import { pausableInterval } from '../../../../lib/timers.js';
 import { PixelRects } from '../shared/Pixels.jsx';
 import useBubble from '../shared/useBubble.js';
+import usePetLife from '../shared/usePetLife.js';
 import useScrollFx from '../shared/useScrollFx.js';
 import useTimer from '../../../../lib/useTimer.js';
 import './Tamagotchi.css';
 
 // Zunagotchi: thú cưng nuôi trong quả trứng cầm tay (skin gameboy). Cho ăn, chơi, dọn phân; chăm đủ thì lớn lên.
 // Trạng thái lưu ở localStorage; lúc bạn vắng mặt nó vẫn đói dần, nhưng không bao giờ chết.
+// Phản ứng với trang: lắc chuột thì chóng mặt @_@; copy xong thì được vuốt ve; nhập Konami thì được no nê vui vẻ (thưởng thêm điểm lớn lên);
+// lâu không ai đụng tới thì ngủ (cùng nhịp với các nhân vật khác), có động tĩnh là dậy.
 const KEY = storageKey('pet');
 const KEY_OPEN = storageKey('pet-open');
 const LCD = { bg: '#9bbc0f', light: '#8bac0f', mid: '#306230', dark: '#0f380f' };
@@ -176,7 +179,13 @@ export default function Tamagotchi() {
         { onResume: () => {} }
       ),
       // không ai đụng tới một lúc thì ngủ gật
-      pausableInterval(() => setAsleep(Date.now() - touched.current > 90000), 5000, { onResume: () => {} }),
+      pausableInterval(
+        () => {
+          if (Date.now() - touched.current > 90000) setAsleep(true);
+        },
+        5000,
+        { onResume: () => {} }
+      ),
     ];
     return () => stops.forEach((stop) => stop());
   }, [open]);
@@ -204,8 +213,30 @@ export default function Tamagotchi() {
     const next = { ...s, ...fn(s), xp: s.xp + xp };
     stRef.current = next;
     setSt(next);
-    if (stageOf(next.xp) > stageOf(s.xp)) setTimeout(() => start('evolve', 10, () => say('i grew up!', 3200)), 500);
+    if (stageOf(next.xp) > stageOf(s.xp)) {
+      setTimeout(() => start('evolve', 10, () => say('i grew up!', 3200)), 500);
+    }
   };
+
+  usePetLife((name) => {
+    if (!openRef.current) return; // quả trứng đang đóng: không phản ứng
+    if (name === 'sleep') setAsleep(true);
+    else if (name === 'wake') wake();
+    else if (name === 'shake') {
+      setDizzy(true);
+      say('whoa... @_@', 2000);
+      dizzyTimer.set(() => setDizzy(false), 2200);
+    } else if (name === 'copy') {
+      wake();
+      start('pat', 7);
+      say('<3', 1800);
+    } else if (name === 'konami') {
+      wake();
+      update(() => ({ food: 3, joy: 3, mess: 0 }), 4);
+      start('play', 12);
+      say('KONAMI BONUS!', 2600);
+    }
+  });
 
   const feed = () => {
     wake();

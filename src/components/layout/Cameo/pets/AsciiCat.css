@@ -1,18 +1,17 @@
-/* AsciiCat.jsx, skin crt-amber: crt-amber: mèo ASCII */
-.acat { position: absolute; bottom: 8px; left: 8%; color: var(--amber); }
+/* AsciiCat.jsx, skin crt-amber: crt-amber: mèo ASCII (vị trí ngang do JS ghi vào transform) */
+.acat { position: absolute; bottom: 8px; left: 0; color: var(--amber); will-change: transform; --step: 0.7s; }
+.acat.is-groom { --step: 0.45s; }
+.acat.is-fast { --step: 0.24s; }
 .acat-hit { position: relative; display: block; padding: 4px; border: 0; background: none; color: inherit; cursor: pointer; }
 .acat pre { margin: 0; color: inherit; font: 14px/1.05 var(--f-mono); text-shadow: 0 0 6px currentColor; white-space: pre; }
 .acat-f2 { position: absolute; left: 4px; top: 4px; opacity: 0; }
 .acat-bubble { bottom: calc(100% + 2px); left: 50%; translate: -50% 0; border-color: currentColor; background: var(--bg); color: currentColor; }
-@keyframes acat-walk { from { left: 2%; } to { left: calc(98% - 100px); } }
-@keyframes acat-turn { 0%, 49.999% { transform: none; } 50%, 100% { transform: scaleX(-1); } }
 @keyframes acat-a { 50% { opacity: 0; } }
 @keyframes acat-b { 50% { opacity: 1; } }
+@keyframes acat-breathe { 50% { transform: scaleY(0.96); } }
 @media (prefers-reduced-motion: no-preference) {
-  .acat { animation: acat-walk 80s linear infinite alternate; }
-  .acat-flip { animation: acat-turn 160s steps(1) infinite; }
-  .acat-f1 { animation: acat-a 0.7s steps(1) infinite; }
-  .acat-f2 { animation: acat-b 0.7s steps(1) infinite; }
-  .acat.is-sit,
-  .acat.is-sit .acat-flip { animation-play-state: paused; }
+  .acat-f1 { animation: acat-a var(--step) steps(1) infinite; }
+  .acat-f2 { animation: acat-b var(--step) steps(1) infinite; }
+  .acat.is-sit .acat-f1, .acat.is-sleep .acat-f1, .acat.is-swat .acat-f1, .acat.is-purr .acat-f1, .acat.is-startle .acat-f1 { animation: none; }
+  .acat.is-sleep pre { transform-origin: 50% 100%; animation: acat-breathe 2.6s ease-in-out infinite; }
 }

@@ -3,6 +3,7 @@ import Btn31 from '../ui/Btn31/Btn31.jsx';
 import ContactButton from './ContactButton/ContactButton.jsx';
 import SheetCard from './SheetCard.jsx';
 import { scrollToAnchor } from '../../lib/dom.js';
+import useSkin from '../../lib/useSkin.js';
 import HeroLetters from './HeroLetters.jsx';
 import { isPaused, onPauseChange } from '../../lib/nap.js';
 import { prefersReducedMotion, sleep } from '../../lib/env.js';
@@ -72,6 +73,8 @@ function Typewriter() {
 }
 
 export default function Hero({ onNavigate }) {
+  const { skin } = useSkin();
+  const next = skin === 'retro-os' ? '#featured' : '#terminal'; // retro-os không có khung terminal (Clippy thay), nên cuộn thẳng tới mục kế tiếp
   const [toys, setToys] = useState(null); // chỗ đặt gợi ý + nút của sân chữ (HeroLetters), ở khoảng trống bên trái
   return (
     <header className="hero-full">
@@ -111,8 +114,8 @@ export default function Hero({ onNavigate }) {
       </div>
 
       <div className={`absolute z-[1] inset-x-0 bottom-0 ${WRAP} w-full pb-8 flex items-end justify-between`}>
-        <a href="#terminal" data-solid className="hero-link"
-          onClick={(e) => { e.preventDefault(); scrollToAnchor('#terminal'); }}>
+        <a href={next} data-solid className="hero-link"
+          onClick={(e) => { e.preventDefault(); scrollToAnchor(next); }}>
           <Scramble>Scroll to continue</Scramble> <HlArrow dir="down" />
         </a>
         <a href="#projects" data-solid className="hero-link"

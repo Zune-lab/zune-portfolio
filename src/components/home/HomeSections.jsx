@@ -14,6 +14,7 @@ import { gitLog, stack, aboutBlurb } from '../../data/profile.js';
 import { site } from '../../config/site.js';
 import PageLink from '../ui/PageLink.jsx';
 import { spotMove } from '../../lib/dom.js';
+import useSkin from '../../lib/useSkin.js';
 import { canHover, prefersReducedMotion } from '../../lib/env.js';
 import useTimer from '../../lib/useTimer.js';
 import { SECTION_ANCHOR, WRAP } from '../../config/ui.js';
@@ -206,7 +207,10 @@ export function LabTeaser({ onNavigate }) {
   );
 }
 
+// Skin retro-os không có khung terminal này: Clippy (xem Assistant) thay vai trò đó.
 export function TerminalSection({ onNavigate }) {
+  const { skin } = useSkin();
+  if (skin === 'retro-os') return null;
   return (
     <section id="terminal" className={SECTION_ANCHOR}>
       <div className={WRAP}>

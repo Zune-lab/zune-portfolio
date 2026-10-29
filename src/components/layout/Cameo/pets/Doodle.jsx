@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { pausableInterval } from '../../../../lib/timers.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import usePetLife from '../shared/usePetLife.js';
 import './Doodle.css';
 
 // Tờ giấy nhớ có cây bút tự vẽ nguệch ngoạc (skin paper): mèo, tên lửa, bông hoa, nét bút hiện dần như đang vẽ thật.
-// Bấm vào tờ giấy để vẽ hình tiếp theo; tự đổi hình sau mỗi ~30 giây.
+// Tờ giấy dán yên ở khoảng trống đầu trang (cuộn theo trang, không trôi trên màn hình, không nhúc nhích khi rê chuột).
+// Bấm vào thì vẽ hình tiếp theo. Nó cũng "nghe" trang và vẽ lại hình hợp cảnh (tờ giấy vẫn đứng yên, chỉ có nét bút đổi): ngủ thì vẽ trăng,
+// dậy vẽ mặt trời, chuyển trang vẽ mũi tên, copy xong vẽ trái tim, Konami vẽ ngôi sao, lắc chuột vẽ mặt giật mình.
 // Mỗi phần tử: [kiểu, thuộc tính..., nét nhấn?]. accent = nét màu đỏ của skin.
 const P = (d, accent) => ({ t: 'path', d, accent });
 const C = (cx, cy, r, accent) => ({ t: 'circle', cx, cy, r, accent });
@@ -42,12 +44,49 @@ const DOODLES = [
       C(60, 34, 6, true),
     ],
   },
+  // ---- hình theo sự kiện (không nằm trong vòng xoay khi bấm): từ vị trí BASE trở đi
+  { key: 'moon', cap: 'zzz...', parts: [P('M70 18C48 20 38 40 44 58 51 78 76 84 92 72 70 70 62 50 70 18Z'), P('M24 28h6M27 25v6M98 32h5M100.5 29.5v5'), P('M86 20h9l-9 9h9M100 8h7l-7 7h7', true)] },
+  { key: 'sun', cap: 'morning!', parts: [C(60, 50, 14), P('M60 22v8M60 70v8M32 50h8M80 50h8M40 30l6 6M74 64l6 6M40 70l6-6M74 36l6-6', true)] },
+  { key: 'arrow', cap: 'this way', parts: [P('M18 74C32 30 66 24 98 44'), P('M98 44L84 38M98 44L90 58', true), C(18, 74, 3)] },
+  { key: 'star', cap: 'konami!', parts: [P('M60 14L81.2 81 25.8 40 94.2 40 38.8 81Z'), P('M14 22h6M17 19v6M100 16h5M102.5 13.5v5', true)] },
+  { key: 'surprise', cap: '!?', parts: [C(60, 54, 32), C(48, 46, 3), C(72, 46, 3), C(60, 70, 7), P('M42 34L54 38M78 34L66 38'), P('M100 14v16M100 36v3', true)] },
+  { key: 'heart', cap: 'copied', parts: [P('M60 88C18 58 26 22 48 28 58 31 60 40 60 40 60 40 62 31 72 28 94 22 102 58 60 88Z', true), P('M30 22h5M32.5 19.5v5M92 74h5M94.5 71.5v5')] },
 ];
+const BASE = 3; // 3 hình đầu là bộ vòng xoay khi bấm
+const AT = Object.fromEntries(DOODLES.map((d, i) => [d.key, i]));
 
 export default function Doodle() {
   const [idx, setIdx] = useState(0);
-  const next = useCallback(() => setIdx((i) => (i + 1) % DOODLES.length), []);
-  useEffect(() => pausableInterval(next, 30000, { onResume: () => {} }), [next]);
+  const base = useRef(0); // hình vòng xoay đang là hình "nền"
+  const back = useRef(0);
+  const sleeping = useRef(false);
+  const next = useCallback(() => {
+    clearTimeout(back.current);
+    base.current = (base.current + 1) % BASE;
+    setIdx(base.current);
+  }, []);
+  // vẽ một hình theo sự kiện, vài giây sau về hình nền (trừ lúc ngủ: giữ trăng tới khi dậy)
+  const show = useCallback((key, ms = 7000) => {
+    clearTimeout(back.current);
+    setIdx(AT[key]);
+    if (ms) back.current = window.setTimeout(() => setIdx(base.current), ms);
+  }, []);
+  usePetLife((name, detail) => {
+    if (name === 'sleep') {
+      sleeping.current = true;
+      show('moon', 0);
+    } else if (name === 'wake') {
+      sleeping.current = false;
+      show('sun', 5000);
+    } else if (sleeping.current) {
+      // đang ngủ: kệ
+    } else if (name === 'theme') show(detail === 'dark' ? 'moon' : 'sun', 5000);
+    else if (name === 'navigate') show('arrow');
+    else if (name === 'konami') show('star', 9000);
+    else if (name === 'shake') show('surprise', 3500);
+    else if (name === 'copy') show('heart', 5000);
+  });
+  useEffect(() => () => clearTimeout(back.current), []);
   const d = DOODLES[idx];
 
   return (

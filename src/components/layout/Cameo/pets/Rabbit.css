@@ -1,20 +1,67 @@
-/* Rabbit.jsx, skin matrix: matrix: thỏ trắng */
+/* Rabbit.jsx, skin matrix: matrix: thỏ trắng, thuốc đỏ / xanh, glitch déjà vu */
 .rabbit-run { position: absolute; bottom: 14px; left: 12%; }
 .rabbit-hit { display: block; padding: 4px; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 7px #00ff41); }
 .rabbit-rtl .rabbit-hit { transform: scaleX(-1); }
 .rabbit-bubble { bottom: calc(100% + 2px); left: 0; border-color: #00ff41; background: #000; color: #00ff41; }
 .rabbit-run.is-held { animation-play-state: paused; }
 .rabbit-run.is-held .rabbit-sprite { animation-play-state: paused; }
+
+/* vệt mã katakana kéo theo sau (bên trái khi chạy sang phải, bên phải khi chạy sang trái) */
+.rabbit-trail { position: absolute; bottom: 2px; right: 100%; display: flex; flex-direction: row-reverse; gap: 5px; margin-right: -6px; color: #00ff41; font: 700 13px/1 var(--f-mono); text-shadow: 0 0 6px #00ff41; pointer-events: none; }
+.rabbit-rtl .rabbit-trail { right: auto; left: 100%; margin: 0 0 0 -6px; flex-direction: row; }
+.rabbit-trail span { opacity: calc(1 - var(--i) * 0.13); transform: translateY(calc(var(--i) * -3px)); }
+
+/* chọn thuốc */
+.rabbit-choice { bottom: calc(100% + 4px); left: 0; display: flex; align-items: center; gap: 8px; border-color: #00ff41; background: #000; color: #00ff41; }
+.rabbit-pill { padding: 3px 9px; border: 1px solid; border-radius: 999px; background: #000; font: 700 11px/1.2 var(--f-mono); cursor: pointer; }
+.rabbit-pill.is-red { border-color: #ff3b57; color: #ff3b57; }
+.rabbit-pill.is-blue { border-color: #3b9bff; color: #3b9bff; }
+.rabbit-pill:hover { background: currentColor; }
+.rabbit-pill:hover { color: #000; }
+.rabbit-pill.is-red:hover { background: #ff3b57; }
+.rabbit-pill.is-blue:hover { background: #3b9bff; }
+
+/* hang thỏ: một vòng đen dưới chân, thỏ thu nhỏ rồi rơi vào */
+.rabbit-hole { position: absolute; left: 50%; bottom: -6px; width: 56px; height: 14px; margin-left: -28px; border-radius: 50%; background: #000; box-shadow: 0 0 0 2px #00ff41, 0 0 14px #00ff41; opacity: 0; animation: rabbit-hole 0.5s ease-out forwards; }
+
+/* màn thức tỉnh: tối dần, chữ gõ từng dòng; xuyên chuột nên trang bên dưới vẫn dùng được */
+.rabbit-wake { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px; background: rgb(0 8 2 / 0.88); color: #00ff41; text-align: center; text-shadow: 0 0 10px #00ff41; pointer-events: none; font-family: var(--f-mono); }
+.rabbit-wake p { margin: 0; overflow: hidden; white-space: nowrap; width: calc(var(--len) * 1ch); max-width: 92vw; border-right: 0.6ch solid #00ff41; font-size: clamp(18px, 3.2vw, 32px); font-weight: 700; }
+.rabbit-wake small { color: #8dffb0; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; }
+
 @keyframes rabbit-ltr { from { left: -60px; } to { left: calc(100% + 10px); } }
 @keyframes rabbit-rtl { from { left: calc(100% + 10px); } to { left: -60px; } }
-@keyframes rabbit-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(var(--hop, -16px)); } }
+/* glitch: nửa đường thỏ bị "dịch chuyển ngược" một đoạn rồi chạy lại đoạn vừa qua */
+@keyframes rabbit-ltr-deja { 0% { left: -60px; } 40% { left: 42%; } 40.01% { left: 27%; } 100% { left: calc(100% + 10px); } }
+@keyframes rabbit-rtl-deja { 0% { left: calc(100% + 10px); } 40% { left: 58%; } 40.01% { left: 73%; } 100% { left: -60px; } }
+@keyframes rabbit-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+@keyframes rabbit-flash { 0%, 100% { filter: drop-shadow(0 0 7px #00ff41); } 50% { filter: invert(1) hue-rotate(120deg) drop-shadow(4px 0 0 #ff3b57) drop-shadow(-4px 0 0 #3b9bff); } }
+@keyframes rabbit-flicker { 50% { opacity: 0.25; } }
+@keyframes rabbit-dive { to { transform: translateY(26px) scale(0.1); opacity: 0; } }
+@keyframes rabbit-hole { from { opacity: 0; transform: scaleX(0.2); } to { opacity: 1; } }
+@keyframes rabbit-wake { 0% { opacity: 0; } 9% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes rabbit-type { from { width: 0; } }
 @keyframes rabbit-still { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   .rabbit-ltr { animation: rabbit-ltr 13s linear forwards; }
   .rabbit-rtl { animation: rabbit-rtl 13s linear forwards; }
+  .rabbit-ltr.is-deja { animation-name: rabbit-ltr-deja; }
+  .rabbit-rtl.is-deja { animation-name: rabbit-rtl-deja; }
   .rabbit-sprite { animation: rabbit-hop 0.55s ease-out infinite; }
-  .rabbit-run.is-excited .rabbit-sprite { --hop: -34px; animation-duration: 0.36s; }
+  .rabbit-run.is-deja .rabbit-hit { animation: rabbit-flash 0.4s steps(2) 5.1s 1; }
+  .rabbit-run.is-diving .rabbit-hit { animation: rabbit-dive 0.75s ease-in 0.2s forwards; } /* sau luật deja để thắng khi cùng lúc */
+  .rabbit-trail span { animation: rabbit-flicker 0.45s steps(2) infinite; animation-delay: calc(var(--i) * -0.09s); }
+  .rabbit-wake { animation: rabbit-wake 4.5s ease-in-out forwards; }
+  .rabbit-wake p { animation: rabbit-type 1.1s steps(var(--len)) backwards; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rabbit-run { animation: rabbit-still 6s both; }
+}
+
+/* ngủ: thỏ cuộn tròn (dẹt xuống), mắt nhắm, thở chậm */
+.rabbit-nap { position: absolute; bottom: 14px; left: 12%; color: #00ff41; filter: drop-shadow(0 0 7px #00ff41); transform: scale(1, 0.74); transform-origin: 50% 100%; opacity: 0.85; }
+.rabbit-nap .cameo-bubble { transform: scale(1, 1.35); transform-origin: 0 100%; }
+@keyframes rabbit-breathe { 50% { transform: scale(1, 0.78); } }
+@media (prefers-reduced-motion: no-preference) {
+  .rabbit-nap { animation: rabbit-breathe 3.2s ease-in-out infinite; }
 }

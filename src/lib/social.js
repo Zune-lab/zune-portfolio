@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { getStatusKey } from './status.js';
+import { emitReaction } from './reactions.js';
 import { createEmitter } from './store.js';
 import { site } from '../config/site.js';
 import { pausableInterval } from './timers.js';
@@ -77,6 +78,7 @@ function unlock(msg) {
 
 // Konami (gõ phím hoặc lệnh `konami` trong terminal): cùng một câu cho mọi nơi gọi
 export const unlockKonami = () => {
+  emitReaction('konami');
   unlock('konami accepted. personality 100%. who let this happen?');
   unlockAllSkins(); // phần thưởng thêm: mở hết skin ẩn (xem src/config/skins.js)
 };

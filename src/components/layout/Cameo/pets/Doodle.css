@@ -1,8 +1,16 @@
-/* Doodle.jsx, skin paper: paper: bút vẽ nguệch ngoạc */
+/* Doodle.jsx, skin paper: paper: bút vẽ nguệch ngoạc.
+   Tờ giấy dán ở khoảng trống góc phải đầu trang và đứng yên: lớp nhân vật của skin này không cố định theo màn hình mà nằm trong
+   tài liệu (xem .cameo-paper bên dưới), nên cuộn xuống là tờ giấy trôi lên theo trang như được dán thật. Không hover, không lắc. */
+.cameo-paper {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 0;
+  z-index: 40; /* thấp hơn navbar (60): cuộn lên thì chui xuống dưới thanh nav */
+}
 .doodle {
   position: absolute;
-  right: 184px;
-  bottom: 22px;
+  top: 78px;
+  right: max(12px, calc((100% - 976px) / 2)); /* thẳng mép phải cột nội dung (max-w 1040 - padding 2x32) */
   display: block;
   padding: 12px 12px 8px;
   border: 1px solid rgb(0 0 0 / 0.16);
@@ -10,22 +18,20 @@
   box-shadow: 2px 3px 0 rgb(0 0 0 / 0.1), 0 12px 20px -10px rgb(0 0 0 / 0.3);
   color: #2b2b2b;
   cursor: pointer;
-  transform: rotate(-3deg) scale(0.7);
-  transform-origin: right bottom;
-  transition: transform 0.2s;
+  transform: rotate(2.5deg) scale(0.86);
+  transform-origin: right top;
 }
-.doodle:hover { transform: rotate(-1deg) scale(0.7) translateY(-2px); }
-.doodle-tape { position: absolute; top: -9px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgb(236 208 110 / 0.72); box-shadow: 0 1px 0 rgb(0 0 0 / 0.1); transform: rotate(2deg); }
+.doodle-tape { position: absolute; top: -9px; left: 50%; width: 54px; height: 16px; margin-left: -27px; background: rgb(236 208 110 / 0.72); box-shadow: 0 1px 0 rgb(0 0 0 / 0.1); transform: rotate(-2deg); }
 .doodle-stroke { fill: none; stroke: #2b2b2b; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .doodle-stroke.is-accent { stroke: var(--amber); }
 .doodle-cap { display: block; margin-top: 2px; color: #666; font: 12px/1 'Special Elite', var(--f-mono); text-align: center; }
 .doodle-pencil { position: absolute; right: -10px; top: -4px; transform: rotate(32deg); transform-origin: 50% 100%; }
 @keyframes doodle-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes doodle-pencil { 0%, 100% { transform: rotate(32deg); } 25% { transform: rotate(18deg) translateY(4px); } 50% { transform: rotate(40deg); } 75% { transform: rotate(24deg) translateY(3px); } }
 @media (prefers-reduced-motion: no-preference) {
+  /* chỉ có nét bút hiện dần khi vẽ hình (lúc tải trang và mỗi lần bấm); bản thân tờ giấy và cây bút không chuyển động */
   .doodle-stroke { stroke-dashoffset: 1; animation: doodle-draw 0.55s ease-out forwards; animation-delay: calc(var(--i) * 0.4s + 0.15s); }
-  .doodle-pencil { animation: doodle-pencil 2.4s ease-in-out 1; }
 }
-@media (max-width: 560px) {
-  .doodle { right: 78px; transform: rotate(-3deg) scale(0.58); transform-origin: right bottom; }
+/* màn hình hẹp: tiêu đề chiếm gần hết bề ngang, thu nhỏ tờ giấy vào góc trên phải (dòng "Hi, I'm Zune." ngắn nên không đè) */
+@media (max-width: 640px) {
+  .doodle { top: 64px; right: 22px; transform: rotate(2.5deg) scale(0.4); }
 }

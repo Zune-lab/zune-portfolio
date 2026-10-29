@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { createEmitter } from './store.js';
+import { emitReaction } from './reactions.js';
 
 // Trạng thái screensaver ('awake' | 'nap' | 'wake'): Alive.jsx ghi vào, mọi nơi khác chỉ đọc.
 // Đây là NGUỒN DUY NHẤT cho câu hỏi "có nên dừng animation / timer không?":
@@ -24,7 +25,10 @@ export const setNapState = (s) => {
   state = s;
   // CSS đọc cờ này để tạm dừng MỌI animation vô hạn (xem index.css, khối `data-nap`) mà không phải sửa từng component
   document.documentElement.toggleAttribute('data-nap', s === 'nap');
-  if ((s === 'nap') !== wasNap) setSvgPaused(s === 'nap');
+  if ((s === 'nap') !== wasNap) {
+    setSvgPaused(s === 'nap');
+    emitReaction(s === 'nap' ? 'nap' : 'wake'); // nhân vật biết screensaver vừa bật / tắt
+  }
   emit();
 };
 

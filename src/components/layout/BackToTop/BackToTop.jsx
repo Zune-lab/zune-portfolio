@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { prefersReducedMotion } from '../../../lib/env.js';
+import useSkin from '../../../lib/useSkin.js';
 import './BackToTop.css';
 
+// Skin retro-os không dùng nút này: Clippy (pet của skin đó) đã có nút lên đầu trang riêng, xem Assistant.
 export default function BackToTop() {
+  const { skin } = useSkin();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -16,6 +19,7 @@ export default function BackToTop() {
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   };
 
+  if (skin === 'retro-os') return null;
   return (
     <button
       type="button"

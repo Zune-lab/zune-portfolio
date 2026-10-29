@@ -5,8 +5,8 @@ import './Cameo.css';
 // Mỗi skin "đặc biệt" (nhóm special + secret) có một nhân vật khách mời riêng, ở lớp cố định phía trên nội dung.
 // Mỗi nhân vật là một chunk riêng, chỉ tải khi đúng skin đó được bật. Skin không có trong bảng này thì không có nhân vật.
 const CAMEOS = {
+  'retro-os': lazy(() => import('../Assistant/Assistant.jsx')), // Clippy, trợ lý thật của trang (chỉ skin này có; thay nút lên đầu trang và khung terminal)
   gameboy: lazy(() => import('./pets/Tamagotchi.jsx')), // thú cưng nuôi kiểu Tamagotchi
-  'retro-os': lazy(() => import('./pets/Clippy.jsx')), // trợ lý kẹp giấy
   crt: lazy(() => import('./pets/Invader.jsx')), // quái vật arcade đi tuần dưới đáy màn
   'crt-amber': lazy(() => import('./pets/AsciiCat.jsx')), // mèo vẽ bằng chữ đi dạo
   cyberpunk: lazy(() => import('./pets/Drone.jsx')), // drone bay theo con trỏ
@@ -27,7 +27,7 @@ class Safe extends Component {
   }
 }
 
-export default function Cameo({ view, onNavigate }) {
+export default function Cameo({ view, onNavigate, onToggleTheme, onOpenSkins }) {
   const { skin } = useSkin();
   const Pet = CAMEOS[skin];
   if (!Pet) return null;
@@ -35,7 +35,7 @@ export default function Cameo({ view, onNavigate }) {
     <Safe key={skin}>
       <Suspense fallback={null}>
         <div className={`cameo-layer cameo-${skin}`}>
-          <Pet view={view} onNavigate={onNavigate} />
+          <Pet view={view} onNavigate={onNavigate} onToggleTheme={onToggleTheme} onOpenSkins={onOpenSkins} />
         </div>
       </Suspense>
     </Safe>

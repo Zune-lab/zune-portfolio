@@ -1,4 +1,4 @@
-/* Invader.jsx, skin crt: crt: quái vật arcade */
+/* Invader.jsx, skin crt: crt: quái vật arcade + bom + UFO */
 .invader-patrol { position: absolute; bottom: 60px; left: 70%; color: var(--amber); }
 .invader-hit { position: relative; display: block; margin: -6px; padding: 6px; border: 0; background: none; color: inherit; cursor: crosshair; filter: drop-shadow(0 0 5px currentColor); }
 .invader-f { display: block; }
@@ -8,6 +8,11 @@
 .invader-beam { position: absolute; left: 15px; top: 24px; width: 3px; height: 60px; background: currentColor; box-shadow: 0 0 10px currentColor; animation: invader-zap 0.35s ease-out forwards; }
 .invader-bubble { bottom: calc(100% + 10px); left: 50%; translate: -50% 0; border-color: currentColor; background: #000; color: currentColor; font-family: var(--font-pixel); font-size: 10px; }
 .invader-score { position: absolute; left: 18px; bottom: 14px; color: var(--amber); font: 700 9px/1 var(--font-pixel); letter-spacing: 0.18em; text-shadow: 0 0 8px currentColor; }
+/* bom: thanh dọc nhỏ rơi từ chỗ quái đứng xuống sàn, chạm sàn thì nở thành vệt */
+.invader-bomb { position: absolute; bottom: 26px; width: 4px; height: 12px; margin-left: -2px; background: var(--amber); box-shadow: 0 0 6px var(--amber); opacity: 0; animation: invader-bomb 0.95s cubic-bezier(0.5, 0, 1, 0.6) forwards; pointer-events: none; }
+.invader-ufo { position: absolute; top: 92px; left: 0; color: var(--amber); }
+.invader-ufo-hit { display: block; padding: 4px; border: 0; background: none; color: inherit; cursor: crosshair; filter: drop-shadow(0 0 6px currentColor); }
+.invader-ufo.is-hit .invader-ufo-hit { animation: invader-ufo-pop 0.5s ease-out forwards; pointer-events: none; }
 @keyframes invader-a { 50% { opacity: 0; } }
 @keyframes invader-b { 50% { opacity: 1; } }
 @keyframes invader-march { from { left: 3%; } to { left: calc(97% - 40px); } }
@@ -16,8 +21,31 @@
   100% { opacity: 0; transform: rotate(var(--a)) translateX(34px); }
 }
 @keyframes invader-zap { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes invader-bomb {
+  0% { opacity: 1; transform: translateY(-34px) scaleY(1); }
+  85% { opacity: 1; transform: translateY(0) scaleY(1); }
+  100% { opacity: 0; transform: translateY(2px) scale(5, 0.2); }
+}
+@keyframes invader-ufo-ltr { from { transform: translateX(-60px); } to { transform: translateX(calc(100vw + 20px)); } }
+@keyframes invader-ufo-rtl { from { transform: translateX(calc(100vw + 20px)); } to { transform: translateX(-60px); } }
+@keyframes invader-ufo-pop { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; filter: blur(2px); } }
 @media (prefers-reduced-motion: no-preference) {
   .invader-patrol { animation: invader-march 48s steps(72) infinite alternate; }
   .invader-f1 { animation: invader-a 1s steps(1) infinite; }
   .invader-f2 { animation: invader-b 1s steps(1) infinite; }
+  .invader-ufo.is-ltr { animation: invader-ufo-ltr 9s linear forwards; }
+  .invader-ufo.is-rtl { animation: invader-ufo-rtl 9s linear forwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invader-ufo { display: none; }
+}
+
+/* chế độ chờ (ngủ): quái đứng im, nhấp nháy INSERT COIN; né: nhảy lên rồi rơi xuống */
+.invader-coin { position: absolute; left: 50%; top: calc(100% + 6px); translate: -50% 0; color: var(--amber); font: 700 8px/1 var(--font-pixel); letter-spacing: 0.14em; white-space: nowrap; text-shadow: 0 0 6px currentColor; }
+.invader-patrol.is-snooze { animation-play-state: paused; }
+@keyframes invader-dodge { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-34px) rotate(-8deg); } 70% { transform: translateY(-8px) rotate(6deg); } }
+@keyframes invader-coin { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .invader-patrol.is-dodge .invader-hit { animation: invader-dodge 0.7s ease-out; }
+  .invader-coin { animation: invader-coin 1s steps(1) infinite; }
 }

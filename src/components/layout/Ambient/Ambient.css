@@ -1,0 +1,16 @@
+/* Ambient.jsx: đom đóm / hạt bụi trôi chậm phía sau nội dung */
+.ambient { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
+.ambient i { position: absolute; left: var(--x); top: var(--y); width: var(--s); height: var(--s); border-radius: 50%; background: var(--amber); box-shadow: 0 0 calc(var(--s) * 4) var(--amber); opacity: 0; }
+:root[data-theme='light'] .ambient i { background: var(--text-dim); box-shadow: none; }
+@keyframes ambient-drift {
+  0% { opacity: 0; transform: translate(0, 0); }
+  18%, 78% { opacity: 0.55; }
+  50% { transform: translate(var(--dx), var(--dy)); }
+  100% { opacity: 0; transform: translate(calc(var(--dx) * 1.5), calc(var(--dy) * 1.4)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ambient { display: block; }
+  .ambient i { animation: ambient-drift var(--d) ease-in-out var(--delay) infinite; }
+}
+/* skin có cảnh nền riêng: không chồng thêm */
+:root:is([data-skin='matrix'], [data-skin='cyberpunk'], [data-skin='vaporwave'], [data-skin='gameboy'], [data-skin='retro-os'], [data-skin='blueprint'], [data-skin='crt'], [data-skin='crt-amber']) .ambient { display: none; }

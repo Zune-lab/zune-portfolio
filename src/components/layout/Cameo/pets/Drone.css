@@ -15,3 +15,33 @@
   .drone-rotors { animation: drone-rotor 0.18s steps(1) infinite; }
   .drone-body.is-glitch { animation: drone-glitch 0.5s steps(2); }
 }
+
+/* gói hàng: rơi (có dù đung đưa) tới sàn rồi nằm đó; mở ra thì dù xẹp, tự biến mất sau vài giây */
+.drone-pkg { position: absolute; width: 40px; color: var(--text); }
+.drone-pkg button { display: block; padding: 0; border: 0; background: none; cursor: pointer; filter: drop-shadow(0 0 5px var(--glow)); pointer-events: auto; }
+.drone-pkg-bubble { bottom: calc(100% + 2px); right: -10px; width: max-content; max-width: 210px; border-color: var(--glow); background: rgb(16 8 31 / 0.94); color: var(--text); white-space: normal; text-align: center; }
+.drone-pkg.is-open .drone-chute { opacity: 0; }
+@keyframes drone-fall { from { transform: translateY(0); } to { transform: translateY(var(--fall)); } }
+@keyframes drone-swing { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+@keyframes drone-pkg-vanish { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .drone-pkg { animation: drone-fall 3.4s cubic-bezier(0.25, 0.6, 0.4, 1) forwards, drone-pkg-vanish 1s ease-in 30s forwards; }
+  .drone-pkg button { transform-origin: 50% 0; animation: drone-swing 1.3s ease-in-out 2.6 alternate; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drone-pkg { top: auto !important; bottom: 56px; }
+}
+
+/* hiệu ứng theo sự kiện của trang */
+.drone-beam { position: absolute; left: 50%; top: 80%; width: 80px; height: 90px; margin-left: -40px; background: linear-gradient(to bottom, color-mix(in srgb, var(--glow) 55%, transparent), transparent); clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); pointer-events: none; opacity: 0; }
+.drone.is-asleep .drone-rotors, .drone.is-asleep .drone-jet { animation: none; }
+.drone.is-asleep .drone-eye { opacity: 0.2; }
+.drone.is-ack .drone-eye { fill: #05ffa1; }
+@keyframes drone-roll { to { transform: rotate(360deg); } }
+@keyframes drone-rgb { to { filter: hue-rotate(360deg) saturate(2); } }
+@keyframes drone-scan { 0%, 100% { opacity: 0; } 25%, 75% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .drone-body.is-roll { animation: drone-roll 0.8s ease-in-out; }
+  .drone.is-party .drone-body { animation: drone-rgb 0.7s linear infinite; }
+  .drone-beam { animation: drone-scan 1.5s ease-in-out; }
+}

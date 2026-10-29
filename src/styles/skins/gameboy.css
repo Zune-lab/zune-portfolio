@@ -62,6 +62,11 @@
   :root[data-skin='gameboy'] .skin-fx-top::after { display: none; }
 }
 
+/* tiêu đề hero: Silkscreen rộng ~0.7em mỗi ký tự, nên ở cỡ mặc định (tới 76px) câu dài nhất "I make tiny pages." + con trỏ không vừa,
+   chữ "pages." tụt xuống dòng thứ 3 và cả trang giật xuống mỗi lần câu gõ đổi. Hạ cỡ để câu dài nhất (~14em gồm con trỏ) luôn vừa
+   một dòng, và cấm xuống dòng trong tiêu đề để chiều cao không bao giờ đổi theo câu đang gõ. */
+:root[data-skin='gameboy'] .hero-title { font-size: clamp(18px, 5vw, 64px); letter-spacing: -0.04em; white-space: nowrap; }
+
 /* nút: bóng cứng, nhấn xuống thì dịch vào như phím bấm thật */
 :root[data-skin='gameboy'] .btn-31 { box-shadow: 3px 3px 0 var(--line); }
 

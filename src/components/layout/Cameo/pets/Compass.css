@@ -1,16 +1,23 @@
-/* Compass.jsx, skin blueprint: blueprint: compa biết đi */
+/* Compass.jsx, skin blueprint: blueprint: compa biết đi và vẽ hình */
 .compass { position: absolute; bottom: 54px; left: 6%; color: var(--text); }
 .compass-hit { display: block; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
 .compass-leg { transform-origin: 30px 14px; }
-.compass-bubble { bottom: calc(100% - 6px); left: 50%; translate: -50% 0; border-color: currentColor; background: var(--bg); color: var(--text); }
-.compass-ring { transform-origin: 30px 48px; animation: compass-ring 0.5s ease-out both; opacity: 0.85; }
+.compass-bubble { bottom: calc(100% + 4px); left: 50%; translate: -50% 0; border-color: currentColor; background: var(--bg); color: var(--text); }
+/* hình vẽ: tâm hình trùng mũi kim (chân phải của compa), nổi lên phía trên đầu compa */
+.compass-sketch { position: absolute; left: 50%; bottom: 18px; margin-left: -60px; pointer-events: none; overflow: visible; opacity: 0.9; }
+.compass-stroke { stroke-dasharray: 1; stroke-dashoffset: 0; }
+.compass-stroke.is-dash { stroke-dasharray: 0.04 0.03; }
+.compass-note { font-family: var(--f-mono); }
+@keyframes compass-startle { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-16px) rotate(-6deg); } 60% { transform: translateY(-4px) rotate(5deg); } }
 @keyframes compass-walk { from { left: 2%; } to { left: calc(98% - 64px); } }
 @keyframes compass-turn { 0%, 49.999% { transform: none; } 50%, 100% { transform: scaleX(-1); } }
 @keyframes compass-a { from { transform: rotate(-17deg); } to { transform: rotate(15deg); } }
 @keyframes compass-b { from { transform: rotate(17deg); } to { transform: rotate(-15deg); } }
 @keyframes compass-bob { to { transform: translateY(-2px); } }
-@keyframes compass-ring { from { opacity: 0; transform: scale(0.4); } }
+@keyframes compass-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes compass-fade { 0%, 70% { opacity: 0.9; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
+  .compass.is-startled .compass-hit { animation: compass-startle 0.7s ease-out; }
   .compass { animation: compass-walk 90s linear infinite alternate; }
   .compass-flip { animation: compass-turn 180s steps(1) infinite; }
   .compass-leg-a { animation: compass-a 0.55s ease-in-out infinite alternate; }
@@ -20,4 +27,13 @@
   .compass.is-measuring .compass-flip,
   .compass.is-measuring .compass-leg,
   .compass.is-measuring .compass-hit svg { animation-play-state: paused; }
+  .compass-stroke:not(.is-dash) { stroke-dashoffset: 1; animation: compass-draw 0.9s ease-in-out forwards; animation-delay: calc(var(--i) * 0.7s); }
+  .compass-stroke.is-dash { animation: compass-fade 4.4s ease-out forwards; }
+  .compass-sketch { animation: compass-fade 4.6s ease-out forwards; }
 }
+
+/* ngủ: khép hai chân lại thành một cây kim đứng, đầu hơi gục */
+.compass.is-asleep .compass-leg-a { animation: none; transform: rotate(-3deg); }
+.compass.is-asleep .compass-leg-b { animation: none; transform: rotate(3deg); }
+.compass.is-asleep .compass-hit { transform: rotate(4deg); transform-origin: 50% 100%; }
+.compass.is-asleep .compass-hit svg { animation: none; }

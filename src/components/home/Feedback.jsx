@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Btn31 from '../ui/Btn31/Btn31.jsx';
 import CopyEmail from './CopyEmail/CopyEmail.jsx';
 import { site } from '../../config/site.js';
+import { emitReaction } from '../../lib/reactions.js';
 import useTimer from '../../lib/useTimer.js';
 
 const MAX_MAILTO = 1900;
@@ -50,6 +51,7 @@ export default function Feedback() {
     try {
       await navigator.clipboard.writeText(site.email);
       setCopied(true);
+      emitReaction('copy'); // pet của skin đang bật (nếu có) mừng theo
       copiedT.set(() => setCopied(false), 2000);
     } catch {
       setNote(`Couldn't copy automatically, my email is ${site.email}`);

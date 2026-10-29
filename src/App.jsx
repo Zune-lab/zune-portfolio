@@ -7,6 +7,9 @@ import Hero from './components/home/Hero.jsx';
 import { FeaturedProjects, AboutTeaser, LabTeaser, TerminalSection } from './components/home/HomeSections.jsx';
 import Contact from './components/home/Contact.jsx';
 import { Signature, Footer } from './components/layout/Signature/Signature.jsx';
+import { emitReaction } from './lib/reactions.js';
+import { startShakeWatch } from './lib/shake.js';
+import Ambient from './components/layout/Ambient/Ambient.jsx';
 import BackToTop from './components/layout/BackToTop/BackToTop.jsx';
 import Alive from './components/layout/Alive/Alive.jsx';
 import { pageOfView, titleOf, topOf, viewFromLocation } from './config/pages.js';
@@ -44,6 +47,9 @@ export default function App() {
   const firstView = useRef(true);
   const viewRef = useRef(view);
   viewRef.current = view;
+
+  // lắc chuột mạnh thì nhân vật giật mình (lib/shake.js kêu 'shake' trên bus phản ứng)
+  useEffect(() => startShakeWatch(), []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -182,6 +188,7 @@ export default function App() {
       document.documentElement.dataset.theme = next;
     });
     setTheme(next);
+    emitReaction('theme', next);
   };
 
   // nextView: 'home' | 'about' | 'projects' | 'lab' | 'lab/<slug>'.
@@ -220,6 +227,7 @@ export default function App() {
         history.pushState({ from: viewRef.current }, '', pathOf(nextView)); // `from`: để nút back của Navbar biết có lùi thật được không
       }
       setView(nextView);
+      emitReaction('navigate', nextView);
       if (nextView === 'home') {
         setPendingScroll(scrollTarget ?? savedHomeScroll.current);
       } else {
@@ -245,7 +253,7 @@ export default function App() {
   return (
     <>
       <SkinFx />
-      <Cameo view={view} onNavigate={handleNavigate} />
+      <Cameo view={view} onNavigate={handleNavigate} onToggleTheme={toggleTheme} onOpenSkins={() => setPaletteOpen(true)} />
       <div ref={glowRef} className="cursor-glow" aria-hidden="true" />
       <Preloader />
       <Loader show={isLoading} />
@@ -287,6 +295,7 @@ export default function App() {
 
       <Signature />
       <Footer />
+      <Ambient />
       <BackToTop />
       <Alive />
       <SkinPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
