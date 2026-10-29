@@ -43,8 +43,12 @@ const POSES = {
 const PURRS = ['purr~', 'mrrp?', 'prrrr', '*slow blink*', 'meow meow'];
 const CATW = 96; // bề ngang gần đúng của sprite (px)
 
-export default function AsciiCat() {
+export default function AsciiCat({ calm: calmPage = false }) {
   const root = useRef(null);
+  const calmPageRef = useRef(calmPage); // trang có đồ chơi dùng con trỏ: mèo không vồ con trỏ
+  useEffect(() => {
+    calmPageRef.current = calmPage;
+  });
   const ctl = useRef({ pet: () => {} });
   const [pose, setPose] = useState('sit');
   const [face, setFace] = useState('l');
@@ -131,7 +135,7 @@ export default function AsciiCat() {
       const dt = Math.min(0.05, (t - last) / 1000 || 0.016);
       last = t;
       // con trỏ đang lượn gần đáy màn hình: tỉnh dậy, chạy tới vồ
-      if (follow && t - ptr.t < 1400 && ptr.y > window.innerHeight - 170 && mode !== 'swat' && mode !== 'purr') {
+      if (follow && !calmPageRef.current && t - ptr.t < 1400 && ptr.y > window.innerHeight - 170 && mode !== 'swat' && mode !== 'purr') {
         target = Math.max(8, Math.min(maxX(), ptr.x - CATW / 2));
         if (Math.abs(target - x) > 36) {
           turn(target < x ? -1 : 1);

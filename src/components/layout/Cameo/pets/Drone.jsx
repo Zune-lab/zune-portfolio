@@ -28,8 +28,12 @@ const QUOTES = [
   'no megacorp was harmed in this portfolio.',
 ];
 
-export default function Drone() {
+export default function Drone({ calm = false }) {
   const root = useRef(null);
+  const calmRef = useRef(calm); // calm = đang ở trang có đồ chơi dùng con trỏ: đậu góc, không bám chuột
+  useEffect(() => {
+    calmRef.current = calm;
+  });
   const [glitch, setGlitch] = useState(false);
   const [fx, setFx] = useState(''); // hiệu ứng tạm: roll | party | scan | ack
   const ov = useRef(null); // đích bay ép buộc { x, y } (hạ cánh khi ngủ); null = theo chuột như thường
@@ -112,7 +116,7 @@ export default function Drone() {
       if (ov.current) {
         tx = ov.current.x + Math.sin(t / 900) * 4;
         ty = ov.current.y + Math.cos(t / 700) * 3;
-      } else if (!follow || t - lastMove > 3500) {
+      } else if (!follow || calmRef.current || t - lastMove > 3500) {
         const home = idle();
         tx = home.x + Math.sin(t / 900) * 8;
         ty = home.y + Math.cos(t / 700) * 6;
