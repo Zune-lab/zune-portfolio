@@ -55,11 +55,15 @@
   background-color: var(--sb-thumb);
   background-clip: padding-box; /* viền trong suốt chừa khoảng hở quanh thumb */
 }
-.scroll-thin::-webkit-scrollbar-thumb:hover,
 .scroll-thin::-webkit-scrollbar-thumb:active,
-.scroll-amber::-webkit-scrollbar-thumb:hover,
 .scroll-amber::-webkit-scrollbar-thumb:active {
   background-color: var(--sb-thumb-hover);
+}
+@media (hover: hover) {
+  .scroll-thin::-webkit-scrollbar-thumb:hover,
+.scroll-amber::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sb-thumb-hover);
+}
 }
 
 /* ---- scroll-hidden ---- */
@@ -88,9 +92,13 @@
   background-color: var(--amber-dim);
   background-clip: padding-box;
 }
-::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active {
   background-color: var(--amber);
+}
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--amber);
+}
 }
 ::-webkit-scrollbar-corner {
   background: var(--bg);

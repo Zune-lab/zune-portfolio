@@ -16,11 +16,17 @@
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
 }
-.skin-btn:hover,
 .skin-btn:focus-visible {
   border-color: var(--amber);
   color: var(--amber);
   background: color-mix(in srgb, var(--amber) 10%, transparent);
+}
+@media (hover: hover) {
+  .skin-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 10%, transparent);
+}
 }
 .skin-btn-chip {
   display: grid;
@@ -59,8 +65,10 @@
   pointer-events: none;
   transition: opacity var(--dur-fast) var(--ease), translate var(--dur-fast) var(--ease);
 }
-.skin-btn--icon:hover .skin-btn-tip,
 .skin-btn--icon:focus-visible .skin-btn-tip { opacity: 1; translate: 0 0; }
+@media (hover: hover) {
+  .skin-btn--icon:hover .skin-btn-tip { opacity: 1; translate: 0 0; }
+}
 .skin-btn-name { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
 .skin-btn-kbd {
   padding: 3px 5px;
@@ -84,7 +92,9 @@
 .skin-btn-go { color: var(--amber); font-size: 11px; }
 @media (prefers-reduced-motion: reduce) {
   .skin-btn, .skin-btn-chip i { transition: none; }
+@media (hover: hover) {
   .skin-btn:hover .skin-btn-chip i { transform: none; }
+  }
 }
 
 /* ---- bảng chọn */
@@ -226,7 +236,9 @@
   font: 600 12px/1.4 var(--f-mono);
 }
 .skin-toast-x { color: var(--text-dim); font-size: 18px; line-height: 1; padding: 0 4px; }
-.skin-toast-x:hover { color: var(--text); }
+@media (hover: hover) {
+  .skin-toast-x:hover { color: var(--text); }
+}
 
 @keyframes skin-fade { from { opacity: 0; } }
 @keyframes skin-pop { from { opacity: 0; transform: translateY(-8px) scale(0.98); } }

@@ -16,10 +16,14 @@
 .rabbit-pill { padding: 3px 9px; border: 1px solid; border-radius: 999px; background: #000; font: 700 11px/1.2 var(--f-mono); cursor: pointer; }
 .rabbit-pill.is-red { border-color: #ff3b57; color: #ff3b57; }
 .rabbit-pill.is-blue { border-color: #3b9bff; color: #3b9bff; }
-.rabbit-pill:hover { background: currentColor; }
-.rabbit-pill:hover { color: #000; }
-.rabbit-pill.is-red:hover { background: #ff3b57; }
-.rabbit-pill.is-blue:hover { background: #3b9bff; }
+@media (hover: hover) {
+  .rabbit-pill:hover { background: currentColor; } }
+@media (hover: hover) {
+  .rabbit-pill:hover { color: #000; } }
+@media (hover: hover) {
+  .rabbit-pill.is-red:hover { background: #ff3b57; } }
+@media (hover: hover) {
+  .rabbit-pill.is-blue:hover { background: #3b9bff; } }
 
 /* hang thỏ: một vòng đen dưới chân, thỏ thu nhỏ rồi rơi vào */
 .rabbit-hole { position: absolute; left: 50%; bottom: -6px; width: 56px; height: 14px; margin-left: -28px; border-radius: 50%; background: #000; box-shadow: 0 0 0 2px #00ff41, 0 0 14px #00ff41; opacity: 0; animation: rabbit-hole 0.5s ease-out forwards; }

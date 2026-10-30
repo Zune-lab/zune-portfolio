@@ -56,8 +56,8 @@
   --spot-a: 8%; /* độ đậm vệt đèn pha theo con trỏ (.spot) */
   --shade: 0 0 0; /* màu bóng đổ (r g b) */
   --shade-k: 1; /* hệ số nhân độ đậm bóng: dùng như rgb(var(--shade) / calc(0.6 * var(--shade-k))) */
-  --contact-ink: #ffffff; /* chữ nút CONTACT (nền vàng cố định ở cả hai theme) */
-  --contact-shadow: rgb(116 116 116);
+  --contact-ink: #1c1b18; /* chữ nút CONTACT (nền vàng cố định ở cả hai theme): chữ tối để đủ tương phản (trắng trên vàng chỉ ~1.4:1) */
+  --contact-shadow: rgb(116 116 116 / 0);
   --green: #7ee081;
   --js: #f1c40f;
   --css-lang: #a98ae8;
@@ -297,10 +297,12 @@ body::before {
   .hero-link::after,
   .hl-arrow-shaft,
   .hl-arrow-head { transition: none; }
-  .hero-link:hover .hl-arrow-shaft,
   .hero-link:focus-visible .hl-arrow-shaft,
-  .hero-link:hover .hl-arrow-head,
   .hero-link:focus-visible .hl-arrow-head { transform: none; }
+@media (hover: hover) {
+  .hero-link:hover .hl-arrow-shaft,
+  .hero-link:hover .hl-arrow-head { transform: none; }
+  }
 }
 
 /* .spot: viền + ánh sáng amber chạy theo chuột (dùng cùng spotMove trong lib/dom.js) */
@@ -326,8 +328,10 @@ body::before {
 .spot::after {
   background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--glow) var(--spot-a), transparent), transparent 70%);
 }
-.spot:hover::before,
+@media (hover: hover) {
+  .spot:hover::before,
 .spot:hover::after { opacity: 1; }
+}
 
 /* "Zune" thở nhẹ như đèn neon */
 .zune-glow {

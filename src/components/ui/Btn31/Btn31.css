@@ -69,7 +69,9 @@
   100% { transform: translate(0, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
+@media (hover: hover) {
   .btn-31:hover .btn-31-icon > svg { animation: none; }
+  }
 }
 @keyframes btn31-move-up-alt {
   0% { transform: translateY(0); }

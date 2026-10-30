@@ -21,11 +21,10 @@
   --dot-grid: rgba(46, 52, 64, 0.06);
 }
 
-/* ---- nord: cực quang và tuyết rơi chậm (bản sáng: sương giá nhạt, tuyết xanh) */
+/* ---- nord: cực quang (nền tĩnh) + tuyết rơi chậm. Tuyết là 2 lớp .fx-tile trượt bằng transform (chạy trên GPU compositor);
+   trước đây animate background-position của cả lớp fixed toàn màn hình nên mỗi frame phải vẽ lại toàn bộ gradient + SVG => lag trên điện thoại */
 html[data-skin='nord'] .skin-fx-back {
   background:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%23eceff4'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 0 0 / 220px 220px,
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%23d8dee9'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 60px 40px / 340px 340px,
     radial-gradient(ellipse 70% 28% at 15% 0%, rgb(163 190 140 / 0.24), transparent 72%),
     radial-gradient(ellipse 65% 26% at 55% 0%, rgb(136 192 208 / 0.28), transparent 72%),
     radial-gradient(ellipse 55% 24% at 92% 4%, rgb(180 142 173 / 0.22), transparent 72%);
@@ -33,20 +32,23 @@ html[data-skin='nord'] .skin-fx-back {
 
 html[data-skin='nord'][data-theme='light'] .skin-fx-back {
   background:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%235e81ac'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 0 0 / 220px 220px,
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%2381a1c1'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 60px 40px / 340px 340px,
     radial-gradient(ellipse 70% 28% at 15% 0%, rgb(163 190 140 / 0.2), transparent 72%),
     radial-gradient(ellipse 65% 26% at 55% 0%, rgb(136 192 208 / 0.26), transparent 72%),
     radial-gradient(ellipse 55% 24% at 92% 4%, rgb(180 142 173 / 0.16), transparent 72%);
 }
 
-@keyframes nord-snow {
-  from { background-position: 0 0, 60px 40px, 0 0, 0 0, 0 0; }
-  to { background-position: 0 220px, 60px 380px, 0 0, 0 0, 0 0; }
-}
+html[data-skin='nord'] .skin-fx-back .fx-tile { display: block; right: 0; bottom: 0; }
+html[data-skin='nord'] .skin-fx-back .fx-tile-a { top: -220px; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%23eceff4'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 0 0 / 220px 220px; }
+html[data-skin='nord'] .skin-fx-back .fx-tile-b { top: -340px; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%23d8dee9'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>") 60px 40px / 340px 340px; }
+html[data-skin='nord'][data-theme='light'] .skin-fx-back .fx-tile-a { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%235e81ac'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>"); }
+html[data-skin='nord'][data-theme='light'] .skin-fx-back .fx-tile-b { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='%2381a1c1'><circle cx='18' cy='30' r='1.6' opacity='0.8'/><circle cx='90' cy='12' r='1.1' opacity='0.5'/><circle cx='150' cy='70' r='1.8' opacity='0.9'/><circle cx='40' cy='110' r='1.2' opacity='0.6'/><circle cx='120' cy='150' r='1.5' opacity='0.7'/><circle cx='200' cy='190' r='1.3' opacity='0.5'/><circle cx='70' cy='200' r='1.7' opacity='0.8'/></g></svg>"); }
+
+@keyframes nord-snow-a { to { transform: translate3d(0, 220px, 0); } }
+@keyframes nord-snow-b { to { transform: translate3d(0, 340px, 0); } }
 
 @media (prefers-reduced-motion: no-preference) {
-  html[data-skin='nord'] .skin-fx-back { animation: nord-snow 26s linear infinite; }
+  html[data-skin='nord'] .skin-fx-back .fx-tile-a { animation: nord-snow-a 26s linear infinite; }
+  html[data-skin='nord'] .skin-fx-back .fx-tile-b { animation: nord-snow-b 26s linear infinite; }
 }
 
 /* ---- 3) link hover (.hero-link: "All projects", "More about me"...): sương giá: gạch chân cực quang (xanh lá → xanh băng → tím) mọc từ GIỮA ra hai bên, chữ có quầng lạnh */

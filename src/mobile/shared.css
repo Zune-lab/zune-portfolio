@@ -1,0 +1,11 @@
+/* Dùng cho mọi trang. */
+
+/* iOS Safari tự phóng to trang khi focus vào ô nhập có chữ < 16px (và không tự thu lại). Trên màn cảm ứng giữ ô nhập ở 16px;
+   !important vì nhiều ô đặt cỡ chữ bằng class tiện ích / CSS riêng của từng component. */
+@media (pointer: coarse) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='color'], [type='file'], [type='button'], [type='submit']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

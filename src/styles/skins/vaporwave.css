@@ -40,13 +40,14 @@
   opacity: 0.5;
 }
 
-:root[data-skin='vaporwave'] .skin-fx-back::after {
-  content: '';
-  position: absolute;
+/* sàn lưới: là .fx-tile-a (phần tử thật, không phải ::after) để trôi bằng transform; trước đây animate background-position
+   nên mỗi frame phải vẽ lại lưới + mask. Cao thêm 40px (đúng 1 chu kỳ lưới) để khi trôi 40px không hở mép trên */
+:root[data-skin='vaporwave'] .skin-fx-back .fx-tile-a {
+  display: block;
   left: -50%;
   right: -50%;
   bottom: 0;
-  height: 46vh;
+  height: calc(46vh + 40px);
   background-image:
     linear-gradient(rgb(255 113 206 / 0.85) 1.5px, transparent 1.5px),
     linear-gradient(90deg, rgb(255 113 206 / 0.85) 1.5px, transparent 1.5px);
@@ -59,11 +60,14 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :root[data-skin='vaporwave'] .skin-fx-back::after { animation: vw-grid 1.6s linear infinite; } /* lưới sàn trôi về phía người xem */
+  :root[data-skin='vaporwave'] .skin-fx-back .fx-tile-a { animation: vw-grid 1.6s linear infinite; } /* lưới sàn trôi về phía người xem */
   :root[data-skin='vaporwave'] .skin-fx-back::before { animation: vw-sun 9s ease-in-out infinite alternate; }
 }
 
-@keyframes vw-grid { to { background-position: 0 40px, 0 0; } }
+@keyframes vw-grid {
+  from { transform: perspective(380px) rotateX(62deg) translateY(0); }
+  to { transform: perspective(380px) rotateX(62deg) translateY(40px); }
+}
 
 @keyframes vw-sun { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(-10px); } }
 

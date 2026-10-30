@@ -18,8 +18,9 @@
 :root[data-skin='cyberpunk'] .hero-title { text-shadow: 0.04em 0 0 #00f0ff, -0.04em 0 0 #ff2bd6; }
 
 :root[data-skin='cyberpunk'] :is(h1, h2, h3) { text-shadow: 0 0 14px color-mix(in srgb, var(--glow) 55%, transparent); }
-
-:root[data-skin='cyberpunk'] .nav-link:hover { text-shadow: 1px 0 #ff2bd6, -1px 0 #00f0ff; }
+@media (hover: hover) {
+  :root[data-skin='cyberpunk'] .nav-link:hover { text-shadow: 1px 0 #ff2bd6, -1px 0 #00f0ff; }
+}
 
 /* khung kiểu HUD: bốn góc có "dấu ngoặc" neon; ngoài ra là viền + quầng sáng */
 :root[data-skin='cyberpunk'] :is(.terminal, .spot) {

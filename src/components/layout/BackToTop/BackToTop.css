@@ -11,14 +11,20 @@
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-.back-to-top:hover {
+@media (hover: hover) {
+  .back-to-top:hover {
   width: 140px;
   border-radius: 50px;
   background: var(--amber);
 }
-.back-to-top:hover .back-to-top-icon {
+}
+@media (hover: hover) {
+  .back-to-top:hover .back-to-top-icon {
   transform: translateY(-400%);
 }
-.back-to-top:hover .back-to-top-label {
+}
+@media (hover: hover) {
+  .back-to-top:hover .back-to-top-label {
   opacity: 1;
+}
 }

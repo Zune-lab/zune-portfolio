@@ -22,6 +22,9 @@
   :root[data-skin='crt-amber'] .hero-link:is(:hover, :focus-visible) { text-shadow: 0 0 6px var(--amber), 0 0 18px var(--amber); }
 }
 @media (prefers-reduced-motion: no-preference) {
+  :root[data-skin='crt-amber'] .hero-link:focus-visible::after { animation: ca-caret 0.9s steps(1) infinite; }
+@media (hover: hover) {
   :root[data-skin='crt-amber'] .hero-link:is(:hover, :focus-visible)::after { animation: ca-caret 0.9s steps(1) infinite; }
+  }
 }
 @keyframes ca-caret { 50% { opacity: 0; } }

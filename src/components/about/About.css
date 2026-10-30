@@ -28,9 +28,15 @@
   background: var(--line);
   transition: background var(--dur) var(--ease);
 }
-.ab-win:hover .ab-dots i:nth-child(1) { background: var(--danger); }
-.ab-win:hover .ab-dots i:nth-child(2) { background: var(--dot-yellow); }
-.ab-win:hover .ab-dots i:nth-child(3) { background: var(--dot-green); }
+@media (hover: hover) {
+  .ab-win:hover .ab-dots i:nth-child(1) { background: var(--danger); }
+}
+@media (hover: hover) {
+  .ab-win:hover .ab-dots i:nth-child(2) { background: var(--dot-yellow); }
+}
+@media (hover: hover) {
+  .ab-win:hover .ab-dots i:nth-child(3) { background: var(--dot-green); }
+}
 
 /* code có số dòng */
 .ab-code {
@@ -60,8 +66,12 @@
   opacity: 0.45;
   transition: opacity var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.ab-line:hover { background: color-mix(in srgb, var(--amber) 8%, transparent); }
-.ab-line:hover::before { color: var(--amber); opacity: 1; }
+@media (hover: hover) {
+  .ab-line:hover { background: color-mix(in srgb, var(--amber) 8%, transparent); }
+}
+@media (hover: hover) {
+  .ab-line:hover::before { color: var(--amber); opacity: 1; }
+}
 .ab-kw { color: var(--amber); font-weight: 400; }
 .ab-str { color: var(--green); }
 .ab-num { color: var(--css-lang); }
@@ -101,7 +111,9 @@
   padding: 14px;
   transition: border-color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
 }
-.ab-stat:hover { border-color: var(--amber); transform: translateY(-3px); }
+@media (hover: hover) {
+  .ab-stat:hover { border-color: var(--amber); transform: translateY(-3px); }
+}
 .ab-stat b { display: block; color: var(--amber); font: 700 28px/1 var(--f-mono); }
 .ab-stat span { display: block; margin-top: 8px; color: var(--text-dim); font: 11.5px/1.35 var(--f-mono); }
 
@@ -131,7 +143,9 @@
   background: var(--inset);
   transition: background var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease);
 }
-.ab-tl li:hover .ab-dot { background: var(--c); box-shadow: 0 0 12px color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)); }
+@media (hover: hover) {
+  .ab-tl li:hover .ab-dot { background: var(--c); box-shadow: 0 0 12px color-mix(in srgb, var(--c) var(--glow-mix), var(--glow)); }
+}
 .ab-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
 .ab-hash { color: var(--amber); }
 .ab-date { color: var(--green); }
@@ -168,7 +182,9 @@
   font: 13px/1 var(--f-mono);
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur) var(--ease);
 }
-.ab-chip:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+@media (hover: hover) {
+  .ab-chip:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+}
 .ab-chip em {
   padding: 2px 5px;
   border: 1px solid color-mix(in srgb, var(--green) 45%, transparent);

@@ -32,8 +32,13 @@ function MatrixRain() {
       body = css.getPropertyValue('--glow').trim() || body;
     };
     const resize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+      const nw = window.innerWidth;
+      const nh = window.innerHeight;
+      // thanh địa chỉ iOS / Android co giãn khi cuộn chỉ đổi innerHeight vài chục px: đừng cấp lại canvas (xoá sạch mưa + giật).
+      // Không nhân devicePixelRatio: canvas 2x nặng gấp ~2 lần trên điện thoại (đã đo), chữ hơi mềm trên màn retina là đánh đổi có chủ ý.
+      if (w && nw === w && Math.abs(nh - h) < 160) return;
+      w = canvas.width = nw;
+      h = canvas.height = nh;
       ctx.font = `${SIZE}px monospace`;
       drops = Array.from({ length: Math.ceil(w / SIZE) }, () => Math.random() * -40);
     };
@@ -104,7 +109,10 @@ export default function SkinFx() {
   const name = (skinById(skin)?.label ?? skin).toUpperCase();
   return (
     <>
-      <div className="skin-fx-back" aria-hidden="true" />
+      <div className="skin-fx-back" aria-hidden="true">
+        <i className="fx-tile fx-tile-a" />
+        <i className="fx-tile fx-tile-b" />
+      </div>
       <div className="skin-fx-top" aria-hidden="true" data-name={name}>
         {skin === 'retro-os' && <RetroTray />}
       </div>

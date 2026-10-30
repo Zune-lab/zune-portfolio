@@ -1,0 +1,8 @@
+/* CSS RIÊNG CHO MOBILE: mỗi trang một file, để chỉnh giao diện điện thoại ở một chỗ thay vì rải khắp các component.
+   Nạp sau cùng trong main.jsx nên thắng CSS thường khi cùng độ ưu tiên.
+   Quy ước: chỉ viết trong @media (pointer: coarse) (màn cảm ứng) hoặc @media (max-width: ...) (màn hẹp). */
+@import './shared.css';
+@import './home.css';
+@import './about.css';
+@import './projects.css';
+@import './lab.css';

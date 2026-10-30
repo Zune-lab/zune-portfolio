@@ -78,8 +78,10 @@
   );
   transition: opacity 0.45s var(--ease);
 }
-.proj-art:hover::after {
+@media (hover: hover) {
+  .proj-art:hover::after {
   opacity: 1;
+}
 }
 
 /* lớp nội dung màn hình: mỗi lần nạp băng mới thì "bật nguồn" kiểu CRT (vạch sáng bung ra thành khung hình) */
@@ -251,8 +253,10 @@
   background: var(--amber);
   transition: transform var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
 }
-.proj-open:hover {
+@media (hover: hover) {
+  .proj-open:hover {
   background: var(--amber-dim);
+}
 }
 .proj-open:active {
   transform: translateY(1px);
@@ -320,8 +324,10 @@
   box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 10%, transparent), 0 8px 14px -8px rgb(var(--shade) / calc(0.55 * var(--shade-k)));
   transition: transform 0.4s cubic-bezier(0.3, 1.5, 0.5, 1), box-shadow var(--dur) var(--ease);
 }
-.proj-cart:hover {
+@media (hover: hover) {
+  .proj-cart:hover {
   transform: translateY(-6px);
+}
 }
 .proj-cart[aria-selected='true'] {
   transform: translateY(-16px);
@@ -440,7 +446,9 @@
 .proj-count i { font-style: normal; color: var(--text-dim); }
 .proj-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .proj-tags button { padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); background: transparent; transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease); }
-.proj-tags button:hover { color: var(--text); border-color: var(--amber-dim); }
+@media (hover: hover) {
+  .proj-tags button:hover { color: var(--text); border-color: var(--amber-dim); }
+}
 .proj-tags button[aria-pressed='true'] { color: var(--amber); border-color: var(--amber); background: color-mix(in srgb, var(--amber) 10%, transparent); }
 .proj-shelf { position: relative; }
 /* nút đổi băng: phím cứng của máy game. Khối vuông viền dày, cạnh dưới dày như phím nhấn, mũi tên pixel màu hổ phách.
@@ -448,12 +456,20 @@
 .proj-nudge { position: absolute; top: 46%; z-index: 3; display: grid; place-items: center; width: 34px; height: 38px; padding: 0; border: 1px solid var(--line); border-bottom-width: 1px; border-radius: calc(4px * var(--rk, 1)); background: linear-gradient(var(--panel), var(--inset)); color: var(--amber); transform: translateY(-50%); box-shadow: 0 4px 0 var(--line), 0 10px 14px -6px rgba(0, 0, 0, 0.7); transition: border-color 0.12s steps(2), box-shadow 0.12s steps(2), transform 0.06s steps(2); }
 .proj-nudge svg { width: 8px; height: 14px; fill: currentColor; shape-rendering: crispEdges; }
 .proj-nudge.l svg { transform: scaleX(-1); }
-.proj-nudge:hover { border-color: var(--amber); box-shadow: 0 4px 0 var(--amber-dim), 0 0 14px -2px var(--glow), 0 10px 14px -6px rgb(var(--shade) / calc(0.7 * var(--shade-k))); }
-.proj-nudge:hover svg { filter: drop-shadow(0 0 4px var(--glow)); }
+@media (hover: hover) {
+  .proj-nudge:hover { border-color: var(--amber); box-shadow: 0 4px 0 var(--amber-dim), 0 0 14px -2px var(--glow), 0 10px 14px -6px rgb(var(--shade) / calc(0.7 * var(--shade-k))); }
+}
+@media (hover: hover) {
+  .proj-nudge:hover svg { filter: drop-shadow(0 0 4px var(--glow)); }
+}
 .proj-nudge:active { transform: translateY(calc(-50% + 3px)); box-shadow: 0 1px 0 var(--amber-dim), 0 0 10px -2px var(--glow); }
 @media (prefers-reduced-motion: no-preference) {
+@media (hover: hover) {
   .proj-nudge.l:hover svg { animation: proj-nudge-l 0.5s steps(2, jump-none) infinite alternate; }
+  }
+@media (hover: hover) {
   .proj-nudge.r:hover svg { animation: proj-nudge-r 0.5s steps(2, jump-none) infinite alternate; }
+  }
 }
 @keyframes proj-nudge-l { to { transform: translateX(-3px) scaleX(-1); } }
 @keyframes proj-nudge-r { to { transform: translateX(3px); } }
@@ -464,7 +480,10 @@
 .proj-row { position: relative; display: grid; grid-template-columns: 2.5ch minmax(0, 14ch) minmax(0, 1fr) auto; align-items: baseline; gap: 14px; width: 100%; padding: 10px 16px; border-top: 1px solid var(--line); text-align: left; color: var(--text); background: transparent; }
 .proj-row:first-child { border-top: 0; }
 .proj-row::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 2px; background: var(--c); transform: scaleY(0); transition: transform 0.3s var(--ease); }
-.proj-row:hover, .proj-row[aria-selected='true'] { background: color-mix(in srgb, var(--c) 8%, transparent); }
+.proj-row[aria-selected='true'] { background: color-mix(in srgb, var(--c) 8%, transparent); }
+@media (hover: hover) {
+  .proj-row:hover { background: color-mix(in srgb, var(--c) 8%, transparent); }
+}
 .proj-row[aria-selected='true']::before { transform: none; }
 .proj-row-n { color: var(--text-dim); }
 .proj-row-f { overflow: hidden; color: var(--c); white-space: nowrap; text-overflow: ellipsis; }
@@ -494,9 +513,13 @@
 
 /* nút xoá nhanh trong ô lọc + nút "clear filters" ở trạng thái rỗng: 1 click là về lại đủ danh sách */
 .proj-clear { flex: none; width: 20px; height: 20px; border-radius: 50%; line-height: 1; font-size: 15px; color: var(--text-dim); background: transparent; transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease); }
-.proj-clear:hover { color: var(--text); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+@media (hover: hover) {
+  .proj-clear:hover { color: var(--text); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+}
 .proj-reset { padding: 2px 10px; border: 1px solid var(--amber-dim); border-radius: 999px; font: inherit; color: var(--amber); background: transparent; }
-.proj-reset:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+@media (hover: hover) {
+  .proj-reset:hover { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+}
 .proj-clear:focus-visible, .proj-reset:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 /* dòng nằm sát mép khung cuộn: viền focus phải vẽ vào trong, nếu không bị overflow cắt mất */
 .proj-row:focus-visible { outline: 2px solid var(--amber); outline-offset: -2px; }

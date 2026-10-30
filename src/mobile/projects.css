@@ -1,0 +1,9 @@
+/* Trang projects (/projects). */
+
+@media (pointer: coarse) {
+  /* ô lọc project cao chỉ ~20px */
+  .proj-filter input,
+  input[aria-label='Filter projects'] {
+    min-height: 40px;
+  }
+}

@@ -35,11 +35,20 @@
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, width 0.3s ease, background 0.3s ease;
 }
 .assistant-top.is-shown { opacity: 1; visibility: visible; transform: none; }
-.assistant-top:hover, .assistant-top:focus-visible { width: 140px; background: var(--amber); }
+.assistant-top:focus-visible { width: 140px; background: var(--amber); }
+@media (hover: hover) {
+  .assistant-top:hover { width: 140px; background: var(--amber); }
+}
 .assistant-top-icon { width: 14px; height: 14px; flex: none; transition: transform 0.3s ease; }
-.assistant-top:hover .assistant-top-icon, .assistant-top:focus-visible .assistant-top-icon { transform: translateY(-400%); }
+.assistant-top:focus-visible .assistant-top-icon { transform: translateY(-400%); }
+@media (hover: hover) {
+  .assistant-top:hover .assistant-top-icon { transform: translateY(-400%); }
+}
 .assistant-top-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--on-amber); font-size: 12px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; }
-.assistant-top:hover .assistant-top-label, .assistant-top:focus-visible .assistant-top-label { opacity: 1; }
+.assistant-top:focus-visible .assistant-top-label { opacity: 1; }
+@media (hover: hover) {
+  .assistant-top:hover .assistant-top-label { opacity: 1; }
+}
 
 /* ---- bóng thoại chủ động */
 .assistant-bubble {
@@ -72,7 +81,9 @@
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
-.assistant-actions button:hover, .am-actions button:hover, .assistant-chips button:hover:not(:disabled), .assistant-form button:hover:not(:disabled) { border-color: var(--amber-dim); color: var(--amber); }
+@media (hover: hover) {
+  .assistant-actions button:hover, .am-actions button:hover, .assistant-chips button:hover:not(:disabled), .assistant-form button:hover:not(:disabled) { border-color: var(--amber-dim); color: var(--amber); }
+}
 .assistant button:disabled { opacity: 0.45; cursor: default; }
 
 /* ---- khung trò chuyện (dùng lớp .terminal / .terminal-bar / .terminal-body nên mọi skin tự vẽ viền, bóng, thanh tiêu đề cho nó) */
@@ -132,8 +143,12 @@
 :root[data-skin='retro-os'] .assistant-bubble { border: 1px solid #000; border-radius: 7px; background: #ffffe1; box-shadow: 2px 2px 0 rgb(0 0 0 / 0.3); color: #000; font: 11.5px/1.4 Tahoma, 'MS Sans Serif', Verdana, var(--f-mono); }
 :root[data-skin='retro-os'] .assistant-bubble::after { border-color: #000; background: #ffffe1; }
 :root[data-skin='retro-os'] .assistant-top { border: 2px solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; background: #c0c0c0; color: #000; box-shadow: 1px 1px 0 #000; }
-:root[data-skin='retro-os'] .assistant-top:hover { border-radius: 0; background: #000080; }
-:root[data-skin='retro-os'] .assistant-top:hover .assistant-top-label { color: #fff; }
+@media (hover: hover) {
+  :root[data-skin='retro-os'] .assistant-top:hover { border-radius: 0; background: #000080; }
+}
+@media (hover: hover) {
+  :root[data-skin='retro-os'] .assistant-top:hover .assistant-top-label { color: #fff; }
+}
 :root[data-skin='retro-os'] :is(.assistant-actions, .am-actions, .assistant-chips, .assistant-form) button {
   border: 2px solid;
   border-color: #fff #404040 #404040 #fff;
@@ -143,7 +158,9 @@
   font-family: Tahoma, 'MS Sans Serif', Verdana, var(--f-mono);
 }
 :root[data-skin='retro-os'] :is(.assistant-actions, .am-actions, .assistant-chips, .assistant-form) button:active { border-color: #404040 #fff #fff #404040; }
-:root[data-skin='retro-os'] :is(.assistant-actions, .am-actions, .assistant-chips, .assistant-form) button:hover:not(:disabled) { border-color: #fff #404040 #404040 #fff; color: #000; }
+@media (hover: hover) {
+  :root[data-skin='retro-os'] :is(.assistant-actions, .am-actions, .assistant-chips, .assistant-form) button:hover:not(:disabled) { border-color: #fff #404040 #404040 #fff; color: #000; }
+}
 :root[data-skin='retro-os'] .assistant-panel .terminal-bar { padding-right: 8px; }
 :root[data-skin='retro-os'] .assistant-panel .terminal-bar::after { content: none !important; } /* skin vẽ sẵn 3 nút giả ở góc: ở đây đã có nút ✕ thật */
 :root[data-skin='retro-os'] .assistant-panel .assistant-dot { display: none; }

@@ -52,6 +52,9 @@
 
 .skin-fx-back { z-index: -1; overflow: hidden; }
 
+/* lớp trượt (tuyết/mưa) của một vài skin: mặc định ẩn, skin tự bật; chỉ animate transform nên không phải vẽ lại nền */
+.skin-fx-back .fx-tile { display: none; position: absolute; left: 0; pointer-events: none; will-change: transform; }
+
 .skin-fx-rain {
   position: fixed;
   inset: 0;

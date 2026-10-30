@@ -95,9 +95,15 @@
   touch-action: manipulation;
   transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
-.letters-btns button:is(:hover, :focus-visible):not(:disabled) {
+.letters-btns button:focus-visible:not(:disabled) {
   color: var(--amber);
   border-color: var(--amber-dim);
+}
+@media (hover: hover) {
+  .letters-btns button:is(:hover, :focus-visible):not(:disabled) {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
 }
 .letters-btns button[aria-pressed='true'] {
   color: var(--amber);

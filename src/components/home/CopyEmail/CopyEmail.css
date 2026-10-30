@@ -18,10 +18,15 @@
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
-.copy-mail:hover,
 .copy-mail:focus-visible {
   border-color: var(--amber);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 28%, transparent);
+}
+@media (hover: hover) {
+  .copy-mail:hover {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 28%, transparent);
+}
 }
 .copy-mail:focus-visible {
   outline: 2px solid var(--amber);
@@ -69,14 +74,23 @@
   transform: translateY(101%);
   transition: transform var(--dur-fast) var(--ease);
 }
-.copy-mail:hover .copy-mail-ico,
 .copy-mail:focus-visible .copy-mail-ico {
   color: var(--cm-on);
   border-color: var(--amber);
 }
-.copy-mail:hover .copy-mail-ico::before,
+@media (hover: hover) {
+  .copy-mail:hover .copy-mail-ico {
+  color: var(--cm-on);
+  border-color: var(--amber);
+}
+}
 .copy-mail:focus-visible .copy-mail-ico::before {
   transform: translateY(0);
+}
+@media (hover: hover) {
+  .copy-mail:hover .copy-mail-ico::before {
+  transform: translateY(0);
+}
 }
 
 .copy-mail-svg {
@@ -89,8 +103,10 @@
   opacity: 0;
   transform: scale(0.4) rotate(-20deg);
 }
-.copy-mail:hover .copy-mail-clip {
+@media (hover: hover) {
+  .copy-mail:hover .copy-mail-clip {
   transform: translateY(-1px) rotate(-6deg);
+}
 }
 
 /* copied */
@@ -149,12 +165,18 @@
 .copy-mail-tip-done {
   opacity: 0;
 }
-.copy-mail:hover .copy-mail-tip,
 .copy-mail:focus-visible .copy-mail-tip,
 .copy-mail[data-copied='true'] .copy-mail-tip {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+@media (hover: hover) {
+  .copy-mail:hover .copy-mail-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
 }
 .copy-mail[data-copied='true'] .copy-mail-tip {
   background: var(--green);
@@ -171,9 +193,11 @@
 
 @media (hover: none) {
   /* touch: no hover state, so keep the tooltip for the copied state only */
+@media (hover: hover) {
   .copy-mail:hover .copy-mail-tip:not(:focus-visible) {
     visibility: hidden;
     opacity: 0;
+  }
   }
   .copy-mail[data-copied='true'] .copy-mail-tip {
     visibility: visible;
@@ -190,7 +214,9 @@
   .copy-mail-tip > span {
     transition: none;
   }
+@media (hover: hover) {
   .copy-mail:hover .copy-mail-clip {
     transform: none;
+  }
   }
 }

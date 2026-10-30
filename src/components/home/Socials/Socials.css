@@ -6,9 +6,13 @@
 .social-icon {
   z-index: 0;
 }
-.social-icon:hover,
 .social-icon:focus-visible {
   z-index: 10;
+}
+@media (hover: hover) {
+  .social-icon:hover {
+  z-index: 10;
+}
 }
 
 .social-btn-bg {
@@ -20,17 +24,25 @@
 .social-btn-icon {
   border-color: var(--glass);
 }
-.social-icon:hover .social-btn {
+@media (hover: hover) {
+  .social-icon:hover .social-btn {
   transform: translateY(-4px);
 }
-.social-icon:hover .social-btn-bg {
+}
+@media (hover: hover) {
+  .social-icon:hover .social-btn-bg {
   transform: rotate(35deg);
   transform-origin: bottom;
 }
-.social-icon:hover .social-btn-icon {
+}
+@media (hover: hover) {
+  .social-icon:hover .social-btn-icon {
   background-color: var(--glass);
   backdrop-filter: blur(4px);
 }
-.social-icon:hover .social-label {
+}
+@media (hover: hover) {
+  .social-icon:hover .social-label {
   color: var(--amber);
+}
 }

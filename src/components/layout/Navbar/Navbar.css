@@ -35,19 +35,22 @@
   transform: scaleY(1);
   z-index: 2;
 }
-
-.nav-link:hover::before {
+@media (hover: hover) {
+  .nav-link:hover::before {
   transform: translateY(-14px);
   height: 0;
 }
-
-.nav-link:hover::after {
+}
+@media (hover: hover) {
+  .nav-link:hover::after {
   transform: scaleX(0);
   transition-delay: 0.15s;
 }
-
-.nav-link:hover {
+}
+@media (hover: hover) {
+  .nav-link:hover {
   border-color: var(--amber);
+}
 }
 
 .nav-link-text {
@@ -86,30 +89,40 @@
 .nav-back {
   cursor: pointer;
 }
-.nav-back:hover {
+@media (hover: hover) {
+  .nav-back:hover {
   cursor:
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23ffc857' stroke-width='2.75' stroke-linecap='round' stroke-linejoin='round'><path d='M19 12H5M11 18l-6-6 6-6'/></svg>")
       11 11,
     pointer !important;
+}
 }
 
 /* vùng mũi tên quay lại ở mép trái: kích hoạt hiệu ứng của ScrollArrow ngay
    khi hover vào CẢ vùng rộng (64px), không cần rê trúng chính xác cái nút
    tròn nhỏ bên trong — tránh trường hợp chuột nằm trong vùng nhưng chưa
    chạm đúng nút nên không thấy hiệu ứng gì. */
-.edge-back-zone:hover .scroll-arrow::before {
+@media (hover: hover) {
+  .edge-back-zone:hover .scroll-arrow::before {
   opacity: 0;
   transform: scale(0.7);
 }
-.edge-back-zone:hover .scroll-arrow::after {
+}
+@media (hover: hover) {
+  .edge-back-zone:hover .scroll-arrow::after {
   opacity: 1;
   transform: scale(1);
 }
-.edge-back-zone:hover .scroll-arrow-box {
+}
+@media (hover: hover) {
+  .edge-back-zone:hover .scroll-arrow-box {
   transform: translateX(-48px);
 }
-.edge-back-zone:hover .scroll-arrow-elem {
+}
+@media (hover: hover) {
+  .edge-back-zone:hover .scroll-arrow-elem {
   color: var(--amber);
+}
 }
 
 /* menu thả xuống của nav phụ (ls lab/ ...) — vẽ qua portal ở <body>.
@@ -136,9 +149,13 @@
   color: var(--amber-dim);
   transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1), color 0.48s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.nav-link:hover .sub-menu-caret,
 .nav-link.is-open .sub-menu-caret {
   color: var(--amber);
+}
+@media (hover: hover) {
+  .nav-link:hover .sub-menu-caret {
+  color: var(--amber);
+}
 }
 .sub-menu-caret.is-open {
   transform: rotate(180deg);
@@ -177,15 +194,25 @@
   transform-origin: left;
   transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.sub-menu-item:hover,
 .sub-menu-item:focus-visible {
   color: var(--bg);
   outline: none;
 }
-.sub-menu-item:hover::before,
+@media (hover: hover) {
+  .sub-menu-item:hover {
+  color: var(--bg);
+  outline: none;
+}
+}
 .sub-menu-item:focus-visible::before {
   transform: scaleX(1);
   transform-origin: right;
+}
+@media (hover: hover) {
+  .sub-menu-item:hover::before {
+  transform: scaleX(1);
+  transform-origin: right;
+}
 }
 @keyframes sub-menu-in {
   from {
@@ -214,9 +241,13 @@
   cursor: pointer;
   transition: color var(--dur-fast, 0.2s) var(--ease, ease);
 }
-.burger:hover,
 .burger.is-open {
   color: var(--amber);
+}
+@media (hover: hover) {
+  .burger:hover {
+  color: var(--amber);
+}
 }
 .burger:focus-visible {
   outline: 2px solid var(--amber);
@@ -286,12 +317,18 @@
 .mobile-menu-head + .mobile-menu-link {
   border-top: 0;
 }
-.mobile-menu-link:hover,
 .mobile-menu-link:active,
 .mobile-menu-link:focus-visible {
   color: var(--amber);
   background: var(--inset);
   outline: none;
+}
+@media (hover: hover) {
+  .mobile-menu-link:hover {
+  color: var(--amber);
+  background: var(--inset);
+  outline: none;
+}
 }
 @keyframes mobile-menu-in {
   from {
@@ -368,10 +405,22 @@
   transform: translateX(calc(var(--brand-shrink, 3) * -1ch + 8px));
   transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
 }
-.brand:is(:hover, :focus-visible) .brand-roll > span { transform: translateY(-100%); }
-.brand:is(:hover, :focus-visible) .brand-dot { opacity: 0; transform: scale(0); }
-.brand:is(:hover, :focus-visible) .brand-mark b { opacity: 1; transform: translateX(2.5px); }
-.brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(calc(var(--brand-shrink, 3) * -1ch)); }
+.brand:focus-visible .brand-roll > span { transform: translateY(-100%); }
+@media (hover: hover) {
+  .brand:is(:hover, :focus-visible) .brand-roll > span { transform: translateY(-100%); }
+}
+.brand:focus-visible .brand-dot { opacity: 0; transform: scale(0); }
+@media (hover: hover) {
+  .brand:is(:hover, :focus-visible) .brand-dot { opacity: 0; transform: scale(0); }
+}
+.brand:focus-visible .brand-mark b { opacity: 1; transform: translateX(2.5px); }
+@media (hover: hover) {
+  .brand:is(:hover, :focus-visible) .brand-mark b { opacity: 1; transform: translateX(2.5px); }
+}
+.brand:focus-visible .brand-close { opacity: 1; transform: translateX(calc(var(--brand-shrink, 3) * -1ch)); }
+@media (hover: hover) {
+  .brand:is(:hover, :focus-visible) .brand-close { opacity: 1; transform: translateX(calc(var(--brand-shrink, 3) * -1ch)); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark > *, .brand-roll > span, .brand-close { transition: none; }

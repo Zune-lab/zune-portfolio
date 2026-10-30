@@ -19,17 +19,25 @@
   opacity: 0;
   transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.scroll-arrow:hover::before {
+@media (hover: hover) {
+  .scroll-arrow:hover::before {
   opacity: 0;
   transform: scale(0.7);
 }
-.scroll-arrow:hover::after {
+}
+@media (hover: hover) {
+  .scroll-arrow:hover::after {
   opacity: 1;
   transform: scale(1);
 }
-.scroll-arrow:hover .scroll-arrow-box {
+}
+@media (hover: hover) {
+  .scroll-arrow:hover .scroll-arrow-box {
   transform: translateX(-48px);
 }
-.scroll-arrow:hover .scroll-arrow-elem {
+}
+@media (hover: hover) {
+  .scroll-arrow:hover .scroll-arrow-elem {
   color: var(--amber);
+}
 }

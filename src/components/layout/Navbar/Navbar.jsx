@@ -72,6 +72,11 @@ function SubMenu({ label, links, onSelect }) {
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
+    // thanh địa chỉ / bàn phím trên điện thoại chỉ đổi CHIỀU CAO làm bắn resize: chỉ đóng menu khi chiều rộng đổi (xoay máy, đổi cỡ cửa sổ)
+    const w0 = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth !== w0) close();
+    };
     const inside = (t) => menuRef.current?.contains(t) || btnRef.current?.contains(t);
     const onDown = (e) => {
       if (!inside(e.target)) close();
@@ -82,12 +87,12 @@ function SubMenu({ label, links, onSelect }) {
     };
     document.addEventListener('pointerdown', onDown);
     document.addEventListener('keydown', onKey);
-    window.addEventListener('resize', close);
+    window.addEventListener('resize', onResize);
     window.addEventListener('scroll', onScroll, true);
     return () => {
       document.removeEventListener('pointerdown', onDown);
       document.removeEventListener('keydown', onKey);
-      window.removeEventListener('resize', close);
+      window.removeEventListener('resize', onResize);
       window.removeEventListener('scroll', onScroll, true);
     };
   }, [open]);

@@ -1,0 +1,18 @@
+/* Trang chủ (/). */
+
+@media (pointer: coarse) {
+  /* chữ vật lý ở hero: trên cảm ứng KHÔNG chặn cuộn (trước đây touch-action: none làm vuốt bắt đầu từ chữ không cuộn được).
+     Muốn kéo chữ thì giữ ~170ms rồi kéo (xem HeroLetters.jsx + mobile/touch.js). .letter.letter để thắng HeroLetters.css */
+  .letter.letter {
+    touch-action: auto;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* nút shake / zero-g / clear: cao ~28px, hơi khó bấm bằng ngón tay */
+  .letters-btns button {
+    min-height: 40px;
+  }
+}

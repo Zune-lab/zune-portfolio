@@ -62,7 +62,8 @@
   font: 700 15px/1 var(--f-mono);
   cursor: pointer;
 }
-.tama-min:hover { background: #ee6a84; }
+@media (hover: hover) {
+  .tama-min:hover { background: #ee6a84; } }
 .tama-min:active { transform: translateY(2px); box-shadow: none; }
 .tama-egg {
   width: 44px;

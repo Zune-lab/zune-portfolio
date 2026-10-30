@@ -69,10 +69,12 @@
 }
 
 :root[data-skin='retro-os'] .btn-31::before { display: none; }
-
-:root[data-skin='retro-os'] .btn-31:is(:hover, :active) .text { color: #000000; transform: none; }
-
-:root[data-skin='retro-os'] .btn-31:hover { background: #d4d4d4; }
+@media (hover: hover) {
+  :root[data-skin='retro-os'] .btn-31:is(:hover, :active) .text { color: #000000; transform: none; }
+}
+@media (hover: hover) {
+  :root[data-skin='retro-os'] .btn-31:hover { background: #d4d4d4; }
+}
 
 :root[data-skin='retro-os'] .btn-31:active { border-color: #404040 #ffffff #ffffff #404040; padding-top: 16px; padding-left: 26px; }
 
@@ -80,14 +82,16 @@
 :root[data-skin='retro-os'] nav .brand { color: #ffffff; --amber: #ffffff; } /* "{ cd ~/ }" và chấm logo dùng --amber (navy) nên chìm trên thanh tiêu đề navy: ép trắng trong phạm vi logo */
 
 :root[data-skin='retro-os'] nav .nav-link { background: #c0c0c0; border: 2px solid; border-color: #ffffff #404040 #404040 #ffffff; color: #000000; }
-
-:root[data-skin='retro-os'] nav .nav-link:hover { color: #000080; }
+@media (hover: hover) {
+  :root[data-skin='retro-os'] nav .nav-link:hover { color: #000080; }
+}
 
 :root[data-skin='retro-os'] nav .nav-link:active { border-color: #404040 #ffffff #ffffff #404040; }
 
 :root[data-skin='retro-os'] nav .skin-btn { background: #c0c0c0; border: 2px solid; border-color: #ffffff #404040 #404040 #ffffff; border-radius: 0; color: #000000; }
-
-:root[data-skin='retro-os'] nav .skin-btn:hover { color: #000080; }
+@media (hover: hover) {
+  :root[data-skin='retro-os'] nav .skin-btn:hover { color: #000080; }
+}
 
 /* pin xã hội ở góc trái nằm trên thanh navy: chữ trắng cho đọc được */
 :root[data-skin='retro-os'] .batt-label,

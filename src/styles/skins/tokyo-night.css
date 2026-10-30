@@ -24,8 +24,6 @@
 /* ---- tokyo night: mưa đêm và ánh đèn neon mờ dưới phố (bản sáng: bầu trời ban ngày, không mưa) */
 html[data-skin='tokyo-night'] .skin-fx-back {
   background:
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><g stroke='%237aa2f7' stroke-width='1' stroke-linecap='round'><line x1='68' y1='37' x2='62' y2='62' opacity='0.9'/><line x1='129' y1='20' x2='126' y2='34' opacity='0.6'/><line x1='74' y1='63' x2='69' y2='83' opacity='0.9'/><line x1='128' y1='125' x2='122' y2='151' opacity='0.9'/><line x1='46' y1='63' x2='42' y2='81' opacity='0.9'/><line x1='107' y1='7' x2='103' y2='23' opacity='0.4'/><line x1='159' y1='14' x2='154' y2='37' opacity='0.4'/><line x1='76' y1='125' x2='70' y2='151' opacity='0.9'/><line x1='117' y1='105' x2='110' y2='133' opacity='0.4'/></g></svg>") 0 0 / 180px 180px,
-    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><g stroke='%23bb9af7' stroke-width='1' stroke-linecap='round'><line x1='66' y1='98' x2='60' y2='124' opacity='0.4'/><line x1='57' y1='15' x2='53' y2='31' opacity='0.4'/><line x1='71' y1='133' x2='66' y2='153' opacity='0.6'/><line x1='15' y1='121' x2='8' y2='150' opacity='0.6'/><line x1='107' y1='130' x2='102' y2='150' opacity='0.6'/><line x1='30' y1='128' x2='25' y2='149' opacity='0.4'/><line x1='76' y1='137' x2='70' y2='164' opacity='0.6'/></g></svg>") 40px 0 / 260px 260px,
     radial-gradient(circle 60px at 12% 97%, rgb(247 118 142 / 0.35), transparent),
     radial-gradient(circle 80px at 30% 100%, rgb(122 162 247 / 0.3), transparent),
     radial-gradient(circle 50px at 52% 98%, rgb(187 154 247 / 0.32), transparent),
@@ -34,6 +32,11 @@ html[data-skin='tokyo-night'] .skin-fx-back {
     radial-gradient(ellipse 80% 35% at 50% 0%, rgb(122 162 247 / 0.1), transparent 70%);
 }
 
+/* mưa: 2 lớp .fx-tile trượt bằng transform (GPU), không animate background-position của lớp fixed toàn màn hình nữa */
+html[data-skin='tokyo-night']:not([data-theme='light']) .skin-fx-back .fx-tile { display: block; bottom: 0; }
+html[data-skin='tokyo-night'] .skin-fx-back .fx-tile-a { top: -180px; right: -45px; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><g stroke='%237aa2f7' stroke-width='1' stroke-linecap='round'><line x1='68' y1='37' x2='62' y2='62' opacity='0.9'/><line x1='129' y1='20' x2='126' y2='34' opacity='0.6'/><line x1='74' y1='63' x2='69' y2='83' opacity='0.9'/><line x1='128' y1='125' x2='122' y2='151' opacity='0.9'/><line x1='46' y1='63' x2='42' y2='81' opacity='0.9'/><line x1='107' y1='7' x2='103' y2='23' opacity='0.4'/><line x1='159' y1='14' x2='154' y2='37' opacity='0.4'/><line x1='76' y1='125' x2='70' y2='151' opacity='0.9'/><line x1='117' y1='105' x2='110' y2='133' opacity='0.4'/></g></svg>") 0 0 / 180px 180px; }
+html[data-skin='tokyo-night'] .skin-fx-back .fx-tile-b { top: -260px; right: -65px; background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><g stroke='%23bb9af7' stroke-width='1' stroke-linecap='round'><line x1='66' y1='98' x2='60' y2='124' opacity='0.4'/><line x1='57' y1='15' x2='53' y2='31' opacity='0.4'/><line x1='71' y1='133' x2='66' y2='153' opacity='0.6'/><line x1='15' y1='121' x2='8' y2='150' opacity='0.6'/><line x1='107' y1='130' x2='102' y2='150' opacity='0.6'/><line x1='30' y1='128' x2='25' y2='149' opacity='0.4'/><line x1='76' y1='137' x2='70' y2='164' opacity='0.6'/></g></svg>") 40px 0 / 260px 260px; }
+
 html[data-skin='tokyo-night'][data-theme='light'] .skin-fx-back {
   background:
     linear-gradient(to bottom, rgb(90 142 240 / 0.14), transparent 45%),
@@ -41,13 +44,12 @@ html[data-skin='tokyo-night'][data-theme='light'] .skin-fx-back {
     radial-gradient(circle 110px at 80% 100%, rgb(52 84 138 / 0.12), transparent);
 }
 
-@keyframes tn-rain {
-  from { background-position: 0 0, 40px 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-  to { background-position: -45px 180px, -25px 260px, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
-}
+@keyframes tn-rain-a { to { transform: translate3d(-45px, 180px, 0); } }
+@keyframes tn-rain-b { to { transform: translate3d(-65px, 260px, 0); } }
 
 @media (prefers-reduced-motion: no-preference) {
-  html[data-skin='tokyo-night']:not([data-theme='light']) .skin-fx-back { animation: tn-rain 2.4s linear infinite; }
+  html[data-skin='tokyo-night']:not([data-theme='light']) .skin-fx-back .fx-tile-a { animation: tn-rain-a 2.4s linear infinite; }
+  html[data-skin='tokyo-night']:not([data-theme='light']) .skin-fx-back .fx-tile-b { animation: tn-rain-b 2.4s linear infinite; }
 }
 
 /* ---- 3) link hover (.hero-link: "All projects", "More about me"...): con trỏ ▌ nhấp nháy đứng trước chữ, gạch chân neon có quầng sáng mạnh */

@@ -7,6 +7,7 @@ import { prefersReducedMotion } from '../../lib/env.js';
 import { observeOnce } from '../../lib/observe.js';
 import { clamp, pick, rand, randInt } from '../../lib/math.js';
 import { getSocial, isAsleep, onSocialChange } from '../../lib/social.js';
+import { HOLD_MS, HOLD_SLOP_PX, isTouchPointer } from '../../mobile/touch.js';
 
 // CẢ HERO LÀ SÂN CHƠI. Các chữ của `zune.dev` rơi từ trên xuống và đáp lên chính các phần tử thật của trang:
 // nút VIEW PROJECTS / CONTACT, thẻ zune.sav, hai link ở đáy. Bấm / chạm vào chữ thì nó nảy lên, kéo thì cầm lên được
@@ -235,9 +236,11 @@ function start(M, yard, els, bar) {
   };
   // gắn cầm / kéo / thả / bấm-nảy cho một phần tử; `getBody` lấy thân vật lý hiện tại của nó. Trả về hàm gỡ listener
   const grab = (el, getBody) => {
-    const down = (e) => {
+    // pending: ngón tay vừa chạm (cảm ứng) nhưng chưa đủ HOLD_MS để tính là "cầm"; lúc này trang vẫn cuộn được bình thường
+    let pending = null;
+    const start = (e) => {
       const b = getBody();
-      if (!b || drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (!b || drag) return;
       el.setPointerCapture(e.pointerId);
       const p = local(e);
       const dx = p.x - b.position.x;
@@ -260,13 +263,47 @@ function start(M, yard, els, bar) {
       solidDirty = true;
       loop.sync();
     };
+    const down = (e) => {
+      if (!getBody() || drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (!isTouchPointer(e)) return start(e);
+      // cảm ứng: chờ giữ yên HOLD_MS mới cầm; vuốt ngay thì trình duyệt cuộn trang (xem mobile/touch.js)
+      const last = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+      pending = {
+        id: e.pointerId, x: e.clientX, y: e.clientY, t0: performance.now(), last,
+        timer: setTimeout(() => {
+          const pe = pending;
+          pending = null;
+          if (pe) start(pe.last);
+        }, HOLD_MS),
+      };
+    };
+    const cancelPending = () => {
+      if (pending) clearTimeout(pending.timer);
+      pending = null;
+    };
+    // đang cầm bằng cảm ứng thì chặn cuộn trang (touchmove phải non-passive mới huỷ được)
+    const blockScroll = (e) => {
+      if (drag && drag.el === el && e.cancelable) e.preventDefault();
+    };
     const move = (e) => {
+      if (pending && e.pointerId === pending.id) {
+        pending.last = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+        if (Math.hypot(e.clientX - pending.x, e.clientY - pending.y) > HOLD_SLOP_PX) cancelPending(); // đang cuộn trang
+        return;
+      }
       if (!drag || drag.el !== el || e.pointerId !== drag.id) return;
       const p = local(e);
       drag.c.pointA = p;
       if (Math.hypot(p.x - drag.x0, p.y - drag.y0) > KICK_PX) drag.moved = true;
     };
     const up = (e) => {
+      if (pending && e.pointerId === pending.id) {
+        // chạm nhanh rồi nhả (chưa đủ HOLD_MS, không trượt): chữ nảy lên như khi bấm chuột
+        const quick = e.type === 'pointerup' && performance.now() - pending.t0 < KICK_MS;
+        cancelPending();
+        if (quick && getBody()) jump(getBody());
+        return;
+      }
       if (!drag || drag.el !== el || e.pointerId !== drag.id) return;
       Composite.remove(world, drag.c);
       el.removeAttribute('data-held');
@@ -280,7 +317,10 @@ function start(M, yard, els, bar) {
     el.addEventListener('pointermove', move);
     el.addEventListener('pointerup', up);
     el.addEventListener('pointercancel', up);
+    el.addEventListener('touchmove', blockScroll, { passive: false });
     return () => {
+      cancelPending();
+      el.removeEventListener('touchmove', blockScroll);
       el.removeEventListener('pointerdown', down);
       el.removeEventListener('pointermove', move);
       el.removeEventListener('pointerup', up);
