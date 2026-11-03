@@ -1,0 +1,637 @@
+{
+ "default": "zune",
+ "autoByTod": {
+  "dawn": "nord",
+  "day": "catppuccin",
+  "dusk": "gruvbox",
+  "night": "tokyo-night"
+ },
+ "skins": [
+  {
+   "id": "zune",
+   "group": "original",
+   "label": "zune",
+   "note": "the original amber terminal",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 1.0,
+   "palettes": {
+    "dark": {
+     "bg": "#0a0c10",
+     "panel": "#10141b",
+     "inset": "#0c0f14",
+     "line": "#1d232c",
+     "text": "#dce1e8",
+     "text-dim": "#8a93a3",
+     "amber": "#ffc857",
+     "amber-dim": "#c99a3f",
+     "on-amber": "#0a0c10",
+     "glow": "#ffc857",
+     "glow-green": "#7ee081",
+     "green": "#7ee081",
+     "js": "#f1c40f",
+     "css-lang": "#a98ae8",
+     "danger": "#ff5f56"
+    },
+    "light": {
+     "bg": "#f6f3ec",
+     "panel": "#ffffff",
+     "inset": "#efeae0",
+     "line": "#ddd6c4",
+     "text": "#1c1b18",
+     "text-dim": "#675f48",
+     "amber": "#8f5d08",
+     "amber-dim": "#7a4f07",
+     "on-amber": "#fffaf0",
+     "glow": "#f2a516",
+     "glow-green": "#3fbf6a",
+     "green": "#26773f",
+     "js": "#856200",
+     "css-lang": "#6b4fa0",
+     "danger": "#ff5f56"
+    }
+   }
+  },
+  {
+   "id": "dracula",
+   "group": "editor",
+   "label": "dracula",
+   "note": "purple on charcoal",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 1.2,
+   "palettes": {
+    "dark": {
+     "bg": "#282a36",
+     "panel": "#2f3242",
+     "inset": "#21222c",
+     "line": "#44475a",
+     "text": "#f8f8f2",
+     "text-dim": "#a9b2d6",
+     "amber": "#bd93f9",
+     "amber-dim": "#a47fe0",
+     "on-amber": "#21222c",
+     "glow": "#bd93f9",
+     "glow-green": "#50fa7b",
+     "green": "#50fa7b",
+     "js": "#f1fa8c",
+     "css-lang": "#ff79c6",
+     "danger": "#ff5555"
+    }
+   }
+  },
+  {
+   "id": "monokai",
+   "group": "editor",
+   "label": "monokai",
+   "note": "hot pink, olive night",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 0.5,
+   "palettes": {
+    "dark": {
+     "bg": "#272822",
+     "panel": "#2f302a",
+     "inset": "#1e1f1a",
+     "line": "#45463b",
+     "text": "#f8f8f2",
+     "text-dim": "#b5b093",
+     "amber": "#ff6a9c",
+     "amber-dim": "#e04a84",
+     "on-amber": "#1e1f1a",
+     "glow": "#f92672",
+     "glow-green": "#a6e22e",
+     "green": "#a6e22e",
+     "js": "#e6db74",
+     "css-lang": "#ae81ff",
+     "danger": "#ff6a5a"
+    }
+   }
+  },
+  {
+   "id": "nord",
+   "group": "editor",
+   "label": "nord",
+   "note": "arctic, calm, frosty blue",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 1.0,
+   "palettes": {
+    "dark": {
+     "bg": "#2e3440",
+     "panel": "#353c4a",
+     "inset": "#272c36",
+     "line": "#434c5e",
+     "text": "#eceff4",
+     "text-dim": "#a8b2c5",
+     "amber": "#88c0d0",
+     "amber-dim": "#6aa5b6",
+     "on-amber": "#2e3440",
+     "glow": "#88c0d0",
+     "glow-green": "#a3be8c",
+     "green": "#a3be8c",
+     "js": "#ebcb8b",
+     "css-lang": "#b48ead",
+     "danger": "#e07a84"
+    },
+    "light": {
+     "bg": "#eceff4",
+     "panel": "#ffffff",
+     "inset": "#e5e9f0",
+     "line": "#d3dae6",
+     "text": "#2e3440",
+     "text-dim": "#4f5b70",
+     "amber": "#476d9a",
+     "amber-dim": "#355a85",
+     "on-amber": "#ffffff",
+     "glow": "#81a1c1",
+     "glow-green": "#a3be8c",
+     "green": "#4a7a3a",
+     "js": "#85641a",
+     "css-lang": "#8a5a86",
+     "danger": "#b3414c"
+    }
+   }
+  },
+  {
+   "id": "gruvbox",
+   "group": "editor",
+   "label": "gruvbox",
+   "note": "warm retro orange",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 0.35,
+   "palettes": {
+    "dark": {
+     "bg": "#282828",
+     "panel": "#32302f",
+     "inset": "#1d2021",
+     "line": "#45403d",
+     "text": "#ebdbb2",
+     "text-dim": "#a89984",
+     "amber": "#fe8019",
+     "amber-dim": "#d6690f",
+     "on-amber": "#1d2021",
+     "glow": "#fe8019",
+     "glow-green": "#b8bb26",
+     "green": "#b8bb26",
+     "js": "#fabd2f",
+     "css-lang": "#d3869b",
+     "danger": "#fb4934"
+    },
+    "light": {
+     "bg": "#fbf1c7",
+     "panel": "#fdf6d8",
+     "inset": "#f2e5bc",
+     "line": "#d5c4a1",
+     "text": "#3c3836",
+     "text-dim": "#665c54",
+     "amber": "#af3a03",
+     "amber-dim": "#8f3002",
+     "on-amber": "#fbf1c7",
+     "glow": "#d65d0e",
+     "glow-green": "#98971a",
+     "green": "#79740e",
+     "js": "#8f5f0a",
+     "css-lang": "#8f3f71",
+     "danger": "#9d0006"
+    }
+   }
+  },
+  {
+   "id": "solarized",
+   "group": "editor",
+   "label": "solarized",
+   "note": "the precision teal classic",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 0.8,
+   "palettes": {
+    "dark": {
+     "bg": "#002b36",
+     "panel": "#073642",
+     "inset": "#00212b",
+     "line": "#1b5564",
+     "text": "#93a1a1",
+     "text-dim": "#8aa5a8",
+     "amber": "#35b5ab",
+     "amber-dim": "#2aa198",
+     "on-amber": "#002b36",
+     "glow": "#2aa198",
+     "glow-green": "#859900",
+     "green": "#96ad00",
+     "js": "#c99a00",
+     "css-lang": "#8a90dc",
+     "danger": "#ef4a47"
+    },
+    "light": {
+     "bg": "#fdf6e3",
+     "panel": "#fffbf0",
+     "inset": "#eee8d5",
+     "line": "#ddd6c1",
+     "text": "#4a6068",
+     "text-dim": "#52666d",
+     "amber": "#1a7872",
+     "amber-dim": "#145f5a",
+     "on-amber": "#fdf6e3",
+     "glow": "#2aa198",
+     "glow-green": "#859900",
+     "green": "#667700",
+     "js": "#8a6500",
+     "css-lang": "#4c50a8",
+     "danger": "#c4231f"
+    }
+   }
+  },
+  {
+   "id": "catppuccin",
+   "group": "editor",
+   "label": "catppuccin",
+   "note": "mocha / latte, soft mauve",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 1.7,
+   "palettes": {
+    "dark": {
+     "bg": "#1e1e2e",
+     "panel": "#262637",
+     "inset": "#181825",
+     "line": "#363850",
+     "text": "#cdd6f4",
+     "text-dim": "#a6adc8",
+     "amber": "#cba6f7",
+     "amber-dim": "#a98bd6",
+     "on-amber": "#1e1e2e",
+     "glow": "#cba6f7",
+     "glow-green": "#a6e3a1",
+     "green": "#a6e3a1",
+     "js": "#f9e2af",
+     "css-lang": "#f5c2e7",
+     "danger": "#f38ba8"
+    },
+    "light": {
+     "bg": "#eff1f5",
+     "panel": "#ffffff",
+     "inset": "#e6e9ef",
+     "line": "#ccd0da",
+     "text": "#4c4f69",
+     "text-dim": "#5c5f77",
+     "amber": "#8839ef",
+     "amber-dim": "#6f2cc6",
+     "on-amber": "#ffffff",
+     "glow": "#a066f5",
+     "glow-green": "#5fc04b",
+     "green": "#2b7a1c",
+     "js": "#9a5a07",
+     "css-lang": "#b0399a",
+     "danger": "#d20f39"
+    }
+   }
+  },
+  {
+   "id": "tokyo-night",
+   "group": "editor",
+   "label": "tokyo night",
+   "note": "neon city blue",
+   "modes": [
+    "dark",
+    "light"
+   ],
+   "unlock": null,
+   "rk": 1.0,
+   "palettes": {
+    "dark": {
+     "bg": "#1a1b26",
+     "panel": "#1f2335",
+     "inset": "#16161e",
+     "line": "#2f3549",
+     "text": "#c0caf5",
+     "text-dim": "#8f9ac4",
+     "amber": "#7aa2f7",
+     "amber-dim": "#5d86e0",
+     "on-amber": "#16161e",
+     "glow": "#7aa2f7",
+     "glow-green": "#9ece6a",
+     "green": "#9ece6a",
+     "js": "#e0af68",
+     "css-lang": "#bb9af7",
+     "danger": "#f7768e"
+    },
+    "light": {
+     "bg": "#e1e2e7",
+     "panel": "#eceef3",
+     "inset": "#d5d6db",
+     "line": "#c1c6d8",
+     "text": "#343b58",
+     "text-dim": "#4f5882",
+     "amber": "#34548a",
+     "amber-dim": "#284371",
+     "on-amber": "#ffffff",
+     "glow": "#5a8ef0",
+     "glow-green": "#7fb85a",
+     "green": "#3f6a22",
+     "js": "#8c5a0a",
+     "css-lang": "#7847bd",
+     "danger": "#b3374f"
+    }
+   }
+  },
+  {
+   "id": "crt",
+   "group": "special",
+   "label": "crt green",
+   "note": "phosphor monitor, scanlines",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 0.4,
+   "palettes": {
+    "dark": {
+     "bg": "#030b05",
+     "panel": "#06140a",
+     "inset": "#020804",
+     "line": "#11401f",
+     "text": "#4dff88",
+     "text-dim": "#2bbd5e",
+     "amber": "#c8ffd9",
+     "amber-dim": "#8de8ad",
+     "on-amber": "#020804",
+     "glow": "#33ff66",
+     "glow-green": "#33ff66",
+     "green": "#4dff88",
+     "js": "#e8ff6a",
+     "css-lang": "#6af0d0",
+     "danger": "#ff6b5a"
+    }
+   }
+  },
+  {
+   "id": "crt-amber",
+   "group": "special",
+   "label": "crt amber",
+   "note": "the other phosphor, 1982",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 0.4,
+   "palettes": {
+    "dark": {
+     "bg": "#0c0700",
+     "panel": "#140d02",
+     "inset": "#080500",
+     "line": "#4a3000",
+     "text": "#ffb000",
+     "text-dim": "#cf8a00",
+     "amber": "#ffe0a0",
+     "amber-dim": "#ffcc66",
+     "on-amber": "#0c0700",
+     "glow": "#ffb000",
+     "glow-green": "#ffb000",
+     "green": "#ffc933",
+     "js": "#ffe066",
+     "css-lang": "#ffa64d",
+     "danger": "#ff6b3d"
+    }
+   }
+  },
+  {
+   "id": "gameboy",
+   "group": "special",
+   "label": "game boy",
+   "note": "four shades of green",
+   "modes": [
+    "light"
+   ],
+   "unlock": null,
+   "rk": 0.0,
+   "palettes": {
+    "light": {
+     "bg": "#9bbc0f",
+     "panel": "#8bac0f",
+     "inset": "#8bac0f",
+     "line": "#306230",
+     "text": "#0f380f",
+     "text-dim": "#143d14",
+     "amber": "#0f380f",
+     "amber-dim": "#306230",
+     "on-amber": "#9bbc0f",
+     "glow": "#306230",
+     "glow-green": "#306230",
+     "green": "#0f380f",
+     "js": "#1c471c",
+     "css-lang": "#1c471c",
+     "danger": "#7a1f1f"
+    }
+   }
+  },
+  {
+   "id": "cyberpunk",
+   "group": "special",
+   "label": "cyberpunk",
+   "note": "magenta + cyan, neon glow",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 0.4,
+   "palettes": {
+    "dark": {
+     "bg": "#0a0612",
+     "panel": "#130b22",
+     "inset": "#0d0719",
+     "line": "#35205f",
+     "text": "#eae6ff",
+     "text-dim": "#a99ad6",
+     "amber": "#ff2bd6",
+     "amber-dim": "#d41fb0",
+     "on-amber": "#0a0612",
+     "glow": "#ff2bd6",
+     "glow-green": "#00f0ff",
+     "green": "#00f0ff",
+     "js": "#fcee0a",
+     "css-lang": "#b967ff",
+     "danger": "#ff3860"
+    }
+   }
+  },
+  {
+   "id": "blueprint",
+   "group": "special",
+   "label": "blueprint",
+   "note": "white lines on drafting blue",
+   "modes": [
+    "dark"
+   ],
+   "unlock": null,
+   "rk": 0.15,
+   "palettes": {
+    "dark": {
+     "bg": "#0e3a7d",
+     "panel": "#114489",
+     "inset": "#0b2f68",
+     "line": "#4a7bc4",
+     "text": "#eaf3ff",
+     "text-dim": "#b3cdf3",
+     "amber": "#9fe8ff",
+     "amber-dim": "#78d3f2",
+     "on-amber": "#0b2f68",
+     "glow": "#9fe8ff",
+     "glow-green": "#9df5c0",
+     "green": "#9df5c0",
+     "js": "#ffe08a",
+     "css-lang": "#d2c4ff",
+     "danger": "#ffa3aa"
+    }
+   }
+  },
+  {
+   "id": "paper",
+   "group": "special",
+   "label": "paper",
+   "note": "notebook, typewriter, red pen",
+   "modes": [
+    "light"
+   ],
+   "unlock": null,
+   "rk": 0.6,
+   "palettes": {
+    "light": {
+     "bg": "#f5f0e1",
+     "panel": "#fffdf6",
+     "inset": "#fbf7ea",
+     "line": "#d8cdb0",
+     "text": "#1f2430",
+     "text-dim": "#655e50",
+     "amber": "#b3261e",
+     "amber-dim": "#8f1d17",
+     "on-amber": "#fffdf6",
+     "glow": "#ee6a5e",
+     "glow-green": "#6fbf73",
+     "green": "#2d7a3a",
+     "js": "#7d5f00",
+     "css-lang": "#5a48a0",
+     "danger": "#b3261e"
+    }
+   }
+  },
+  {
+   "id": "retro-os",
+   "group": "special",
+   "label": "retro os",
+   "note": "grey windows, beveled, navy bar",
+   "modes": [
+    "light"
+   ],
+   "unlock": null,
+   "rk": 0.0,
+   "palettes": {
+    "light": {
+     "bg": "#00a0a0",
+     "panel": "#c0c0c0",
+     "inset": "#ffffff",
+     "line": "#808080",
+     "text": "#000000",
+     "text-dim": "#1c1c1c",
+     "amber": "#000080",
+     "amber-dim": "#0000a8",
+     "on-amber": "#ffffff",
+     "glow": "#1084d0",
+     "glow-green": "#00a000",
+     "green": "#006400",
+     "js": "#6b5000",
+     "css-lang": "#5a2d82",
+     "danger": "#c00000"
+    }
+   }
+  },
+  {
+   "id": "matrix",
+   "group": "secret",
+   "label": "matrix",
+   "note": "digital rain",
+   "modes": [
+    "dark"
+   ],
+   "unlock": {
+    "game": "snake-best",
+    "min": 12,
+    "hint": "score 12+ in snake (lab)"
+   },
+   "rk": 0.2,
+   "palettes": {
+    "dark": {
+     "bg": "#000000",
+     "panel": "#021006",
+     "inset": "#000a02",
+     "line": "#0b3d17",
+     "text": "#00ff41",
+     "text-dim": "#00b32d",
+     "amber": "#ccffd8",
+     "amber-dim": "#66ff8a",
+     "on-amber": "#000000",
+     "glow": "#00ff41",
+     "glow-green": "#00ff41",
+     "green": "#00ff41",
+     "js": "#b6ff00",
+     "css-lang": "#00ffa6",
+     "danger": "#ff3b30"
+    }
+   }
+  },
+  {
+   "id": "vaporwave",
+   "group": "secret",
+   "label": "vaporwave",
+   "note": "sunset grid, a e s t h e t i c",
+   "modes": [
+    "dark"
+   ],
+   "unlock": {
+    "game": "bugsquash-best",
+    "min": 18,
+    "hint": "squash 18+ bugs in bug-squash (lab)"
+   },
+   "rk": 0.8,
+   "palettes": {
+    "dark": {
+     "bg": "#1b0b36",
+     "panel": "#2a1252",
+     "inset": "#150829",
+     "line": "#5a2f9a",
+     "text": "#ffe6ff",
+     "text-dim": "#cdaaf2",
+     "amber": "#ff71ce",
+     "amber-dim": "#e04fb2",
+     "on-amber": "#1b0b36",
+     "glow": "#ff71ce",
+     "glow-green": "#05ffa1",
+     "green": "#05ffa1",
+     "js": "#fffb96",
+     "css-lang": "#b967ff",
+     "danger": "#ff5c8a"
+    }
+   }
+  }
+ ]
+}

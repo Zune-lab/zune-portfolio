@@ -1,0 +1,12 @@
+# iOS
+ios/*.xcodeproj
+ios/build/
+ios/DerivedData/
+xcuserdata/
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+*.iml
