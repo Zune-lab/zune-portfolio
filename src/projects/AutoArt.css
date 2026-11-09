@@ -1,0 +1,20 @@
+.auto-fill { fill: color-mix(in srgb, currentColor 10%, transparent); }
+.auto-dot, .auto-spark { fill: currentColor; }
+.auto-bar {
+  fill: color-mix(in srgb, currentColor 18%, transparent);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: auto-eq 1.1s ease-in-out infinite;
+}
+.auto-float { animation: auto-bob 3.2s ease-in-out infinite; }
+.auto-spin { transform-box: view-box; transform-origin: 50% 50%; animation: auto-turn 24s linear infinite; }
+.auto-cursor { animation: auto-blink 1s steps(2, start) infinite; }
+.auto-spark { animation: auto-twinkle 2.8s ease-in-out infinite; }
+@keyframes auto-eq { 0%, 100% { transform: scaleY(0.45); } 50% { transform: scaleY(1); } }
+@keyframes auto-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes auto-turn { to { transform: rotate(360deg); } }
+@keyframes auto-blink { to { visibility: hidden; } }
+@keyframes auto-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .auto-bar, .auto-float, .auto-spin, .auto-cursor, .auto-spark { animation: none; }
+}

@@ -1,0 +1,21 @@
+.beat-fill { fill: color-mix(in srgb, currentColor 10%, transparent); }
+.beat-cone {
+  fill: color-mix(in srgb, currentColor 25%, transparent);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: beat-pulse 0.8s ease-in-out infinite;
+}
+.beat-cone.b { animation-delay: -0.4s; }
+.beat-note { animation: beat-float 2.4s ease-in-out infinite; }
+.beat-note.n2 { animation-delay: -1.2s; }
+@keyframes beat-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.7); }
+}
+@keyframes beat-float {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-5px); opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .beat-cone, .beat-note { animation: none; }
+}
